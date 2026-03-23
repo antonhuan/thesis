@@ -57,17 +57,3 @@ To run without a display (e.g. over SSH) and save video instead:
 1. In `docker-compose.yml`, change `MUJOCO_GL=glfw` → `MUJOCO_GL=egl`
 2. Change `--env.render_mode=human` → `--env.render_mode=rgb_array`
 3. You can remove the `DISPLAY` env var and X11 socket volume
-
-## Troubleshooting
-
-**`cannot open display`** — make sure you ran `xhost +local:docker` (the run
-script does this for you) and that `$DISPLAY` is set in your shell.
-
-**`Failed to initialize GLFW`** — your GPU driver may not support GLFW in the
-container; try switching `MUJOCO_GL=egl` in `docker-compose.yml`.
-
-**`nvidia-smi` not found in container** — the NVIDIA Container Toolkit is not
-configured. Follow the install steps above and restart Docker.
-
-**Model download fails** — check your `HF_TOKEN` is valid and you have access
-to `lerobot/pi05_base` on HuggingFace Hub.
