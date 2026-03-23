@@ -43,3 +43,4 @@ services:
       --eval.n_episodes=1
       --policy.n_action_steps=10
       --output_dir=/workspace/eval_logs
+      --rename_map='{"observation.images.image": "observation.images.base_0_rgb", "observation.images.image2": "observation.images.left_wrist_0_rgb"}'
