@@ -1,0 +1,45 @@
+services:
+  lerobot-eval:
+    build: .
+    image: lerobot-eval:latest
+    runtime: nvidia
+
+    environment:
+      # Pass your HuggingFace token in — set it in your shell before running:
+      #   export HF_TOKEN=hf_...
+      - HF_TOKEN=${HF_TOKEN}
+      # Forward your host X display into the container for live rendering
+      - DISPLAY=${DISPLAY}
+      # Use GLFW (windowed) for live sim. Switch to 'egl' if you want headless.
+      - MUJOCO_GL=glfw
+      # NVIDIA GPU selection (0 = first GPU)
+      - CUDA_VISIBLE_DEVICES=0
+      # Suppress tokenizer parallelism warnings
+      - TOKENIZERS_PARALLELISM=false
+
+    volumes:
+      # X11 socket so the sim window appears on your host desktop
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      # Persist eval output logs and videos
+      - ./eval_logs:/workspace/eval_logs
+
+    # Needed for GPU + OpenGL to work correctly inside the container
+    device_cgroup_rules:
+      - "c 195:* rmdir"
+    devices:
+      - /dev/dri:/dev/dri
+
+    # Run eval — edit args here as needed
+    command: >
+      --policy.path=lerobot/pi05_base
+      --policy.dtype=bfloat16
+      --policy.compile_model=false
+      --policy.push_to_hub=false
+      --env.type=libero
+      --env.task=libero_10
+      --env.task_ids=[0]
+      --env.render_mode=human
+      --eval.batch_size=1
+      --eval.n_episodes=1
+      --policy.n_action_steps=10
+      --output_dir=/workspace/eval_logs
