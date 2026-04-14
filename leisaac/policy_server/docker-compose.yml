@@ -1,0 +1,28 @@
+services:
+  policy-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smolvla-policy-server
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN:-}
+    ports:
+      - "8080:8080"
+    volumes:
+      # Cache HF model downloads between runs
+      - hf-cache:/root/.cache/huggingface
+      # Mount local checkpoints if you have finetuned weights
+      - ${CHECKPOINT_DIR:-./checkpoints}:/app/checkpoints
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  hf-cache:
