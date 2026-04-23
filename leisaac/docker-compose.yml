@@ -13,6 +13,7 @@ services:
       - DISPLAY=${DISPLAY}
       - ACCEPT_EULA=Y
       - PRIVACY_CONSENT=Y
+      - OMNI_KIT_ALLOW_ROOT=1
     volumes:
       # X11 forwarding for GUI
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
