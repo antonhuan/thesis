@@ -14,3 +14,7 @@ python scripts/evaluation/policy_inference.py \
     --device=cuda \
     --enable_cameras
 ```
+
+Changes made to base image
+-Patch helper to rename cameras to the expected names for policy 
+-Added side camera to single_arm_env.py at pos=(0.72684, -0.22668, 0.14343), rot=(-0.5, 0.5, 0.5, -0.5)
