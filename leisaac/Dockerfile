@@ -2,6 +2,7 @@ FROM nvidia/cuda:12.8.1-devel-ubuntu22.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ACCEPT_EULA=Y
 ENV PRIVACY_CONSENT=Y
+
 # System dependencies
 RUN apt-get update && apt-get install -y \
     git \
@@ -30,43 +31,43 @@ RUN apt-get update && apt-get install -y \
     libxmu6 \
     libxpm4 \
     && rm -rf /var/lib/apt/lists/*
+
 # Create virtual environment with python3.11
 RUN python3.11 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
+
 # Upgrade pip and install setuptools (pin to version that includes pkg_resources)
 RUN pip install --upgrade pip "setuptools<81" wheel
+
 # Step 1: Install PyTorch with CUDA 12.8
 RUN pip install -U torch==2.7.0 torchvision==0.22.0 --index-url https://download.pytorch.org/whl/cu128
+
 # Step 2: Pre-install flatdict (its build fails in pip's isolated env)
 RUN pip install --no-build-isolation flatdict
-# Step 3: Install LeIsaac with IsaacLab/IsaacSim extras
-# Use --no-build-isolation to ensure flatdict can find pkg_resources
-ENV SETUPTOOLS_USE_DISTUTILS=stdlib
-RUN pip install --no-build-isolation 'leisaac[isaaclab] @ git+https://github.com/LightwheelAI/leisaac.git#subdirectory=source/leisaac' \
-    --extra-index-url https://pypi.nvidia.com
-# Step 4: Install LeRobot (without async extra to avoid numpy/packaging conflicts)
-RUN pip install lerobot==0.4.1
-# Step 5: Install only the async gRPC deps that LeRobot needs for the policy client
-# This avoids pulling in numpy>=2 and packaging>=24 which break Isaac Sim
-RUN pip install grpcio protobuf
-# Step 6: Pin numpy and packaging back to Isaac Sim compatible versions
-RUN pip install numpy==1.26.0 packaging==23.0
-# Step 7: Patch LeIsaac to use the correct LeRobot v0.4.1 module path
-# LeIsaac hardcodes lerobot.scripts.server.helpers but v0.4.1 moved it to lerobot.async_inference.helpers
-# This will be applied after the repo is cloned below
 
-# Step 8: Clone LeIsaac repo for evaluation/inference scripts and assets
+# Step 3: Clone LeIsaac repo and install in editable mode with IsaacLab/IsaacSim extras
+ENV SETUPTOOLS_USE_DISTUTILS=stdlib
 WORKDIR /workspace
 RUN git clone --recursive https://github.com/LightwheelAI/leisaac.git
-RUN pip install msgpack pydantic
+RUN pip install --no-build-isolation -e '/workspace/leisaac/source/leisaac[isaaclab]' \
+    --extra-index-url https://pypi.nvidia.com
 
-# Step 9: Patch the hardcoded import path in LeIsaac
+# Step 4: Install LeRobot (without async extra to avoid numpy/packaging conflicts)
+RUN pip install lerobot==0.4.1
+
+# Step 5: Install only the async gRPC deps that LeRobot needs for the policy client
+# This avoids pulling in numpy>=2 and packaging>=24 which break Isaac Sim
+RUN pip install grpcio protobuf msgpack pydantic
+
+# Step 6: Pin numpy and packaging back to Isaac Sim compatible versions
+RUN pip install numpy==1.26.0 packaging==23.0
+
+# Step 7: Patch the hardcoded import path in LeIsaac
+# LeIsaac hardcodes lerobot.scripts.server.helpers but v0.4.1 moved it to lerobot.async_inference.helpers
 RUN sed -i 's|lerobot.scripts.server.helpers|lerobot.async_inference.helpers|g' \
     /workspace/leisaac/source/leisaac/leisaac/policy/lerobot/__init__.py
 
-RUN sed -i 's|lerobot.scripts.server.helpers|lerobot.async_inference.helpers|g' \
-    /opt/venv/lib/python3.11/site-packages/leisaac/policy/lerobot/__init__.py
-    
 WORKDIR /workspace/leisaac
+
 # Default command
 CMD ["/bin/bash"]
