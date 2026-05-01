@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: leisaac-dev
+    container_name: leisaac-base
     stdin_open: true
     tty: true
     runtime: nvidia
@@ -20,14 +20,14 @@ services:
       - ${HOME}/.Xauthority:/root/.Xauthority:rw
       # Mount your project scripts
       - ./scripts:/workspace/project/scripts
-      # IsaacSim caches (persist between runs)
-      - leisaac-cache-kit:/root/.cache/kit
-      - leisaac-cache-ov:/root/.cache/ov
-      - leisaac-cache-pip:/root/.cache/pip
-      - leisaac-cache-gl:/root/.cache/nvidia/GLCache
-      - leisaac-cache-compute:/root/.nv/ComputeCache
-      - leisaac-logs:/root/.nvidia-omniverse/logs
-      - leisaac-data:/root/.local/share/ov/data
+      # IsaacSim caches (separate from 3-cam container)
+      - leisaac-base-cache-kit:/root/.cache/kit
+      - leisaac-base-cache-ov:/root/.cache/ov
+      - leisaac-base-cache-pip:/root/.cache/pip
+      - leisaac-base-cache-gl:/root/.cache/nvidia/GLCache
+      - leisaac-base-cache-compute:/root/.nv/ComputeCache
+      - leisaac-base-logs:/root/.nvidia-omniverse/logs
+      - leisaac-base-data:/root/.local/share/ov/data
       # Shared memory for IsaacSim
       - /dev/shm:/dev/shm
       - ../assets:/workspace/leisaac/assets
@@ -39,12 +39,11 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-
 volumes:
-  leisaac-cache-kit:
-  leisaac-cache-ov:
-  leisaac-cache-pip:
-  leisaac-cache-gl:
-  leisaac-cache-compute:
-  leisaac-logs:
-  leisaac-data:
+  leisaac-base-cache-kit:
+  leisaac-base-cache-ov:
+  leisaac-base-cache-pip:
+  leisaac-base-cache-gl:
+  leisaac-base-cache-compute:
+  leisaac-base-logs:
+  leisaac-base-data:
