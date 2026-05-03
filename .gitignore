@@ -1,3 +1,2 @@
 .env
-eval_logs/
-__pycache__/
+.claude 

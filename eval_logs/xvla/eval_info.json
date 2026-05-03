@@ -1,0 +1,224 @@
+{
+  "per_task": [
+    {
+      "task_group": "libero_object",
+      "task_id": 0,
+      "metrics": {
+        "sum_rewards": [
+          1.0
+        ],
+        "max_rewards": [
+          1.0
+        ],
+        "successes": [
+          true
+        ],
+        "video_paths": [
+          "/workspace/eval_logs/xvla/videos/libero_object_0/eval_episode_0.mp4"
+        ]
+      }
+    },
+    {
+      "task_group": "libero_object",
+      "task_id": 1,
+      "metrics": {
+        "sum_rewards": [
+          1.0
+        ],
+        "max_rewards": [
+          1.0
+        ],
+        "successes": [
+          true
+        ],
+        "video_paths": [
+          "/workspace/eval_logs/xvla/videos/libero_object_1/eval_episode_0.mp4"
+        ]
+      }
+    },
+    {
+      "task_group": "libero_object",
+      "task_id": 2,
+      "metrics": {
+        "sum_rewards": [
+          1.0
+        ],
+        "max_rewards": [
+          1.0
+        ],
+        "successes": [
+          true
+        ],
+        "video_paths": [
+          "/workspace/eval_logs/xvla/videos/libero_object_2/eval_episode_0.mp4"
+        ]
+      }
+    },
+    {
+      "task_group": "libero_object",
+      "task_id": 3,
+      "metrics": {
+        "sum_rewards": [
+          1.0
+        ],
+        "max_rewards": [
+          1.0
+        ],
+        "successes": [
+          true
+        ],
+        "video_paths": [
+          "/workspace/eval_logs/xvla/videos/libero_object_3/eval_episode_0.mp4"
+        ]
+      }
+    },
+    {
+      "task_group": "libero_object",
+      "task_id": 4,
+      "metrics": {
+        "sum_rewards": [
+          1.0
+        ],
+        "max_rewards": [
+          1.0
+        ],
+        "successes": [
+          true
+        ],
+        "video_paths": [
+          "/workspace/eval_logs/xvla/videos/libero_object_4/eval_episode_0.mp4"
+        ]
+      }
+    },
+    {
+      "task_group": "libero_object",
+      "task_id": 5,
+      "metrics": {
+        "sum_rewards": [
+          1.0
+        ],
+        "max_rewards": [
+          1.0
+        ],
+        "successes": [
+          true
+        ],
+        "video_paths": [
+          "/workspace/eval_logs/xvla/videos/libero_object_5/eval_episode_0.mp4"
+        ]
+      }
+    },
+    {
+      "task_group": "libero_object",
+      "task_id": 6,
+      "metrics": {
+        "sum_rewards": [
+          1.0
+        ],
+        "max_rewards": [
+          1.0
+        ],
+        "successes": [
+          true
+        ],
+        "video_paths": [
+          "/workspace/eval_logs/xvla/videos/libero_object_6/eval_episode_0.mp4"
+        ]
+      }
+    },
+    {
+      "task_group": "libero_object",
+      "task_id": 7,
+      "metrics": {
+        "sum_rewards": [
+          1.0
+        ],
+        "max_rewards": [
+          1.0
+        ],
+        "successes": [
+          true
+        ],
+        "video_paths": [
+          "/workspace/eval_logs/xvla/videos/libero_object_7/eval_episode_0.mp4"
+        ]
+      }
+    },
+    {
+      "task_group": "libero_object",
+      "task_id": 8,
+      "metrics": {
+        "sum_rewards": [
+          1.0
+        ],
+        "max_rewards": [
+          1.0
+        ],
+        "successes": [
+          true
+        ],
+        "video_paths": [
+          "/workspace/eval_logs/xvla/videos/libero_object_8/eval_episode_0.mp4"
+        ]
+      }
+    },
+    {
+      "task_group": "libero_object",
+      "task_id": 9,
+      "metrics": {
+        "sum_rewards": [
+          1.0
+        ],
+        "max_rewards": [
+          1.0
+        ],
+        "successes": [
+          true
+        ],
+        "video_paths": [
+          "/workspace/eval_logs/xvla/videos/libero_object_9/eval_episode_0.mp4"
+        ]
+      }
+    }
+  ],
+  "per_group": {
+    "libero_object": {
+      "avg_sum_reward": 1.0,
+      "avg_max_reward": 1.0,
+      "pc_success": 100.0,
+      "n_episodes": 10,
+      "video_paths": [
+        "/workspace/eval_logs/xvla/videos/libero_object_0/eval_episode_0.mp4",
+        "/workspace/eval_logs/xvla/videos/libero_object_1/eval_episode_0.mp4",
+        "/workspace/eval_logs/xvla/videos/libero_object_2/eval_episode_0.mp4",
+        "/workspace/eval_logs/xvla/videos/libero_object_3/eval_episode_0.mp4",
+        "/workspace/eval_logs/xvla/videos/libero_object_4/eval_episode_0.mp4",
+        "/workspace/eval_logs/xvla/videos/libero_object_5/eval_episode_0.mp4",
+        "/workspace/eval_logs/xvla/videos/libero_object_6/eval_episode_0.mp4",
+        "/workspace/eval_logs/xvla/videos/libero_object_7/eval_episode_0.mp4",
+        "/workspace/eval_logs/xvla/videos/libero_object_8/eval_episode_0.mp4",
+        "/workspace/eval_logs/xvla/videos/libero_object_9/eval_episode_0.mp4"
+      ]
+    }
+  },
+  "overall": {
+    "avg_sum_reward": 1.0,
+    "avg_max_reward": 1.0,
+    "pc_success": 100.0,
+    "n_episodes": 10,
+    "eval_s": 44.664185762405396,
+    "eval_ep_s": 4.466418647766114,
+    "video_paths": [
+      "/workspace/eval_logs/xvla/videos/libero_object_0/eval_episode_0.mp4",
+      "/workspace/eval_logs/xvla/videos/libero_object_1/eval_episode_0.mp4",
+      "/workspace/eval_logs/xvla/videos/libero_object_2/eval_episode_0.mp4",
+      "/workspace/eval_logs/xvla/videos/libero_object_3/eval_episode_0.mp4",
+      "/workspace/eval_logs/xvla/videos/libero_object_4/eval_episode_0.mp4",
+      "/workspace/eval_logs/xvla/videos/libero_object_5/eval_episode_0.mp4",
+      "/workspace/eval_logs/xvla/videos/libero_object_6/eval_episode_0.mp4",
+      "/workspace/eval_logs/xvla/videos/libero_object_7/eval_episode_0.mp4",
+      "/workspace/eval_logs/xvla/videos/libero_object_8/eval_episode_0.mp4",
+      "/workspace/eval_logs/xvla/videos/libero_object_9/eval_episode_0.mp4"
+    ]
+  }
+}
