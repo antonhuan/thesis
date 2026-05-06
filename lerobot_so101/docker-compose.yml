@@ -1,0 +1,47 @@
+# ============================================================
+# docker-compose.yml — LeRobot SO-101
+# ============================================================
+# Usage:
+#   docker compose build
+#   docker compose run lerobot lerobot-find-port
+#   docker compose run lerobot lerobot-setup-motors \
+#       --robot.type=so101_follower \
+#       --robot.port=/dev/ttyUSB0
+# ============================================================
+
+services:
+  lerobot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lerobot-so101:latest
+    container_name: lerobot-so101
+
+    # ── Full /dev mount — required for lerobot-find-port ───
+    # Mounts the host /dev so plug/unplug events are visible
+    # inside the container (needed for port discovery).
+    volumes:
+      - /dev:/dev
+      - ./data:/workspace               # calibration files, datasets
+      - hf_cache:/workspace/.cache      # HuggingFace model cache
+
+    # cgroup rules allow the container to access USB serial devices
+    # without running fully privileged.
+    device_cgroup_rules:
+      - 'c 188:* rmw'   # USB serial (ttyUSB*)
+      - 'c 166:* rmw'   # ACM serial (ttyACM*)
+
+    # ── Environment ────────────────────────────────────────
+    environment:
+      - HF_HOME=/workspace/.cache/huggingface
+      - HF_TOKEN=${HF_TOKEN:-}          # optional: set in .env for private models
+
+    # ── Keep container alive for interactive use ────────────
+    stdin_open: true
+    tty: true
+
+    # ── Default command ────────────────────────────────────
+    command: bash
+
+volumes:
+  hf_cache:
