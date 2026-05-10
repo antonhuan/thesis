@@ -23,7 +23,6 @@ RUN pip install --upgrade pip setuptools wheel
 # Install PyTorch (CUDA 12.4)
 RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
 
-# Install LeRobot v0.4.1 (matching the version in the sim container)
 # The async server module is at lerobot.async_inference.policy_server
 RUN pip install "lerobot[async,smolvla]==0.5.1"
 
