@@ -24,6 +24,7 @@ To clear cache
 ```
 find /workspace/leisaac -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null
 ```
+
 #Teleop command
 ```
 lerobot-teleoperate \
@@ -54,4 +55,23 @@ lerobot-record \
     --dataset.encoder_threads=2 \
     --dataset.episode_time_s=20 \
     --dataset.reset_time_s=20
+=======
+
+#Openpi 
+```
+uv run scripts/serve_policy.py policy:checkpoint \
+  --policy.config=pi05_libero \
+  --policy.dir=/app/checkpoints/pi05_pnp_orange/20000
+```
+
+```
+python scripts/evaluation/policy_inference.py \
+    --task=LeIsaac-SO101-PickOrange-v0 \
+    --policy_type=openpi \
+    --policy_host=localhost \
+    --policy_port=8000 \
+    --policy_timeout_ms=5000 \
+    --policy_language_instruction='Pick the orange to the plate' \
+    --device=cuda \
+    --enable_cameras
 ```
