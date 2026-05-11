@@ -60,7 +60,7 @@ lerobot-record \
 #Openpi 
 ```
 uv run scripts/serve_policy.py policy:checkpoint \
-  --policy.config=pi05_libero \
+  --policy.config=pi05_so101_pick_orange \
   --policy.dir=/app/checkpoints/pi05_pnp_orange/20000
 ```
 
