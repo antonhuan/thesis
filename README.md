@@ -69,7 +69,7 @@ lerobot-record \
     --dataset.reset_time_s=20
 ```
 
-# Rollout 
+# Rollout 2 cams
 
 ```
 lerobot-rollout \
@@ -79,10 +79,26 @@ lerobot-rollout \
     --inference.rtc.execution_horizon=10 \
     --inference.rtc.max_guidance_weight=10.0 \
     --robot.type=so101_follower \
-    --robot.port=/dev/ttyACM1 \
-    --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: opencv, index_or_path: 2, width: 640, height: 480, fps: 30}}" \
+    --robot.port=/dev/ttyACM0 \
+    --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
     --task="pick up the orange" \
     --duration=60
+```
+# Rollout 1 cam
+
+```
+lerobot-rollout \
+    --strategy.type=base \
+    --policy.path=edge-inference/smolvla-so101-pick-orange \
+    --inference.type=rtc \
+    --inference.rtc.execution_horizon=10 \
+    --inference.rtc.max_guidance_weight=10.0 \
+    --robot.type=so101_follower \
+    --robot.port=/dev/ttyACM0 \
+    --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}}" \
+    --task="pick up the orange" \
+    --duration=60 \
+    
 ```
 # Openpi 
 ```
