@@ -83,6 +83,10 @@ RUN pip install lerobot[dataset] --break-system-packages
 RUN pip install pyrealsense2 --break-system-packages
 
 RUN pip install lerobot[pi] --break-system-packages
+
+RUN pip install num2words --break-system-packages
+
+RUN pip install openpi-client --break-system-packages
 # ── Working directory for user scripts / calibration data ────
 WORKDIR /workspace
 
