@@ -97,7 +97,7 @@ lerobot-rollout \
     --robot.port=/dev/ttyACM0 \
     --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}}" \
     --task="pick up the orange" \
-    --duration=60 \
+    --duration=60 
     
 ```
 # Openpi 

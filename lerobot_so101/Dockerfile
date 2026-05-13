@@ -81,6 +81,8 @@ RUN pip install rerun-sdk pynput --break-system-packages
 RUN pip install lerobot[dataset] --break-system-packages
 
 RUN pip install pyrealsense2 --break-system-packages
+
+RUN pip install lerobot[pi] --break-system-packages
 # ── Working directory for user scripts / calibration data ────
 WORKDIR /workspace
 
