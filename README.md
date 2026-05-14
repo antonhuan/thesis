@@ -46,7 +46,7 @@ lerobot-teleoperate \
     --teleop.type=so101_leader \
     --teleop.port=/dev/ttyACM0 \
     --teleop.id=Kumquat_leader \
-    --robot.cameras="{ front: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}}" \
+    --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
     --display_data=true
 ```
 # Record data
@@ -55,14 +55,14 @@ lerobot-record \
     --robot.type=so101_follower \
     --robot.port=/dev/ttyACM1 \
     --robot.id=Kumquat_follower \
-    --robot.cameras="{ front: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}}" \
+    --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
     --teleop.type=so101_leader \
     --teleop.port=/dev/ttyACM0 \
     --teleop.id=Kumquat_leader \
     --display_data=true \
     --dataset.repo_id=${HF_USER}/record-test \
-    --dataset.num_episodes=5 \
-    --dataset.single_task="Grab the bag" \
+    --dataset.num_episodes=30 \
+    --dataset.single_task="Grab the orange and put it in the bowl" \
     --dataset.streaming_encoding=true \
     --dataset.encoder_threads=2 \
     --dataset.episode_time_s=20 \
