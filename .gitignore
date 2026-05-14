@@ -1,5 +1,4 @@
 .env
 .claude 
 openpi-leisaac/
-/lerobot_so101/data/outputs/captured_images
-
+lerobot_so101/data/
