@@ -60,8 +60,8 @@ lerobot-record \
     --teleop.port=/dev/ttyACM0 \
     --teleop.id=Kumquat_leader \
     --display_data=true \
-    --dataset.repo_id=ant0nh/pnp_orange50 \
-    --dataset.num_episodes=1 \
+    --dataset.repo_id=ant0nh/pnp_orange_50 \
+    --dataset.num_episodes=50 \
     --dataset.single_task="Grab the orange and put it in the bowl" \
     --dataset.streaming_encoding=true \
     --dataset.encoder_threads=2 \
