@@ -74,14 +74,14 @@ lerobot-record \
 ```
 lerobot-rollout \
     --strategy.type=base \
-    --policy.path=edge-inference/smolvla-so101-pick-orange \
+    --policy.path=ant0nh/smolvla_finetuned \
     --inference.type=rtc \
     --inference.rtc.execution_horizon=10 \
     --inference.rtc.max_guidance_weight=10.0 \
     --robot.type=so101_follower \
     --robot.port=/dev/ttyACM0 \
     --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
-    --task="pick up the orange" \
+    --task="pick up the orange and put it in the bowl" \
     --duration=60
 ```
 # Rollout 1 cam
@@ -117,4 +117,10 @@ python scripts/evaluation/policy_inference.py \
     --policy_language_instruction='Pick the orange to the plate' \
     --device=cuda \
     --enable_cameras
+```
+# Xauth for rerun 
+```
+XAUTH=/tmp/.docker.xauth
+xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
+chmod 777 $XAUTH
 ```
