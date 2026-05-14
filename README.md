@@ -74,14 +74,14 @@ lerobot-record \
 ```
 lerobot-rollout \
     --strategy.type=base \
-    --policy.path=edge-inference/smolvla-so101-pick-orange \
+    --policy.path=ant0nh/smolvla_orange \
     --inference.type=rtc \
     --inference.rtc.execution_horizon=10 \
     --inference.rtc.max_guidance_weight=10.0 \
     --robot.type=so101_follower \
     --robot.port=/dev/ttyACM0 \
     --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
-    --task="pick up the orange" \
+    --task="pick up the bowl" \
     --duration=60
 ```
 # Rollout 1 cam
@@ -123,4 +123,16 @@ rerun
 XAUTH=/tmp/.docker.xauth
 xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
 chmod 777 $XAUTH
+```
+# training 
+```
+lerobot-train \
+  --dataset.repo_id=ant0nh/pnp_orange_50_20260514_023532\
+  --policy.type=smolvla \
+  --output_dir=outputs/train/smolvla_50finetune \
+  --job_name=act_so101_test \
+  --policy.device=cuda \
+  --wandb.enable=False \
+  --policy.repo_id=ant0nh/smolvla_finetuned \
+  --steps=40000
 ```
