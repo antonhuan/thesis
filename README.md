@@ -60,12 +60,12 @@ lerobot-record \
     --teleop.port=/dev/ttyACM0 \
     --teleop.id=Kumquat_leader \
     --display_data=true \
-    --dataset.repo_id=${HF_USER}/record-test \
-    --dataset.num_episodes=30 \
+    --dataset.repo_id=ant0nh/pnp_orange50 \
+    --dataset.num_episodes=1 \
     --dataset.single_task="Grab the orange and put it in the bowl" \
     --dataset.streaming_encoding=true \
     --dataset.encoder_threads=2 \
-    --dataset.episode_time_s=20 \
+    --dataset.episode_time_s=15 \
     --dataset.reset_time_s=15
 ```
 
@@ -117,4 +117,10 @@ python scripts/evaluation/policy_inference.py \
     --policy_language_instruction='Pick the orange to the plate' \
     --device=cuda \
     --enable_cameras
+```
+rerun 
+```
+XAUTH=/tmp/.docker.xauth
+xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
+chmod 777 $XAUTH
 ```
