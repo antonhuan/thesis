@@ -53,11 +53,11 @@ lerobot-teleoperate \
 ```
 lerobot-record \
     --robot.type=so101_follower \
-    --robot.port=/dev/ttyACM1 \
+    --robot.port=/dev/ttyACM0 \
     --robot.id=Kumquat_follower \
     --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
     --teleop.type=so101_leader \
-    --teleop.port=/dev/ttyACM0 \
+    --teleop.port=/dev/ttyACM1 \
     --teleop.id=Kumquat_leader \
     --display_data=true \
     --dataset.repo_id=ant0nh/pnp_orange_50 \
@@ -65,7 +65,7 @@ lerobot-record \
     --dataset.single_task="Grab the orange and put it in the bowl" \
     --dataset.streaming_encoding=true \
     --dataset.encoder_threads=2 \
-    --dataset.episode_time_s=15 \
+    --dataset.episode_time_s=20 \
     --dataset.reset_time_s=15
 ```
 
@@ -74,16 +74,17 @@ lerobot-record \
 ```
 lerobot-rollout \
     --strategy.type=base \
-    --policy.path=ant0nh/smolvla_orange \
+    --policy.path=ant0nh/pi05_130\
     --inference.type=rtc \
     --inference.rtc.execution_horizon=10 \
     --inference.rtc.max_guidance_weight=10.0 \
     --robot.type=so101_follower \
     --robot.port=/dev/ttyACM0 \
     --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
-    --task="pick up the bowl" \
+    --task="pick up the orange" \
     --duration=60
 ```
+Pi models expect left_wrist_o_rgb, and base_0_rgb by default as camera names
 # Rollout 1 cam
 
 ```
@@ -136,3 +137,46 @@ lerobot-train \
   --policy.repo_id=ant0nh/smolvla_finetuned \
   --steps=40000
 ```
+```
+lerobot-train \
+    --dataset.repo_id=ant0nh/grapefruit \
+    --policy.type=pi05 \
+    --output_dir=./outputs/pi05_grapefruit\
+    --job_name=pi05_training \
+    --policy.repo_id=ant0nh/pi05_grapefruit \
+    --policy.pretrained_path=lerobot/pi05_base \
+    --policy.compile_model=true \
+    --policy.gradient_checkpointing=true \
+    --wandb.enable=true \
+    --policy.dtype=bfloat16 \
+    --policy.freeze_vision_encoder=true \
+    --policy.train_expert_only=true \
+    --steps=40000 \
+    --policy.device=cuda \
+    --batch_size=32
+```
+# Client loop
+```
+python robot_client_loop.py \
+    --robot.type=so101_follower \
+    --robot.port=/dev/ttyACM0 \
+    --robot.id=arm \
+    --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
+    --task="dummy" \
+    --server_address=127.0.0.1:8080 \
+    --policy_type=pi05 \
+    --pretrained_name_or_path=ant0nh/pi05_130 \
+    --policy_device=cuda \
+    --actions_per_chunk=50 \
+    --chunk_size_threshold=0.7 \
+    --episode_duration=30
+```
+# Lerobot server 
+```
+python -m lerobot.async_inference.policy_server --host=127.0.0.1 --port=8080
+```
+
+lerobot-edit-dataset \
+  --new_repo_id ant0nh/full \
+  --operation.type merge \
+  --operation.repo_ids "['ant0nh/orange_80', 'ant0nh/spatial']"
