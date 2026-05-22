@@ -27,6 +27,5 @@ services:
     privileged: true
     runtime: nvidia
     network_mode: host
-
 volumes:
   hf_cache:
