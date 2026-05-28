@@ -1,4 +1,6 @@
 .env
 .claude 
 openpi-leisaac/
-lerobot_so101/data/
+lerobot_so101/data/outputs/
+lerobot_so101/data/logs/
+lerobot_so101/data/.cache/
