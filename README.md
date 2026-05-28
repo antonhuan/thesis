@@ -135,23 +135,23 @@ lerobot-train \
   --policy.device=cuda \
   --wandb.enable=False \
   --policy.repo_id=ant0nh/smolvla_finetuned \
-  --steps=40000
+  --steps=10000
 ```
 ```
 lerobot-train \
-    --dataset.repo_id=ant0nh/grapefruit \
+    --dataset.repo_id=ant0nh/pnp_275 \
     --policy.type=pi05 \
-    --output_dir=./outputs/pi05_grapefruit\
+    --output_dir=./outputs/pi05\
     --job_name=pi05_training \
-    --policy.repo_id=ant0nh/pi05_grapefruit \
+    --policy.repo_id=ant0nh/pi05_pnp_275_28k \
     --policy.pretrained_path=lerobot/pi05_base \
     --policy.compile_model=true \
     --policy.gradient_checkpointing=true \
     --wandb.enable=true \
     --policy.dtype=bfloat16 \
-    --policy.freeze_vision_encoder=true \
-    --policy.train_expert_only=true \
-    --steps=40000 \
+    --policy.freeze_vision_encoder=false \
+    --policy.train_expert_only=false \
+    --steps=28000 \
     --policy.device=cuda \
     --batch_size=32
 ```
@@ -165,7 +165,7 @@ python robot_client_loop.py \
     --task="dummy" \
     --server_address=127.0.0.1:8080 \
     --policy_type=pi05 \
-    --pretrained_name_or_path=ant0nh/pi05_130 \
+    --pretrained_name_or_path=ant0nh/pi05_pnp_200_20k \
     --policy_device=cuda \
     --actions_per_chunk=50 \
     --chunk_size_threshold=0.7 \
@@ -177,6 +177,6 @@ python -m lerobot.async_inference.policy_server --host=127.0.0.1 --port=8080
 ```
 
 lerobot-edit-dataset \
-  --new_repo_id ant0nh/full \
+  --new_repo_id ant0nh/pnp_275 \
   --operation.type merge \
-  --operation.repo_ids "['ant0nh/orange_80', 'ant0nh/spatial']"
+  --operation.repo_ids "['ant0nh/pnp_tray_75', 'ant0nh/pnp_200']"
