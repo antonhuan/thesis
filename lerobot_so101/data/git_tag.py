@@ -1,7 +1,7 @@
 from huggingface_hub import HfApi
 api = HfApi()
 
-datasets = ["ant0nh/pnp_200"]
+datasets = ["ant0nh/pnp_350"]
 
 for ds in datasets:
     refs = api.list_repo_refs(ds, repo_type="dataset")

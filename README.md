@@ -85,22 +85,7 @@ lerobot-rollout \
     --duration=60
 ```
 Pi models expect left_wrist_o_rgb, and base_0_rgb by default as camera names
-# Rollout 1 cam
 
-```
-lerobot-rollout \
-    --strategy.type=base \
-    --policy.path=edge-inference/smolvla-so101-pick-orange \
-    --inference.type=rtc \
-    --inference.rtc.execution_horizon=10 \
-    --inference.rtc.max_guidance_weight=10.0 \
-    --robot.type=so101_follower \
-    --robot.port=/dev/ttyACM0 \
-    --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}}" \
-    --task="pick up the orange" \
-    --duration=60 
-    
-```
 # Openpi 
 ```
 uv run scripts/serve_policy.py policy:checkpoint \
@@ -128,22 +113,11 @@ chmod 777 $XAUTH
 # training 
 ```
 lerobot-train \
-  --dataset.repo_id=ant0nh/pnp_orange_50_20260514_023532\
-  --policy.type=smolvla \
-  --output_dir=outputs/train/smolvla_50finetune \
-  --job_name=act_so101_test \
-  --policy.device=cuda \
-  --wandb.enable=False \
-  --policy.repo_id=ant0nh/smolvla_finetuned \
-  --steps=10000
-```
-```
-lerobot-train \
-    --dataset.repo_id=ant0nh/pnp_275 \
+    --dataset.repo_id=ant0nh/pnp_350 \
     --policy.type=pi05 \
     --output_dir=./outputs/pi05\
     --job_name=pi05_training \
-    --policy.repo_id=ant0nh/pi05_pnp_275_28k \
+    --policy.repo_id=ant0nh/pi05_pnp_350_35k \
     --policy.pretrained_path=lerobot/pi05_base \
     --policy.compile_model=true \
     --policy.gradient_checkpointing=true \
@@ -151,9 +125,10 @@ lerobot-train \
     --policy.dtype=bfloat16 \
     --policy.freeze_vision_encoder=false \
     --policy.train_expert_only=false \
-    --steps=28000 \
+    --steps=35000 \
     --policy.device=cuda \
-    --batch_size=32
+    --batch_size=32 \
+    --save_freq=35000
 ```
 # Client loop
 ```
@@ -165,7 +140,7 @@ python robot_client_loop.py \
     --task="dummy" \
     --server_address=127.0.0.1:8080 \
     --policy_type=pi05 \
-    --pretrained_name_or_path=ant0nh/pi05_pnp_200_20k \
+    --pretrained_name_or_path=ant0nh/pi05_275_28k \
     --policy_device=cuda \
     --actions_per_chunk=50 \
     --chunk_size_threshold=0.7 \

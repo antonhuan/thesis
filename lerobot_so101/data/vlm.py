@@ -118,7 +118,7 @@ def capture_scene(camera: RealSenseCamera, save_dir: Path = None) -> Image.Image
 # Model loading and inference
 # ---------------------------------------------------------------------------
 
-def load_model(model_name: str = "Qwen/Qwen3-VL-2B-Instruct"):
+def load_model(model_name: str = "Qwen/Qwen3-VL-4B-Instruct"):
     """Load model and processor."""
     from transformers import Qwen3VLForConditionalGeneration, AutoProcessor
 
@@ -511,7 +511,7 @@ def main():
         description="Evaluate Qwen3-VL-2B for robot task reasoning"
     )
     parser.add_argument(
-        "--model", default="Qwen/Qwen3-VL-2B-Instruct",
+        "--model", default="Qwen/Qwen3-VL-4B-Instruct",
         help="HuggingFace model name or local path",
     )
     parser.add_argument(
