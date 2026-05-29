@@ -139,7 +139,8 @@ def load_model(model_name: str = "Qwen/Qwen3-VL-2B-Instruct"):
     return model, processor
 
 
-def generate(model, processor, messages: list, max_new_tokens: int = 1024) -> str:
+def generate(model, processor, messages: list, max_new_tokens: int = 1024,
+             temperature: float = 0.7) -> str:
     """Run inference and return generated text."""
     inputs = processor.apply_chat_template(
         messages,
@@ -158,7 +159,7 @@ def generate(model, processor, messages: list, max_new_tokens: int = 1024) -> st
             do_sample=True,
             top_p=0.8,
             top_k=20,
-            temperature=0.7,
+            temperature=temperature,
         )
 
     # Trim input tokens from output
@@ -283,7 +284,7 @@ def test_decomposition(model, processor, prompt: str,
         })
 
     messages = [
-        {"role": "system", "content": DECOMPOSITION_SYSTEM_PROMPT},
+        {"role": "system", "content": [{"type": "text", "text": DECOMPOSITION_SYSTEM_PROMPT}]},
         {"role": "user", "content": user_content},
     ]
 
@@ -367,7 +368,7 @@ def test_success_evaluation(model, processor,
     })
 
     messages = [
-        {"role": "system", "content": EVALUATION_SYSTEM_PROMPT},
+        {"role": "system", "content": [{"type": "text", "text": EVALUATION_SYSTEM_PROMPT}]},
         {"role": "user", "content": user_content},
     ]
 
@@ -382,6 +383,123 @@ def test_success_evaluation(model, processor,
         print("\n[WARNING] Output is not valid JSON")
 
     return output
+
+
+# ---------------------------------------------------------------------------
+# Interactive REPL
+# ---------------------------------------------------------------------------
+
+INTERACTIVE_HELP = """
+Commands:
+  <any text>          Decompose a prompt (e.g. "clean up the table")
+  /preference         Run the preference sensitivity test suite
+  /evaluate           Run the success evaluation test
+  /eval <sub-task>    Evaluate a specific sub-task against current camera frame
+  /temp <value>       Set temperature (current: {temp})
+  /save               Toggle saving frames to disk (current: {save})
+  /help               Show this help
+  /quit               Exit
+""".strip()
+
+
+def interactive_loop(model, processor, camera, image_paths, save_dir):
+    """Interactive REPL — model stays loaded, type prompts freely."""
+
+    temp = 0.7
+    saving = save_dir is not None
+
+    print(f"\n{'='*60}")
+    print("INTERACTIVE MODE — model loaded, type prompts to decompose.")
+    print("Type /help for commands, /quit to exit.")
+    print(f"{'='*60}")
+
+    while True:
+        try:
+            user_input = input("\n> ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nExiting.")
+            break
+
+        if not user_input:
+            continue
+
+        # --- Commands ---
+        if user_input == "/quit" or user_input == "/exit":
+            print("Exiting.")
+            break
+
+        elif user_input == "/help":
+            print(INTERACTIVE_HELP.format(
+                temp=temp,
+                save="ON" if saving else "OFF",
+            ))
+
+        elif user_input == "/preference":
+            test_preference_sensitivity(
+                model, processor, camera, image_paths,
+                save_dir if saving else None,
+            )
+
+        elif user_input == "/evaluate":
+            test_success_evaluation(
+                model, processor, camera, image_paths,
+                save_dir if saving else None,
+            )
+
+        elif user_input.startswith("/eval "):
+            sub_task = user_input[6:].strip()
+            if not sub_task:
+                print("Usage: /eval <sub-task description>")
+                continue
+            # Run a custom success evaluation
+            image_content, img_desc = get_image_content(
+                camera, image_paths, save_dir if saving else None
+            )
+            user_content = []
+            if image_content:
+                user_content.extend(image_content)
+            else:
+                user_content.append({
+                    "type": "text",
+                    "text": "The robot arm is at a tabletop.",
+                })
+            user_content.append({
+                "type": "text",
+                "text": f'\nThe robot just attempted this sub-task: "{sub_task}"\nDid it succeed?',
+            })
+            messages = [
+                {"role": "system", "content": [{"type": "text", "text": EVALUATION_SYSTEM_PROMPT}]},
+                {"role": "user", "content": user_content},
+            ]
+            output = generate(model, processor, messages)
+            print(f"\nSub-task: \"{sub_task}\"")
+            print(f"Model output:\n{output}")
+            try:
+                result = json.loads(output.strip())
+                print(f"Parsed: success={result.get('success')}, reason={result.get('reason')}")
+            except json.JSONDecodeError:
+                print("[WARNING] Output is not valid JSON")
+
+        elif user_input.startswith("/temp "):
+            try:
+                temp = float(user_input[6:].strip())
+                print(f"Temperature set to {temp}")
+            except ValueError:
+                print("Usage: /temp <float>  (e.g. /temp 0.3)")
+
+        elif user_input == "/save":
+            saving = not saving
+            print(f"Frame saving: {'ON — saving to ./frames/' if saving else 'OFF'}")
+
+        elif user_input.startswith("/"):
+            print(f"Unknown command: {user_input}. Type /help for options.")
+
+        # --- Decomposition prompt ---
+        else:
+            test_decomposition(
+                model, processor, user_input, camera, image_paths,
+                save_dir if saving else None,
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -422,6 +540,10 @@ def main():
         metavar=("W", "H"),
         help="RealSense capture resolution (default: 640 480)",
     )
+    parser.add_argument(
+        "--interactive", "-i", action="store_true",
+        help="Enter interactive loop after loading model (keeps model in VRAM)",
+    )
     args = parser.parse_args()
 
     # --- Resolve image source ---
@@ -457,33 +579,37 @@ def main():
     # --- Load model ---
     model, processor = load_model(args.model)
 
-    # --- Run tests ---
+    # --- Run initial test if --prompt or --test provided ---
     try:
         if args.prompt:
             test_decomposition(
                 model, processor, args.prompt, camera, image_paths, save_dir
             )
-            return
 
-        if args.test in ("decompose", "all"):
-            test_decomposition(
-                model, processor,
-                "pick up the orange and place it in the blue cup",
-                camera, image_paths, save_dir,
-            )
+        elif args.test != "all" or not args.interactive:
+            if args.test in ("decompose", "all"):
+                test_decomposition(
+                    model, processor,
+                    "pick up the orange and place it in the blue cup",
+                    camera, image_paths, save_dir,
+                )
 
-        if args.test in ("preference", "all"):
-            test_preference_sensitivity(
-                model, processor, camera, image_paths, save_dir
-            )
+            if args.test in ("preference", "all"):
+                test_preference_sensitivity(
+                    model, processor, camera, image_paths, save_dir
+                )
 
-        if args.test in ("evaluate", "all"):
-            test_success_evaluation(
-                model, processor, camera, image_paths, save_dir
-            )
+            if args.test in ("evaluate", "all"):
+                test_success_evaluation(
+                    model, processor, camera, image_paths, save_dir
+                )
 
-        print(f"\n{'='*60}")
-        print("Done.")
+        # --- Interactive loop ---
+        if args.interactive:
+            interactive_loop(model, processor, camera, image_paths, save_dir)
+        else:
+            print(f"\n{'='*60}")
+            print("Done. (Tip: use --interactive to keep the model loaded)")
 
     finally:
         if camera is not None:
