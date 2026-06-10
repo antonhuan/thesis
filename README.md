@@ -1,44 +1,24 @@
-Startup guide for simulator
-xhost +local:docker
-# Inference in Leisaac
-```
-python scripts/evaluation/policy_inference.py \
-    --task=LeIsaac-SO101-PickOrange-v0 \
-    --policy_type=lerobot-smolvla \
-    --policy_host=localhost \
-    --policy_port=8080 \
-    --policy_timeout_ms=5000 \
-    --policy_language_instruction='Pick up an orange' \
-    --policy_checkpoint_path=edge-inference/smolvla-so101-pick-orange\
-    --policy_action_horizon=50 \
-    --device=cuda \
-    --enable_cameras
-```
+# Thesis: Dual-System VLM + VLA Control on SO-101
 
-python scripts/evaluation/policy_inference.py \
-    --task=LeIsaac-SO101-PickOrange-v0 \
-    --policy_type=lerobot-smolvla \
-    --policy_host=localhost \
-    --policy_port=8080 \
-    --policy_timeout_ms=5000 \
-    --policy_language_instruction='Pick up an orange' \
-    --policy_checkpoint_path=lerobot/smolvla_base\
-    --policy_action_horizon=50 \
-    --device=cuda \
-    --enable_cameras
+A dual-system robot control stack for the SO-101 arm: a vision-language model (Qwen3-VL) decomposes high-level tasks into subtasks, and a vision-language-action policy (SmolVLA / Pi0.5) executes them via [lerobot](https://github.com/huggingface/lerobot) async inference. Policies are evaluated both on real hardware and in simulation with [LeIsaac](https://github.com/LightwheelAI/leisaac) (Isaac Sim).
 
-Changes made to base image
--Patch helper to rename cameras to the expected names for policy 
--Added side camera to single_arm_env.py at pos=(0.72684, -0.22668, 0.14343), rot=(-0.5, 0.5, 0.5, -0.5)
--Patched torch_dtype in opt/venv/lib/python3.12/site-packages/lerobot/policies/smolvla/smolvlm_with_expert.py to dtype
+## Repository layout
 
-To clear cache 
-```
-find /workspace/leisaac -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null
-```
+| Path | Description |
+| --- | --- |
+| `lerobot_so101/` | Real-robot scripts: teleop, calibration, cameras, VLM planner, and the VLM→VLA orchestrator (`data/vlm_robot_orchestrator.py`) |
+| `leisaac/` | LeIsaac simulation environment (Dockerized) |
+| `policy_server/` | Dockerized lerobot policy server |
+| `eval/` | Policy evaluation scripts (LIBERO benchmarks, custom inference) |
+| `assets/` | Robot and scene assets for simulation |
 
-# Teleop command
-```
+---
+
+## Data collection (real robot)
+
+### Teleoperation
+
+```bash
 lerobot-teleoperate \
     --robot.type=so101_follower \
     --robot.port=/dev/ttyACM1 \
@@ -49,8 +29,10 @@ lerobot-teleoperate \
     --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
     --display_data=true
 ```
-# Record data
-```
+
+### Recording episodes
+
+```bash
 lerobot-record \
     --robot.type=so101_follower \
     --robot.port=/dev/ttyACM0 \
@@ -69,53 +51,26 @@ lerobot-record \
     --dataset.reset_time_s=15
 ```
 
-# Rollout 2 cams
+### Merging datasets
 
-```
-lerobot-rollout \
-    --strategy.type=base \
-    --policy.path=ant0nh/pi05_130\
-    --inference.type=rtc \
-    --inference.rtc.execution_horizon=10 \
-    --inference.rtc.max_guidance_weight=10.0 \
-    --robot.type=so101_follower \
-    --robot.port=/dev/ttyACM0 \
-    --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
-    --task="pick up the orange" \
-    --duration=60
-```
-Pi models expect left_wrist_o_rgb, and base_0_rgb by default as camera names
-
-# Openpi 
-```
-uv run scripts/serve_policy.py policy:checkpoint \
-  --policy.config=pi05_so101_pick_orange \
-  --policy.dir=/app/checkpoints/pi05_pnp_orange/20000
+```bash
+lerobot-edit-dataset \
+  --new_repo_id ant0nh/pnp_275 \
+  --operation.type merge \
+  --operation.repo_ids "['ant0nh/pnp_tray_75', 'ant0nh/pnp_200']"
 ```
 
-```
-python scripts/evaluation/policy_inference.py \
-    --task=LeIsaac-SO101-PickOrange-v0 \
-    --policy_type=openpi \
-    --policy_host=10.0.0.1 \
-    --policy_port=8000 \
-    --policy_timeout_ms=5000 \
-    --policy_language_instruction='Pick the orange to the plate' \
-    --device=cuda \
-    --enable_cameras
-```
-rerun 
-```
-XAUTH=/tmp/.docker.xauth
-xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
-chmod 777 $XAUTH
-```
-# training 
-```
+---
+
+## Training
+
+Fine-tune Pi0.5 on a recorded dataset:
+
+```bash
 lerobot-train \
     --dataset.repo_id=ant0nh/pnp_350 \
     --policy.type=pi05 \
-    --output_dir=./outputs/pi05\
+    --output_dir=./outputs/pi05 \
     --job_name=pi05_training \
     --policy.repo_id=ant0nh/pi05_pnp_350_35k \
     --policy.pretrained_path=lerobot/pi05_base \
@@ -130,8 +85,22 @@ lerobot-train \
     --batch_size=32 \
     --save_freq=35000
 ```
-# Client loop
+
+---
+
+## Inference (real robot)
+
+### Lerobot async inference
+
+Start the policy server:
+
+```bash
+python -m lerobot.async_inference.policy_server --host=127.0.0.1 --port=8080
 ```
+
+Then run the robot client loop:
+
+```bash
 python robot_client_loop.py \
     --robot.type=so101_follower \
     --robot.port=/dev/ttyACM0 \
@@ -146,12 +115,79 @@ python robot_client_loop.py \
     --chunk_size_threshold=0.7 \
     --episode_duration=30
 ```
-# Lerobot server 
-```
-python -m lerobot.async_inference.policy_server --host=127.0.0.1 --port=8080
+
+### Rollout with real-time chunking (2 cameras)
+
+```bash
+lerobot-rollout \
+    --strategy.type=base \
+    --policy.path=ant0nh/pi05_130 \
+    --inference.type=rtc \
+    --inference.rtc.execution_horizon=10 \
+    --inference.rtc.max_guidance_weight=10.0 \
+    --robot.type=so101_follower \
+    --robot.port=/dev/ttyACM0 \
+    --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
+    --task="pick up the orange" \
+    --duration=60
 ```
 
-lerobot-edit-dataset \
-  --new_repo_id ant0nh/pnp_275 \
-  --operation.type merge \
-  --operation.repo_ids "['ant0nh/pnp_tray_75', 'ant0nh/pnp_200']"
+> **Note:** Pi models expect `left_wrist_0_rgb` and `base_0_rgb` as the default camera names.
+
+---
+
+## Inference (simulation, LeIsaac)
+
+### SmolVLA via lerobot policy server
+
+```bash
+python scripts/evaluation/policy_inference.py \
+    --task=LeIsaac-SO101-PickOrange-v0 \
+    --policy_type=lerobot-smolvla \
+    --policy_host=localhost \
+    --policy_port=8080 \
+    --policy_timeout_ms=5000 \
+    --policy_language_instruction='Pick up an orange' \
+    --policy_checkpoint_path=edge-inference/smolvla-so101-pick-orange \
+    --policy_action_horizon=50 \
+    --device=cuda \
+    --enable_cameras
+```
+
+Use `--policy_checkpoint_path=lerobot/smolvla_base` to evaluate the base (non-finetuned) SmolVLA model.
+
+### Openpi
+
+Serve a Pi0.5 checkpoint with openpi:
+
+```bash
+uv run scripts/serve_policy.py policy:checkpoint \
+  --policy.config=pi05_so101_pick_orange \
+  --policy.dir=/app/checkpoints/pi05_pnp_orange/20000
+```
+
+Run inference against it from LeIsaac:
+
+```bash
+python scripts/evaluation/policy_inference.py \
+    --task=LeIsaac-SO101-PickOrange-v0 \
+    --policy_type=openpi \
+    --policy_host=10.0.0.1 \
+    --policy_port=8000 \
+    --policy_timeout_ms=5000 \
+    --policy_language_instruction='Pick the orange to the plate' \
+    --device=cuda \
+    --enable_cameras
+```
+
+---
+
+## Troubleshooting
+
+**Rerun / X11 auth inside Docker** — grant the container access to the host display:
+
+```bash
+XAUTH=/tmp/.docker.xauth
+xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
+chmod 777 $XAUTH
+```
