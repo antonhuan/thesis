@@ -471,7 +471,7 @@ def main():
         description="Evaluate Qwen3-VL-8B for robot task reasoning (vLLM)"
     )
     parser.add_argument(
-        "--model", default="Qwen/Qwen3-VL-8B-Instruct",
+        "--model", default="Qwen/Qwen3-VL-8B-Instruct-FP8",
         help="HuggingFace model name or path (default: Qwen/Qwen3-VL-8B-Instruct)",
     )
     parser.add_argument(
@@ -487,7 +487,7 @@ def main():
         help="Save captured camera frames to ./frames/",
     )
     parser.add_argument(
-        "--gpu-mem", type=float, default=0.70,
+        "--gpu-mem", type=float, default=0.20,
         help="vLLM gpu_memory_utilization (default: 0.70)",
     )
     parser.add_argument(
