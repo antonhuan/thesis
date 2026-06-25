@@ -101,7 +101,8 @@ def _strip_code_fences(text: str) -> str:
 
 def parse_subtask_list(output: str) -> list[str]:
     """Extract a JSON array of sub-task strings from model output."""
-    text = _strip_code_fences(output)
+    text = re.sub(r"<think>.*?</think>", "", output, flags=re.DOTALL).strip()
+    text = _strip_code_fences(text)
 
     # Try the whole output first, then the outermost [...] span
     candidates = [text]
@@ -122,7 +123,8 @@ def parse_subtask_list(output: str) -> list[str]:
 
 def parse_evaluation(output: str) -> dict:
     """Extract a {'success': bool, 'reason': str} object from model output."""
-    text = _strip_code_fences(output)
+    text = re.sub(r"<think>.*?</think>", "", output, flags=re.DOTALL).strip()
+    text = _strip_code_fences(text)
 
     candidates = [text]
     start, end = text.find("{"), text.rfind("}")
@@ -174,6 +176,7 @@ class VLMPlanner:
         output = generate(
             self.model, self.processor, messages, temperature=self.temperature
         )
+        logging.info(f"Raw VLM decomposition output ({len(output)} chars): {output!r}")
         return parse_subtask_list(output)
 
     def evaluate(self, sub_task: str, frame: Image.Image | None) -> dict:

@@ -1,46 +1,53 @@
 """
-Evaluate Qwen3-VL-2B-Instruct as the VLM reasoning layer.
+Evaluate Qwen3-VL-8B-Instruct as the VLM reasoning layer using vLLM.
 
-Tests three capabilities needed for the dual-system architecture:
+The 8B model does not support HuggingFace transformers generate() —
+this script uses vLLM for inference instead.
+
+Tests the same capabilities as eval_qwen3vl.py:
 1. Task decomposition: natural language prompt + images -> sub-task queue
 2. Preference sensitivity: different prompts -> different decompositions
 3. Success evaluation: image + sub-task -> success/failure judgement
 
-Captures frames directly from an Intel RealSense D435 camera (top-down view).
-
 Requirements:
-    pip install torch transformers accelerate pillow pyrealsense2 numpy
-
-    # Qwen3-VL requires latest transformers (built from source or >= 4.57.0)
-    pip install git+https://github.com/huggingface/transformers
+    pip install vllm qwen-vl-utils pyrealsense2 pillow numpy
 
 Usage:
     # Live capture from RealSense D435 (default):
-    python eval_qwen3vl.py
+    python eval_qwen3vl_8b.py
 
-    # Fall back to static image files if no camera:
-    python eval_qwen3vl.py --images top.png
+    # Static image:
+    python eval_qwen3vl_8b.py --images top.png
 
-    # Custom prompt:
-    python eval_qwen3vl.py --prompt "pick up the red cup and place it on the left side"
+    # Custom model path or quantisation:
+    python eval_qwen3vl_8b.py --model Qwen/Qwen3-VL-8B-Instruct-FP8
 
-    # Save captured frames to disk:
-    python eval_qwen3vl.py --save-frames
+    # Adjust GPU memory usage (default 0.70):
+    python eval_qwen3vl_8b.py --gpu-mem 0.80
 
-    # Skip camera, text-only:
-    python eval_qwen3vl.py --no-camera
+    # Text-only (no camera):
+    python eval_qwen3vl_8b.py --no-camera
 """
 
 import argparse
-import time
 import json
-import torch
+import os
+import time
+
 import numpy as np
+import torch
 from pathlib import Path
 from PIL import Image
 
+os.environ["VLLM_WORKER_MULTIPROC_METHOD"] = "spawn"
+
+from qwen_vl_utils import process_vision_info
+from transformers import AutoProcessor
+from vllm import LLM, SamplingParams
+
+
 # ---------------------------------------------------------------------------
-# RealSense D435 capture
+# RealSense D435 capture (identical to vlm.py)
 # ---------------------------------------------------------------------------
 
 class RealSenseCamera:
@@ -52,42 +59,31 @@ class RealSenseCamera:
         self.rs = rs
         self.pipeline = rs.pipeline()
         self.config = rs.config()
-
-        # Only enable colour stream — we don't need depth for VLM input
         self.config.enable_stream(
             rs.stream.color, width, height, rs.format.rgb8, fps
         )
-
         self.width = width
         self.height = height
         self.started = False
 
     def start(self):
-        """Start the camera pipeline."""
         if not self.started:
-            profile = self.pipeline.start(self.config)
-            # Let auto-exposure settle
+            self.pipeline.start(self.config)
             for _ in range(30):
                 self.pipeline.wait_for_frames()
             self.started = True
             print(f"RealSense D435 started ({self.width}x{self.height})")
 
     def capture(self) -> Image.Image:
-        """Capture a single RGB frame and return as PIL Image."""
         if not self.started:
             self.start()
-
         frames = self.pipeline.wait_for_frames()
         color_frame = frames.get_color_frame()
-
         if not color_frame:
             raise RuntimeError("Failed to capture colour frame from RealSense")
-
-        color_array = np.asanyarray(color_frame.get_data())  # H x W x 3 (RGB)
-        return Image.fromarray(color_array)
+        return Image.fromarray(np.asanyarray(color_frame.get_data()))
 
     def stop(self):
-        """Stop the camera pipeline."""
         if self.started:
             self.pipeline.stop()
             self.started = False
@@ -98,90 +94,18 @@ class RealSenseCamera:
 
 
 def capture_scene(camera: RealSenseCamera, save_dir: Path = None) -> Image.Image:
-    """Capture a frame from the top-down RealSense camera.
-    
-    Optionally saves the frame to disk with a timestamp.
-    """
     frame = camera.capture()
-
     if save_dir:
         save_dir.mkdir(parents=True, exist_ok=True)
         ts = time.strftime("%Y%m%d_%H%M%S")
         path = save_dir / f"frame_top_{ts}.png"
         frame.save(path)
         print(f"  Saved frame: {path}")
-
     return frame
 
 
 # ---------------------------------------------------------------------------
-# Model loading and inference
-# ---------------------------------------------------------------------------
-
-def load_model(model_name: str = "Qwen/Qwen3-VL-4B-Instruct"):
-    """Load model and processor."""
-    from transformers import Qwen3VLForConditionalGeneration, AutoProcessor
-
-    print(f"Loading {model_name}...")
-    t0 = time.time()
-
-    model = Qwen3VLForConditionalGeneration.from_pretrained(
-        model_name,
-        torch_dtype=torch.bfloat16,
-        device_map="auto",
-    )
-    processor = AutoProcessor.from_pretrained(model_name)
-
-    print(f"Model loaded in {time.time() - t0:.1f}s")
-    print(f"Device: {model.device}")
-    print(f"Parameters: {sum(p.numel() for p in model.parameters()) / 1e9:.2f}B")
-
-    return model, processor
-
-
-def generate(model, processor, messages: list, max_new_tokens: int = 1024,
-             temperature: float = 0.7) -> str:
-    """Run inference and return generated text."""
-    inputs = processor.apply_chat_template(
-        messages,
-        tokenize=True,
-        add_generation_prompt=True,
-        return_dict=True,
-        return_tensors="pt",
-    )
-    inputs = inputs.to(model.device)
-
-    t0 = time.time()
-    with torch.no_grad():
-        generated_ids = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
-            do_sample=True,
-            top_p=0.8,
-            top_k=20,
-            temperature=temperature,
-        )
-
-    # Trim input tokens from output
-    generated_ids_trimmed = [
-        out_ids[len(in_ids):]
-        for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
-    ]
-    output_text = processor.batch_decode(
-        generated_ids_trimmed,
-        skip_special_tokens=True,
-        clean_up_tokenization_spaces=False,
-    )[0]
-
-    elapsed = time.time() - t0
-    n_tokens = len(generated_ids_trimmed[0])
-    print(f"  Generated {n_tokens} tokens in {elapsed:.1f}s ({n_tokens/elapsed:.1f} tok/s)")
-
-    return output_text
-
-
-# ---------------------------------------------------------------------------
-# System prompts matching the dual-system architecture
+# System prompts (shared with vlm.py / orchestrator)
 # ---------------------------------------------------------------------------
 
 DECOMPOSITION_SYSTEM_PROMPT = """You are a robot task planner. You receive a user's natural language instruction and a camera observation from an orange tabletop robot arm (SO-101, 6-DOF).
@@ -200,7 +124,7 @@ Rules:
 - If the user's instruction contains preferences (e.g. "leave the cups", "no sugar", "put the red one first"), reflect those preferences in which sub-tasks you include, omit, or reorder.
 - Do NOT include sub-tasks that violate stated preferences.
 - If the instruction refers to a group of objects using words like "everything", "all", "the rest", or similar, visually identify each individual object in the scene and generate one sub-task per object. Do not output an empty list — if objects are visible, there is work to do.
-- If the instruction specifies to leave something or ignore something, do not output any subtasks that involve the specified object
+- If the instruction specifies to leave something or ignore something, do not output any subtasks that involve the specified object.
 
 Output format:
 Return ONLY a JSON array of sub-task strings. Example:
@@ -222,92 +146,173 @@ Example:
 
 
 # ---------------------------------------------------------------------------
-# Image content builders
+# vLLM model wrapper
 # ---------------------------------------------------------------------------
 
-def build_image_content_pil(image: Image.Image) -> list[dict]:
-    """Build content list from a PIL Image (live camera capture)."""
-    return [
-        {"type": "text", "text": "[top-down camera]"},
-        {"type": "image", "image": image},
-    ]
+class VLLMModel:
+    """Wraps vLLM LLM + processor for Qwen3-VL inference."""
+
+    def __init__(self, model_name: str, gpu_memory_utilization: float = 0.70):
+        print(f"Loading {model_name} with vLLM...")
+        t0 = time.time()
+
+        self.processor = AutoProcessor.from_pretrained(model_name)
+
+        self.llm = LLM(
+            model=model_name,
+            trust_remote_code=True,
+            gpu_memory_utilization=gpu_memory_utilization,
+            enforce_eager=False,
+            tensor_parallel_size=torch.cuda.device_count(),
+            seed=0,
+        )
+
+        print(f"Model loaded in {time.time() - t0:.1f}s")
+        print(f"GPUs: {torch.cuda.device_count()}")
+
+    def generate(self, messages: list, temperature: float = 0.7,
+                 max_new_tokens: int = 1024) -> str:
+        """Run inference on a single message set and return generated text."""
+
+        # Build the prompt string via the processor's chat template
+        prompt_text = self.processor.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+
+        # Extract image/video inputs using qwen_vl_utils
+        image_inputs, video_inputs, video_kwargs = process_vision_info(
+            messages,
+            image_patch_size=self.processor.image_processor.patch_size,
+            return_video_kwargs=True,
+            return_video_metadata=True,
+        )
+
+        mm_data = {}
+        if image_inputs is not None:
+            mm_data["image"] = image_inputs
+        if video_inputs is not None:
+            mm_data["video"] = video_inputs
+
+        vllm_input = {
+            "prompt": prompt_text,
+            "multi_modal_data": mm_data,
+            "mm_processor_kwargs": video_kwargs,
+        }
+
+        sampling_params = SamplingParams(
+            temperature=temperature,
+            max_tokens=max_new_tokens,
+            top_k=20,
+            top_p=0.8,
+        )
+
+        t0 = time.time()
+        outputs = self.llm.generate([vllm_input], sampling_params=sampling_params)
+        elapsed = time.time() - t0
+
+        generated_text = outputs[0].outputs[0].text
+        n_tokens = len(outputs[0].outputs[0].token_ids)
+        print(f"  Generated {n_tokens} tokens in {elapsed:.1f}s "
+              f"({n_tokens / elapsed:.1f} tok/s)")
+
+        return generated_text
 
 
-def build_image_content_paths(image_paths: list[Path]) -> list[dict]:
-    """Build content list from file paths."""
-    content = []
-    camera_labels = ["top-down camera", "side camera"]
+# ---------------------------------------------------------------------------
+# Parsing helpers (shared logic with orchestrator)
+# ---------------------------------------------------------------------------
 
-    for i, path in enumerate(image_paths):
-        label = camera_labels[i] if i < len(camera_labels) else f"camera {i+1}"
-        content.append({"type": "text", "text": f"[{label}]"})
-        content.append({"type": "image", "image": str(path)})
+import re
 
-    return content
 
+def _strip_think_tags(text: str) -> str:
+    """Remove <think>...</think> blocks from model output."""
+    return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+
+
+def _strip_code_fences(text: str) -> str:
+    """Remove markdown code fences the model sometimes wraps JSON in."""
+    text = text.strip()
+    text = re.sub(r"^```(?:json)?\s*", "", text)
+    text = re.sub(r"\s*```$", "", text)
+    return text.strip()
+
+
+def parse_subtask_list(output: str) -> list[str]:
+    """Extract a JSON array of sub-task strings from model output."""
+    text = _strip_think_tags(output)
+    text = _strip_code_fences(text)
+
+    candidates = [text]
+    start, end = text.find("["), text.rfind("]")
+    if start != -1 and end > start:
+        candidates.append(text[start : end + 1])
+
+    for candidate in candidates:
+        try:
+            parsed = json.loads(candidate)
+            if isinstance(parsed, list) and all(isinstance(t, str) for t in parsed):
+                if not parsed:
+                    raise ValueError(
+                        f"VLM returned an empty sub-task list:\n{output}"
+                    )
+                return parsed
+        except json.JSONDecodeError:
+            continue
+
+    raise ValueError(f"Could not parse sub-task list from VLM output:\n{output}")
+
+
+def parse_evaluation(output: str) -> dict:
+    """Extract a {'success': bool, 'reason': str} object from model output."""
+    text = _strip_think_tags(output)
+    text = _strip_code_fences(text)
+
+    candidates = [text]
+    start, end = text.find("{"), text.rfind("}")
+    if start != -1 and end > start:
+        candidates.append(text[start : end + 1])
+
+    for candidate in candidates:
+        try:
+            parsed = json.loads(candidate)
+            if isinstance(parsed, dict) and "success" in parsed:
+                return parsed
+        except json.JSONDecodeError:
+            continue
+
+    raise ValueError(f"Could not parse evaluation from VLM output:\n{output}")
+
+
+# ---------------------------------------------------------------------------
+# Image content helpers
+# ---------------------------------------------------------------------------
 
 def get_image_content(camera=None, image_paths=None, save_dir=None):
     """Get image content from either live camera or file paths.
-    
-    Returns (content_list, description_string) or (None, None) if no source.
+
+    Returns (content_list, description_string) or (None, None).
     """
     if camera is not None:
         frame = capture_scene(camera, save_dir=save_dir)
-        return build_image_content_pil(frame), "live RealSense capture"
+        return [
+            {"type": "text", "text": "[top-down camera]"},
+            {"type": "image", "image": frame},
+        ], "live RealSense capture"
+
     elif image_paths:
-        return build_image_content_paths(image_paths), str([str(p) for p in image_paths])
-    else:
-        return None, None
+        content = []
+        labels = ["top-down camera", "side camera"]
+        for i, path in enumerate(image_paths):
+            label = labels[i] if i < len(labels) else f"camera {i + 1}"
+            content.append({"type": "text", "text": f"[{label}]"})
+            content.append({"type": "image", "image": str(path)})
+        return content, str([str(p) for p in image_paths])
 
+    return None, None
 
-# ---------------------------------------------------------------------------
-# Test routines
-# ---------------------------------------------------------------------------
-
-def test_decomposition(model, processor, prompt: str,
-                       camera=None, image_paths=None, save_dir=None):
-    """Test task decomposition with camera or image files."""
-    image_content, img_desc = get_image_content(camera, image_paths, save_dir)
-
-    print(f"\n{'='*60}")
-    print(f"TASK DECOMPOSITION TEST")
-    print(f"Prompt: \"{prompt}\"")
-    print(f"Image source: {img_desc or 'text-only'}")
-    print(f"{'='*60}")
-
-    user_content = []
-
-    if image_content:
-        user_content.extend(image_content)
-        user_content.append({"type": "text", "text": f"\nInstruction: {prompt}"})
-    else:
-        user_content.append({
-            "type": "text",
-            "text": (
-                "The robot is at a tabletop with an orange, a blue cup, "
-                "a red cup, and a plate.\n\n"
-                f"Instruction: {prompt}"
-            ),
-        })
-
-    messages = [
-        {"role": "system", "content": [{"type": "text", "text": DECOMPOSITION_SYSTEM_PROMPT}]},
-        {"role": "user", "content": user_content},
-    ]
-
-    output = generate(model, processor, messages)
-    print(f"\nModel output:\n{output}")
-
-    # Try to parse as JSON
-    try:
-        tasks = json.loads(output.strip())
-        print(f"\nParsed {len(tasks)} sub-tasks:")
-        for i, task in enumerate(tasks, 1):
-            print(f"  {i}. {task}")
-    except json.JSONDecodeError:
-        print("\n[WARNING] Output is not valid JSON — may need prompt tuning")
-
-    return output
 
 # ---------------------------------------------------------------------------
 # Interactive REPL
@@ -316,8 +321,6 @@ def test_decomposition(model, processor, prompt: str,
 INTERACTIVE_HELP = """
 Commands:
   <any text>          Decompose a prompt (e.g. "clean up the table")
-  /preference         Run the preference sensitivity test suite
-  /evaluate           Run the success evaluation test
   /eval <sub-task>    Evaluate a specific sub-task against current camera frame
   /temp <value>       Set temperature (current: {temp})
   /save               Toggle saving frames to disk (current: {save})
@@ -326,16 +329,16 @@ Commands:
 """.strip()
 
 
-def interactive_loop(model, processor, camera, image_paths, save_dir):
+def interactive_loop(vllm_model: VLLMModel, camera, image_paths, save_dir):
     """Interactive REPL — model stays loaded, type prompts freely."""
 
     temp = 0.7
     saving = save_dir is not None
 
-    print(f"\n{'='*60}")
-    print("INTERACTIVE MODE — model loaded, type prompts to decompose.")
+    print(f"\n{'=' * 60}")
+    print("INTERACTIVE MODE (vLLM / 8B) — type prompts to decompose.")
     print("Type /help for commands, /quit to exit.")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     while True:
         try:
@@ -348,7 +351,7 @@ def interactive_loop(model, processor, camera, image_paths, save_dir):
             continue
 
         # --- Commands ---
-        if user_input == "/quit" or user_input == "/exit":
+        if user_input in ("/quit", "/exit"):
             print("Exiting.")
             break
 
@@ -363,7 +366,7 @@ def interactive_loop(model, processor, camera, image_paths, save_dir):
             if not sub_task:
                 print("Usage: /eval <sub-task description>")
                 continue
-            # Run a custom success evaluation
+
             image_content, img_desc = get_image_content(
                 camera, image_paths, save_dir if saving else None
             )
@@ -377,20 +380,27 @@ def interactive_loop(model, processor, camera, image_paths, save_dir):
                 })
             user_content.append({
                 "type": "text",
-                "text": f'\nThe robot just attempted this sub-task: "{sub_task}"\nDid it succeed?',
+                "text": (
+                    f'\nThe robot just attempted this sub-task: "{sub_task}"\n'
+                    "Did it succeed?"
+                ),
             })
+
             messages = [
                 {"role": "system", "content": [{"type": "text", "text": EVALUATION_SYSTEM_PROMPT}]},
                 {"role": "user", "content": user_content},
             ]
-            output = generate(model, processor, messages)
+
+            output = vllm_model.generate(messages, temperature=temp)
             print(f"\nSub-task: \"{sub_task}\"")
-            print(f"Model output:\n{output}")
+            print(f"Raw output:\n{output}")
+
             try:
-                result = json.loads(output.strip())
-                print(f"Parsed: success={result.get('success')}, reason={result.get('reason')}")
-            except json.JSONDecodeError:
-                print("[WARNING] Output is not valid JSON")
+                result = parse_evaluation(output)
+                print(f"Parsed: success={result.get('success')}, "
+                      f"reason={result.get('reason')}")
+            except ValueError as e:
+                print(f"[WARNING] {e}")
 
         elif user_input.startswith("/temp "):
             try:
@@ -408,10 +418,48 @@ def interactive_loop(model, processor, camera, image_paths, save_dir):
 
         # --- Decomposition prompt ---
         else:
-            test_decomposition(
-                model, processor, user_input, camera, image_paths,
-                save_dir if saving else None,
+            image_content, img_desc = get_image_content(
+                camera, image_paths, save_dir if saving else None
             )
+
+            print(f"\n{'=' * 60}")
+            print("TASK DECOMPOSITION TEST")
+            print(f"Prompt: \"{user_input}\"")
+            print(f"Image source: {img_desc or 'text-only'}")
+            print(f"{'=' * 60}")
+
+            user_content = []
+            if image_content:
+                user_content.extend(image_content)
+                user_content.append({
+                    "type": "text",
+                    "text": f"\nInstruction: {user_input}",
+                })
+            else:
+                user_content.append({
+                    "type": "text",
+                    "text": (
+                        "No camera observation is available. Decompose the "
+                        "instruction based on the text alone.\n\n"
+                        f"Instruction: {user_input}"
+                    ),
+                })
+
+            messages = [
+                {"role": "system", "content": [{"type": "text", "text": DECOMPOSITION_SYSTEM_PROMPT}]},
+                {"role": "user", "content": user_content},
+            ]
+
+            output = vllm_model.generate(messages, temperature=temp)
+            print(f"\nRaw output:\n{output}")
+
+            try:
+                tasks = parse_subtask_list(output)
+                print(f"\nParsed {len(tasks)} sub-tasks:")
+                for i, task in enumerate(tasks, 1):
+                    print(f"  {i}. {task}")
+            except ValueError as e:
+                print(f"\n[WARNING] {e}")
 
 
 # ---------------------------------------------------------------------------
@@ -420,11 +468,11 @@ def interactive_loop(model, processor, camera, image_paths, save_dir):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Evaluate Qwen3-VL-2B for robot task reasoning"
+        description="Evaluate Qwen3-VL-8B for robot task reasoning (vLLM)"
     )
     parser.add_argument(
-        "--model", default="Qwen/Qwen3-VL-4B-Instruct",
-        help="HuggingFace model name or local path",
+        "--model", default="Qwen/Qwen3-VL-8B-Instruct",
+        help="HuggingFace model name or path (default: Qwen/Qwen3-VL-8B-Instruct)",
     )
     parser.add_argument(
         "--images", nargs="*", default=None,
@@ -439,22 +487,13 @@ def main():
         help="Save captured camera frames to ./frames/",
     )
     parser.add_argument(
-        "--prompt", default=None,
-        help="Custom prompt for single decomposition test",
-    )
-    parser.add_argument(
-        "--test", choices=["decompose", "preference", "evaluate", "all"],
-        default="all",
-        help="Which test to run",
+        "--gpu-mem", type=float, default=0.70,
+        help="vLLM gpu_memory_utilization (default: 0.70)",
     )
     parser.add_argument(
         "--resolution", nargs=2, type=int, default=[640, 480],
         metavar=("W", "H"),
         help="RealSense capture resolution (default: 640 480)",
-    )
-    parser.add_argument(
-        "--interactive", "-i", action="store_true",
-        help="Enter interactive loop after loading model (keeps model in VRAM)",
     )
     args = parser.parse_args()
 
@@ -464,7 +503,6 @@ def main():
     save_dir = Path("./frames") if args.save_frames else None
 
     if args.images:
-        # Static image files provided
         image_paths = [Path(p) for p in args.images]
         for p in image_paths:
             if not p.exists():
@@ -473,7 +511,6 @@ def main():
         print(f"Using static images: {[str(p) for p in image_paths]}")
 
     elif not args.no_camera:
-        # Try to initialise RealSense
         try:
             camera = RealSenseCamera(
                 width=args.resolution[0],
@@ -482,15 +519,17 @@ def main():
             camera.start()
         except Exception as e:
             print(f"[WARNING] Could not start RealSense camera: {e}")
-            print("Falling back to text-only mode. Use --images or --no-camera.")
+            print("Falling back to text-only mode.")
             camera = None
 
     if camera is None and image_paths is None and not args.no_camera:
         print("[INFO] No image source available — running in text-only mode")
-    # --- Load model ---
-    model, processor = load_model(args.model)
 
-    interactive_loop(model, processor, camera, image_paths, save_dir)
+    # --- Load model ---
+    vllm_model = VLLMModel(args.model, gpu_memory_utilization=args.gpu_mem)
+
+    # --- Run ---
+    interactive_loop(vllm_model, camera, image_paths, save_dir)
 
     if camera is not None:
         camera.stop()

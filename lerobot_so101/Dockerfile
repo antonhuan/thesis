@@ -89,6 +89,11 @@ RUN pip install num2words --break-system-packages
 RUN pip install openpi-client --break-system-packages
 
 RUN pip install lerobot[async] --break-system-packages
+
+RUN pip install lerobot[training] --break-system-packages
+
+RUN pip install vllm qwen-vl-utils pillow --break-system-packages
+
 # ── Working directory for user scripts / calibration data ────
 WORKDIR /workspace
 

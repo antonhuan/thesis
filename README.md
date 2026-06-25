@@ -68,11 +68,11 @@ Fine-tune Pi0.5 on a recorded dataset:
 
 ```bash
 lerobot-train \
-    --dataset.repo_id=ant0nh/pnp_350 \
+    --dataset.repo_id=ant0nh/pnp_425 \
     --policy.type=pi05 \
     --output_dir=./outputs/pi05 \
     --job_name=pi05_training \
-    --policy.repo_id=ant0nh/pi05_pnp_350_35k \
+    --policy.repo_id=ant0nh/pi05_pnp_425_25k \
     --policy.pretrained_path=lerobot/pi05_base \
     --policy.compile_model=true \
     --policy.gradient_checkpointing=true \
@@ -80,10 +80,10 @@ lerobot-train \
     --policy.dtype=bfloat16 \
     --policy.freeze_vision_encoder=false \
     --policy.train_expert_only=false \
-    --steps=35000 \
+    --steps=25000 \
     --policy.device=cuda \
     --batch_size=32 \
-    --save_freq=35000
+    --save_freq=25000
 ```
 
 ---
@@ -109,12 +109,31 @@ python robot_client_loop.py \
     --task="dummy" \
     --server_address=127.0.0.1:8080 \
     --policy_type=pi05 \
-    --pretrained_name_or_path=ant0nh/pi05_275_28k \
+    --pretrained_name_or_path=ant0nh/pi05_pnp_425_25k \
     --policy_device=cuda \
     --actions_per_chunk=50 \
     --chunk_size_threshold=0.7 \
     --episode_duration=30
 ```
+
+vlm orchecstrator loop: 
+
+```bash
+python vlm_robot_orchestrator.py \
+    --robot.type=so101_follower \
+    --robot.port=/dev/ttyACM0 \
+    --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
+    --task="idle" \
+    --server_address=127.0.0.1:8080 \
+    --policy_type=pi05 \
+    --pretrained_name_or_path=ant0nh/pi05_pnp_425_25k \
+    --policy_device=cuda \
+    --actions_per_chunk=50 \
+    --chunk_size_threshold=0.7 \
+    --episode_duration=30 \
+    --vlm_model=Qwen/Qwen3-VL-4B-Instruct \
+    --evaluate_subtasks=false \
+    --max_retries=1
 
 ### Rollout with real-time chunking (2 cameras)
 
