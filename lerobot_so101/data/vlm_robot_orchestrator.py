@@ -335,7 +335,6 @@ def main(cfg: OrchestratorConfig):
 
     # 2. VLM planner (reasoning layer)
     planner = VLMPlanner(cfg.vlm_model, temperature=cfg.vlm_temperature)
-
     # 3. Frame source for the VLM
     save_dir = Path("./frames") if cfg.save_frames else None
     frames = VLMFrameSource(client, use_realsense=cfg.vlm_realsense, save_dir=save_dir)
