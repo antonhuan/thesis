@@ -184,27 +184,79 @@ def generate(model, processor, messages: list, max_new_tokens: int = 1024,
 # System prompts matching the dual-system architecture
 # ---------------------------------------------------------------------------
 
-DECOMPOSITION_SYSTEM_PROMPT = """You are a robot task planner. You receive a user's natural language instruction and a camera observation from an orange tabletop robot arm (SO-101, 6-DOF).
+# DECOMPOSITION_SYSTEM_PROMPT = """You are a task planner for an orange tabletop robot arm (SO-101, 6-DOF). You receive a natural language instruction and a camera observation of the workspace.
 
-Your job is to decompose the instruction into a numbered sequence of simple manipulation sub-tasks that the robot can execute one at a time.
+# Follow these steps in order:
 
-You are controlling the orange robot arm in the frame. The robot arm itself is not an object in the scene — exclude it when identifying objects to manipulate.
+# Step 1 — Identify objects in the scene.
+# List every visible object on the table. The orange robot arm is NOT an object — exclude it. If the instruction mentions a destination (e.g. "tray", "bowl"), that is a landmark, not an object to move.
+
+# Step 2 — Parse the instruction for preferences and constraints.
+# Identify any of the following:
+# - Objects to exclude or leave alone (e.g. "leave the cups", "not the banana")
+# - Objects to prioritise or do first (e.g. "start with the red one", "put the apple first")
+# - Ordering requirements (e.g. "before", "after", "then")
+# - Conditional logic (e.g. "if there's a spoon, move it too")
+# - Group references (e.g. "everything", "all", "the rest") — resolve these to the specific objects identified in Step 1
+# If no preferences are found, note that and proceed with all visible objects.
+
+# Step 3 — Build the sub-task list.
+# For each object that should be acted on (i.e. not excluded by Step 2), generate one sub-task. Apply these rules:
+# - Each sub-task is a single atomic pick-and-place action. Do NOT split picking and placing into separate steps. Write "put the X on the Y", not "grab X" then "place X on Y".
+# - Use simple, concrete language matching what you see (e.g. "put the banana on the tray").
+# - Order sub-tasks according to any sequencing preferences found in Step 2. If no order is specified, use any reasonable order.
+# - Do NOT include any sub-task involving an object that the instruction says to leave, skip, or ignore.
+# - If the instruction refers to "everything" or "all", generate one sub-task per visible object (minus any exclusions).
+
+# Step 4 — Verify.
+# Before outputting, check:
+# - Does any sub-task involve an excluded object? If yes, remove it.
+# - Does the ordering match any stated preference? If not, reorder.
+# - Is every sub-task a single atomic action? If not, merge or simplify.
+
+# Output format:
+# Return ONLY a JSON array of sub-task strings. No explanation, no numbering, no markdown.
+# Example: ["put the apple on the tray", "put the banana on the tray"]
+# """
+DECOMPOSITION_SYSTEM_PROMPT = """You are a task planner for an orange tabletop robot arm (SO-101, 6-DOF). You receive a natural language instruction and a camera observation.
+
+You MUST respond in the following JSON format exactly:
+
+{
+  "visible_objects": ["list", "of", "objects", "you", "see"],
+  "excluded_objects": ["objects", "the", "instruction", "says", "to", "leave"],
+  "allowed_objects": ["visible", "minus", "excluded"],
+  "subtasks": ["put the X on the tray", "put the Y on the tray"]
+}
 
 Rules:
-- Before generating sub-tasks, first identify any preferences or constraints in the instruction (e.g. objects to exclude, ordering requirements). Then identify which visible objects match those constraints. Only after this reasoning should you produce the sub-task list.
-- Each sub-task must be a single, atomic manipulation action (e.g. "grab the orange and put it on the tray").
-- Use simple, concrete language. Avoid abstract or vague instructions.
-- Pick-and-place is a single atomic action. Do not separate picking up and placing into two sub-tasks. Use a single instruction like "put the X on the Y" rather than "grab the X" followed by "place the X on the Y".
-- Ground sub-tasks in what you observe in the image. Only reference objects you can see.
-- If the instruction specifies a destination (e.g. "on the tray", "in the bowl"), that destination is not an object to be moved — do not generate a sub-task to move it.
-- If the user's instruction contains preferences (e.g. "leave the cups", "no sugar", "put the red one first"), reflect those preferences in which sub-tasks you include, omit, or reorder.
-- Do NOT include sub-tasks that violate stated preferences.
-- If the instruction refers to a group of objects using words like "everything", "all", "the rest", or similar, visually identify each individual object in the scene and generate one sub-task per object. Do not output an empty list — if objects are visible, there is work to do.
-- If the instruction specifies to leave something or ignore something, do not output any subtasks that involve the specified object
+- The orange robot arm is not an object. Destinations (tray, bowl) are not objects to move.
+- excluded_objects: any object the instruction says to leave, skip, ignore, or not touch. If none, use [].
+- allowed_objects: every object in visible_objects that is NOT in excluded_objects.
+- subtasks: one sub-task per allowed object ONLY. Each sub-task is a single pick-and-place action (e.g. "put the apple on the tray"). Never reference an excluded object.
+- "everything", "all", "the rest" = every visible object minus excluded objects.
+- If the instruction uses a category word (e.g. "food", "drinks", "utensils"), identify which visible objects belong to that category and treat them all as excluded (or included). For example, if the instruction says "leave the food" and you see a banana and an apple, both are food and both should be excluded.
+- If the instruction uses a vague destination like "away", "clean up", or "tidy up", default to the tray as the destination.
+- The default destination is always the tray. If the instruction says "away", "clean up", or "tidy up" without specifying a destination, use the tray.
+- EVERY object in allowed_objects MUST have exactly one sub-task. If allowed_objects is not empty, subtasks CANNOT be empty.
+- The tray is ALWAYS the destination, NEVER an object to move. Do not include "tray" or "pink tray" in visible_objects or allowed_objects under any circumstances.
 
-Output format:
-Return ONLY a JSON array of sub-task strings. Example:
-["pick up the orange", "place the orange in the bowl"]
+Examples:
+
+Instruction: "put everything on the tray but leave the banana"
+{"visible_objects": ["apple", "banana", "orange"], "excluded_objects": ["banana"], "allowed_objects": ["apple", "orange"], "subtasks": ["put the apple on the tray", "put the orange on the tray"]}
+
+Instruction: "clean up the table, don't touch the cup"
+{"visible_objects": ["cup", "plate", "fork"], "excluded_objects": ["cup"], "allowed_objects": ["plate", "fork"], "subtasks": ["put the plate on the tray", "put the fork on the tray"]}
+
+Instruction: "put the apple on the tray"
+{"visible_objects": ["apple", "banana"], "excluded_objects": [], "allowed_objects": ["apple"], "subtasks": ["put the apple on the tray"]}
+
+Instruction: "put everything on the tray but leave the food"
+{"visible_objects": ["banana", "apple", "cup", "book"], "excluded_objects": ["banana", "apple"], "allowed_objects": ["cup", "book"], "subtasks": ["put the cup on the tray", "put the book on the tray"]}
+
+Instruction: "put everything away leave out the toys"
+{"visible_objects": ["banana", "stuffed animal", "book"], "excluded_objects": ["stuffed animal"], "allowed_objects": ["banana", "book"], "subtasks": ["put the banana on the tray", "put the book on the tray"]}
 """
 
 EVALUATION_SYSTEM_PROMPT = """You are a robot task evaluator. You receive a camera observation and a sub-task that was just attempted by a robot arm.
@@ -300,12 +352,19 @@ def test_decomposition(model, processor, prompt: str,
 
     # Try to parse as JSON
     try:
-        tasks = json.loads(output.strip())
+        result = json.loads(output.strip())
+        if isinstance(result, dict) and "subtasks" in result:
+            tasks = result["subtasks"]
+            print(f"\nVisible: {result.get('visible_objects')}")
+            print(f"Excluded: {result.get('excluded_objects')}")
+            print(f"Allowed: {result.get('allowed_objects')}")
+        else:
+            tasks = result  # fallback for plain array output
         print(f"\nParsed {len(tasks)} sub-tasks:")
         for i, task in enumerate(tasks, 1):
             print(f"  {i}. {task}")
     except json.JSONDecodeError:
-        print("\n[WARNING] Output is not valid JSON — may need prompt tuning")
+        print("\n[WARNING] Output is not valid JSON")    
 
     return output
 
