@@ -240,6 +240,7 @@ Rules:
 - The default destination is always the tray. If the instruction says "away", "clean up", or "tidy up" without specifying a destination, use the tray.
 - EVERY object in allowed_objects MUST have exactly one sub-task. If allowed_objects is not empty, subtasks CANNOT be empty.
 - The tray is ALWAYS the destination, NEVER an object to move. Do not include "tray" or "pink tray" in visible_objects or allowed_objects under any circumstances.
+- The tray (regardless of colour — pink tray, black tray, etc.) is ALWAYS the destination. NEVER include it in visible_objects, excluded_objects, or allowed_objects.
 
 Examples:
 
