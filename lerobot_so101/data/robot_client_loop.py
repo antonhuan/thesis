@@ -13,15 +13,15 @@
 #     python robot_client_loop.py \
 #       --robot.type=so101_follower \
 #       --robot.port=/dev/ttyACM0 \
-#       --robot.cameras="{ front: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30} }" \
+#       --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
 #       --task="initial_task" \
 #       --server_address=127.0.0.1:8080 \
-#       --policy_type=smolvla \
-#       --pretrained_name_or_path=edge-inference/smolvla-so101-pick-orange \
+#       --policy_type=pi05 \
+#       --pretrained_name_or_path=ant0nh/pi05_pnp_425_25k \
 #       --policy_device=cuda \
 #       --actions_per_chunk=50 \
 #       --chunk_size_threshold=0.7 \
-#       --episode_duration=30
+#       --episode_duration=20
 #
 # At the prompt, type a task instruction and press Enter to execute.
 # Type 'quit' or 'exit' to shut down cleanly.
@@ -86,6 +86,21 @@ class LoopClientConfig(RobotClientConfig):
     home_steps: int = 50
     # Seconds to sleep between interpolation steps during homing
     home_step_dt: float = 0.04
+    # Number of consecutive similar actions before declaring convergence
+    convergence_window: int = 15
+    # L2 threshold: actions closer than this are "similar"
+    convergence_threshold: float = 0.02
+    # Don't check convergence in the first N seconds (let the arm start moving)
+    convergence_grace_period: float = 8
+
+
+@dataclass
+class EpisodeResult:
+    """Returned by run_episode to let the orchestrator know what happened."""
+    duration: float
+    converged: bool
+    max_displacement: float
+    total_actions: int
 
 
 # ---------------------------------------------------------------------------
@@ -146,6 +161,13 @@ class LoopRobotClient:
         self.fps_tracker = FPSTracker(target_fps=self.config.fps)
         self.must_go = threading.Event()
         self.must_go.set()
+
+        # Convergence tracking (initialised properly in _reset_episode_state)
+        self._action_history = []
+        self._first_action = None
+        self._max_displacement = 0.0
+        self._converged = False
+        self._total_actions = 0
 
         # Capture home position on startup
         self.home_position = self._capture_current_position()
@@ -288,6 +310,25 @@ class LoopRobotClient:
             return self.action_queue.qsize() / max(self.action_chunk_size, 1) <= self._chunk_size_threshold
 
     # ------------------------------------------------------------------
+    # Episode state management
+    # ------------------------------------------------------------------
+    def _reset_episode_state(self):
+        """Reset all per-episode state before a new episode."""
+        self.episode_done.clear()
+        self.must_go.set()
+        self.latest_action = -1
+        self.action_chunk_size = -1
+        self.action_queue = Queue()
+        self.action_queue_size = []
+        self.start_barrier = threading.Barrier(2)
+        # Convergence tracking
+        self._action_history = []
+        self._first_action = None
+        self._max_displacement = 0.0
+        self._converged = False
+        self._total_actions = 0
+
+    # ------------------------------------------------------------------
     # Episode threads
     # ------------------------------------------------------------------
     def _receive_actions_thread(self):
@@ -318,12 +359,24 @@ class LoopRobotClient:
                 if not self.episode_done.is_set():
                     self.logger.error(f"Error receiving actions: {e}")
 
+    def _abort_listener_thread(self):
+        """Listen for Enter key to abort episode early."""
+        self.start_barrier.wait()
+        try:
+            input()
+            if not self.episode_done.is_set():
+                self.logger.info("Episode aborted by user.")
+                self.episode_done.set()
+        except EOFError:
+            pass
+
     def _control_loop_thread(self, task: str):
         """Main thread: sends observations and executes actions until episode ends."""
         self.start_barrier.wait()
         self.logger.info(f"Control loop started | task: '{task}' | duration: {self.config.episode_duration}s")
 
         episode_start = time.perf_counter()
+        self._episode_start_perf = episode_start
 
         while not self.episode_done.is_set():
             loop_start = time.perf_counter()
@@ -338,16 +391,61 @@ class LoopRobotClient:
             # Execute action if available
             with self.action_queue_lock:
                 has_action = not self.action_queue.empty()
+
             if has_action:
                 try:
                     with self.action_queue_lock:
                         self.action_queue_size.append(self.action_queue.qsize())
                         timed_action = self.action_queue.get_nowait()
+
+                    action_tensor = timed_action.get_action()
                     self.robot.send_action(
-                        self._action_tensor_to_action_dict(timed_action.get_action())
+                        self._action_tensor_to_action_dict(action_tensor)
                     )
+
                     with self.latest_action_lock:
                         self.latest_action = timed_action.get_timestep()
+
+                    # --- Convergence tracking ---
+                    action_np = action_tensor.cpu().numpy().flatten()
+                    self._total_actions += 1
+
+                    if self._first_action is None:
+                        self._first_action = action_np.copy()
+
+                    # Track max displacement from first action
+                    displacement = float(np.linalg.norm(action_np - self._first_action))
+                    if displacement > self._max_displacement:
+                        self._max_displacement = displacement
+
+                    # Rolling window for convergence check
+                    self._action_history.append(action_np)
+                    if len(self._action_history) > self.config.convergence_window:
+                        self._action_history.pop(0)
+
+                    # Check convergence after grace period
+                    if (elapsed >= self.config.convergence_grace_period
+                            and len(self._action_history) == self.config.convergence_window):
+                        # Max pairwise L2 between consecutive actions in the window
+                        max_delta = 0.0
+                        for j in range(1, len(self._action_history)):
+                            delta = float(np.linalg.norm(
+                                self._action_history[j] - self._action_history[j - 1]
+                            ))
+                            if delta > max_delta:
+                                max_delta = delta
+
+                        if max_delta < self.config.convergence_threshold:
+                            self._converged = True
+                            self.logger.info(
+                                f"Action convergence detected at {elapsed:.1f}s "
+                                f"(max_delta={max_delta:.4f}, "
+                                f"threshold={self.config.convergence_threshold}). "
+                                f"Max displacement from start: {self._max_displacement:.4f}"
+                            )
+                            self.episode_done.set()
+                            break
+
                 except Empty:
                     pass
 
@@ -368,12 +466,9 @@ class LoopRobotClient:
 
                     with self.action_queue_lock:
                         observation.must_go = self.must_go.is_set() and self.action_queue.empty()
-
                     self.send_observation(observation)
-
                     if observation.must_go:
                         self.must_go.clear()
-
                 except Exception as e:
                     self.logger.error(f"Error in observation sender: {e}")
 
@@ -383,46 +478,12 @@ class LoopRobotClient:
             )
 
     # ------------------------------------------------------------------
-    # Per-episode reset
-    # ------------------------------------------------------------------
-    def _reset_episode_state(self):
-        """Clear all per-episode state so the next episode starts fresh."""
-        with self.latest_action_lock:
-            self.latest_action = -1
-        self.action_chunk_size = -1
-        with self.action_queue_lock:
-            self.action_queue = Queue()
-        self.action_queue_size = []
-        self.episode_done.clear()
-        self.must_go.set()
-        # Re-create barrier for next episode's two threads
-        self.start_barrier = threading.Barrier(2)
-
-    # ------------------------------------------------------------------
-    # Abort listener
-    # ------------------------------------------------------------------
-    def _abort_listener_thread(self):
-        """Listens for Enter key during an episode to abort early."""
-        import sys
-        import select
-
-        while not self.episode_done.is_set():
-            # Use select to poll stdin with a short timeout so we can
-            # check episode_done periodically without blocking forever
-            ready, _, _ = select.select([sys.stdin], [], [], 0.2)
-            if ready:
-                line = sys.stdin.readline().strip()
-                if not self.episode_done.is_set():
-                    self.logger.info("Abort requested — stopping episode early.")
-                    self.episode_done.set()
-                    break
-
-    # ------------------------------------------------------------------
     # Run a single episode
     # ------------------------------------------------------------------
-    def run_episode(self, task: str):
-        """Execute one episode: run the policy for the given task until timeout."""
+    def run_episode(self, task: str) -> EpisodeResult:
+        """Execute one episode: run the policy for the given task until timeout or convergence."""
         self._reset_episode_state()
+        t_start = time.perf_counter()
 
         receiver = threading.Thread(target=self._receive_actions_thread, daemon=True)
         receiver.start()
@@ -432,9 +493,21 @@ class LoopRobotClient:
 
         self.logger.info("Press Enter to abort episode early.")
         self._control_loop_thread(task)  # blocks until episode_done
-
         receiver.join(timeout=5.0)
         abort.join(timeout=1.0)
+
+        result = EpisodeResult(
+            duration=time.perf_counter() - t_start,
+            converged=self._converged,
+            max_displacement=self._max_displacement,
+            total_actions=self._total_actions,
+        )
+        self.logger.info(
+            f"Episode finished: {result.duration:.1f}s, converged={result.converged}, "
+            f"max_displacement={result.max_displacement:.4f}, "
+            f"actions={result.total_actions}"
+        )
+        return result
 
     # ------------------------------------------------------------------
     # Capture a frame (for VLM evaluation later)
@@ -492,7 +565,7 @@ def main(cfg: LoopClientConfig):
 
             # Run the episode
             client.logger.info(f"Starting episode: '{task}'")
-            client.run_episode(task)
+            result = client.run_episode(task)
 
             # Capture final frame (available for VLM evaluation later)
             final_obs = client.capture_frame()
