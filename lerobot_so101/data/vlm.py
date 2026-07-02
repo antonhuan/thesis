@@ -125,16 +125,16 @@ def load_model(model_name: str = "Qwen/Qwen3-VL-4B-Instruct"):
     print(f"Loading {model_name}...")
     t0 = time.time()
 
-    # model = Qwen3VLForConditionalGeneration.from_pretrained(
-    #     model_name,
-    #     torch_dtype=torch.bfloat16,
-    #     device_map="auto",
-    # )
     model = Qwen3VLForConditionalGeneration.from_pretrained(
         model_name,
-        quantization_config=BitsAndBytesConfig(load_in_4bit=True),
+        torch_dtype=torch.bfloat16,
         device_map="auto",
     )
+    # model = Qwen3VLForConditionalGeneration.from_pretrained(
+    #     model_name,
+    #     quantization_config=BitsAndBytesConfig(load_in_4bit=True),
+    #     device_map="auto",
+    # )
     processor = AutoProcessor.from_pretrained(model_name)
 
     print(f"Model loaded in {time.time() - t0:.1f}s")
