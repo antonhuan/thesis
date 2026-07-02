@@ -269,13 +269,20 @@ EVALUATION_SYSTEM_PROMPT = """You are a robot task evaluator. You receive a came
 
 Assess whether the sub-task was completed successfully based on the visual evidence.
 
+Scene context:
+- The tray visible in the scene is the destination. It may be any colour (pink, black, etc.). "the tray" in the sub-task always means this tray.
+- "away" means onto the tray.
+- The orange robot arm is part of the setup, ignore it.
+- Judge ONLY whether the specific object named in the sub-task is now at the destination. Do not assess other objects.
+
 Output format:
 Return ONLY a JSON object with two fields:
 - "success": true or false
 - "reason": a brief explanation of your judgement
 
 Example:
-{"success": true, "reason": "The orange is now inside the bowl as instructed."}
+{"success": true, "reason": "The apple is now on the tray as instructed."}
+{"success": false, "reason": "The banana is still on the table, not on the tray."}
 """
 
 
@@ -381,8 +388,6 @@ def test_decomposition(model, processor, prompt: str,
 INTERACTIVE_HELP = """
 Commands:
   <any text>          Decompose a prompt (e.g. "clean up the table")
-  /preference         Run the preference sensitivity test suite
-  /evaluate           Run the success evaluation test
   /eval <sub-task>    Evaluate a specific sub-task against current camera frame
   /temp <value>       Set temperature (current: {temp})
   /save               Toggle saving frames to disk (current: {save})
