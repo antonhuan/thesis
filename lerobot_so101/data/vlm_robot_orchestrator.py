@@ -99,26 +99,23 @@ def _strip_code_fences(text: str) -> str:
 
 
 def parse_subtask_list(output: str) -> list[str]:
-    """Extract a JSON array of sub-task strings from model output."""
-    text = re.sub(r"<think>.*?</think>", "", output, flags=re.DOTALL).strip()
-    text = _strip_code_fences(text)
+    text = _strip_code_fences(output.strip())
 
-    # Try the whole output first, then the outermost [...] span
-    candidates = [text]
-    start, end = text.find("["), text.rfind("]")
-    if start != -1 and end > start:
-        candidates.append(text[start : end + 1])
-
-    for candidate in candidates:
-        try:
-            parsed = json.loads(candidate)
-            if isinstance(parsed, list) and all(isinstance(t, str) for t in parsed):
-                return parsed
-        except json.JSONDecodeError:
-            continue
-
-    raise ValueError(f"Could not parse sub-task list from VLM output:\n{output}")
-
+    try:
+        result = json.loads(text)
+        if isinstance(result, dict) and "subtasks" in result:
+            tasks = result["subtasks"]
+            print(f"\nVisible: {result.get('visible_objects')}")
+            print(f"Excluded: {result.get('excluded_objects')}")
+            print(f"Allowed: {result.get('allowed_objects')}")
+        else:
+            tasks = result
+        print(f"\nParsed {len(tasks)} sub-tasks:")
+        for i, task in enumerate(tasks, 1):
+            print(f"  {i}. {task}")
+        return tasks
+    except json.JSONDecodeError:
+        raise ValueError(f"Could not parse subtasks from VLM output:\n{output}")
 
 def parse_evaluation(output: str) -> dict:
     """Extract a {'success': bool, 'reason': str} object from model output."""
