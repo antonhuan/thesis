@@ -81,17 +81,19 @@ from lerobot.async_inference.helpers import (
 class LoopClientConfig(RobotClientConfig):
     """Extends the base config with episode duration and homing parameters."""
     # Max seconds per episode before auto-termination
-    episode_duration: float = 30.0
+    episode_duration: float = 30
     # Number of interpolation steps when returning to home position
     home_steps: int = 50
     # Seconds to sleep between interpolation steps during homing
     home_step_dt: float = 0.04
     # Number of consecutive similar actions before declaring convergence
-    convergence_window: int = 15
+    convergence_window: int = 25
     # L2 threshold: actions closer than this are "similar"
-    convergence_threshold: float = 0.02
+    convergence_threshold: float = 1
     # Don't check convergence in the first N seconds (let the arm start moving)
-    convergence_grace_period: float = 8
+    convergence_grace_period: float = 6
+    # Seconds with no new actions before declaring a stall (policy stopped sending)
+    action_stall_timeout: float = 2.0
 
 
 @dataclass
@@ -156,7 +158,7 @@ class LoopRobotClient:
         self.action_queue = Queue()
         self.action_queue_lock = threading.Lock()
         self.action_queue_size = []
-        self.start_barrier = threading.Barrier(2)
+        self.start_barrier = threading.Barrier(3)
 
         self.fps_tracker = FPSTracker(target_fps=self.config.fps)
         self.must_go = threading.Event()
@@ -168,6 +170,7 @@ class LoopRobotClient:
         self._max_displacement = 0.0
         self._converged = False
         self._total_actions = 0
+        self._last_action_time = 0.0
 
         # Capture home position on startup
         self.home_position = self._capture_current_position()
@@ -320,13 +323,14 @@ class LoopRobotClient:
         self.action_chunk_size = -1
         self.action_queue = Queue()
         self.action_queue_size = []
-        self.start_barrier = threading.Barrier(2)
+        self.start_barrier = threading.Barrier(3)
         # Convergence tracking
         self._action_history = []
         self._first_action = None
         self._max_displacement = 0.0
         self._converged = False
         self._total_actions = 0
+        self._last_action_time = 0.0
 
     # ------------------------------------------------------------------
     # Episode threads
@@ -361,14 +365,17 @@ class LoopRobotClient:
 
     def _abort_listener_thread(self):
         """Listen for Enter key to abort episode early."""
+        import select
+        import sys
         self.start_barrier.wait()
-        try:
-            input()
-            if not self.episode_done.is_set():
-                self.logger.info("Episode aborted by user.")
-                self.episode_done.set()
-        except EOFError:
-            pass
+        while not self.episode_done.is_set():
+            # Poll stdin with 0.1s timeout so we can check episode_done
+            if select.select([sys.stdin], [], [], 0.1)[0]:
+                sys.stdin.readline()
+                if not self.episode_done.is_set():
+                    self.logger.info("Episode aborted by user.")
+                    self.episode_done.set()
+                break
 
     def _control_loop_thread(self, task: str):
         """Main thread: sends observations and executes actions until episode ends."""
@@ -409,6 +416,7 @@ class LoopRobotClient:
                     # --- Convergence tracking ---
                     action_np = action_tensor.cpu().numpy().flatten()
                     self._total_actions += 1
+                    self._last_action_time = elapsed
 
                     if self._first_action is None:
                         self._first_action = action_np.copy()
@@ -429,9 +437,9 @@ class LoopRobotClient:
                         # Max pairwise L2 between consecutive actions in the window
                         max_delta = 0.0
                         for j in range(1, len(self._action_history)):
-                            delta = float(np.linalg.norm(
-                                self._action_history[j] - self._action_history[j - 1]
-                            ))
+                            delta = float(np.max(np.abs(
+                            self._action_history[j] - self._action_history[j - 1]
+                        )))
                             if delta > max_delta:
                                 max_delta = delta
 
@@ -445,9 +453,35 @@ class LoopRobotClient:
                             )
                             self.episode_done.set()
                             break
+                        else:
+                            self.logger.info(
+                                f"Convergence check at {elapsed:.1f}s: "
+                                f"max_delta={max_delta:.6f} "
+                                f"(threshold={self.config.convergence_threshold})"
+                            )
 
                 except Empty:
                     pass
+
+            else:
+                # --- Stale-action detection ---
+                # If the policy server stops sending actions (queue empty) but
+                # we've already received some, the arm has effectively stopped.
+                # This catches the case where π0.5 stops producing chunks when
+                # it considers the task done, so the in-window convergence check
+                # never fires because no new actions enter the buffer.
+                if (self._total_actions > 0
+                        and elapsed >= self.config.convergence_grace_period):
+                    time_since_last = elapsed - self._last_action_time
+                    if time_since_last >= self.config.action_stall_timeout:
+                        self._converged = True
+                        self.logger.info(
+                            f"Action stall detected at {elapsed:.1f}s — no new "
+                            f"actions for {time_since_last:.1f}s. "
+                            f"Max displacement from start: {self._max_displacement:.4f}"
+                        )
+                        self.episode_done.set()
+                        break
 
             # Send observation if ready
             if self._ready_to_send_observation():
@@ -483,7 +517,6 @@ class LoopRobotClient:
     def run_episode(self, task: str) -> EpisodeResult:
         """Execute one episode: run the policy for the given task until timeout or convergence."""
         self._reset_episode_state()
-        t_start = time.perf_counter()
 
         receiver = threading.Thread(target=self._receive_actions_thread, daemon=True)
         receiver.start()
@@ -497,7 +530,7 @@ class LoopRobotClient:
         abort.join(timeout=1.0)
 
         result = EpisodeResult(
-            duration=time.perf_counter() - t_start,
+            duration=time.perf_counter() - self._episode_start_perf,
             converged=self._converged,
             max_displacement=self._max_displacement,
             total_actions=self._total_actions,
