@@ -61,7 +61,6 @@ from robot_client_loop import LoopClientConfig, LoopRobotClient
 from vlm import (
     DECOMPOSITION_SYSTEM_PROMPT,
     EVALUATION_SYSTEM_PROMPT,
-    RealSenseCamera,
     generate,
     load_model,
 )
@@ -79,7 +78,7 @@ class OrchestratorConfig(LoopClientConfig):
     # Use the dedicated top-down RealSense D435 for VLM input.
     # If false (or the camera fails to start), falls back to the robot's own
     # camera observation, then to text-only.
-    vlm_realsense: bool = True
+    vlm_camera_key: str = "front"
     # After each sub-task episode, ask the VLM whether it succeeded
     evaluate_subtasks: bool = True
     # How many times to re-run a sub-task the VLM judged as failed
@@ -197,41 +196,34 @@ class VLMPlanner:
 # ---------------------------------------------------------------------------
 # Frame source for the VLM
 # ---------------------------------------------------------------------------
+# Replace the entire VLMFrameSource class:
+
 class VLMFrameSource:
-    """Provides PIL frames for the VLM: RealSense first, robot camera fallback."""
+    """Provides PIL frames for the VLM from the robot's camera observations."""
 
-    def __init__(self, client: LoopRobotClient, use_realsense: bool, save_dir: Path | None):
+    def __init__(self, client: LoopRobotClient, camera_key: str, save_dir: Path | None):
         self.client = client
+        self.camera_key = camera_key
         self.save_dir = save_dir
-        self.camera = None
-
-        if use_realsense:
-            try:
-                self.camera = RealSenseCamera()
-                self.camera.start()
-            except Exception as e:
-                logging.warning(f"Could not start RealSense for VLM ({e}); "
-                                "falling back to robot camera observation.")
-                self.camera = None
-
-    def _frame_from_robot_obs(self) -> Image.Image | None:
-        """Pull the first image-like array out of the robot's observation."""
-        obs = self.client.capture_frame()
-        for key, value in obs.items():
-            if isinstance(value, np.ndarray) and value.ndim == 3 and value.shape[-1] == 3:
-                return Image.fromarray(value.astype(np.uint8))
-        return None
 
     def capture(self, tag: str = "frame") -> Image.Image | None:
-        frame = None
-        if self.camera is not None:
-            try:
-                frame = self.camera.capture()
-            except Exception as e:
-                logging.warning(f"RealSense capture failed ({e}); trying robot camera.")
+        obs = self.client.capture_frame()
 
+        # Try the specified camera key first
+        frame = None
+        if self.camera_key in obs:
+            value = obs[self.camera_key]
+            if isinstance(value, np.ndarray) and value.ndim == 3 and value.shape[-1] == 3:
+                frame = Image.fromarray(value.astype(np.uint8))
+
+        # Fallback: first image-like array
         if frame is None:
-            frame = self._frame_from_robot_obs()
+            for key, value in obs.items():
+                if isinstance(value, np.ndarray) and value.ndim == 3 and value.shape[-1] == 3:
+                    logging.warning(f"Camera key '{self.camera_key}' not found; "
+                                    f"using '{key}' instead.")
+                    frame = Image.fromarray(value.astype(np.uint8))
+                    break
 
         if frame is None:
             logging.warning("No VLM frame available — running text-only.")
@@ -247,10 +239,7 @@ class VLMFrameSource:
         return frame
 
     def stop(self):
-        if self.camera is not None:
-            self.camera.stop()
-
-
+        pass  # No separate pipeline to clean up
 # ---------------------------------------------------------------------------
 # Orchestration: one high-level prompt -> decompose -> execute -> evaluate
 # ---------------------------------------------------------------------------
@@ -337,7 +326,7 @@ def main(cfg: OrchestratorConfig):
     planner = VLMPlanner(cfg.vlm_model, temperature=cfg.vlm_temperature)
     # 3. Frame source for the VLM
     save_dir = Path("./frames") if cfg.save_frames else None
-    frames = VLMFrameSource(client, use_realsense=cfg.vlm_realsense, save_dir=save_dir)
+    frames = VLMFrameSource(client, camera_key=cfg.vlm_camera_key, save_dir=save_dir)
 
     client.logger.info("=" * 60)
     client.logger.info("Dual-system ready: VLM planner + VLA policy loaded.")
