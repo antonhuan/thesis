@@ -120,14 +120,19 @@ def capture_scene(camera: RealSenseCamera, save_dir: Path = None) -> Image.Image
 
 def load_model(model_name: str = "Qwen/Qwen3-VL-4B-Instruct"):
     """Load model and processor."""
-    from transformers import Qwen3VLForConditionalGeneration, AutoProcessor
+    from transformers import Qwen3VLForConditionalGeneration, AutoProcessor, BitsAndBytesConfig
 
     print(f"Loading {model_name}...")
     t0 = time.time()
 
+    # model = Qwen3VLForConditionalGeneration.from_pretrained(
+    #     model_name,
+    #     torch_dtype=torch.bfloat16,
+    #     device_map="auto",
+    # )
     model = Qwen3VLForConditionalGeneration.from_pretrained(
         model_name,
-        torch_dtype=torch.bfloat16,
+        quantization_config=BitsAndBytesConfig(load_in_4bit=True),
         device_map="auto",
     )
     processor = AutoProcessor.from_pretrained(model_name)
@@ -139,7 +144,7 @@ def load_model(model_name: str = "Qwen/Qwen3-VL-4B-Instruct"):
     return model, processor
 
 
-def generate(model, processor, messages: list, max_new_tokens: int = 1024,
+def generate(model, processor, messages: list, max_new_tokens: int = 2048,
              temperature: float = 0.7) -> str:
     """Run inference and return generated text."""
     inputs = processor.apply_chat_template(
@@ -200,7 +205,9 @@ Rules:
 - If the user's instruction contains preferences (e.g. "leave the cups", "no sugar", "put the red one first"), reflect those preferences in which sub-tasks you include, omit, or reorder.
 - Do NOT include sub-tasks that violate stated preferences.
 - If the instruction refers to a group of objects using words like "everything", "all", "the rest", or similar, visually identify each individual object in the scene and generate one sub-task per object. Do not output an empty list — if objects are visible, there is work to do.
-- If the instruction specifies to leave something or ignore something, do not output any subtasks that involve the specified object
+- If the instruction specifies to leave something or ignore something, do not output any subtasks that involve the specified object or objects that belong in that category. For example banana belongs in the category of food, so if it says leave the food do not output any subtasks involving banana.
+
+For all pick and place tasks, the destination is the pink tray 
 
 Output format:
 Return ONLY a JSON array of sub-task strings. Example:
