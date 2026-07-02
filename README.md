@@ -113,7 +113,7 @@ python robot_client_loop.py \
     --policy_device=cuda \
     --actions_per_chunk=50 \
     --chunk_size_threshold=0.7 \
-    --episode_duration=300
+    --episode_duration=30
 ```
 
 vlm orchecstrator loop: 
