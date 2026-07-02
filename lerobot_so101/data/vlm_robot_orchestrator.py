@@ -84,16 +84,16 @@ class OrchestratorConfig(LoopClientConfig):
     # After each sub-task episode, ask the VLM whether it succeeded
     evaluate_subtasks: bool = True
     # How many times to re-run a sub-task the VLM judged as failed
-    max_retries: int = 2
+    max_retries: int = 3
     # How many times to replan the remaining sequence after a sub-task fails
     # all retries. Set to 0 to disable replanning.
     max_replans: int = 1
     # Save every frame sent to the VLM under ./frames/
     save_frames: bool = False
-    # Fraction of episode duration below which we consider the arm "didn't move".
-    # When the VLA doesn't understand an instruction it typically stays at home
-    # or produces negligible actions that trigger early convergence.
-    no_movement_threshold: float = 0.2
+    # Max joint displacement (L2) below which a converged episode counts as
+    # "no movement" — i.e. the VLA did not understand the instruction.
+    # Tunable: start at 0.02 and adjust based on your arm's joint scale.
+    no_movement_threshold: float = 0.02
 
 
 # ---------------------------------------------------------------------------
@@ -130,31 +130,10 @@ Rules:
 - The tray (regardless of colour) is ALWAYS the destination. NEVER include it in visible_objects or allowed_objects.
 - If an object from a completed sub-task is already on the tray, do NOT include it again.
 - If the failed sub-task's object is still visible and not on the tray, include it in the revised plan.
+- If the failure reason says the robot did not move or did not understand the instruction, the object name was probably too complex. Use the simplest possible name (e.g. "toy" not "stuffed animal", "cup" not "ceramic mug") or describe it by its most obvious visual feature (colour, shape).
+- Keep every sub-task short and direct (e.g. "put the X on the tray").
 """
 
-
-REPHRASE_SYSTEM_PROMPT = """You are a task planner for an orange tabletop robot arm (SO-101, 6-DOF). The robot failed to execute a sub-task — it did not move at all, which means it did not understand the instruction.
-
-You will receive:
-- The failed sub-task instruction
-- A camera observation of the workspace
-
-Your job is to REPHRASE the sub-task using simpler, more concrete language. The robot understands basic pick-and-place commands with simple object names.
-
-Guidelines:
-- Use the simplest possible name for the object (e.g. "toy" not "stuffed animal", "cup" not "ceramic mug")
-- Keep the instruction short and direct (e.g. "put the X on the tray")
-- Do NOT change the action or destination — only rephrase the object description
-- If you are unsure what the object is, describe it by its most obvious visual feature (colour, size, shape)
-
-Output format:
-Return ONLY a JSON object with two fields:
-- "rephrased": the new sub-task instruction
-- "reason": why you changed the wording
-
-Example:
-{"rephrased": "put the toy on the tray", "reason": "Simplified 'stuffed animal' to 'toy' for the robot's vocabulary."}
-"""
 
 
 # ---------------------------------------------------------------------------
@@ -206,25 +185,6 @@ def parse_evaluation(output: str) -> dict:
 
     raise ValueError(f"Could not parse evaluation from VLM output:\n{output}")
 
-
-def parse_rephrase(output: str) -> dict:
-    """Extract a {'rephrased': str, 'reason': str} object from model output."""
-    text = _strip_code_fences(output)
-
-    candidates = [text]
-    start, end = text.find("{"), text.rfind("}")
-    if start != -1 and end > start:
-        candidates.append(text[start : end + 1])
-
-    for candidate in candidates:
-        try:
-            parsed = json.loads(candidate)
-            if isinstance(parsed, dict) and "rephrased" in parsed:
-                return parsed
-        except json.JSONDecodeError:
-            continue
-
-    raise ValueError(f"Could not parse rephrase from VLM output:\n{output}")
 
 
 # ---------------------------------------------------------------------------
@@ -278,30 +238,6 @@ class VLMPlanner:
         )
         logging.info(f"Raw eval output: {output}")
         return parse_evaluation(output)
-
-    def rephrase(self, sub_task: str, frame: Image.Image | None) -> str:
-        """Rephrase a sub-task that the VLA could not execute (no movement).
-
-        Returns the rephrased instruction string.
-        """
-        text = (
-            f'The robot did not move at all when given this sub-task: "{sub_task}"\n'
-            f"This means it did not understand the instruction.\n"
-            f"Rephrase it using simpler language."
-        )
-        messages = [
-            {"role": "system", "content": [{"type": "text", "text": REPHRASE_SYSTEM_PROMPT}]},
-            {"role": "user", "content": self._user_content(frame, text)},
-        ]
-        output = generate(
-            self.model, self.processor, messages, temperature=self.temperature
-        )
-        logging.info(f"Raw rephrase output: {output}")
-        result = parse_rephrase(output)
-        rephrased = result["rephrased"]
-        reason = result.get("reason", "")
-        logging.info(f"Rephrased: '{sub_task}' -> '{rephrased}' ({reason})")
-        return rephrased
 
     def replan(
         self,
@@ -430,48 +366,35 @@ def run_high_level_task(
         task_num = len(completed) + 1
         attempts_left = 1 + max(cfg.max_retries, 0)
         succeeded = False
-        rephrased = False  # track whether we already tried rephrasing
-        reason = ""  # last failure reason, used by replan
+        no_movement = False
+        reason = ""  # last failure reason, passed to replan
 
         while attempts_left > 0:
             attempts_left -= 1
 
             logger.info(f"[{task_num}] Executing sub-task: '{sub_task}' "
                         f"({attempts_left} retries left)")
-            t_start = time.time()
-            client.run_episode(sub_task)
-            episode_duration = time.time() - t_start
+            ep_result = client.run_episode(sub_task)
 
             # Return home so the arm is out of frame and the next episode
             # starts from a consistent pose
             client.go_home()
 
             # --- No-movement detection ---
-            # If the episode ended very quickly relative to the configured
-            # duration, the VLA likely didn't understand the instruction and
-            # produced no meaningful actions.
-            expected = cfg.episode_duration
-            no_movement = episode_duration < expected * cfg.no_movement_threshold
+            # If the episode converged early and the arm barely left the
+            # starting position, the VLA didn't understand the instruction.
+            # Retrying the same wording won't help — break to replan.
+            no_movement = (ep_result.converged
+                           and ep_result.max_displacement < cfg.no_movement_threshold)
 
-            if no_movement and not rephrased:
-                logger.warning(
-                    f"Episode lasted {episode_duration:.1f}s "
-                    f"(expected ~{expected}s) — VLA likely did not understand "
-                    f"the instruction. Attempting rephrase."
+            if no_movement:
+                reason = (
+                    f"The robot did not move (max_displacement="
+                    f"{ep_result.max_displacement:.4f}). It likely did not "
+                    f"understand the object name in the instruction."
                 )
-                frame = frames.capture(tag=f"rephrase_task{task_num}")
-                try:
-                    sub_task = planner.rephrase(sub_task, frame)
-                    rephrased = True
-                    logger.info(f"Rephrased sub-task: '{sub_task}' — retrying.")
-                    # Don't count this attempt against retries since the
-                    # original instruction was the problem, not execution.
-                    attempts_left += 1
-                    continue
-                except ValueError as e:
-                    logger.warning(f"Rephrase failed ({e}); continuing with "
-                                   "original wording.")
-                    reason = "VLA produced no movement and rephrase failed"
+                logger.warning(reason)
+                break  # skip remaining retries, fall through to replan
 
             if not cfg.evaluate_subtasks:
                 succeeded = True
@@ -480,15 +403,15 @@ def run_high_level_task(
             # 3. Judge success from a fresh frame
             frame = frames.capture(tag=f"eval_task{task_num}")
             try:
-                result = planner.evaluate(sub_task, frame)
+                eval_result = planner.evaluate(sub_task, frame)
             except ValueError as e:
                 logger.warning(f"Could not parse VLM evaluation ({e}); "
                                "assuming success and moving on.")
                 succeeded = True
                 break
 
-            success = bool(result.get("success"))
-            reason = result.get("reason", "")
+            success = bool(eval_result.get("success"))
+            reason = eval_result.get("reason", "")
             logger.info(f"VLM judgement: success={success} | {reason}")
 
             if success:
@@ -513,18 +436,8 @@ def run_high_level_task(
         # 4. Replan the remaining sequence
         replans_remaining -= 1
         logger.info(f"Triggering replan ({replans_remaining} replan(s) left after this)...")
-        # Enrich failure reason with failure type for the replanner
-        if no_movement:
-            failure_context = (
-                f"{reason}. The robot did not move — it likely did not "
-                f"understand the object name. Use simpler object descriptions "
-                f"in the revised plan."
-            )
-        else:
-            failure_context = reason
-
         logger.info(f"  Completed so far: {completed}")
-        logger.info(f"  Failed: '{sub_task}' — {failure_context}")
+        logger.info(f"  Failed: '{sub_task}' — {reason}")
         logger.info(f"  Remaining (discarded): {pending}")
 
         frame = frames.capture(tag="replan")
@@ -533,7 +446,7 @@ def run_high_level_task(
                 original_prompt=prompt,
                 completed_subtasks=completed,
                 failed_subtask=sub_task,
-                failure_reason=failure_context,
+                failure_reason=reason,
                 frame=frame,
             )
         except ValueError as e:
