@@ -132,8 +132,9 @@ python vlm_robot_orchestrator.py \
     --chunk_size_threshold=0.7 \
     --episode_duration=30 \
     --vlm_model=Qwen/Qwen3-VL-4B-Instruct \
-    --evaluate_subtasks=false \
-    --max_retries=1
+    --evaluate_subtasks=True \
+    --max_retries=2 \
+    --max_replans=1
 
 ### Rollout with real-time chunking (2 cameras)
 
