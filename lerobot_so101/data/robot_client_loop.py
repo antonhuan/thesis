@@ -514,20 +514,28 @@ class LoopRobotClient:
     # ------------------------------------------------------------------
     # Run a single episode
     # ------------------------------------------------------------------
-    def run_episode(self, task: str) -> EpisodeResult:
+    def run_episode(self, task: str, enable_abort_listener: bool = True) -> EpisodeResult:
         """Execute one episode: run the policy for the given task until timeout or convergence."""
         self._reset_episode_state()
+
+        if not enable_abort_listener:
+            # When an external manager handles stdin, skip the abort thread
+            # and reduce the barrier from 3 to 2 parties.
+            self.start_barrier = threading.Barrier(2)
 
         receiver = threading.Thread(target=self._receive_actions_thread, daemon=True)
         receiver.start()
 
-        abort = threading.Thread(target=self._abort_listener_thread, daemon=True)
-        abort.start()
+        abort = None
+        if enable_abort_listener:
+            abort = threading.Thread(target=self._abort_listener_thread, daemon=True)
+            abort.start()
+            self.logger.info("Press Enter to abort episode early.")
 
-        self.logger.info("Press Enter to abort episode early.")
         self._control_loop_thread(task)  # blocks until episode_done
         receiver.join(timeout=5.0)
-        abort.join(timeout=1.0)
+        if abort is not None:
+            abort.join(timeout=1.0)
 
         result = EpisodeResult(
             duration=time.perf_counter() - self._episode_start_perf,

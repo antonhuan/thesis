@@ -44,9 +44,13 @@
 #
 # Type 'quit' or 'exit' to shut down cleanly.
 
+import enum
 import json
 import logging
 import re
+import select
+import sys
+import threading
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -134,6 +138,76 @@ Rules:
 - Keep every sub-task short and direct (e.g. "put the X on the tray").
 """
 
+
+# ---------------------------------------------------------------------------
+# User interjection during execution
+# ---------------------------------------------------------------------------
+class InterjectionType(enum.Enum):
+    NONE = "none"
+    SKIP = "skip"
+    REPLAN = "replan"
+
+
+class InterjectionManager:
+    """Background stdin listener that lets the user skip or replan mid-execution."""
+
+    def __init__(self, client: "LoopRobotClient"):
+        self.client = client
+        self._type = InterjectionType.NONE
+        self._replan_context = ""
+        self._lock = threading.Lock()
+        self._active = threading.Event()
+        self._thread: threading.Thread | None = None
+
+    def start(self):
+        self._clear()
+        self._active.set()
+        self._thread = threading.Thread(target=self._listener, daemon=True)
+        self._thread.start()
+
+    def stop(self):
+        self._active.clear()
+        if self._thread is not None:
+            self._thread.join(timeout=2.0)
+            self._thread = None
+
+    def _clear(self):
+        with self._lock:
+            self._type = InterjectionType.NONE
+            self._replan_context = ""
+
+    def check_and_consume(self) -> tuple[InterjectionType, str]:
+        """Return (type, context) and reset the interjection state."""
+        with self._lock:
+            t, ctx = self._type, self._replan_context
+            self._type = InterjectionType.NONE
+            self._replan_context = ""
+        return t, ctx
+
+    def _listener(self):
+        print("\n[INTERJECT] Press 's'+Enter to SKIP subtask | 'r'+Enter to REPLAN | Enter to skip")
+        while self._active.is_set():
+            if select.select([sys.stdin], [], [], 0.2)[0]:
+                line = sys.stdin.readline().strip().lower()
+                if not self._active.is_set():
+                    break
+                if line == "r":
+                    print("[INTERJECT] Why is the plan wrong? Type context and press Enter:")
+                    if select.select([sys.stdin], [], [], 30.0)[0]:
+                        context = sys.stdin.readline().strip()
+                    else:
+                        context = "(no context provided)"
+                    with self._lock:
+                        self._type = InterjectionType.REPLAN
+                        self._replan_context = context
+                    print(f"[INTERJECT] REPLAN requested: {context}")
+                    self.client.episode_done.set()
+                else:
+                    # 's', bare Enter, or anything else → skip
+                    with self._lock:
+                        self._type = InterjectionType.SKIP
+                    print("[INTERJECT] SKIP requested — stopping current action...")
+                    self.client.episode_done.set()
 
 
 # ---------------------------------------------------------------------------
@@ -336,6 +410,7 @@ def run_high_level_task(
     frames: VLMFrameSource,
     cfg: OrchestratorConfig,
     prompt: str,
+    interjection: InterjectionManager,
 ):
     logger = client.logger
 
@@ -367,6 +442,7 @@ def run_high_level_task(
         attempts_left = 1 + max(cfg.max_retries, 0)
         succeeded = False
         no_movement = False
+        user_replanned = False
         reason = ""  # last failure reason, passed to replan
 
         while attempts_left > 0:
@@ -374,16 +450,63 @@ def run_high_level_task(
 
             logger.info(f"[{task_num}] Executing sub-task: '{sub_task}' "
                         f"({attempts_left} retries left)")
-            ep_result = client.run_episode(sub_task)
+            ep_result = client.run_episode(sub_task, enable_abort_listener=False)
+
+            # --- Interjection check: after episode ---
+            itype, ctx = interjection.check_and_consume()
+            if itype == InterjectionType.SKIP:
+                logger.info(f"User skipped sub-task: '{sub_task}'")
+                client.go_home()
+                break
+            elif itype == InterjectionType.REPLAN:
+                logger.info(f"User requested replan: {ctx}")
+                client.go_home()
+                frame = frames.capture(tag="user_replan")
+                try:
+                    pending = planner.replan(
+                        original_prompt=prompt,
+                        completed_subtasks=completed,
+                        failed_subtask=sub_task,
+                        failure_reason=f"User interjection: {ctx}",
+                        frame=frame,
+                    )
+                    logger.info(f"Replanned queue ({len(pending)}):")
+                    for i, st in enumerate(pending, 1):
+                        logger.info(f"  {i}. {st}")
+                except ValueError as e:
+                    logger.error(f"Replan failed ({e}) — continuing with remaining queue.")
+                user_replanned = True
+                break
 
             # Return home so the arm is out of frame and the next episode
             # starts from a consistent pose
             client.go_home()
 
+            # --- Interjection check: after go_home ---
+            itype, ctx = interjection.check_and_consume()
+            if itype == InterjectionType.SKIP:
+                logger.info(f"User skipped sub-task: '{sub_task}'")
+                break
+            elif itype == InterjectionType.REPLAN:
+                logger.info(f"User requested replan: {ctx}")
+                frame = frames.capture(tag="user_replan")
+                try:
+                    pending = planner.replan(
+                        original_prompt=prompt,
+                        completed_subtasks=completed,
+                        failed_subtask=sub_task,
+                        failure_reason=f"User interjection: {ctx}",
+                        frame=frame,
+                    )
+                    logger.info(f"Replanned queue ({len(pending)}):")
+                    for i, st in enumerate(pending, 1):
+                        logger.info(f"  {i}. {st}")
+                except ValueError as e:
+                    logger.error(f"Replan failed ({e}) — continuing with remaining queue.")
+                user_replanned = True
+                break
+
             # --- No-movement detection ---
-            # If the episode converged early and the arm barely left the
-            # starting position, the VLA didn't understand the instruction.
-            # Retrying the same wording won't help — break to replan.
             no_movement = (ep_result.converged
                            and ep_result.max_displacement < cfg.no_movement_threshold)
 
@@ -410,6 +533,30 @@ def run_high_level_task(
                 succeeded = True
                 break
 
+            # --- Interjection check: after evaluate ---
+            itype, ctx = interjection.check_and_consume()
+            if itype == InterjectionType.SKIP:
+                logger.info(f"User skipped sub-task: '{sub_task}'")
+                break
+            elif itype == InterjectionType.REPLAN:
+                logger.info(f"User requested replan: {ctx}")
+                frame = frames.capture(tag="user_replan")
+                try:
+                    pending = planner.replan(
+                        original_prompt=prompt,
+                        completed_subtasks=completed,
+                        failed_subtask=sub_task,
+                        failure_reason=f"User interjection: {ctx}",
+                        frame=frame,
+                    )
+                    logger.info(f"Replanned queue ({len(pending)}):")
+                    for i, st in enumerate(pending, 1):
+                        logger.info(f"  {i}. {st}")
+                except ValueError as e:
+                    logger.error(f"Replan failed ({e}) — continuing with remaining queue.")
+                user_replanned = True
+                break
+
             success = bool(eval_result.get("success"))
             reason = eval_result.get("reason", "")
             logger.info(f"VLM judgement: success={success} | {reason}")
@@ -420,6 +567,9 @@ def run_high_level_task(
 
             if attempts_left > 0:
                 logger.info(f"Retrying sub-task ({attempts_left} attempt(s) left)...")
+
+        if user_replanned:
+            continue
 
         if succeeded:
             completed.append(sub_task)
@@ -483,6 +633,8 @@ def main(cfg: OrchestratorConfig):
     # 3. Frame source for the VLM
     save_dir = Path("./frames") if cfg.save_frames else None
     frames = VLMFrameSource(client, camera_key=cfg.vlm_camera_key, save_dir=save_dir)
+    # 4. Interjection manager (user can skip/replan mid-execution)
+    interjection = InterjectionManager(client)
 
     client.logger.info("=" * 60)
     client.logger.info("Dual-system ready: VLM planner + VLA policy loaded.")
@@ -490,6 +642,7 @@ def main(cfg: OrchestratorConfig):
     client.logger.info(f"Max retries per sub-task: {cfg.max_retries}")
     client.logger.info(f"Max replans per prompt: {cfg.max_replans}")
     client.logger.info("Type a HIGH-LEVEL instruction and press Enter to execute.")
+    client.logger.info("During execution: 's'+Enter to skip, 'r'+Enter to replan.")
     client.logger.info("Type 'quit' or 'exit' to shut down.")
     client.logger.info("=" * 60)
 
@@ -506,7 +659,9 @@ def main(cfg: OrchestratorConfig):
                 client.logger.info("Shutdown requested.")
                 break
 
-            run_high_level_task(client, planner, frames, cfg, prompt)
+            interjection.start()
+            run_high_level_task(client, planner, frames, cfg, prompt, interjection)
+            interjection.stop()
 
     except KeyboardInterrupt:
         client.logger.info("\nInterrupted by user.")
