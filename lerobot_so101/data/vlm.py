@@ -231,21 +231,23 @@ You MUST respond in the following JSON format exactly:
   "visible_objects": ["list", "of", "objects", "you", "see"],
   "excluded_objects": ["objects", "the", "instruction", "says", "to", "leave"],
   "allowed_objects": ["visible", "minus", "excluded"],
-  "subtasks": ["put the X on the tray", "put the Y on the tray"]
+  "subtasks": ["put the X on the tray", "put the Y next to the X"]
 }
 
 Rules:
-- The orange robot arm is not an object. Destinations (tray, bowl) are not objects to move.
+- The orange robot arm/kumquuat is not an object. Do not include it in visible_objects.
 - excluded_objects: any object the instruction says to leave, skip, ignore, or not touch. If none, use [].
 - allowed_objects: every object in visible_objects that is NOT in excluded_objects.
-- subtasks: one sub-task per allowed object ONLY. Each sub-task is a single pick-and-place action (e.g. "put the apple on the tray"). Never reference an excluded object.
-- "everything", "all", "the rest" = every visible object minus excluded objects.
-- If the instruction uses a category word (e.g. "food", "drinks", "utensils"), identify which visible objects belong to that category and treat them all as excluded (or included). For example, if the instruction says "leave the food" and you see a banana and an apple, both are food and both should be excluded.
-- If the instruction uses a vague destination like "away", "clean up", or "tidy up", default to the tray as the destination.
-- The default destination is always the tray. If the instruction says "away", "clean up", or "tidy up" without specifying a destination, use the tray.
+- subtasks: one sub-task per allowed object ONLY. Each sub-task is a single pick-and-place action.
+- Each sub-task must specify both the object AND its destination (e.g. "put the fork next to the plate", "put the bowl on the tray", "put the plate on the placemat").
+- Infer the destination for each object from the instruction and common sense. If the instruction gives a specific destination, use it. If the instruction implies an arrangement (e.g. "set the table"), use spatial language appropriate to the task (e.g. "next to", "on", "in front of").
+- Destinations MUST be grounded in the scene. Only use objects or surfaces you can see in the camera observation as destinations.
+- If the instruction is vague about destination (e.g. "away", "clean up", "tidy up"), choose the most reasonable visible container or surface (e.g. a tray, bin, or box) as the destination.
+- Never use a destination that is not visible in the scene.
+- If the instruction uses a category word (e.g. "food", "drinks", "utensils"), identify which visible objects belong to that category and treat them all as excluded (or included).
 - EVERY object in allowed_objects MUST have exactly one sub-task. If allowed_objects is not empty, subtasks CANNOT be empty.
-- The tray is ALWAYS the destination, NEVER an object to move. Do not include "tray" or "pink tray" in visible_objects or allowed_objects under any circumstances.
-- The tray (regardless of colour — pink tray, black tray, etc.) is ALWAYS the destination. NEVER include it in visible_objects, excluded_objects, or allowed_objects.
+- Order subtasks logically. Place base objects before objects that go on top of or relative to them (e.g. place the plate before placing the fork next to the plate).
+- visible_objects should include ALL objects and surfaces you see, including containers and destinations (trays, bowls, boxes, plates). An object can be both a destination for one subtask and a moved object in another.
 
 Examples:
 
@@ -258,11 +260,11 @@ Instruction: "clean up the table, don't touch the cup"
 Instruction: "put the apple on the tray"
 {"visible_objects": ["apple", "banana"], "excluded_objects": [], "allowed_objects": ["apple"], "subtasks": ["put the apple on the tray"]}
 
-Instruction: "put everything on the tray but leave the food"
+Instruction: "put everything away but leave the food"
 {"visible_objects": ["banana", "apple", "cup", "book"], "excluded_objects": ["banana", "apple"], "allowed_objects": ["cup", "book"], "subtasks": ["put the cup on the tray", "put the book on the tray"]}
 
-Instruction: "put everything away leave out the toys"
-{"visible_objects": ["banana", "stuffed animal", "book"], "excluded_objects": ["stuffed animal"], "allowed_objects": ["banana", "book"], "subtasks": ["put the banana on the tray", "put the book on the tray"]}
+Instruction: "stack the blocks"
+{"visible_objects": ["red block", "blue block", "green block"], "excluded_objects": [], "allowed_objects": ["red block", "blue block", "green block"], "subtasks": ["put the blue block on the red block", "put the green block on the blue block"]}
 """
 
 EVALUATION_SYSTEM_PROMPT = """You are a robot task evaluator. You receive a camera observation and a sub-task that was just attempted by a robot arm.
