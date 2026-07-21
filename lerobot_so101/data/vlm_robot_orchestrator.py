@@ -34,7 +34,8 @@
 #       --vlm_model=Qwen/Qwen3-VL-4B-Instruct \
 #       --evaluate_subtasks=true \
 #       --max_retries=3 \
-#       --max_replans=1
+#       --max_replans=1 \
+#       --enable_interjection=false
 #
 # At the prompt, type a HIGH-LEVEL instruction (e.g. "clean up the table but
 # leave the cups"). The VLM decomposes it into sub-tasks, each sub-task is
@@ -94,6 +95,9 @@ class OrchestratorConfig(LoopClientConfig):
     max_replans: int = 1
     # Save every frame sent to the VLM under ./frames/
     save_frames: bool = False
+    # Enable the background stdin listener that lets the user skip/replan
+    # mid-execution ('s'/'r'+Enter). Off by default; pass --enable_interjection=true.
+    enable_interjection: bool = False
     # Max joint displacement (L2) below which a converged episode counts as
     # "no movement" — i.e. the VLA did not understand the instruction.
     # Tunable: start at 0.02 and adjust based on your arm's joint scale.
@@ -642,7 +646,8 @@ def main(cfg: OrchestratorConfig):
     client.logger.info(f"Max retries per sub-task: {cfg.max_retries}")
     client.logger.info(f"Max replans per prompt: {cfg.max_replans}")
     client.logger.info("Type a HIGH-LEVEL instruction and press Enter to execute.")
-    client.logger.info("During execution: 's'+Enter to skip, 'r'+Enter to replan.")
+    if cfg.enable_interjection:
+        client.logger.info("During execution: 's'+Enter to skip, 'r'+Enter to replan.")
     client.logger.info("Type 'quit' or 'exit' to shut down.")
     client.logger.info("=" * 60)
 
@@ -659,9 +664,11 @@ def main(cfg: OrchestratorConfig):
                 client.logger.info("Shutdown requested.")
                 break
 
-            interjection.start()
+            if cfg.enable_interjection:
+                interjection.start()
             run_high_level_task(client, planner, frames, cfg, prompt, interjection)
-            interjection.stop()
+            if cfg.enable_interjection:
+                interjection.stop()
 
     except KeyboardInterrupt:
         client.logger.info("\nInterrupted by user.")
