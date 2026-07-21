@@ -445,7 +445,7 @@ class LoopRobotClient:
 
                         if max_delta < self.config.convergence_threshold:
                             self._converged = True
-                            self.logger.info(
+                            self.logger.debug(
                                 f"Action convergence detected at {elapsed:.1f}s "
                                 f"(max_delta={max_delta:.4f}, "
                                 f"threshold={self.config.convergence_threshold}). "
@@ -454,7 +454,7 @@ class LoopRobotClient:
                             self.episode_done.set()
                             break
                         else:
-                            self.logger.info(
+                            self.logger.debug(
                                 f"Convergence check at {elapsed:.1f}s: "
                                 f"max_delta={max_delta:.6f} "
                                 f"(threshold={self.config.convergence_threshold})"

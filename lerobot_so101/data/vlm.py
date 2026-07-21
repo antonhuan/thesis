@@ -235,7 +235,7 @@ You MUST respond in the following JSON format exactly:
 }
 
 Rules:
-- The orange robot arm/kumquuat is not an object. Do not include it in visible_objects.
+- The orange robot arm/kumquat is not an object. Do not include it in visible_objects.
 - excluded_objects: any object the instruction says to leave, skip, ignore, or not touch. If none, use [].
 - allowed_objects: every object in visible_objects that is NOT in excluded_objects.
 - subtasks: one sub-task per allowed object ONLY. Each sub-task is a single pick-and-place action.

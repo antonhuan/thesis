@@ -645,7 +645,7 @@ def main(cfg: OrchestratorConfig):
     client.logger.info(f"Episode duration per sub-task: {cfg.episode_duration}s")
     client.logger.info(f"Max retries per sub-task: {cfg.max_retries}")
     client.logger.info(f"Max replans per prompt: {cfg.max_replans}")
-    client.logger.info("Type a HIGH-LEVEL instruction and press Enter to execute.")
+    client.logger.info("Type an instruction and press Enter to execute.")
     if cfg.enable_interjection:
         client.logger.info("During execution: 's'+Enter to skip, 'r'+Enter to replan.")
     client.logger.info("Type 'quit' or 'exit' to shut down.")
