@@ -43,6 +43,10 @@
 # fresh camera frame, retrying failed sub-tasks. If retries are exhausted the
 # VLM replans the remaining sequence given the current scene state.
 #
+# Every replan pauses and asks you for additional context to pass to the VLM
+# (e.g. "the toy is behind the cup"). Press Enter alone to replan without it.
+# Note this blocks: an unattended run waits at a replan until someone responds.
+#
 # Type 'quit' or 'exit' to shut down cleanly.
 
 import enum
@@ -141,6 +145,7 @@ Rules:
 - If the failed sub-task's object is still visible and not on the tray, include it in the revised plan.
 - If the failure reason says the robot did not move or did not understand the instruction, the object name was probably too complex. Use the simplest possible name (e.g. "toy" not "stuffed animal", "cup" not "ceramic mug") or describe it by its most obvious visual feature (colour, shape).
 - Keep every sub-task short and direct (e.g. "put the X on the tray").
+- If the human operator provides additional guidance, treat it as ground truth about the scene and prefer it over your own visual interpretation wherever the two conflict.
 """
 
 
@@ -162,6 +167,9 @@ class InterjectionManager:
         self._replan_context = ""
         self._lock = threading.Lock()
         self._active = threading.Event()
+        # Set while the main thread is blocking on stdin itself; the listener
+        # must not consume input during that window.
+        self._paused = threading.Event()
         self._thread: threading.Thread | None = None
 
     def start(self):
@@ -189,18 +197,53 @@ class InterjectionManager:
             self._replan_context = ""
         return t, ctx
 
+    def prompt_for_context(self, header: str) -> str:
+        """Block on stdin for one line of operator guidance and return it.
+
+        Pauses the background listener first so it does not swallow the typed
+        line. Safe to call when no listener is running (--enable_interjection
+        =false): it falls back to a plain input().
+        """
+        listener_running = self._thread is not None and self._active.is_set()
+        if not listener_running:
+            print(f"\n{header}")
+            try:
+                return input("[REPLAN] Additional context for the planner "
+                             "(Enter for none): ").strip()
+            except EOFError:
+                return ""
+
+        self._paused.set()
+        # Longer than the listener's select() timeout, so any in-flight poll
+        # returns and observes _paused before touching stdin.
+        time.sleep(0.25)
+        try:
+            print(f"\n{header}")
+            print("[REPLAN] Additional context for the planner (Enter for none): ",
+                  end="", flush=True)
+            line = sys.stdin.readline()
+            return line.strip() if line else ""
+        finally:
+            self._paused.clear()
+
     def _listener(self):
         print("\n[INTERJECT] Press 's'+Enter to SKIP subtask | 'r'+Enter to REPLAN | Enter to skip")
         while self._active.is_set():
+            if self._paused.is_set():
+                time.sleep(0.05)
+                continue
             if select.select([sys.stdin], [], [], 0.2)[0]:
+                # Re-check: the main thread may have claimed stdin while we
+                # were blocked in select().
+                if self._paused.is_set():
+                    continue
                 line = sys.stdin.readline().strip().lower()
                 if not self._active.is_set():
                     break
                 if line == "r":
                     print("[INTERJECT] Why is the plan wrong? Type context and press Enter:")
-                    if select.select([sys.stdin], [], [], 30.0)[0]:
-                        context = sys.stdin.readline().strip()
-                    else:
+                    context = sys.stdin.readline().strip()
+                    if not context:
                         context = "(no context provided)"
                     with self._lock:
                         self._type = InterjectionType.REPLAN
@@ -325,9 +368,10 @@ class VLMPlanner:
         failed_subtask: str,
         failure_reason: str,
         frame: Image.Image | None,
+        user_context: str = "",
     ) -> list[str]:
-        """Replan remaining sub-tasks given what succeeded, what failed, and
-        the current scene state."""
+        """Replan remaining sub-tasks given what succeeded, what failed, the
+        current scene state, and any guidance typed by the human operator."""
         context_parts = [f'Original instruction: "{original_prompt}"']
 
         if completed_subtasks:
@@ -342,6 +386,14 @@ class VLMPlanner:
             f'Failed sub-task: "{failed_subtask}"\n'
             f'Failure reason: {failure_reason}'
         )
+
+        if user_context:
+            context_parts.append(
+                "Additional guidance from the human operator (authoritative — "
+                "follow it over your own reading of the scene):\n"
+                f"{user_context}"
+            )
+
         context_parts.append(
             "Produce a revised sub-task list for the REMAINING work only."
         )
@@ -440,6 +492,27 @@ def run_high_level_task(
     # Use a mutable list so replan can replace the remaining queue
     pending = list(subtasks)
 
+    def do_replan(failed_subtask: str, failure_reason: str,
+                  user_context: str, tag: str) -> list[str] | None:
+        """Capture a frame and replan; returns the new queue, or None on failure."""
+        replan_frame = frames.capture(tag=tag)
+        try:
+            new_queue = planner.replan(
+                original_prompt=prompt,
+                completed_subtasks=completed,
+                failed_subtask=failed_subtask,
+                failure_reason=failure_reason,
+                frame=replan_frame,
+                user_context=user_context,
+            )
+        except ValueError as e:
+            logger.error(f"Replan failed ({e}) — continuing with remaining queue.")
+            return None
+        logger.info(f"Replanned queue ({len(new_queue)}):")
+        for i, st in enumerate(new_queue, 1):
+            logger.info(f"  {i}. {st}")
+        return new_queue
+
     # 2. Work through the sub-task queue
     while pending:
         sub_task = pending.pop(0)
@@ -473,20 +546,10 @@ def run_high_level_task(
             elif itype == InterjectionType.REPLAN:
                 logger.info(f"User requested replan: {ctx}")
                 client.go_home()
-                frame = frames.capture(tag="user_replan")
-                try:
-                    pending = planner.replan(
-                        original_prompt=prompt,
-                        completed_subtasks=completed,
-                        failed_subtask=sub_task,
-                        failure_reason=f"User interjection: {ctx}",
-                        frame=frame,
-                    )
-                    logger.info(f"Replanned queue ({len(pending)}):")
-                    for i, st in enumerate(pending, 1):
-                        logger.info(f"  {i}. {st}")
-                except ValueError as e:
-                    logger.error(f"Replan failed ({e}) — continuing with remaining queue.")
+                new_queue = do_replan(sub_task, "The user requested a replan.",
+                                      ctx, "user_replan")
+                if new_queue is not None:
+                    pending = new_queue
                 user_replanned = True
                 break
 
@@ -504,20 +567,10 @@ def run_high_level_task(
                 continue
             elif itype == InterjectionType.REPLAN:
                 logger.info(f"User requested replan: {ctx}")
-                frame = frames.capture(tag="user_replan")
-                try:
-                    pending = planner.replan(
-                        original_prompt=prompt,
-                        completed_subtasks=completed,
-                        failed_subtask=sub_task,
-                        failure_reason=f"User interjection: {ctx}",
-                        frame=frame,
-                    )
-                    logger.info(f"Replanned queue ({len(pending)}):")
-                    for i, st in enumerate(pending, 1):
-                        logger.info(f"  {i}. {st}")
-                except ValueError as e:
-                    logger.error(f"Replan failed ({e}) — continuing with remaining queue.")
+                new_queue = do_replan(sub_task, "The user requested a replan.",
+                                      ctx, "user_replan")
+                if new_queue is not None:
+                    pending = new_queue
                 user_replanned = True
                 break
 
@@ -558,20 +611,10 @@ def run_high_level_task(
                 continue
             elif itype == InterjectionType.REPLAN:
                 logger.info(f"User requested replan: {ctx}")
-                frame = frames.capture(tag="user_replan")
-                try:
-                    pending = planner.replan(
-                        original_prompt=prompt,
-                        completed_subtasks=completed,
-                        failed_subtask=sub_task,
-                        failure_reason=f"User interjection: {ctx}",
-                        frame=frame,
-                    )
-                    logger.info(f"Replanned queue ({len(pending)}):")
-                    for i, st in enumerate(pending, 1):
-                        logger.info(f"  {i}. {st}")
-                except ValueError as e:
-                    logger.error(f"Replan failed ({e}) — continuing with remaining queue.")
+                new_queue = do_replan(sub_task, "The user requested a replan.",
+                                      ctx, "user_replan")
+                if new_queue is not None:
+                    pending = new_queue
                 user_replanned = True
                 break
 
@@ -616,24 +659,21 @@ def run_high_level_task(
         logger.info(f"  Failed: '{sub_task}' — {reason}")
         logger.info(f"  Remaining (discarded): {pending}")
 
-        frame = frames.capture(tag="replan")
-        try:
-            new_subtasks = planner.replan(
-                original_prompt=prompt,
-                completed_subtasks=completed,
-                failed_subtask=sub_task,
-                failure_reason=reason,
-                frame=frame,
-            )
-        except ValueError as e:
-            logger.error(f"Replan failed ({e}) — continuing with original remaining queue.")
+        # Give the operator a chance to tell the planner what actually went
+        # wrong. This BLOCKS until Enter — an unattended run will sit here
+        # until someone responds. Bare Enter replans with no extra context.
+        user_context = interjection.prompt_for_context(
+            f"[REPLAN] Sub-task '{sub_task}' failed after all retries: {reason}"
+        )
+        if user_context:
+            logger.info(f"  Operator context: {user_context}")
+
+        new_subtasks = do_replan(sub_task, reason, user_context, "replan")
+        if new_subtasks is None:
             continue
 
         # Replace the pending queue with the replanned tasks
         pending = new_subtasks
-        logger.info(f"Replanned queue ({len(pending)}):")
-        for i, st in enumerate(pending, 1):
-            logger.info(f"  {i}. {st}")
 
     logger.info(f"High-level task complete: '{prompt}'")
     logger.info(f"  Completed {len(completed)}/{len(subtasks)} original sub-tasks: {completed}")
@@ -667,6 +707,8 @@ def main(cfg: OrchestratorConfig):
     client.logger.info(f"Episode duration per sub-task: {cfg.episode_duration}s")
     client.logger.info(f"Max retries per sub-task: {cfg.max_retries}")
     client.logger.info(f"Max replans per prompt: {cfg.max_replans}")
+    client.logger.info("Replans pause for operator context — type guidance and press "
+                       "Enter, or Enter alone to skip.")
     client.logger.info("Type an instruction and press Enter to execute.")
     if cfg.enable_interjection:
         client.logger.info("During execution: 's'+Enter to skip, 'r'+Enter to replan.")
