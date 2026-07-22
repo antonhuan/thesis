@@ -35,7 +35,7 @@
 #       --evaluate_subtasks=true \
 #       --max_retries=3 \
 #       --max_replans=1 \
-#       --enable_interjection=false
+#       --enable_interjection=true
 #
 # At the prompt, type a HIGH-LEVEL instruction (e.g. "clean up the table but
 # leave the cups"). The VLM decomposes it into sub-tasks, each sub-task is
@@ -96,8 +96,9 @@ class OrchestratorConfig(LoopClientConfig):
     # Save every frame sent to the VLM under ./frames/
     save_frames: bool = False
     # Enable the background stdin listener that lets the user skip/replan
-    # mid-execution ('s'/'r'+Enter). Off by default; pass --enable_interjection=true.
-    enable_interjection: bool = False
+    # mid-execution (Enter/'s' to skip, 'r'+Enter to replan). On by default so
+    # skip works out of the box; pass --enable_interjection=false to disable.
+    enable_interjection: bool = True
     # Max joint displacement (L2) below which a converged episode counts as
     # "no movement" — i.e. the VLA did not understand the instruction.
     # Tunable: start at 0.02 and adjust based on your arm's joint scale.
@@ -447,10 +448,14 @@ def run_high_level_task(
         succeeded = False
         no_movement = False
         user_replanned = False
+        user_skipped = False
         reason = ""  # last failure reason, passed to replan
 
         while attempts_left > 0:
             attempts_left -= 1
+            # Reflects this attempt only: a skip on attempt N followed by a real
+            # failure on attempt N+1 must still replan like any other failure.
+            user_skipped = False
 
             logger.info(f"[{task_num}] Executing sub-task: '{sub_task}' "
                         f"({attempts_left} retries left)")
@@ -459,9 +464,12 @@ def run_high_level_task(
             # --- Interjection check: after episode ---
             itype, ctx = interjection.check_and_consume()
             if itype == InterjectionType.SKIP:
-                logger.info(f"User skipped sub-task: '{sub_task}'")
+                user_skipped = True
+                reason = "The user skipped this episode."
+                logger.info(f"User skipped sub-task: '{sub_task}' "
+                            f"({attempts_left} attempt(s) left)")
                 client.go_home()
-                break
+                continue
             elif itype == InterjectionType.REPLAN:
                 logger.info(f"User requested replan: {ctx}")
                 client.go_home()
@@ -489,8 +497,11 @@ def run_high_level_task(
             # --- Interjection check: after go_home ---
             itype, ctx = interjection.check_and_consume()
             if itype == InterjectionType.SKIP:
-                logger.info(f"User skipped sub-task: '{sub_task}'")
-                break
+                user_skipped = True
+                reason = "The user skipped this episode."
+                logger.info(f"User skipped sub-task: '{sub_task}' "
+                            f"({attempts_left} attempt(s) left)")
+                continue
             elif itype == InterjectionType.REPLAN:
                 logger.info(f"User requested replan: {ctx}")
                 frame = frames.capture(tag="user_replan")
@@ -540,8 +551,11 @@ def run_high_level_task(
             # --- Interjection check: after evaluate ---
             itype, ctx = interjection.check_and_consume()
             if itype == InterjectionType.SKIP:
-                logger.info(f"User skipped sub-task: '{sub_task}'")
-                break
+                user_skipped = True
+                reason = "The user skipped this episode."
+                logger.info(f"User skipped sub-task: '{sub_task}' "
+                            f"({attempts_left} attempt(s) left)")
+                continue
             elif itype == InterjectionType.REPLAN:
                 logger.info(f"User requested replan: {ctx}")
                 frame = frames.capture(tag="user_replan")
@@ -577,6 +591,14 @@ def run_high_level_task(
 
         if succeeded:
             completed.append(sub_task)
+            continue
+
+        # --- User skipped the final attempt ---
+        # Counts as failed (never added to `completed`) but does not trigger a
+        # replan: the user asked to move on, not to revise the plan.
+        if user_skipped:
+            logger.warning(f"Sub-task '{sub_task}' skipped by user on the final "
+                           f"attempt — counting as failed and moving on.")
             continue
 
         # --- All retries exhausted for this sub-task ---
