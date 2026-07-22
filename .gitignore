@@ -6,3 +6,5 @@ lerobot_so101/data/logs/
 lerobot_so101/data/.cache/
 .DS_Store
 personalreadme.md
+__pycache__/
+*.pyc
