@@ -102,7 +102,7 @@ class OrchestratorConfig(LoopClientConfig):
     # Enable the background stdin listener that lets the user skip/replan
     # mid-execution (Enter/'s' to skip, 'r'+Enter to replan). On by default so
     # skip works out of the box; pass --enable_interjection=false to disable.
-    enable_interjection: bool = True
+    enable_interjection: bool = False
     # Max joint displacement (L2) below which a converged episode counts as
     # "no movement" — i.e. the VLA did not understand the instruction.
     # Tunable: start at 0.02 and adjust based on your arm's joint scale.
