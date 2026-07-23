@@ -6,11 +6,12 @@ services:
     image: lerobot-so101:latest
     container_name: lerobot-so101
     volumes:
-      - /dev:/dev
-      - ./data:/workspace
-      - hf_cache:/workspace/.cache
-      - /tmp/.X11-unix:/tmp/.X11-unix
-      - /tmp/.docker.xauth:/tmp/.docker.xauth
+    - /dev:/dev
+    - ./data:/workspace
+    - /media/anton/e821d561-980a-4e8e-8c07-1de2e3f6a07a/lerobot_outputs:/workspace/outputs
+    - /media/anton/e821d561-980a-4e8e-8c07-1de2e3f6a07a/hf_cache:/workspace/.cache
+    - /tmp/.X11-unix:/tmp/.X11-unix
+    - /tmp/.docker.xauth:/tmp/.docker.xauth
     device_cgroup_rules:
       - 'c 188:* rmw'
       - 'c 166:* rmw'
@@ -27,5 +28,3 @@ services:
     privileged: true
     runtime: nvidia
     network_mode: host
-volumes:
-  hf_cache:
