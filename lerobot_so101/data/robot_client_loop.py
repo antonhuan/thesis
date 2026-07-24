@@ -26,6 +26,7 @@
 # At the prompt, type a task instruction and press Enter to execute.
 # Type 'quit' or 'exit' to shut down cleanly.
 
+import collections
 import logging
 import pickle  # nosec
 import threading
@@ -94,6 +95,11 @@ class LoopClientConfig(RobotClientConfig):
     convergence_grace_period: float = 6
     # Seconds with no new actions before declaring a stall (policy stopped sending)
     action_stall_timeout: float = 2.0
+    # Buffer per-episode camera frames into a ring buffer so the VLM can be shown
+    # a short video clip of the attempt (used by the evaluation step).
+    enable_clip_buffer: bool = True
+    # Max frames retained in the episode clip ring buffer.
+    clip_buffer_maxlen: int = 64
 
 
 @dataclass
@@ -163,6 +169,13 @@ class LoopRobotClient:
         self.fps_tracker = FPSTracker(target_fps=self.config.fps)
         self.must_go = threading.Event()
         self.must_go.set()
+
+        # Episode clip ring buffer: per-episode camera frames so the VLM can be
+        # shown a short video of the attempt. The camera key lives on the
+        # orchestrator's config subclass (vlm_camera_key); base configs have none.
+        self._clip_camera_key = getattr(config, "vlm_camera_key", None)
+        self._episode_clip = collections.deque(maxlen=config.clip_buffer_maxlen)
+        self._clip_lock = threading.Lock()
 
         # Convergence tracking (initialised properly in _reset_episode_state)
         self._action_history = []
@@ -331,6 +344,9 @@ class LoopRobotClient:
         self._converged = False
         self._total_actions = 0
         self._last_action_time = 0.0
+        # Start each episode's clip fresh
+        with self._clip_lock:
+            self._episode_clip.clear()
 
     # ------------------------------------------------------------------
     # Episode threads
@@ -489,6 +505,10 @@ class LoopRobotClient:
                     raw_observation: RawObservation = self.robot.get_observation()
                     raw_observation["task"] = task
 
+                    # Buffer this frame for the episode clip (VLM video input)
+                    if self.config.enable_clip_buffer:
+                        self._buffer_clip_frame(raw_observation)
+
                     with self.latest_action_lock:
                         latest_action = self.latest_action
 
@@ -556,6 +576,47 @@ class LoopRobotClient:
     def capture_frame(self) -> dict:
         """Capture a single observation frame (useful for VLM success evaluation)."""
         return self.robot.get_observation()
+
+    # ------------------------------------------------------------------
+    # Episode clip buffer (for VLM video input)
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _select_camera_frame(obs: dict, camera_key) -> "np.ndarray | None":
+        """Pick an HxWx3 uint8-able array from an observation dict.
+
+        Prefers camera_key; falls back to the first image-like array. Mirrors the
+        selection logic in the orchestrator's VLMFrameSource.capture.
+        """
+        value = obs.get(camera_key) if camera_key is not None else None
+        if isinstance(value, np.ndarray) and value.ndim == 3 and value.shape[-1] == 3:
+            return value
+        for v in obs.values():
+            if isinstance(v, np.ndarray) and v.ndim == 3 and v.shape[-1] == 3:
+                return v
+        return None
+
+    def _buffer_clip_frame(self, obs: dict) -> None:
+        """Append a copy of the selected camera frame to the episode clip buffer."""
+        frame = self._select_camera_frame(obs, self._clip_camera_key)
+        if frame is None:
+            return
+        with self._clip_lock:
+            self._episode_clip.append(frame.copy())
+
+    def get_episode_clip(self, num_frames: int) -> list:
+        """Return up to num_frames frames evenly sampled from the current episode
+        buffer, oldest-first. Returns [] if nothing was buffered (e.g. a very short
+        or no-movement episode)."""
+        with self._clip_lock:
+            frames = list(self._episode_clip)
+        if not frames or num_frames <= 0:
+            return []
+        if len(frames) <= num_frames:
+            return frames
+        # Evenly sample num_frames indices across the buffer, inclusive of ends.
+        step = (len(frames) - 1) / (num_frames - 1) if num_frames > 1 else 0
+        idxs = sorted({round(i * step) for i in range(num_frames)})
+        return [frames[i] for i in idxs]
 
     # ------------------------------------------------------------------
     # Cleanup

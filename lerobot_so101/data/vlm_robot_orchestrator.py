@@ -92,6 +92,15 @@ class OrchestratorConfig(LoopClientConfig):
     vlm_camera_key: str = "front"
     # After each sub-task episode, ask the VLM whether it succeeded
     evaluate_subtasks: bool = True
+    # Show the evaluator a short video clip of the episode (buffered during
+    # execution) instead of a single still frame. Falls back to a still if the
+    # clip buffer is empty (e.g. a very short / no-movement episode).
+    vlm_eval_use_video: bool = True
+    # Number of frames sampled from the episode buffer for the eval clip.
+    vlm_eval_num_frames: int = 8
+    # Nominal frames-per-second passed to the VLM for the eval clip (the buffer
+    # is captured at the control loop's observation rate, not a fixed fps).
+    vlm_eval_fps: float = 2.0
     # How many times to re-run a sub-task the VLM judged as failed
     max_retries: int = 3
     # How many times to replan the remaining sequence after a sub-task fails
@@ -315,9 +324,11 @@ def parse_evaluation(output: str) -> dict:
 class VLMPlanner:
     """Holds the loaded VLM and exposes decompose(), evaluate(), and replan()."""
 
-    def __init__(self, model_name: str, temperature: float = 0.7):
+    def __init__(self, model_name: str, temperature: float = 0.7,
+                 eval_fps: float = 2.0):
         self.model, self.processor = load_model(model_name)
         self.temperature = temperature
+        self.eval_fps = eval_fps
 
     def _user_content(self, frame: Image.Image | None, text: str) -> list[dict]:
         content = []
@@ -326,6 +337,13 @@ class VLMPlanner:
             content.append({"type": "image", "image": frame})
         content.append({"type": "text", "text": text})
         return content
+
+    def _user_content_video(self, clip: list[Image.Image], text: str) -> list[dict]:
+        return [
+            {"type": "text", "text": "[top-down camera, video of the attempt]"},
+            {"type": "video", "video": clip, "fps": self.eval_fps},
+            {"type": "text", "text": text},
+        ]
 
     def decompose(self, prompt: str, frame: Image.Image | None) -> list[str]:
         """High-level prompt + observation -> ordered list of sub-tasks."""
@@ -346,14 +364,27 @@ class VLMPlanner:
         logging.info(f"Raw VLM decomposition output ({len(output)} chars): {output!r}")
         return parse_subtask_list(output)
 
-    def evaluate(self, sub_task: str, frame: Image.Image | None) -> dict:
-        """Observation + attempted sub-task -> {'success': bool, 'reason': str}."""
+    def evaluate(
+        self,
+        sub_task: str,
+        observation: "Image.Image | list[Image.Image] | None",
+    ) -> dict:
+        """Observation + attempted sub-task -> {'success': bool, 'reason': str}.
+
+        `observation` may be a single PIL frame (still) or a list of PIL frames
+        (a video clip of the attempt). An empty list is treated as no observation.
+        """
         text = (
             f'\nThe robot just attempted this sub-task: "{sub_task}"\nDid it succeed?'
         )
+        if isinstance(observation, list) and observation:
+            content = self._user_content_video(observation, text)
+        else:
+            frame = observation if isinstance(observation, Image.Image) else None
+            content = self._user_content(frame, text)
         messages = [
             {"role": "system", "content": [{"type": "text", "text": EVALUATION_SYSTEM_PROMPT}]},
-            {"role": "user", "content": self._user_content(frame, text)},
+            {"role": "user", "content": content},
         ]
         output = generate(
             self.model, self.processor, messages, temperature=self.temperature
@@ -453,6 +484,32 @@ class VLMFrameSource:
             logging.info(f"Saved VLM frame: {path}")
 
         return frame
+
+    def capture_clip(self, tag: str = "clip", num_frames: int = 8) -> list[Image.Image]:
+        """Return the buffered episode clip as a list of PIL frames (oldest-first).
+
+        Returns [] if the client buffered nothing (e.g. a very short episode), in
+        which case the caller should fall back to a single still.
+        """
+        arrays = self.client.get_episode_clip(num_frames)
+        clip: list[Image.Image] = []
+        for arr in arrays:
+            if isinstance(arr, np.ndarray) and arr.ndim == 3 and arr.shape[-1] == 3:
+                clip.append(Image.fromarray(arr.astype(np.uint8)))
+
+        if not clip:
+            logging.warning("Episode clip buffer empty — no video for evaluation.")
+            return []
+
+        if self.save_dir is not None:
+            self.save_dir.mkdir(parents=True, exist_ok=True)
+            ts = time.strftime("%Y%m%d_%H%M%S")
+            for i, img in enumerate(clip):
+                path = self.save_dir / f"{tag}_{ts}_{i:02d}.png"
+                img.save(path)
+            logging.info(f"Saved VLM eval clip ({len(clip)} frames) to {self.save_dir}")
+
+        return clip
 
     def stop(self):
         pass  # No separate pipeline to clean up
@@ -591,10 +648,20 @@ def run_high_level_task(
                 succeeded = True
                 break
 
-            # 3. Judge success from a fresh frame
-            frame = frames.capture(tag=f"eval_task{task_num}")
+            # 3. Judge success — from a video clip of the attempt if available,
+            #    otherwise a fresh still frame.
+            if cfg.vlm_eval_use_video:
+                observation = frames.capture_clip(
+                    tag=f"eval_task{task_num}",
+                    num_frames=cfg.vlm_eval_num_frames,
+                )
+                if not observation:
+                    # Empty buffer (e.g. very short episode) — fall back to a still.
+                    observation = frames.capture(tag=f"eval_task{task_num}")
+            else:
+                observation = frames.capture(tag=f"eval_task{task_num}")
             try:
-                eval_result = planner.evaluate(sub_task, frame)
+                eval_result = planner.evaluate(sub_task, observation)
             except ValueError as e:
                 logger.warning(f"Could not parse VLM evaluation ({e}); "
                                "assuming success and moving on.")
@@ -695,7 +762,8 @@ def main(cfg: OrchestratorConfig):
         return
 
     # 2. VLM planner (reasoning layer)
-    planner = VLMPlanner(cfg.vlm_model, temperature=cfg.vlm_temperature)
+    planner = VLMPlanner(cfg.vlm_model, temperature=cfg.vlm_temperature,
+                         eval_fps=cfg.vlm_eval_fps)
     # 3. Frame source for the VLM
     save_dir = Path("./frames") if cfg.save_frames else None
     frames = VLMFrameSource(client, camera_key=cfg.vlm_camera_key, save_dir=save_dir)

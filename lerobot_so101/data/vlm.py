@@ -146,13 +146,28 @@ def load_model(model_name: str = "Qwen/Qwen3-VL-4B-Instruct"):
 
 def generate(model, processor, messages: list, max_new_tokens: int = 2048,
              temperature: float = 0.7) -> str:
-    """Run inference and return generated text."""
-    inputs = processor.apply_chat_template(
+    """Run inference and return generated text.
+
+    Uses qwen_vl_utils.process_vision_info so both image and video message content
+    work. For image-only messages (decompose/replan) video_inputs is None, so the
+    behaviour is identical to a plain image request.
+    """
+    from qwen_vl_utils import process_vision_info
+
+    text = processor.apply_chat_template(
         messages,
-        tokenize=True,
+        tokenize=False,
         add_generation_prompt=True,
-        return_dict=True,
+    )
+    image_inputs, video_inputs, video_kwargs = process_vision_info(
+        messages, return_video_kwargs=True
+    )
+    inputs = processor(
+        text=[text],
+        images=image_inputs,
+        videos=video_inputs,
         return_tensors="pt",
+        **video_kwargs,
     )
     inputs = inputs.to(model.device)
 
@@ -267,9 +282,9 @@ Instruction: "stack the blocks"
 {"visible_objects": ["red block", "blue block", "green block"], "excluded_objects": [], "allowed_objects": ["red block", "blue block", "green block"], "subtasks": ["put the blue block on the red block", "put the green block on the blue block"]}
 """
 
-EVALUATION_SYSTEM_PROMPT = """You are a robot task evaluator. You receive a camera observation and a sub-task that was just attempted by a robot arm.
+EVALUATION_SYSTEM_PROMPT = """You are a robot task evaluator. You receive a short video clip of a robot arm attempting a sub-task, and the sub-task text. The clip's frames are in time order: earlier frames show the start of the attempt, later frames show the end.
 
-Assess whether the sub-task was completed successfully based on the visual evidence.
+Assess whether the sub-task was completed successfully. Judge the FINAL state (the last frames), but use the motion across the clip as evidence — e.g. whether the object was actually grasped, moved, and released at the destination rather than dropped or knocked aside.
 
 Scene context:
 - The tray visible in the scene is the destination. It may be any colour (pink, black, etc.). "the tray" in the sub-task always means this tray.
