@@ -170,9 +170,12 @@ class LoopRobotClient:
         self.must_go = threading.Event()
         self.must_go.set()
 
-        # Episode clip ring buffer: per-episode camera frames so the VLM can be
-        # shown a short video of the attempt. The camera key lives on the
-        # orchestrator's config subclass (vlm_camera_key); base configs have none.
+        # Episode clip ring buffer: per-episode (timestamp, frame) pairs so the
+        # VLM can be shown a short video of the attempt. Timestamps are needed
+        # because the buffer is bounded — on a long episode it retains only the
+        # tail, and the clip's real time span is what determines its frame rate.
+        # The camera key lives on the orchestrator's config subclass
+        # (vlm_camera_key); base configs have none.
         self._clip_camera_key = getattr(config, "vlm_camera_key", None)
         self._episode_clip = collections.deque(maxlen=config.clip_buffer_maxlen)
         self._clip_lock = threading.Lock()
@@ -596,27 +599,37 @@ class LoopRobotClient:
         return None
 
     def _buffer_clip_frame(self, obs: dict) -> None:
-        """Append a copy of the selected camera frame to the episode clip buffer."""
+        """Append a timestamped copy of the selected camera frame to the clip buffer."""
         frame = self._select_camera_frame(obs, self._clip_camera_key)
         if frame is None:
             return
         with self._clip_lock:
-            self._episode_clip.append(frame.copy())
+            self._episode_clip.append((time.perf_counter(), frame.copy()))
 
-    def get_episode_clip(self, num_frames: int) -> list:
+    def get_episode_clip(self, num_frames: int) -> tuple[list, float]:
         """Return up to num_frames frames evenly sampled from the current episode
-        buffer, oldest-first. Returns [] if nothing was buffered (e.g. a very short
-        or no-movement episode)."""
+        buffer, oldest-first, along with the wall-clock span those frames cover.
+
+        The span is measured across the frames the buffer still *retains*, not the
+        episode: the buffer is bounded at clip_buffer_maxlen, so a long episode keeps
+        only its tail. Callers derive the clip's frame rate from this span — using the
+        episode duration instead would hand the VLM stretched timestamps.
+
+        Returns ([], 0.0) if nothing was buffered (e.g. a very short episode), and a
+        span of 0.0 when fewer than two frames were retained.
+        """
         with self._clip_lock:
-            frames = list(self._episode_clip)
-        if not frames or num_frames <= 0:
-            return []
-        if len(frames) <= num_frames:
-            return frames
+            entries = list(self._episode_clip)
+        if not entries or num_frames <= 0:
+            return [], 0.0
+
+        span = entries[-1][0] - entries[0][0] if len(entries) > 1 else 0.0
+        if len(entries) <= num_frames:
+            return [frame for _, frame in entries], span
         # Evenly sample num_frames indices across the buffer, inclusive of ends.
-        step = (len(frames) - 1) / (num_frames - 1) if num_frames > 1 else 0
+        step = (len(entries) - 1) / (num_frames - 1) if num_frames > 1 else 0
         idxs = sorted({round(i * step) for i in range(num_frames)})
-        return [frames[i] for i in idxs]
+        return [entries[i][1] for i in idxs], span
 
     # ------------------------------------------------------------------
     # Cleanup

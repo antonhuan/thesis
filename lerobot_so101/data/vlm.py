@@ -148,6 +148,11 @@ def load_model(model_name: str = "Qwen/Qwen3-VL-4B-Instruct"):
     return model, processor
 
 
+# Set to False the first time the installed processor rejects the video_metadata
+# kwarg, so the unsupported path is probed once per process instead of per call.
+_VIDEO_METADATA_SUPPORTED = True
+
+
 def build_video_metadata(video_inputs: list, fps) -> list | None:
     """Build one metadata entry per video so Qwen3-VL can construct timestamps.
 
@@ -157,32 +162,38 @@ def build_video_metadata(video_inputs: list, fps) -> list | None:
     which mislabels a 20s attempt as under a second.
 
     Returns None if metadata cannot be built for the installed transformers
-    version; the caller then omits it and we are no worse off than before.
+    version; the caller then omits it and we are no worse off than before. Every
+    such path warns — falling back silently is indistinguishable in the logs from
+    the fixed path, which is how the fps=24 bug hid in the first place.
     """
-    if not fps:
+    if not fps or fps <= 0:
+        print(f"[WARNING] No usable clip fps ({fps!r}) — skipping video metadata; "
+              "the model will assume its default frame rate.")
         return None
 
     try:
         from transformers.video_utils import VideoMetadata
     except Exception:
-        VideoMetadata = None
+        print("[WARNING] transformers.video_utils.VideoMetadata unavailable — "
+              "skipping video metadata; the model will assume its default frame rate.")
+        return None
 
     metadata = []
     for video in video_inputs:
         try:
             n = len(video)
         except TypeError:
+            print("[WARNING] Video input has no length — skipping video metadata; "
+                  "the model will assume its default frame rate.")
             return None
         fields = {
             "fps": fps,
             "total_num_frames": n,
-            "duration": n / fps,
+            # n frames at `fps` span (n - 1) intervals, not n.
+            "duration": (n - 1) / fps,
             "frames_indices": list(range(n)),
             "video_backend": "pil",
         }
-        if VideoMetadata is None:
-            metadata.append(fields)
-            continue
         try:
             # Only pass what this version's dataclass actually declares.
             import dataclasses
@@ -190,7 +201,9 @@ def build_video_metadata(video_inputs: list, fps) -> list | None:
             metadata.append(
                 VideoMetadata(**{k: v for k, v in fields.items() if k in declared})
             )
-        except Exception:
+        except Exception as e:
+            print(f"[WARNING] Could not build VideoMetadata ({e}) — skipping video "
+                  "metadata; the model will assume its default frame rate.")
             return None
 
     return metadata
@@ -208,6 +221,8 @@ def generate(model, processor, messages: list, max_new_tokens: int = 2048,
     [2.0] with one), but the Qwen3-VL processor declares fps as a strict
     int | float | None — so it is normalised to a scalar before the call.
     """
+    global _VIDEO_METADATA_SUPPORTED
+
     from qwen_vl_utils import process_vision_info
 
     text = processor.apply_chat_template(
@@ -227,18 +242,37 @@ def generate(model, processor, messages: list, max_new_tokens: int = 2048,
         fps = video_kwargs["fps"]
         video_kwargs["fps"] = fps[0] if fps else None
 
-    if video_inputs and "video_metadata" not in video_kwargs:
+    if (video_inputs and "video_metadata" not in video_kwargs
+            and _VIDEO_METADATA_SUPPORTED):
         metadata = build_video_metadata(video_inputs, video_kwargs.get("fps"))
         if metadata is not None:
             video_kwargs["video_metadata"] = metadata
 
-    inputs = processor(
-        text=[text],
-        images=image_inputs,
-        videos=video_inputs,
-        return_tensors="pt",
-        **video_kwargs,
-    )
+    def _call_processor(kwargs):
+        return processor(
+            text=[text],
+            images=image_inputs,
+            videos=video_inputs,
+            return_tensors="pt",
+            **kwargs,
+        )
+
+    try:
+        inputs = _call_processor(video_kwargs)
+    except (TypeError, ValueError) as e:
+        # Nothing pins transformers, so whether this version's processor accepts
+        # video_metadata depends on the image build. Retry once without it and
+        # remember, so the probe costs one failed call per process rather than one
+        # per evaluation. Without this the orchestrator would see a hard error on
+        # every single judgement.
+        if "video_metadata" not in video_kwargs:
+            raise
+        _VIDEO_METADATA_SUPPORTED = False
+        print(f"[WARNING] Processor rejected video_metadata ({e}) — retrying without "
+              "it. Frame timestamps will fall back to the model's default frame rate.")
+        video_kwargs.pop("video_metadata")
+        inputs = _call_processor(video_kwargs)
+
     inputs = inputs.to(model.device)
 
     t0 = time.time()
@@ -354,9 +388,9 @@ Instruction: "stack the blocks"
 
 EVALUATION_SYSTEM_PROMPT = """You are a robot task evaluator. You receive a short video clip of a robot arm attempting a sub-task, and the sub-task text. The clip's frames are in time order: earlier frames show the start of the attempt, later frames show the end.
 
-Assess whether the sub-task was completed successfully. Judge the FINAL state (the last frames) use the motion across the clip as evidence — e.g. whether the object was actually grasped, moved, and released at the destination rather than dropped or knocked aside.
+Assess whether the sub-task was completed successfully. Judge the FINAL state (the last frames), but use the motion across the clip as evidence — e.g. whether the object was actually grasped, moved, and released at the destination rather than dropped or knocked aside.
 
-If the task was a failure, use the video clip to include details about how the failure occured and include it in the reason. 
+If the task was a failure, use the video clip to include details about how the failure occurred and include it in the reason.
 
 Scene context:
 - The tray visible in the scene is the destination. It may be any colour (pink, black, etc.). "the tray" in the sub-task always means this tray.
@@ -643,14 +677,25 @@ def interactive_loop(model, processor, camera, image_paths, save_dir,
 
         elif user_input.startswith("/clip "):
             spec = user_input[6:].strip()
-            clip = load_frame_sequence(spec, num_frames=eval_frames)
+            loaded = load_frame_sequence(spec, num_frames=eval_frames)
+            # Keep the current clip on a typo: silently dropping to a single still
+            # reads as a bad video judge when in fact no video was ever sent.
+            if loaded:
+                clip = loaded
 
         elif user_input.startswith("/fps "):
             try:
-                fps = float(user_input[5:].strip())
-                print(f"Clip fps set to {fps}")
+                value = float(user_input[5:].strip())
             except ValueError:
                 print("Usage: /fps <float>  (e.g. /fps 2.0)")
+            else:
+                # fps reaches the processor and divides frame timestamps, so a
+                # zero or negative value is not a usable rate.
+                if value <= 0:
+                    print(f"Clip fps must be positive (got {value}).")
+                else:
+                    fps = value
+                    print(f"Clip fps set to {fps}")
 
         elif user_input.startswith("/temp "):
             try:

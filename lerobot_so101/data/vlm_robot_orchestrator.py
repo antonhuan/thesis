@@ -491,13 +491,17 @@ class VLMFrameSource:
 
         return frame
 
-    def capture_clip(self, tag: str = "clip", num_frames: int = 8) -> list[Image.Image]:
-        """Return the buffered episode clip as a list of PIL frames (oldest-first).
+    def capture_clip(self, tag: str = "clip",
+                     num_frames: int = 8) -> tuple[list[Image.Image], float]:
+        """Return the buffered episode clip as PIL frames (oldest-first) plus the
+        wall-clock span those frames cover.
 
-        Returns [] if the client buffered nothing (e.g. a very short episode), in
-        which case the caller should fall back to a single still.
+        The span comes from the client's frame timestamps and can be much shorter
+        than the episode: the ring buffer is bounded, so a long episode retains only
+        its tail. Returns ([], 0.0) if the client buffered nothing (e.g. a very short
+        episode), in which case the caller should fall back to a single still.
         """
-        arrays = self.client.get_episode_clip(num_frames)
+        arrays, span = self.client.get_episode_clip(num_frames)
         clip: list[Image.Image] = []
         for arr in arrays:
             if isinstance(arr, np.ndarray) and arr.ndim == 3 and arr.shape[-1] == 3:
@@ -505,7 +509,7 @@ class VLMFrameSource:
 
         if not clip:
             logging.warning("Episode clip buffer empty — no video for evaluation.")
-            return []
+            return [], 0.0
 
         if self.save_dir is not None:
             self.save_dir.mkdir(parents=True, exist_ok=True)
@@ -515,7 +519,7 @@ class VLMFrameSource:
                 img.save(path)
             logging.info(f"Saved VLM eval clip ({len(clip)} frames) to {self.save_dir}")
 
-        return clip
+        return clip, span
 
     def stop(self):
         pass  # No separate pipeline to clean up
@@ -658,7 +662,7 @@ def run_high_level_task(
             #    otherwise a fresh still frame.
             clip_fps = None
             if cfg.vlm_eval_use_video:
-                observation = frames.capture_clip(
+                observation, clip_span = frames.capture_clip(
                     tag=f"eval_task{task_num}",
                     num_frames=cfg.vlm_eval_num_frames,
                 )
@@ -668,16 +672,19 @@ def run_high_level_task(
                     logger.info("Evaluation observation: static image "
                                 "(video requested but clip buffer was empty).")
                 else:
-                    if ep_result.duration > 0:
-                        # The buffer is sampled across the whole episode, so the
-                        # clip's true rate is frames / episode duration — not the
-                        # nominal vlm_eval_fps. Feeding the real rate makes the
-                        # model's frame timestamps span the actual attempt.
-                        clip_fps = len(observation) / ep_result.duration
+                    if clip_span > 0 and len(observation) > 1:
+                        # The clip's true rate is measured over the span those frames
+                        # actually cover — NOT the episode duration. The ring buffer
+                        # is bounded, so a long episode retains only its tail;
+                        # dividing by the episode duration would stretch the model's
+                        # frame timestamps over a window where nothing happened.
+                        # n frames span n-1 intervals, which is what a rate divides:
+                        # 8 frames over 14s is 0.5 fps, not 0.571.
+                        clip_fps = (len(observation) - 1) / clip_span
                     logger.info(
                         f"Evaluation observation: video clip "
-                        f"({len(observation)} frames over "
-                        f"{ep_result.duration:.1f}s, "
+                        f"({len(observation)} frames over {clip_span:.1f}s "
+                        f"of a {ep_result.duration:.1f}s episode, "
                         + (f"{clip_fps:.2f} fps)" if clip_fps
                            else f"nominal {cfg.vlm_eval_fps} fps)")
                     )
@@ -693,13 +700,18 @@ def run_high_level_task(
                 succeeded = True
                 break
             except Exception as e:
-                # A broken evaluator must not tear down the robot session, nor
-                # burn retries/replans on every sub-task. Log the full trace so
-                # a systematic failure is still obvious.
-                logger.exception(f"VLM evaluation errored ({e}); "
-                                 "assuming success and moving on.")
-                succeeded = True
-                break
+                # An unexpected evaluator failure (CUDA OOM, an unsupported
+                # processor kwarg) is typically systematic, so continuing would
+                # march through the queue with no working success signal. Abandon
+                # the high-level task rather than report unverified sub-tasks as
+                # done — a run that silently claims success is worse than one that
+                # stops. `completed` deliberately does not gain this sub-task.
+                logger.exception(
+                    f"VLM evaluation errored ({e}); abandoning high-level task "
+                    f"'{prompt}' — sub-task success can no longer be verified. "
+                    f"Completed and verified before the failure: {completed}"
+                )
+                return
 
             # Interjecting during evaluation is not an option: the judgement
             # has already been produced, so acting on the request would throw
