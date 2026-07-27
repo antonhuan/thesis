@@ -338,10 +338,11 @@ class VLMPlanner:
         content.append({"type": "text", "text": text})
         return content
 
-    def _user_content_video(self, clip: list[Image.Image], text: str) -> list[dict]:
+    def _user_content_video(self, clip: list[Image.Image], text: str,
+                            fps: float | None = None) -> list[dict]:
         return [
             {"type": "text", "text": "[top-down camera, video of the attempt]"},
-            {"type": "video", "video": clip, "fps": self.eval_fps},
+            {"type": "video", "video": clip, "fps": fps or self.eval_fps},
             {"type": "text", "text": text},
         ]
 
@@ -368,17 +369,22 @@ class VLMPlanner:
         self,
         sub_task: str,
         observation: "Image.Image | list[Image.Image] | None",
+        fps: float | None = None,
     ) -> dict:
         """Observation + attempted sub-task -> {'success': bool, 'reason': str}.
 
         `observation` may be a single PIL frame (still) or a list of PIL frames
         (a video clip of the attempt). An empty list is treated as no observation.
+
+        `fps` overrides the configured nominal rate — pass the clip's true rate
+        (frames / episode duration) so the model's frame timestamps span the
+        real length of the attempt.
         """
         text = (
             f'\nThe robot just attempted this sub-task: "{sub_task}"\nDid it succeed?'
         )
         if isinstance(observation, list) and observation:
-            content = self._user_content_video(observation, text)
+            content = self._user_content_video(observation, text, fps=fps)
         else:
             frame = observation if isinstance(observation, Image.Image) else None
             content = self._user_content(frame, text)
@@ -650,6 +656,7 @@ def run_high_level_task(
 
             # 3. Judge success — from a video clip of the attempt if available,
             #    otherwise a fresh still frame.
+            clip_fps = None
             if cfg.vlm_eval_use_video:
                 observation = frames.capture_clip(
                     tag=f"eval_task{task_num}",
@@ -658,32 +665,51 @@ def run_high_level_task(
                 if not observation:
                     # Empty buffer (e.g. very short episode) — fall back to a still.
                     observation = frames.capture(tag=f"eval_task{task_num}")
+                    logger.info("Evaluation observation: static image "
+                                "(video requested but clip buffer was empty).")
+                else:
+                    if ep_result.duration > 0:
+                        # The buffer is sampled across the whole episode, so the
+                        # clip's true rate is frames / episode duration — not the
+                        # nominal vlm_eval_fps. Feeding the real rate makes the
+                        # model's frame timestamps span the actual attempt.
+                        clip_fps = len(observation) / ep_result.duration
+                    logger.info(
+                        f"Evaluation observation: video clip "
+                        f"({len(observation)} frames over "
+                        f"{ep_result.duration:.1f}s, "
+                        + (f"{clip_fps:.2f} fps)" if clip_fps
+                           else f"nominal {cfg.vlm_eval_fps} fps)")
+                    )
             else:
                 observation = frames.capture(tag=f"eval_task{task_num}")
+                logger.info("Evaluation observation: static image "
+                            "(vlm_eval_use_video disabled).")
             try:
-                eval_result = planner.evaluate(sub_task, observation)
+                eval_result = planner.evaluate(sub_task, observation, fps=clip_fps)
             except ValueError as e:
                 logger.warning(f"Could not parse VLM evaluation ({e}); "
                                "assuming success and moving on.")
                 succeeded = True
                 break
-
-            # --- Interjection check: after evaluate ---
-            itype, ctx = interjection.check_and_consume()
-            if itype == InterjectionType.SKIP:
-                user_skipped = True
-                reason = "The user skipped this episode."
-                logger.info(f"User skipped sub-task: '{sub_task}' "
-                            f"({attempts_left} attempt(s) left)")
-                continue
-            elif itype == InterjectionType.REPLAN:
-                logger.info(f"User requested replan: {ctx}")
-                new_queue = do_replan(sub_task, "The user requested a replan.",
-                                      ctx, "user_replan")
-                if new_queue is not None:
-                    pending = new_queue
-                user_replanned = True
+            except Exception as e:
+                # A broken evaluator must not tear down the robot session, nor
+                # burn retries/replans on every sub-task. Log the full trace so
+                # a systematic failure is still obvious.
+                logger.exception(f"VLM evaluation errored ({e}); "
+                                 "assuming success and moving on.")
+                succeeded = True
                 break
+
+            # Interjecting during evaluation is not an option: the judgement
+            # has already been produced, so acting on the request would throw
+            # it away. Consume and discard anything that arrived while the VLM
+            # was running, so it cannot leak into the next episode as a stale
+            # skip the operator no longer intends.
+            itype, _ = interjection.check_and_consume()
+            if itype != InterjectionType.NONE:
+                logger.info(f"Ignoring {itype.value} requested during evaluation "
+                            f"— '{sub_task}' was already judged.")
 
             success = bool(eval_result.get("success"))
             reason = eval_result.get("reason", "")

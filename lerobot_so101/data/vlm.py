@@ -29,9 +29,13 @@ Usage:
 
     # Skip camera, text-only:
     python eval_qwen3vl.py --no-camera
+
+    # Judge /eval against a saved frame sequence (video clip) instead of a still:
+    python eval_qwen3vl.py --no-camera --eval-clip './frames/clip_*.png'
 """
 
 import argparse
+import glob
 import time
 import json
 import torch
@@ -144,13 +148,65 @@ def load_model(model_name: str = "Qwen/Qwen3-VL-4B-Instruct"):
     return model, processor
 
 
+def build_video_metadata(video_inputs: list, fps) -> list | None:
+    """Build one metadata entry per video so Qwen3-VL can construct timestamps.
+
+    Qwen3-VL derives frame timestamps from `video_metadata`, not from the `fps`
+    kwarg. We pass pre-sampled frames (a list of PIL images), so nothing
+    upstream supplies metadata and the model falls back to assuming fps=24 —
+    which mislabels a 20s attempt as under a second.
+
+    Returns None if metadata cannot be built for the installed transformers
+    version; the caller then omits it and we are no worse off than before.
+    """
+    if not fps:
+        return None
+
+    try:
+        from transformers.video_utils import VideoMetadata
+    except Exception:
+        VideoMetadata = None
+
+    metadata = []
+    for video in video_inputs:
+        try:
+            n = len(video)
+        except TypeError:
+            return None
+        fields = {
+            "fps": fps,
+            "total_num_frames": n,
+            "duration": n / fps,
+            "frames_indices": list(range(n)),
+            "video_backend": "pil",
+        }
+        if VideoMetadata is None:
+            metadata.append(fields)
+            continue
+        try:
+            # Only pass what this version's dataclass actually declares.
+            import dataclasses
+            declared = {f.name for f in dataclasses.fields(VideoMetadata)}
+            metadata.append(
+                VideoMetadata(**{k: v for k, v in fields.items() if k in declared})
+            )
+        except Exception:
+            return None
+
+    return metadata
+
+
 def generate(model, processor, messages: list, max_new_tokens: int = 2048,
              temperature: float = 0.7) -> str:
     """Run inference and return generated text.
 
     Uses qwen_vl_utils.process_vision_info so both image and video message content
-    work. For image-only messages (decompose/replan) video_inputs is None, so the
+    work. For image-only messages (decompose/replan) there are no videos, so the
     behaviour is identical to a plain image request.
+
+    process_vision_info returns fps as one entry per video ([] with no videos,
+    [2.0] with one), but the Qwen3-VL processor declares fps as a strict
+    int | float | None — so it is normalised to a scalar before the call.
     """
     from qwen_vl_utils import process_vision_info
 
@@ -162,6 +218,20 @@ def generate(model, processor, messages: list, max_new_tokens: int = 2048,
     image_inputs, video_inputs, video_kwargs = process_vision_info(
         messages, return_video_kwargs=True
     )
+    video_kwargs = dict(video_kwargs or {})
+    if not video_inputs:
+        # No videos: fps comes back as [], which fails the strict type check.
+        video_kwargs = {}
+    elif isinstance(video_kwargs.get("fps"), (list, tuple)):
+        # One fps per video; every call site here sends exactly one.
+        fps = video_kwargs["fps"]
+        video_kwargs["fps"] = fps[0] if fps else None
+
+    if video_inputs and "video_metadata" not in video_kwargs:
+        metadata = build_video_metadata(video_inputs, video_kwargs.get("fps"))
+        if metadata is not None:
+            video_kwargs["video_metadata"] = metadata
+
     inputs = processor(
         text=[text],
         images=image_inputs,
@@ -284,7 +354,9 @@ Instruction: "stack the blocks"
 
 EVALUATION_SYSTEM_PROMPT = """You are a robot task evaluator. You receive a short video clip of a robot arm attempting a sub-task, and the sub-task text. The clip's frames are in time order: earlier frames show the start of the attempt, later frames show the end.
 
-Assess whether the sub-task was completed successfully. Judge the FINAL state (the last frames), but use the motion across the clip as evidence — e.g. whether the object was actually grasped, moved, and released at the destination rather than dropped or knocked aside.
+Assess whether the sub-task was completed successfully. Judge the FINAL state (the last frames) use the motion across the clip as evidence — e.g. whether the object was actually grasped, moved, and released at the destination rather than dropped or knocked aside.
+
+If the task was a failure, use the video clip to include details about how the failure occured and include it in the reason. 
 
 Scene context:
 - The tray visible in the scene is the destination. It may be any colour (pink, black, etc.). "the tray" in the sub-task always means this tray.
@@ -304,8 +376,57 @@ Example:
 
 
 # ---------------------------------------------------------------------------
+# Saved frame sequences (video clips)
+# ---------------------------------------------------------------------------
+
+FRAME_SUFFIXES = (".png", ".jpg", ".jpeg")
+
+
+def load_frame_sequence(spec: str, num_frames: int = 8) -> list[Image.Image]:
+    """Load a saved frame sequence as an ordered list of PIL images.
+
+    `spec` is either a directory of frames or a glob (e.g.
+    "frames/clip_20260727_*.png"). Frames are sorted by filename — the
+    orchestrator writes clips as "{tag}_{ts}_{i:02d}.png", so lexicographic
+    order is time order. Evenly subsamples down to num_frames.
+
+    Returns [] (with a warning) if nothing matched, so callers can fall back to
+    a single still.
+    """
+    path = Path(spec)
+    if path.is_dir():
+        paths = sorted(
+            p for p in path.iterdir() if p.suffix.lower() in FRAME_SUFFIXES
+        )
+    else:
+        paths = sorted(Path(p) for p in glob.glob(spec))
+
+    if not paths:
+        print(f"[WARNING] No frames matched: {spec}")
+        return []
+
+    # Evenly sample num_frames indices across the sequence, inclusive of ends.
+    if num_frames > 0 and len(paths) > num_frames:
+        step = (len(paths) - 1) / (num_frames - 1) if num_frames > 1 else 0
+        idxs = sorted({round(i * step) for i in range(num_frames)})
+        paths = [paths[i] for i in idxs]
+
+    clip = [Image.open(p).convert("RGB") for p in paths]
+    print(f"Loaded {len(clip)} frames from {spec}")
+    return clip
+
+
+# ---------------------------------------------------------------------------
 # Image content builders
 # ---------------------------------------------------------------------------
+
+def build_video_content_frames(clip: list[Image.Image], fps: float) -> list[dict]:
+    """Build content list from an ordered frame sequence (a video clip)."""
+    return [
+        {"type": "text", "text": "[top-down camera, video of the attempt]"},
+        {"type": "video", "video": clip, "fps": fps},
+    ]
+
 
 def build_image_content_pil(image: Image.Image) -> list[dict]:
     """Build content list from a PIL Image (live camera capture)."""
@@ -394,9 +515,57 @@ def test_decomposition(model, processor, prompt: str,
         for i, task in enumerate(tasks, 1):
             print(f"  {i}. {task}")
     except json.JSONDecodeError:
-        print("\n[WARNING] Output is not valid JSON")    
+        print("\n[WARNING] Output is not valid JSON")
 
     return output
+
+
+def test_evaluation(model, processor, sub_task: str, clip=None, camera=None,
+                    image_paths=None, save_dir=None, fps: float = 2.0,
+                    temperature: float = 0.7):
+    """Test success evaluation against a video clip, or a single still frame.
+
+    Uses the loaded frame sequence when one is available (matching what the
+    orchestrator sends at eval time); otherwise falls back to a single frame
+    from the camera or image files.
+    """
+    if clip:
+        content = build_video_content_frames(clip, fps)
+        obs_desc = f"video clip ({len(clip)} frames @ {fps} fps)"
+    else:
+        content, obs_desc = get_image_content(camera, image_paths, save_dir)
+        if content is None:
+            content = [{"type": "text", "text": "The robot arm is at a tabletop."}]
+            obs_desc = "text-only"
+
+    print(f"\n{'='*60}")
+    print(f"SUCCESS EVALUATION TEST")
+    print(f"Sub-task: \"{sub_task}\"")
+    print(f"Observation: {obs_desc}")
+    print(f"{'='*60}")
+
+    user_content = list(content)
+    user_content.append({
+        "type": "text",
+        "text": f'\nThe robot just attempted this sub-task: "{sub_task}"\nDid it succeed?',
+    })
+
+    messages = [
+        {"role": "system", "content": [{"type": "text", "text": EVALUATION_SYSTEM_PROMPT}]},
+        {"role": "user", "content": user_content},
+    ]
+
+    output = generate(model, processor, messages, temperature=temperature)
+    print(f"\nModel output:\n{output}")
+
+    try:
+        result = json.loads(output.strip())
+        print(f"\nParsed: success={result.get('success')}, reason={result.get('reason')}")
+    except json.JSONDecodeError:
+        print("\n[WARNING] Output is not valid JSON")
+
+    return output
+
 
 # ---------------------------------------------------------------------------
 # Interactive REPL
@@ -405,7 +574,10 @@ def test_decomposition(model, processor, prompt: str,
 INTERACTIVE_HELP = """
 Commands:
   <any text>          Decompose a prompt (e.g. "clean up the table")
-  /eval <sub-task>    Evaluate a specific sub-task against current camera frame
+  /eval <sub-task>    Evaluate a sub-task against the loaded clip, else a still
+  /clip <dir|glob>    Load a saved frame sequence as the eval video clip
+                      (bare /clip clears it) (current: {clip})
+  /fps <value>        Set clip fps (current: {fps})
   /temp <value>       Set temperature (current: {temp})
   /save               Toggle saving frames to disk (current: {save})
   /help               Show this help
@@ -413,11 +585,14 @@ Commands:
 """.strip()
 
 
-def interactive_loop(model, processor, camera, image_paths, save_dir):
+def interactive_loop(model, processor, camera, image_paths, save_dir,
+                     clip=None, eval_frames: int = 8, eval_fps: float = 2.0):
     """Interactive REPL — model stays loaded, type prompts freely."""
 
     temp = 0.7
     saving = save_dir is not None
+    clip = clip or []
+    fps = eval_fps
 
     print(f"\n{'='*60}")
     print("INTERACTIVE MODE — model loaded, type prompts to decompose.")
@@ -443,6 +618,8 @@ def interactive_loop(model, processor, camera, image_paths, save_dir):
             print(INTERACTIVE_HELP.format(
                 temp=temp,
                 save="ON" if saving else "OFF",
+                clip=f"{len(clip)} frames" if clip else "none",
+                fps=fps,
             ))
 
         elif user_input.startswith("/eval "):
@@ -450,34 +627,30 @@ def interactive_loop(model, processor, camera, image_paths, save_dir):
             if not sub_task:
                 print("Usage: /eval <sub-task description>")
                 continue
-            # Run a custom success evaluation
-            image_content, img_desc = get_image_content(
-                camera, image_paths, save_dir if saving else None
+            test_evaluation(
+                model, processor, sub_task,
+                clip=clip,
+                camera=camera,
+                image_paths=image_paths,
+                save_dir=save_dir if saving else None,
+                fps=fps,
+                temperature=temp,
             )
-            user_content = []
-            if image_content:
-                user_content.extend(image_content)
-            else:
-                user_content.append({
-                    "type": "text",
-                    "text": "The robot arm is at a tabletop.",
-                })
-            user_content.append({
-                "type": "text",
-                "text": f'\nThe robot just attempted this sub-task: "{sub_task}"\nDid it succeed?',
-            })
-            messages = [
-                {"role": "system", "content": [{"type": "text", "text": EVALUATION_SYSTEM_PROMPT}]},
-                {"role": "user", "content": user_content},
-            ]
-            output = generate(model, processor, messages)
-            print(f"\nSub-task: \"{sub_task}\"")
-            print(f"Model output:\n{output}")
+
+        elif user_input == "/clip":
+            clip = []
+            print("Eval clip cleared — evaluation will use a single still frame.")
+
+        elif user_input.startswith("/clip "):
+            spec = user_input[6:].strip()
+            clip = load_frame_sequence(spec, num_frames=eval_frames)
+
+        elif user_input.startswith("/fps "):
             try:
-                result = json.loads(output.strip())
-                print(f"Parsed: success={result.get('success')}, reason={result.get('reason')}")
-            except json.JSONDecodeError:
-                print("[WARNING] Output is not valid JSON")
+                fps = float(user_input[5:].strip())
+                print(f"Clip fps set to {fps}")
+            except ValueError:
+                print("Usage: /fps <float>  (e.g. /fps 2.0)")
 
         elif user_input.startswith("/temp "):
             try:
@@ -543,6 +716,19 @@ def main():
         "--interactive", "-i", action="store_true",
         help="Enter interactive loop after loading model (keeps model in VRAM)",
     )
+    parser.add_argument(
+        "--eval-clip", default=None, metavar="DIR_OR_GLOB",
+        help="Saved frame sequence to use as the /eval video clip "
+             "(e.g. './frames/clip_*.png' or './frames/')",
+    )
+    parser.add_argument(
+        "--eval-frames", type=int, default=8,
+        help="Max frames sampled from the eval clip (default: 8)",
+    )
+    parser.add_argument(
+        "--eval-fps", type=float, default=2.0,
+        help="Nominal fps passed to the VLM for the eval clip (default: 2.0)",
+    )
     args = parser.parse_args()
 
     # --- Resolve image source ---
@@ -574,10 +760,19 @@ def main():
 
     if camera is None and image_paths is None and not args.no_camera:
         print("[INFO] No image source available — running in text-only mode")
+
+    # --- Resolve eval clip ---
+    clip = []
+    if args.eval_clip:
+        clip = load_frame_sequence(args.eval_clip, num_frames=args.eval_frames)
+
     # --- Load model ---
     model, processor = load_model(args.model)
 
-    interactive_loop(model, processor, camera, image_paths, save_dir)
+    interactive_loop(
+        model, processor, camera, image_paths, save_dir,
+        clip=clip, eval_frames=args.eval_frames, eval_fps=args.eval_fps,
+    )
 
     if camera is not None:
         camera.stop()
