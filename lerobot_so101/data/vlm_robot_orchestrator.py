@@ -33,6 +33,9 @@
 #       --episode_duration=30 \
 #       --vlm_model=Qwen/Qwen3-VL-4B-Instruct \
 #       --evaluate_subtasks=true \
+#       --vlm_eval_use_video=true \
+#       --vlm_eval_num_frames=16 \
+#       --clip_buffer_maxlen=128 \
 #       --max_retries=3 \
 #       --max_replans=1 \
 #       --enable_interjection=true
@@ -96,8 +99,9 @@ class OrchestratorConfig(LoopClientConfig):
     # execution) instead of a single still frame. Falls back to a still if the
     # clip buffer is empty (e.g. a very short / no-movement episode).
     vlm_eval_use_video: bool = True
-    # Number of frames sampled from the episode buffer for the eval clip.
-    vlm_eval_num_frames: int = 8
+    # Number of frames sampled (evenly in time, across the whole episode) from the
+    # episode buffer for the eval clip.
+    vlm_eval_num_frames: int = 16
     # Nominal frames-per-second passed to the VLM for the eval clip (the buffer
     # is captured at the control loop's observation rate, not a fixed fps).
     vlm_eval_fps: float = 2.0
@@ -493,13 +497,14 @@ class VLMFrameSource:
 
     def capture_clip(self, tag: str = "clip",
                      num_frames: int = 8) -> tuple[list[Image.Image], float]:
-        """Return the buffered episode clip as PIL frames (oldest-first) plus the
-        wall-clock span those frames cover.
+        """Return the buffered episode clip as PIL frames (oldest-first, evenly
+        spaced in time across the whole episode) plus the wall-clock span they cover.
 
-        The span comes from the client's frame timestamps and can be much shorter
-        than the episode: the ring buffer is bounded, so a long episode retains only
-        its tail. Returns ([], 0.0) if the client buffered nothing (e.g. a very short
-        episode), in which case the caller should fall back to a single still.
+        The span comes from the client's frame timestamps. The buffer decimates
+        rather than dropping its head, so it spans the full episode and the span is
+        close to the episode duration. Returns ([], 0.0) if the client buffered
+        nothing (e.g. a very short episode), in which case the caller should fall
+        back to a single still.
         """
         arrays, span = self.client.get_episode_clip(num_frames)
         clip: list[Image.Image] = []
@@ -674,10 +679,11 @@ def run_high_level_task(
                 else:
                     if clip_span > 0 and len(observation) > 1:
                         # The clip's true rate is measured over the span those frames
-                        # actually cover — NOT the episode duration. The ring buffer
-                        # is bounded, so a long episode retains only its tail;
-                        # dividing by the episode duration would stretch the model's
-                        # frame timestamps over a window where nothing happened.
+                        # actually cover. The buffer decimates rather than dropping
+                        # its head, so the span now tracks the whole episode; deriving
+                        # the rate from the measured span (rather than assuming the
+                        # episode duration) keeps the model's frame timestamps honest
+                        # even if the buffer started or ended slightly inside the run.
                         # n frames span n-1 intervals, which is what a rate divides:
                         # 8 frames over 14s is 0.5 fps, not 0.571.
                         clip_fps = (len(observation) - 1) / clip_span

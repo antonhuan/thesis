@@ -26,7 +26,6 @@
 # At the prompt, type a task instruction and press Enter to execute.
 # Type 'quit' or 'exit' to shut down cleanly.
 
-import collections
 import logging
 import pickle  # nosec
 import threading
@@ -95,11 +94,14 @@ class LoopClientConfig(RobotClientConfig):
     convergence_grace_period: float = 6
     # Seconds with no new actions before declaring a stall (policy stopped sending)
     action_stall_timeout: float = 2.0
-    # Buffer per-episode camera frames into a ring buffer so the VLM can be shown
-    # a short video clip of the attempt (used by the evaluation step).
+    # Buffer per-episode camera frames so the VLM can be shown a short video clip
+    # of the attempt (used by the evaluation step).
     enable_clip_buffer: bool = True
-    # Max frames retained in the episode clip ring buffer.
-    clip_buffer_maxlen: int = 64
+    # Max frames retained in the episode clip buffer. The buffer decimates (drops
+    # every other frame) rather than evicting its head when it fills, so it always
+    # spans the whole episode start->now; this bounds memory while keeping full
+    # temporal coverage. Higher = finer retained resolution before subsampling.
+    clip_buffer_maxlen: int = 128
 
 
 @dataclass
@@ -170,14 +172,20 @@ class LoopRobotClient:
         self.must_go = threading.Event()
         self.must_go.set()
 
-        # Episode clip ring buffer: per-episode (timestamp, frame) pairs so the
-        # VLM can be shown a short video of the attempt. Timestamps are needed
-        # because the buffer is bounded — on a long episode it retains only the
-        # tail, and the clip's real time span is what determines its frame rate.
+        # Episode clip buffer: per-episode (timestamp, frame) pairs so the VLM can
+        # be shown a short video of the attempt. Timestamps drive even-in-time
+        # subsampling. The buffer uniformly downsamples the frame stream when full
+        # (see _buffer_clip_frame) so it spans the whole episode at even density
+        # rather than retaining only its tail; the clip's real time span still
+        # determines its frame rate.
         # The camera key lives on the orchestrator's config subclass
         # (vlm_camera_key); base configs have none.
         self._clip_camera_key = getattr(config, "vlm_camera_key", None)
-        self._episode_clip = collections.deque(maxlen=config.clip_buffer_maxlen)
+        self._episode_clip: list = []
+        # Keep every _clip_stride-th candidate frame; doubles each time the buffer
+        # fills so retained frames stay evenly spaced across the whole episode.
+        self._clip_stride = 1
+        self._clip_seen = 0
         self._clip_lock = threading.Lock()
 
         # Convergence tracking (initialised properly in _reset_episode_state)
@@ -350,6 +358,8 @@ class LoopRobotClient:
         # Start each episode's clip fresh
         with self._clip_lock:
             self._episode_clip.clear()
+            self._clip_stride = 1
+            self._clip_seen = 0
 
     # ------------------------------------------------------------------
     # Episode threads
@@ -599,21 +609,43 @@ class LoopRobotClient:
         return None
 
     def _buffer_clip_frame(self, obs: dict) -> None:
-        """Append a timestamped copy of the selected camera frame to the clip buffer."""
+        """Append a timestamped copy of the selected camera frame to the clip buffer.
+
+        Uniformly downsamples the frame stream so the bounded buffer spans the whole
+        episode at even density instead of retaining only its tail: only every
+        _clip_stride-th candidate is kept, and when the buffer fills it is halved
+        (keep every other retained frame) and the stride doubled. Incoming frames
+        then arrive at the same effective interval as the halved older ones, so the
+        first frame (episode start) through the newest stay evenly spaced. Memory is
+        bounded by clip_buffer_maxlen.
+        """
         frame = self._select_camera_frame(obs, self._clip_camera_key)
         if frame is None:
             return
         with self._clip_lock:
+            self._clip_seen += 1
+            if self._clip_seen % self._clip_stride != 0:
+                return
             self._episode_clip.append((time.perf_counter(), frame.copy()))
+            if len(self._episode_clip) > self.config.clip_buffer_maxlen:
+                # Halve the buffer (keep indices 0, 2, 4, ... — retains the
+                # episode-start frame) and match the incoming rate to it.
+                self._episode_clip = self._episode_clip[::2]
+                self._clip_stride *= 2
 
     def get_episode_clip(self, num_frames: int) -> tuple[list, float]:
-        """Return up to num_frames frames evenly sampled from the current episode
+        """Return up to num_frames frames sampled evenly *in time* across the episode
         buffer, oldest-first, along with the wall-clock span those frames cover.
 
-        The span is measured across the frames the buffer still *retains*, not the
-        episode: the buffer is bounded at clip_buffer_maxlen, so a long episode keeps
-        only its tail. Callers derive the clip's frame rate from this span — using the
-        episode duration instead would hand the VLM stretched timestamps.
+        The buffer decimates rather than evicting its head (see _buffer_clip_frame),
+        so it spans the whole episode; the span here is the difference between the
+        first and last retained frame timestamps. Callers derive the clip's frame rate
+        from this span — using the episode duration instead would hand the VLM
+        stretched timestamps.
+
+        Frames are chosen by nearest timestamp to evenly-spaced target times, not by
+        index: appends happen at irregular (backpressure-gated) intervals, so index-
+        even sampling would not be time-even.
 
         Returns ([], 0.0) if nothing was buffered (e.g. a very short episode), and a
         span of 0.0 when fewer than two frames were retained.
@@ -624,11 +656,21 @@ class LoopRobotClient:
             return [], 0.0
 
         span = entries[-1][0] - entries[0][0] if len(entries) > 1 else 0.0
-        if len(entries) <= num_frames:
+        if len(entries) <= num_frames or span <= 0:
             return [frame for _, frame in entries], span
-        # Evenly sample num_frames indices across the buffer, inclusive of ends.
-        step = (len(entries) - 1) / (num_frames - 1) if num_frames > 1 else 0
-        idxs = sorted({round(i * step) for i in range(num_frames)})
+
+        # Pick the frame whose timestamp is nearest each evenly-spaced target time,
+        # inclusive of both ends. De-duplicate while preserving order so a sparse
+        # buffer can't return the same frame twice.
+        t0 = entries[0][0]
+        timestamps = [ts for ts, _ in entries]
+        idxs: list[int] = []
+        for k in range(num_frames):
+            target = t0 + span * k / (num_frames - 1)
+            nearest = min(range(len(entries)), key=lambda i: abs(timestamps[i] - target))
+            if nearest not in idxs:
+                idxs.append(nearest)
+        idxs.sort()
         return [entries[i][1] for i in idxs], span
 
     # ------------------------------------------------------------------
