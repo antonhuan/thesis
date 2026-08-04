@@ -791,11 +791,65 @@ def run_high_level_task(
 
 
 # ---------------------------------------------------------------------------
+# Terminal capture
+# ---------------------------------------------------------------------------
+class _Tee:
+    """Duplicate a text stream to a second sink (the session log file)."""
+
+    def __init__(self, primary, mirror):
+        self._primary = primary   # original sys.stdout / sys.stderr
+        self._mirror = mirror     # open log file handle
+
+    def write(self, data):
+        self._primary.write(data)
+        try:
+            self._mirror.write(data)
+        except (ValueError, OSError):
+            pass
+        return len(data)
+
+    def flush(self):
+        self._primary.flush()
+        try:
+            self._mirror.flush()
+        except (ValueError, OSError):
+            pass
+
+    def isatty(self):
+        return self._primary.isatty()
+
+    def fileno(self):
+        return self._primary.fileno()
+
+    def __getattr__(self, name):
+        return getattr(self._primary, name)
+
+
+# ---------------------------------------------------------------------------
 # Main entry point
 # ---------------------------------------------------------------------------
 @draccus.wrap()
 def main(cfg: OrchestratorConfig):
     logging.basicConfig(level=logging.INFO)
+
+    # Mirror every byte written to the terminal (raw print()/input() as well as
+    # logging output and third-party library prints) into a session log file so
+    # the full run can be reviewed afterwards.
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
+    session_log_path = log_dir / f"orchestrator_{int(time.time())}.log"
+    session_log = open(session_log_path, "a", buffering=1, encoding="utf-8")  # line-buffered
+    _orig_stdout, _orig_stderr = sys.stdout, sys.stderr
+    sys.stdout = _Tee(_orig_stdout, session_log)
+    sys.stderr = _Tee(_orig_stderr, session_log)
+
+    # The root logger's console handler grabbed the ORIGINAL sys.stderr at import
+    # time, so re-point it at the tee'd stderr; leave file handlers untouched.
+    for h in logging.getLogger().handlers:
+        if isinstance(h, logging.StreamHandler) and not isinstance(h, logging.FileHandler):
+            h.setStream(sys.stderr)
+
+    logging.info(f"Terminal output mirrored to {session_log_path}")
     logging.info(pformat(asdict(cfg)))
 
     # 1. Robot + policy server (VLA layer)
@@ -853,6 +907,12 @@ def main(cfg: OrchestratorConfig):
         client.go_home()
         frames.stop()
         client.stop()
+        sys.stdout, sys.stderr = _orig_stdout, _orig_stderr
+        try:
+            session_log.flush()
+            session_log.close()
+        except (ValueError, OSError):
+            pass
 
 
 if __name__ == "__main__":
