@@ -72,11 +72,11 @@ from lerobot.utils.import_utils import register_third_party_plugins
 import draccus
 
 from robot_client_loop import LoopClientConfig, LoopRobotClient
+from vlm_core import generate, load_model
 from vlm import (
     DECOMPOSITION_SYSTEM_PROMPT,
-    EVALUATION_SYSTEM_PROMPT,
-    generate,
-    load_model,
+    identify_objects,
+    decompose_from_objects,
 )
 
 
@@ -89,6 +89,10 @@ class OrchestratorConfig(LoopClientConfig):
     vlm_model: str = "Qwen/Qwen3-VL-4B-Instruct"
     # Sampling temperature for VLM generation
     vlm_temperature: float = 0.7
+    # Split decomposition into two model calls against the same frame:
+    # (1) identify visible objects, then (2) decompose given that object list.
+    # Set false to use the single-call DECOMPOSITION_SYSTEM_PROMPT instead.
+    vlm_two_pass_decompose: bool = True
     # Use the dedicated top-down RealSense D435 for VLM input.
     # If false (or the camera fails to start), falls back to the robot's own
     # camera observation, then to text-only.
@@ -120,6 +124,32 @@ class OrchestratorConfig(LoopClientConfig):
     # "no movement" — i.e. the VLA did not understand the instruction.
     # Tunable: start at 0.02 and adjust based on your arm's joint scale.
     no_movement_threshold: float = 0.02
+
+
+# ---------------------------------------------------------------------------
+# System prompt for success evaluation
+# ---------------------------------------------------------------------------
+EVALUATION_SYSTEM_PROMPT = """You are a robot task evaluator. You receive a short video clip of a robot arm attempting a sub-task, and the sub-task text. The clip's frames are in time order: earlier frames show the start of the attempt, later frames show the end.
+
+Assess whether the sub-task was completed successfully. Judge the FINAL state (the last frames), but use the motion across the clip as evidence — e.g. whether the object was actually grasped, moved, and released at the destination rather than dropped or knocked aside.
+
+If the task was a failure, use the video clip to include details about how the failure occurred and include it in the reason.
+
+Scene context:
+- The tray visible in the scene is the destination. It may be any colour (pink, black, etc.). "the tray" in the sub-task always means this tray.
+- "away" means onto the tray.
+- The orange robot arm is part of the setup, ignore it.
+- Judge ONLY whether the specific object named in the sub-task is now at the destination. Do not assess other objects.
+
+Output format:
+Return ONLY a JSON object with two fields:
+- "success": true or false
+- "reason": a brief explanation of your judgement
+
+Example:
+{"success": true, "reason": "The apple is now on the tray as instructed."}
+{"success": false, "reason": "The banana is still on the table, not on the tray."}
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -329,10 +359,12 @@ class VLMPlanner:
     """Holds the loaded VLM and exposes decompose(), evaluate(), and replan()."""
 
     def __init__(self, model_name: str, temperature: float = 0.7,
-                 eval_fps: float = 2.0):
+                 eval_fps: float = 2.0, two_pass: bool = True):
         self.model, self.processor = load_model(model_name)
         self.temperature = temperature
         self.eval_fps = eval_fps
+        # Two-pass decomposition: identify objects, then decompose given the list.
+        self.two_pass = two_pass
 
     def _user_content(self, frame: Image.Image | None, text: str) -> list[dict]:
         content = []
@@ -351,21 +383,40 @@ class VLMPlanner:
         ]
 
     def decompose(self, prompt: str, frame: Image.Image | None) -> list[str]:
-        """High-level prompt + observation -> ordered list of sub-tasks."""
-        text = f"\nInstruction: {prompt}"
-        if frame is None:
-            text = (
-                "No camera observation is available. Decompose the instruction "
-                "based on the text alone.\n" + text
-            )
+        """High-level prompt + observation -> ordered list of sub-tasks.
 
-        messages = [
-            {"role": "system", "content": [{"type": "text", "text": DECOMPOSITION_SYSTEM_PROMPT}]},
-            {"role": "user", "content": self._user_content(frame, text)},
-        ]
-        output = generate(
-            self.model, self.processor, messages, temperature=self.temperature
-        )
+        Two-pass (default) identifies the visible objects first, then decomposes
+        given that list; both calls share the single `frame`. Falls back to the
+        single-call prompt when two-pass is disabled or there is no frame to
+        identify objects from.
+        """
+        if self.two_pass and frame is not None:
+            image_content = [
+                {"type": "text", "text": "[top-down camera]"},
+                {"type": "image", "image": frame},
+            ]
+            visible = identify_objects(
+                self.model, self.processor, image_content, self.temperature
+            )
+            logging.info(f"Identified objects ({len(visible)}): {visible}")
+            output = decompose_from_objects(
+                self.model, self.processor, image_content, prompt, visible,
+                self.temperature,
+            )
+        else:
+            text = f"\nInstruction: {prompt}"
+            if frame is None:
+                text = (
+                    "No camera observation is available. Decompose the instruction "
+                    "based on the text alone.\n" + text
+                )
+            messages = [
+                {"role": "system", "content": [{"type": "text", "text": DECOMPOSITION_SYSTEM_PROMPT}]},
+                {"role": "user", "content": self._user_content(frame, text)},
+            ]
+            output = generate(
+                self.model, self.processor, messages, temperature=self.temperature
+            )
         logging.info(f"Raw VLM decomposition output ({len(output)} chars): {output!r}")
         return parse_subtask_list(output)
 
@@ -861,7 +912,8 @@ def main(cfg: OrchestratorConfig):
 
     # 2. VLM planner (reasoning layer)
     planner = VLMPlanner(cfg.vlm_model, temperature=cfg.vlm_temperature,
-                         eval_fps=cfg.vlm_eval_fps)
+                         eval_fps=cfg.vlm_eval_fps,
+                         two_pass=cfg.vlm_two_pass_decompose)
     # 3. Frame source for the VLM
     save_dir = Path("./frames") if cfg.save_frames else None
     frames = VLMFrameSource(client, camera_key=cfg.vlm_camera_key, save_dir=save_dir)

@@ -1,10 +1,18 @@
 """
-Evaluate Qwen3-VL-2B-Instruct as the VLM reasoning layer.
+Interactive harness for testing Qwen3-VL task decomposition.
 
-Tests three capabilities needed for the dual-system architecture:
-1. Task decomposition: natural language prompt + images -> sub-task queue
-2. Preference sensitivity: different prompts -> different decompositions
-3. Success evaluation: image + sub-task -> success/failure judgement
+The VLM reasoning layer of the dual-system architecture turns a natural language
+instruction + a camera observation into a queue of atomic pick-and-place
+sub-tasks. This script is a focused REPL for iterating on that decomposition
+alone — load the model once, then type prompts and inspect the sub-tasks.
+
+Decomposition runs as two sequential calls against the same frame (toggle with
+/split):
+    Pass 1 — identification: image -> list every visible object/surface.
+    Pass 2 — decomposition:  image + instruction + that object list -> sub-tasks.
+
+Shared model loading and inference live in vlm_core.py; success evaluation and
+the video-clip machinery live in the orchestrator (vlm_robot_orchestrator.py).
 
 Captures frames directly from an Intel RealSense D435 camera (top-down view).
 
@@ -16,32 +24,26 @@ Requirements:
 
 Usage:
     # Live capture from RealSense D435 (default):
-    python eval_qwen3vl.py
+    python vlm.py
 
     # Fall back to static image files if no camera:
-    python eval_qwen3vl.py --images top.png
-
-    # Custom prompt:
-    python eval_qwen3vl.py --prompt "pick up the red cup and place it on the left side"
+    python vlm.py --images top.png
 
     # Save captured frames to disk:
-    python eval_qwen3vl.py --save-frames
+    python vlm.py --save-frames
 
     # Skip camera, text-only:
-    python eval_qwen3vl.py --no-camera
-
-    # Judge /eval against a saved frame sequence (video clip) instead of a still:
-    python eval_qwen3vl.py --no-camera --eval-clip './frames/clip_*.png'
+    python vlm.py --no-camera
 """
 
 import argparse
-import glob
 import time
 import json
-import torch
 import numpy as np
 from pathlib import Path
 from PIL import Image
+
+from vlm_core import load_model, generate
 
 # ---------------------------------------------------------------------------
 # RealSense D435 capture
@@ -103,7 +105,7 @@ class RealSenseCamera:
 
 def capture_scene(camera: RealSenseCamera, save_dir: Path = None) -> Image.Image:
     """Capture a frame from the top-down RealSense camera.
-    
+
     Optionally saves the frame to disk with a timestamp.
     """
     frame = camera.capture()
@@ -119,229 +121,72 @@ def capture_scene(camera: RealSenseCamera, save_dir: Path = None) -> Image.Image
 
 
 # ---------------------------------------------------------------------------
-# Model loading and inference
-# ---------------------------------------------------------------------------
-
-def load_model(model_name: str = "Qwen/Qwen3-VL-4B-Instruct"):
-    """Load model and processor."""
-    from transformers import Qwen3VLForConditionalGeneration, AutoProcessor, BitsAndBytesConfig
-
-    print(f"Loading {model_name}...")
-    t0 = time.time()
-
-    model = Qwen3VLForConditionalGeneration.from_pretrained(
-        model_name,
-        torch_dtype=torch.bfloat16,
-        device_map="auto",
-    )
-    # model = Qwen3VLForConditionalGeneration.from_pretrained(
-    #     model_name,
-    #     quantization_config=BitsAndBytesConfig(load_in_4bit=True),
-    #     device_map="auto",
-    # )
-    processor = AutoProcessor.from_pretrained(model_name)
-
-    print(f"Model loaded in {time.time() - t0:.1f}s")
-    print(f"Device: {model.device}")
-    print(f"Parameters: {sum(p.numel() for p in model.parameters()) / 1e9:.2f}B")
-
-    return model, processor
-
-
-# Set to False the first time the installed processor rejects the video_metadata
-# kwarg, so the unsupported path is probed once per process instead of per call.
-_VIDEO_METADATA_SUPPORTED = True
-
-
-def build_video_metadata(video_inputs: list, fps) -> list | None:
-    """Build one metadata entry per video so Qwen3-VL can construct timestamps.
-
-    Qwen3-VL derives frame timestamps from `video_metadata`, not from the `fps`
-    kwarg. We pass pre-sampled frames (a list of PIL images), so nothing
-    upstream supplies metadata and the model falls back to assuming fps=24 —
-    which mislabels a 20s attempt as under a second.
-
-    Returns None if metadata cannot be built for the installed transformers
-    version; the caller then omits it and we are no worse off than before. Every
-    such path warns — falling back silently is indistinguishable in the logs from
-    the fixed path, which is how the fps=24 bug hid in the first place.
-    """
-    if not fps or fps <= 0:
-        print(f"[WARNING] No usable clip fps ({fps!r}) — skipping video metadata; "
-              "the model will assume its default frame rate.")
-        return None
-
-    try:
-        from transformers.video_utils import VideoMetadata
-    except Exception:
-        print("[WARNING] transformers.video_utils.VideoMetadata unavailable — "
-              "skipping video metadata; the model will assume its default frame rate.")
-        return None
-
-    metadata = []
-    for video in video_inputs:
-        try:
-            n = len(video)
-        except TypeError:
-            print("[WARNING] Video input has no length — skipping video metadata; "
-                  "the model will assume its default frame rate.")
-            return None
-        fields = {
-            "fps": fps,
-            "total_num_frames": n,
-            # n frames at `fps` span (n - 1) intervals, not n.
-            "duration": (n - 1) / fps,
-            "frames_indices": list(range(n)),
-            "video_backend": "pil",
-        }
-        try:
-            # Only pass what this version's dataclass actually declares.
-            import dataclasses
-            declared = {f.name for f in dataclasses.fields(VideoMetadata)}
-            metadata.append(
-                VideoMetadata(**{k: v for k, v in fields.items() if k in declared})
-            )
-        except Exception as e:
-            print(f"[WARNING] Could not build VideoMetadata ({e}) — skipping video "
-                  "metadata; the model will assume its default frame rate.")
-            return None
-
-    return metadata
-
-
-def generate(model, processor, messages: list, max_new_tokens: int = 2048,
-             temperature: float = 0.7) -> str:
-    """Run inference and return generated text.
-
-    Uses qwen_vl_utils.process_vision_info so both image and video message content
-    work. For image-only messages (decompose/replan) there are no videos, so the
-    behaviour is identical to a plain image request.
-
-    process_vision_info returns fps as one entry per video ([] with no videos,
-    [2.0] with one), but the Qwen3-VL processor declares fps as a strict
-    int | float | None — so it is normalised to a scalar before the call.
-    """
-    global _VIDEO_METADATA_SUPPORTED
-
-    from qwen_vl_utils import process_vision_info
-
-    text = processor.apply_chat_template(
-        messages,
-        tokenize=False,
-        add_generation_prompt=True,
-    )
-    image_inputs, video_inputs, video_kwargs = process_vision_info(
-        messages, return_video_kwargs=True
-    )
-    video_kwargs = dict(video_kwargs or {})
-    if not video_inputs:
-        # No videos: fps comes back as [], which fails the strict type check.
-        video_kwargs = {}
-    elif isinstance(video_kwargs.get("fps"), (list, tuple)):
-        # One fps per video; every call site here sends exactly one.
-        fps = video_kwargs["fps"]
-        video_kwargs["fps"] = fps[0] if fps else None
-
-    if (video_inputs and "video_metadata" not in video_kwargs
-            and _VIDEO_METADATA_SUPPORTED):
-        metadata = build_video_metadata(video_inputs, video_kwargs.get("fps"))
-        if metadata is not None:
-            video_kwargs["video_metadata"] = metadata
-
-    def _call_processor(kwargs):
-        return processor(
-            text=[text],
-            images=image_inputs,
-            videos=video_inputs,
-            return_tensors="pt",
-            **kwargs,
-        )
-
-    try:
-        inputs = _call_processor(video_kwargs)
-    except (TypeError, ValueError) as e:
-        # Nothing pins transformers, so whether this version's processor accepts
-        # video_metadata depends on the image build. Retry once without it and
-        # remember, so the probe costs one failed call per process rather than one
-        # per evaluation. Without this the orchestrator would see a hard error on
-        # every single judgement.
-        if "video_metadata" not in video_kwargs:
-            raise
-        _VIDEO_METADATA_SUPPORTED = False
-        print(f"[WARNING] Processor rejected video_metadata ({e}) — retrying without "
-              "it. Frame timestamps will fall back to the model's default frame rate.")
-        video_kwargs.pop("video_metadata")
-        inputs = _call_processor(video_kwargs)
-
-    inputs = inputs.to(model.device)
-
-    t0 = time.time()
-    with torch.no_grad():
-        generated_ids = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
-            do_sample=True,
-            top_p=0.8,
-            top_k=20,
-            temperature=temperature,
-        )
-
-    # Trim input tokens from output
-    generated_ids_trimmed = [
-        out_ids[len(in_ids):]
-        for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
-    ]
-    output_text = processor.batch_decode(
-        generated_ids_trimmed,
-        skip_special_tokens=True,
-        clean_up_tokenization_spaces=False,
-    )[0]
-
-    elapsed = time.time() - t0
-    n_tokens = len(generated_ids_trimmed[0])
-    print(f"  Generated {n_tokens} tokens in {elapsed:.1f}s ({n_tokens/elapsed:.1f} tok/s)")
-
-    return output_text
-
-
-# ---------------------------------------------------------------------------
 # System prompts matching the dual-system architecture
 # ---------------------------------------------------------------------------
 
-# DECOMPOSITION_SYSTEM_PROMPT = """You are a task planner for an orange tabletop robot arm (SO-101, 6-DOF). You receive a natural language instruction and a camera observation of the workspace.
+IDENTIFICATION_SYSTEM_PROMPT = """You are a perception module for an orange tabletop robot arm (SO-101, 6-DOF). You receive a camera observation of the workspace. Your ONLY job is to list every object and surface you can see.
 
-# Follow these steps in order:
+You MUST respond in the following JSON format exactly:
 
-# Step 1 — Identify objects in the scene.
-# List every visible object on the table. The orange robot arm is NOT an object — exclude it. If the instruction mentions a destination (e.g. "tray", "bowl"), that is a landmark, not an object to move.
+{"visible_objects": ["list", "of", "every", "object", "and", "surface"]}
 
-# Step 2 — Parse the instruction for preferences and constraints.
-# Identify any of the following:
-# - Objects to exclude or leave alone (e.g. "leave the cups", "not the banana")
-# - Objects to prioritise or do first (e.g. "start with the red one", "put the apple first")
-# - Ordering requirements (e.g. "before", "after", "then")
-# - Conditional logic (e.g. "if there's a spoon, move it too")
-# - Group references (e.g. "everything", "all", "the rest") — resolve these to the specific objects identified in Step 1
-# If no preferences are found, note that and proceed with all visible objects.
+Rules:
+- List ALL objects and surfaces on the table, including containers and destinations (trays, bowls, boxes, plates, placemats).
+- The orange robot arm/kumquat is part of the robot, NOT an object. Do not include it.
+- Use simple, concrete names for what you see (e.g. "red cup", "banana", "pink tray").
+- Do NOT plan, decompose, or reason about any instruction. Only identify what is visible.
+- If you are unsure of an object's identity, describe it by its most obvious visual feature (colour, shape).
 
-# Step 3 — Build the sub-task list.
-# For each object that should be acted on (i.e. not excluded by Step 2), generate one sub-task. Apply these rules:
-# - Each sub-task is a single atomic pick-and-place action. Do NOT split picking and placing into separate steps. Write "put the X on the Y", not "grab X" then "place X on Y".
-# - Use simple, concrete language matching what you see (e.g. "put the banana on the tray").
-# - Order sub-tasks according to any sequencing preferences found in Step 2. If no order is specified, use any reasonable order.
-# - Do NOT include any sub-task involving an object that the instruction says to leave, skip, or ignore.
-# - If the instruction refers to "everything" or "all", generate one sub-task per visible object (minus any exclusions).
+Examples:
+{"visible_objects": ["apple", "banana", "orange", "pink tray"]}
+{"visible_objects": ["red block", "blue block", "green block", "wooden box"]}
+"""
 
-# Step 4 — Verify.
-# Before outputting, check:
-# - Does any sub-task involve an excluded object? If yes, remove it.
-# - Does the ordering match any stated preference? If not, reorder.
-# - Is every sub-task a single atomic action? If not, merge or simplify.
+# Second pass of the two-call split: the visible-objects list is provided, so the
+# model no longer identifies objects itself — it only reasons about exclusions and
+# builds the sub-task queue.
+DECOMPOSITION_FROM_OBJECTS_SYSTEM_PROMPT = """You are a task planner for an orange tabletop robot arm (SO-101, 6-DOF). You receive a natural language instruction, a camera observation, and a list of the objects already identified in the scene (visible_objects). Treat that list as ground truth — do NOT add objects to it or remove objects from it.
 
-# Output format:
-# Return ONLY a JSON array of sub-task strings. No explanation, no numbering, no markdown.
-# Example: ["put the apple on the tray", "put the banana on the tray"]
-# """
+You MUST respond in the following JSON format exactly:
+
+{
+  "visible_objects": ["the", "objects", "you", "were", "given"],
+  "excluded_objects": ["objects", "the", "instruction", "says", "to", "leave"],
+  "allowed_objects": ["objects", "to", "move"],
+  "subtasks": ["put the X on the tray", "put the Y next to the X"]
+}
+
+Rules:
+- visible_objects: echo back exactly the list of objects you were given. Do not change it.
+- excluded_objects: any object the instruction says to leave, skip, ignore, or not touch. If none, use [].
+- allowed_objects: the objects to actually move — every object in visible_objects that is NOT excluded AND is not being used purely as a destination.
+- The destination container/surface (e.g. the tray, bin, box) is a landmark, not an object to move. Do NOT give it its own sub-task and do NOT list it in allowed_objects, even though it appears in visible_objects.
+- subtasks: one sub-task per allowed object ONLY. Each sub-task is a single pick-and-place action.
+- Each sub-task must specify both the object AND its destination (e.g. "put the fork next to the plate", "put the bowl on the tray", "put the plate on the placemat").
+- Infer the destination for each object from the instruction and common sense. If the instruction gives a specific destination, use it. If the instruction implies an arrangement (e.g. "set the table"), use spatial language appropriate to the task (e.g. "next to", "on", "in front of").
+- Destinations MUST come from visible_objects. Never use a destination that is not in visible_objects.
+- If the instruction is vague about destination (e.g. "away", "clean up", "tidy up"), choose the most reasonable visible container or surface (e.g. a tray, bin, or box) as the destination.
+- If the instruction uses a category word (e.g. "food", "drinks", "utensils"), identify which visible objects belong to that category and treat them all as excluded (or included).
+- EVERY object in allowed_objects MUST have exactly one sub-task. If allowed_objects is not empty, subtasks CANNOT be empty.
+- Order subtasks logically. Place base objects before objects that go on top of or relative to them (e.g. place the plate before placing the fork next to the plate).
+
+Examples:
+
+Visible objects: ["apple", "banana", "orange", "tray"]
+Instruction: "put everything on the tray but leave the banana"
+{"visible_objects": ["apple", "banana", "orange", "tray"], "excluded_objects": ["banana"], "allowed_objects": ["apple", "orange"], "subtasks": ["put the apple on the tray", "put the orange on the tray"]}
+
+Visible objects: ["cup", "plate", "fork", "tray"]
+Instruction: "clean up the table, don't touch the cup"
+{"visible_objects": ["cup", "plate", "fork", "tray"], "excluded_objects": ["cup"], "allowed_objects": ["plate", "fork"], "subtasks": ["put the plate on the tray", "put the fork on the tray"]}
+
+Visible objects: ["red block", "blue block", "green block"]
+Instruction: "stack the blocks"
+{"visible_objects": ["red block", "blue block", "green block"], "excluded_objects": [], "allowed_objects": ["red block", "blue block", "green block"], "subtasks": ["put the blue block on the red block", "put the green block on the blue block"]}
+"""
+
+# Single-call decomposition (identify + plan in one shot). Kept as the /split
+# toggle-off path for A/B comparison against the two-pass split above.
 DECOMPOSITION_SYSTEM_PROMPT = """You are a task planner for an orange tabletop robot arm (SO-101, 6-DOF). You receive a natural language instruction and a camera observation.
 
 You MUST respond in the following JSON format exactly:
@@ -386,81 +231,10 @@ Instruction: "stack the blocks"
 {"visible_objects": ["red block", "blue block", "green block"], "excluded_objects": [], "allowed_objects": ["red block", "blue block", "green block"], "subtasks": ["put the blue block on the red block", "put the green block on the blue block"]}
 """
 
-EVALUATION_SYSTEM_PROMPT = """You are a robot task evaluator. You receive a short video clip of a robot arm attempting a sub-task, and the sub-task text. The clip's frames are in time order: earlier frames show the start of the attempt, later frames show the end.
-
-Assess whether the sub-task was completed successfully. Judge the FINAL state (the last frames), but use the motion across the clip as evidence — e.g. whether the object was actually grasped, moved, and released at the destination rather than dropped or knocked aside.
-
-If the task was a failure, use the video clip to include details about how the failure occurred and include it in the reason.
-
-Scene context:
-- The tray visible in the scene is the destination. It may be any colour (pink, black, etc.). "the tray" in the sub-task always means this tray.
-- "away" means onto the tray.
-- The orange robot arm is part of the setup, ignore it.
-- Judge ONLY whether the specific object named in the sub-task is now at the destination. Do not assess other objects.
-
-Output format:
-Return ONLY a JSON object with two fields:
-- "success": true or false
-- "reason": a brief explanation of your judgement
-
-Example:
-{"success": true, "reason": "The apple is now on the tray as instructed."}
-{"success": false, "reason": "The banana is still on the table, not on the tray."}
-"""
-
-
-# ---------------------------------------------------------------------------
-# Saved frame sequences (video clips)
-# ---------------------------------------------------------------------------
-
-FRAME_SUFFIXES = (".png", ".jpg", ".jpeg")
-
-
-def load_frame_sequence(spec: str, num_frames: int = 8) -> list[Image.Image]:
-    """Load a saved frame sequence as an ordered list of PIL images.
-
-    `spec` is either a directory of frames or a glob (e.g.
-    "frames/clip_20260727_*.png"). Frames are sorted by filename — the
-    orchestrator writes clips as "{tag}_{ts}_{i:02d}.png", so lexicographic
-    order is time order. Evenly subsamples down to num_frames.
-
-    Returns [] (with a warning) if nothing matched, so callers can fall back to
-    a single still.
-    """
-    path = Path(spec)
-    if path.is_dir():
-        paths = sorted(
-            p for p in path.iterdir() if p.suffix.lower() in FRAME_SUFFIXES
-        )
-    else:
-        paths = sorted(Path(p) for p in glob.glob(spec))
-
-    if not paths:
-        print(f"[WARNING] No frames matched: {spec}")
-        return []
-
-    # Evenly sample num_frames indices across the sequence, inclusive of ends.
-    if num_frames > 0 and len(paths) > num_frames:
-        step = (len(paths) - 1) / (num_frames - 1) if num_frames > 1 else 0
-        idxs = sorted({round(i * step) for i in range(num_frames)})
-        paths = [paths[i] for i in idxs]
-
-    clip = [Image.open(p).convert("RGB") for p in paths]
-    print(f"Loaded {len(clip)} frames from {spec}")
-    return clip
-
 
 # ---------------------------------------------------------------------------
 # Image content builders
 # ---------------------------------------------------------------------------
-
-def build_video_content_frames(clip: list[Image.Image], fps: float) -> list[dict]:
-    """Build content list from an ordered frame sequence (a video clip)."""
-    return [
-        {"type": "text", "text": "[top-down camera, video of the attempt]"},
-        {"type": "video", "video": clip, "fps": fps},
-    ]
-
 
 def build_image_content_pil(image: Image.Image) -> list[dict]:
     """Build content list from a PIL Image (live camera capture)."""
@@ -485,7 +259,7 @@ def build_image_content_paths(image_paths: list[Path]) -> list[dict]:
 
 def get_image_content(camera=None, image_paths=None, save_dir=None):
     """Get image content from either live camera or file paths.
-    
+
     Returns (content_list, description_string) or (None, None) if no source.
     """
     if camera is not None:
@@ -498,41 +272,114 @@ def get_image_content(camera=None, image_paths=None, save_dir=None):
 
 
 # ---------------------------------------------------------------------------
-# Test routines
+# Two-pass decomposition (identify -> decompose)
+# ---------------------------------------------------------------------------
+
+def parse_visible_objects(output: str) -> list[str]:
+    """Extract the visible_objects list from an identification-pass output.
+
+    Tolerates either the documented dict schema or a bare JSON array. Returns []
+    if nothing parseable is found (the caller can still proceed to decomposition
+    with an empty list).
+    """
+    try:
+        result = json.loads(output.strip())
+    except json.JSONDecodeError:
+        return []
+    if isinstance(result, dict):
+        objs = result.get("visible_objects", [])
+    elif isinstance(result, list):
+        objs = result
+    else:
+        objs = []
+    return [str(o) for o in objs] if isinstance(objs, list) else []
+
+
+def identify_objects(model, processor, image_content, temperature: float = 0.7) -> list[str]:
+    """Pass 1 — image -> list of visible objects/surfaces.
+
+    `image_content` is a prebuilt content list (image + label dicts). Returns the
+    parsed object list; [] on parse failure.
+    """
+    user_content = list(image_content) if image_content else []
+    user_content.append(
+        {"type": "text", "text": "\nList every visible object and surface."}
+    )
+    messages = [
+        {"role": "system", "content": [{"type": "text", "text": IDENTIFICATION_SYSTEM_PROMPT}]},
+        {"role": "user", "content": user_content},
+    ]
+    output = generate(model, processor, messages, temperature=temperature)
+    print(f"\nIdentification output:\n{output}")
+    objects = parse_visible_objects(output)
+    if not objects:
+        print("[WARNING] Identification pass produced no objects (parse failed or empty).")
+    return objects
+
+
+def decompose_from_objects(model, processor, image_content, prompt: str,
+                           visible_objects: list[str],
+                           temperature: float = 0.7) -> str:
+    """Pass 2 — image + instruction + given object list -> decomposition JSON (raw)."""
+    text = (
+        f"\nVisible objects: {json.dumps(visible_objects)}"
+        f"\nInstruction: {prompt}"
+    )
+    user_content = list(image_content) if image_content else []
+    user_content.append({"type": "text", "text": text})
+    messages = [
+        {"role": "system", "content": [{"type": "text", "text": DECOMPOSITION_FROM_OBJECTS_SYSTEM_PROMPT}]},
+        {"role": "user", "content": user_content},
+    ]
+    return generate(model, processor, messages, temperature=temperature)
+
+
+# ---------------------------------------------------------------------------
+# Test routine
 # ---------------------------------------------------------------------------
 
 def test_decomposition(model, processor, prompt: str,
-                       camera=None, image_paths=None, save_dir=None):
-    """Test task decomposition with camera or image files."""
+                       camera=None, image_paths=None, save_dir=None,
+                       two_pass: bool = True, temperature: float = 0.7):
+    """Test task decomposition with camera or image files.
+
+    Two-pass (default) runs identification then decomposition against the SAME
+    captured frame. Single-call (two_pass=False) uses the combined
+    DECOMPOSITION_SYSTEM_PROMPT for A/B comparison.
+    """
     image_content, img_desc = get_image_content(camera, image_paths, save_dir)
 
     print(f"\n{'='*60}")
-    print(f"TASK DECOMPOSITION TEST")
+    print(f"TASK DECOMPOSITION TEST ({'two-pass' if two_pass else 'single-call'})")
     print(f"Prompt: \"{prompt}\"")
     print(f"Image source: {img_desc or 'text-only'}")
     print(f"{'='*60}")
 
-    user_content = []
-
-    if image_content:
-        user_content.extend(image_content)
-        user_content.append({"type": "text", "text": f"\nInstruction: {prompt}"})
-    else:
-        user_content.append({
+    # Text-only fallback: a described scene when there is no image source.
+    if image_content is None:
+        image_content = [{
             "type": "text",
             "text": (
                 "The robot is at a tabletop with an orange, a blue cup, "
-                "a red cup, and a plate.\n\n"
-                f"Instruction: {prompt}"
+                "a red cup, and a plate."
             ),
-        })
+        }]
 
-    messages = [
-        {"role": "system", "content": [{"type": "text", "text": DECOMPOSITION_SYSTEM_PROMPT}]},
-        {"role": "user", "content": user_content},
-    ]
+    if two_pass:
+        visible = identify_objects(model, processor, image_content, temperature)
+        print(f"\nPass 1 — identified objects ({len(visible)}): {visible}")
+        output = decompose_from_objects(
+            model, processor, image_content, prompt, visible, temperature
+        )
+    else:
+        user_content = list(image_content)
+        user_content.append({"type": "text", "text": f"\nInstruction: {prompt}"})
+        messages = [
+            {"role": "system", "content": [{"type": "text", "text": DECOMPOSITION_SYSTEM_PROMPT}]},
+            {"role": "user", "content": user_content},
+        ]
+        output = generate(model, processor, messages, temperature=temperature)
 
-    output = generate(model, processor, messages)
     print(f"\nModel output:\n{output}")
 
     # Try to parse as JSON
@@ -554,53 +401,6 @@ def test_decomposition(model, processor, prompt: str,
     return output
 
 
-def test_evaluation(model, processor, sub_task: str, clip=None, camera=None,
-                    image_paths=None, save_dir=None, fps: float = 2.0,
-                    temperature: float = 0.7):
-    """Test success evaluation against a video clip, or a single still frame.
-
-    Uses the loaded frame sequence when one is available (matching what the
-    orchestrator sends at eval time); otherwise falls back to a single frame
-    from the camera or image files.
-    """
-    if clip:
-        content = build_video_content_frames(clip, fps)
-        obs_desc = f"video clip ({len(clip)} frames @ {fps} fps)"
-    else:
-        content, obs_desc = get_image_content(camera, image_paths, save_dir)
-        if content is None:
-            content = [{"type": "text", "text": "The robot arm is at a tabletop."}]
-            obs_desc = "text-only"
-
-    print(f"\n{'='*60}")
-    print(f"SUCCESS EVALUATION TEST")
-    print(f"Sub-task: \"{sub_task}\"")
-    print(f"Observation: {obs_desc}")
-    print(f"{'='*60}")
-
-    user_content = list(content)
-    user_content.append({
-        "type": "text",
-        "text": f'\nThe robot just attempted this sub-task: "{sub_task}"\nDid it succeed?',
-    })
-
-    messages = [
-        {"role": "system", "content": [{"type": "text", "text": EVALUATION_SYSTEM_PROMPT}]},
-        {"role": "user", "content": user_content},
-    ]
-
-    output = generate(model, processor, messages, temperature=temperature)
-    print(f"\nModel output:\n{output}")
-
-    try:
-        result = json.loads(output.strip())
-        print(f"\nParsed: success={result.get('success')}, reason={result.get('reason')}")
-    except json.JSONDecodeError:
-        print("\n[WARNING] Output is not valid JSON")
-
-    return output
-
-
 # ---------------------------------------------------------------------------
 # Interactive REPL
 # ---------------------------------------------------------------------------
@@ -608,10 +408,8 @@ def test_evaluation(model, processor, sub_task: str, clip=None, camera=None,
 INTERACTIVE_HELP = """
 Commands:
   <any text>          Decompose a prompt (e.g. "clean up the table")
-  /eval <sub-task>    Evaluate a sub-task against the loaded clip, else a still
-  /clip <dir|glob>    Load a saved frame sequence as the eval video clip
-                      (bare /clip clears it) (current: {clip})
-  /fps <value>        Set clip fps (current: {fps})
+  /split              Toggle two-pass (identify -> decompose) vs single call
+                      (current: {split})
   /temp <value>       Set temperature (current: {temp})
   /save               Toggle saving frames to disk (current: {save})
   /help               Show this help
@@ -619,14 +417,12 @@ Commands:
 """.strip()
 
 
-def interactive_loop(model, processor, camera, image_paths, save_dir,
-                     clip=None, eval_frames: int = 8, eval_fps: float = 2.0):
+def interactive_loop(model, processor, camera, image_paths, save_dir):
     """Interactive REPL — model stays loaded, type prompts freely."""
 
     temp = 0.7
     saving = save_dir is not None
-    clip = clip or []
-    fps = eval_fps
+    two_pass = True
 
     print(f"\n{'='*60}")
     print("INTERACTIVE MODE — model loaded, type prompts to decompose.")
@@ -652,50 +448,12 @@ def interactive_loop(model, processor, camera, image_paths, save_dir,
             print(INTERACTIVE_HELP.format(
                 temp=temp,
                 save="ON" if saving else "OFF",
-                clip=f"{len(clip)} frames" if clip else "none",
-                fps=fps,
+                split="two-pass" if two_pass else "single-call",
             ))
 
-        elif user_input.startswith("/eval "):
-            sub_task = user_input[6:].strip()
-            if not sub_task:
-                print("Usage: /eval <sub-task description>")
-                continue
-            test_evaluation(
-                model, processor, sub_task,
-                clip=clip,
-                camera=camera,
-                image_paths=image_paths,
-                save_dir=save_dir if saving else None,
-                fps=fps,
-                temperature=temp,
-            )
-
-        elif user_input == "/clip":
-            clip = []
-            print("Eval clip cleared — evaluation will use a single still frame.")
-
-        elif user_input.startswith("/clip "):
-            spec = user_input[6:].strip()
-            loaded = load_frame_sequence(spec, num_frames=eval_frames)
-            # Keep the current clip on a typo: silently dropping to a single still
-            # reads as a bad video judge when in fact no video was ever sent.
-            if loaded:
-                clip = loaded
-
-        elif user_input.startswith("/fps "):
-            try:
-                value = float(user_input[5:].strip())
-            except ValueError:
-                print("Usage: /fps <float>  (e.g. /fps 2.0)")
-            else:
-                # fps reaches the processor and divides frame timestamps, so a
-                # zero or negative value is not a usable rate.
-                if value <= 0:
-                    print(f"Clip fps must be positive (got {value}).")
-                else:
-                    fps = value
-                    print(f"Clip fps set to {fps}")
+        elif user_input == "/split":
+            two_pass = not two_pass
+            print(f"Decomposition mode: {'two-pass (identify -> decompose)' if two_pass else 'single-call'}")
 
         elif user_input.startswith("/temp "):
             try:
@@ -716,6 +474,7 @@ def interactive_loop(model, processor, camera, image_paths, save_dir,
             test_decomposition(
                 model, processor, user_input, camera, image_paths,
                 save_dir if saving else None,
+                two_pass=two_pass, temperature=temp,
             )
 
 
@@ -725,7 +484,7 @@ def interactive_loop(model, processor, camera, image_paths, save_dir,
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Evaluate Qwen3-VL-2B for robot task reasoning"
+        description="Interactive harness for testing Qwen3-VL task decomposition"
     )
     parser.add_argument(
         "--model", default="Qwen/Qwen3-VL-4B-Instruct",
@@ -744,35 +503,9 @@ def main():
         help="Save captured camera frames to ./frames/",
     )
     parser.add_argument(
-        "--prompt", default=None,
-        help="Custom prompt for single decomposition test",
-    )
-    parser.add_argument(
-        "--test", choices=["decompose", "preference", "evaluate", "all"],
-        default="all",
-        help="Which test to run",
-    )
-    parser.add_argument(
         "--resolution", nargs=2, type=int, default=[640, 480],
         metavar=("W", "H"),
         help="RealSense capture resolution (default: 640 480)",
-    )
-    parser.add_argument(
-        "--interactive", "-i", action="store_true",
-        help="Enter interactive loop after loading model (keeps model in VRAM)",
-    )
-    parser.add_argument(
-        "--eval-clip", default=None, metavar="DIR_OR_GLOB",
-        help="Saved frame sequence to use as the /eval video clip "
-             "(e.g. './frames/clip_*.png' or './frames/')",
-    )
-    parser.add_argument(
-        "--eval-frames", type=int, default=8,
-        help="Max frames sampled from the eval clip (default: 8)",
-    )
-    parser.add_argument(
-        "--eval-fps", type=float, default=2.0,
-        help="Nominal fps passed to the VLM for the eval clip (default: 2.0)",
     )
     args = parser.parse_args()
 
@@ -806,18 +539,10 @@ def main():
     if camera is None and image_paths is None and not args.no_camera:
         print("[INFO] No image source available — running in text-only mode")
 
-    # --- Resolve eval clip ---
-    clip = []
-    if args.eval_clip:
-        clip = load_frame_sequence(args.eval_clip, num_frames=args.eval_frames)
-
     # --- Load model ---
     model, processor = load_model(args.model)
 
-    interactive_loop(
-        model, processor, camera, image_paths, save_dir,
-        clip=clip, eval_frames=args.eval_frames, eval_fps=args.eval_fps,
-    )
+    interactive_loop(model, processor, camera, image_paths, save_dir)
 
     if camera is not None:
         camera.stop()
