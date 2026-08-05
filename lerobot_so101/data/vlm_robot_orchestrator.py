@@ -284,14 +284,14 @@ class InterjectionManager:
                 if not self._active.is_set():
                     break
                 if line == "r":
-                    print("[INTERJECT] Why is the plan wrong? Type context and press Enter:")
-                    context = sys.stdin.readline().strip()
-                    if not context:
-                        context = "(no context provided)"
+                    # End the episode immediately; context is collected on the
+                    # main thread once the arm has stopped (prompt_for_context),
+                    # so the robot never keeps executing while the user types and
+                    # the episode can't naturally end mid-typing and drop the replan.
                     with self._lock:
                         self._type = InterjectionType.REPLAN
-                        self._replan_context = context
-                    print(f"[INTERJECT] REPLAN requested: {context}")
+                        self._replan_context = ""
+                    print("[INTERJECT] REPLAN requested — stopping current action...")
                     self.client.episode_done.set()
                 else:
                     # 's', bare Enter, or anything else → skip
@@ -658,7 +658,7 @@ def run_high_level_task(
             ep_result = client.run_episode(sub_task, enable_abort_listener=False)
 
             # --- Interjection check: after episode ---
-            itype, ctx = interjection.check_and_consume()
+            itype, _ = interjection.check_and_consume()
             if itype == InterjectionType.SKIP:
                 user_skipped = True
                 reason = "The user skipped this episode."
@@ -667,10 +667,15 @@ def run_high_level_task(
                 client.go_home()
                 continue
             elif itype == InterjectionType.REPLAN:
-                logger.info(f"User requested replan: {ctx}")
+                logger.info("User requested replan — stopping and asking for context...")
                 client.go_home()
+                user_context = interjection.prompt_for_context(
+                    f"[REPLAN] Replan requested during sub-task '{sub_task}'"
+                )
+                if user_context:
+                    logger.info(f"  Operator context: {user_context}")
                 new_queue = do_replan(sub_task, "The user requested a replan.",
-                                      ctx, "user_replan")
+                                      user_context, "user_replan")
                 if new_queue is not None:
                     pending = new_queue
                 user_replanned = True
@@ -681,7 +686,7 @@ def run_high_level_task(
             client.go_home()
 
             # --- Interjection check: after go_home ---
-            itype, ctx = interjection.check_and_consume()
+            itype, _ = interjection.check_and_consume()
             if itype == InterjectionType.SKIP:
                 user_skipped = True
                 reason = "The user skipped this episode."
@@ -689,9 +694,14 @@ def run_high_level_task(
                             f"({attempts_left} attempt(s) left)")
                 continue
             elif itype == InterjectionType.REPLAN:
-                logger.info(f"User requested replan: {ctx}")
+                logger.info("User requested replan — stopping and asking for context...")
+                user_context = interjection.prompt_for_context(
+                    f"[REPLAN] Replan requested during sub-task '{sub_task}'"
+                )
+                if user_context:
+                    logger.info(f"  Operator context: {user_context}")
                 new_queue = do_replan(sub_task, "The user requested a replan.",
-                                      ctx, "user_replan")
+                                      user_context, "user_replan")
                 if new_queue is not None:
                     pending = new_queue
                 user_replanned = True
