@@ -21,6 +21,7 @@ Per iteration:
     2. Prompt for two instructions.
     3. Cosine similarity between the two (full prefix / image tokens / language tokens).
     4. Per-token position analysis (image vs language token regions), saved as a plot.
+    5. UMAP projection of per-token hidden states, saved as a plot.
 
 Usage:
     python vla_embedding_comp.py --checkpoint /path/to/finetuned/checkpoint \
@@ -89,7 +90,7 @@ def prepare_inputs(policy, image, instruction: str, device: str = "cuda"):
         instruction,
         return_tensors="pt",
         padding="max_length",
-        max_length=config.max_token_length,
+        max_length=config.tokenizer_max_length,
         truncation=True,
     ).to(device)
 
@@ -127,15 +128,17 @@ def extract_vlm_hidden_states(policy, images, img_masks, tokens, masks):
 
     # Number of image tokens = prefix length - language length
     num_img_tokens = prefix_embs.shape[1] - tokens.shape[1]
-
+    vlm = model.paligemma_with_expert.paligemma.model.language_model
     # Build attention masks and position IDs
     att_2d_masks = make_att_2d_masks(pad_masks, att_masks)
     position_ids = torch.cumsum(pad_masks, dim=1) - 1
     att_2d_masks_4d = att_2d_masks[:, None, :, :]
-    att_2d_masks_4d = torch.where(att_2d_masks_4d, 0.0, -1e9)
+    model_dtype = next(vlm.parameters()).dtype
+    att_2d_masks_4d = torch.where(att_2d_masks_4d, 
+                                torch.tensor(0.0, dtype=model_dtype, device=att_2d_masks_4d.device),
+                                torch.tensor(-1e9, dtype=model_dtype, device=att_2d_masks_4d.device))
 
     # Forward through VLM backbone only
-    vlm = model.paligemma_with_expert.paligemma.model.language_model
     vlm_output = vlm.forward(
         inputs_embeds=prefix_embs,
         attention_mask=att_2d_masks_4d,
@@ -205,7 +208,7 @@ def per_token_cosine_similarity(hidden_states_a, hidden_states_b):
     """
     a = F.normalize(hidden_states_a.squeeze(0), dim=-1)  # [seq, 2048]
     b = F.normalize(hidden_states_b.squeeze(0), dim=-1)
-    return (a * b).sum(dim=-1).cpu()  # [seq]
+    return (a * b).sum(dim=-1).float().cpu()  # [seq]
 
 
 # --------------------------------------------------------------------------- #
@@ -273,6 +276,75 @@ def plot_per_token_similarity(per_token_sims, pair_labels, num_img_tokens, title
     print(f"  Saved: {save_path}")
 
 
+def plot_umap_tokens(hidden_a, hidden_b, pad_masks_a, pad_masks_b, num_img_tokens, label_a, label_b, save_path):
+    """
+    UMAP projection of per-token VLM hidden states from two prompts.
+    Filters out padding tokens. Colors by prompt, shapes by region (image vs language).
+    """
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    from umap import UMAP
+
+    a = hidden_a.squeeze(0).float().cpu().numpy()
+    b = hidden_b.squeeze(0).float().cpu().numpy()
+    mask_a = pad_masks_a.squeeze(0).cpu().numpy().astype(bool)
+    mask_b = pad_masks_b.squeeze(0).cpu().numpy().astype(bool)
+
+    seq_len = a.shape[0]
+
+    # Build per-token metadata before filtering
+    tokens_list = []
+    prompts = []
+    regions = []
+
+    for i in range(seq_len):
+        if mask_a[i]:
+            tokens_list.append(a[i])
+            prompts.append("A")
+            regions.append("image" if i < num_img_tokens else "language")
+    for i in range(seq_len):
+        if mask_b[i]:
+            tokens_list.append(b[i])
+            prompts.append("B")
+            regions.append("image" if i < num_img_tokens else "language")
+
+    all_tokens = np.array(tokens_list)
+    prompts = np.array(prompts)
+    regions = np.array(regions)
+
+    reducer = UMAP(n_neighbors=15, min_dist=0.1, random_state=42)
+    projected = reducer.fit_transform(all_tokens)
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    combos = [
+        ("A", "image",    "tab:blue",   "o", 0.4, 15),
+        ("A", "language", "tab:blue",   "x", 0.8, 30),
+        ("B", "image",    "tab:orange", "o", 0.4, 15),
+        ("B", "language", "tab:orange", "x", 0.8, 30),
+    ]
+
+    labels_map = {"A": label_a[:35], "B": label_b[:35]}
+
+    for prompt, region, color, marker, alpha, size in combos:
+        mask = (prompts == prompt) & (regions == region)
+        if not mask.any():
+            continue
+        label = f"{prompt} {region} ({labels_map[prompt]})" if region == "image" else f"{prompt} {region}"
+        ax.scatter(projected[mask, 0], projected[mask, 1],
+                   c=color, marker=marker, alpha=alpha, s=size, label=label)
+
+    ax.legend(fontsize=7, loc='best', markerscale=1.5)
+    ax.set_title('UMAP of per-token VLM hidden states (padding filtered)', fontsize=11)
+    ax.set_xlabel('UMAP 1')
+    ax.set_ylabel('UMAP 2')
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"  Saved: {save_path}")
+
+
 # --------------------------------------------------------------------------- #
 # 7. Two-prompt comparison
 # --------------------------------------------------------------------------- #
@@ -280,7 +352,7 @@ def plot_per_token_similarity(per_token_sims, pair_labels, num_img_tokens, title
 def compare_pair(policy, image, prompt_a, prompt_b, output_dir, pooling="mean", device="cuda"):
     """
     Compare the VLM final hidden states of two instructions on a single frame.
-    Prints cosine similarities + per-token summary and saves two plots.
+    Prints cosine similarities + per-token summary and saves plots.
     """
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -289,6 +361,7 @@ def compare_pair(policy, image, prompt_a, prompt_b, output_dir, pooling="mean", 
     img_pooled = {}      # mean-pooled image tokens only
     lang_pooled = {}     # mean-pooled language tokens only
     all_hidden = {}      # raw [1, seq, 2048]
+    all_pad_masks = {}   # raw [1, seq] pad masks
     num_img_tokens = None
 
     for text in (prompt_a, prompt_b):
@@ -309,6 +382,7 @@ def compare_pair(policy, image, prompt_a, prompt_b, output_dir, pooling="mean", 
             hidden_states, pad_masks, num_img_tokens, hidden_states.shape[1], method=pooling
         ).squeeze(0).cpu()
         all_hidden[text] = hidden_states.cpu()
+        all_pad_masks[text] = pad_masks.cpu()
 
     # --- Cosine similarities (the single off-diagonal value per region) ---
     print("\n--- Cosine similarities ---")
@@ -346,6 +420,13 @@ def compare_pair(policy, image, prompt_a, prompt_b, output_dir, pooling="mean", 
         num_img_tokens,
         "Per-token cosine similarity",
         output_dir / f"per_token_{ts}.png",
+    )
+    plot_umap_tokens(
+        all_hidden[prompt_a], all_hidden[prompt_b],
+        all_pad_masks[prompt_a], all_pad_masks[prompt_b],
+        num_img_tokens,
+        prompt_a, prompt_b,
+        output_dir / f"umap_{ts}.png",
     )
 
 
@@ -416,7 +497,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Interactive PI05 VLM embedding comparison (live camera, two prompts)"
     )
-    parser.add_argument("--checkpoint", required=True,
+    parser.add_argument("--checkpoint", default="ant0nh/pi05_500_30k",
                         help="Path or HF repo of the checkpoint to analyse")
     parser.add_argument("--output", default="embedding_analysis",
                         help="Output directory for saved plots (and frames)")
