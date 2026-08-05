@@ -276,7 +276,7 @@ def plot_per_token_similarity(per_token_sims, pair_labels, num_img_tokens, title
     print(f"  Saved: {save_path}")
 
 
-def plot_umap_tokens(hidden_a, hidden_b, pad_masks_a, pad_masks_b, num_img_tokens, label_a, label_b, save_path):
+def plot_umap_tokens(hidden_a, hidden_b, pad_masks_a, pad_masks_b, num_img_tokens, label_a, label_b, save_path, save_path_lang=None):
     """
     UMAP projection of per-token VLM hidden states from two prompts.
     Filters out padding tokens. Colors by prompt, shapes by region (image vs language).
@@ -316,33 +316,50 @@ def plot_umap_tokens(hidden_a, hidden_b, pad_masks_a, pad_masks_b, num_img_token
     reducer = UMAP(n_neighbors=15, min_dist=0.1, random_state=42)
     projected = reducer.fit_transform(all_tokens)
 
-    fig, ax = plt.subplots(figsize=(10, 8))
-
-    combos = [
-        ("A", "image",    "tab:blue",   "o", 0.4, 15),
-        ("A", "language", "tab:blue",   "x", 0.8, 30),
-        ("B", "image",    "tab:orange", "o", 0.4, 15),
-        ("B", "language", "tab:orange", "x", 0.8, 30),
-    ]
-
     labels_map = {"A": label_a[:35], "B": label_b[:35]}
 
-    for prompt, region, color, marker, alpha, size in combos:
-        mask = (prompts == prompt) & (regions == region)
-        if not mask.any():
-            continue
-        label = f"{prompt} {region} ({labels_map[prompt]})" if region == "image" else f"{prompt} {region}"
-        ax.scatter(projected[mask, 0], projected[mask, 1],
-                   c=color, marker=marker, alpha=alpha, s=size, label=label)
+    def _render(combos, title, path):
+        """Scatter the given (prompt, region, color, marker, alpha, size) combos
+        from the shared `projected` coordinates and save one figure."""
+        fig, ax = plt.subplots(figsize=(10, 8))
+        for prompt, region, color, marker, alpha, size in combos:
+            mask = (prompts == prompt) & (regions == region)
+            if not mask.any():
+                continue
+            label = f"{prompt} {region} ({labels_map[prompt]})" if region == "image" else f"{prompt} {region}"
+            ax.scatter(projected[mask, 0], projected[mask, 1],
+                       c=color, marker=marker, alpha=alpha, s=size, label=label)
+        ax.legend(fontsize=7, loc='best', markerscale=1.5)
+        ax.set_title(title, fontsize=11)
+        ax.set_xlabel('UMAP 1')
+        ax.set_ylabel('UMAP 2')
+        plt.tight_layout()
+        plt.savefig(path, dpi=150, bbox_inches='tight')
+        plt.close()
+        print(f"  Saved: {path}")
 
-    ax.legend(fontsize=7, loc='best', markerscale=1.5)
-    ax.set_title('UMAP of per-token VLM hidden states (padding filtered)', fontsize=11)
-    ax.set_xlabel('UMAP 1')
-    ax.set_ylabel('UMAP 2')
-    plt.tight_layout()
-    plt.savefig(save_path, dpi=150, bbox_inches='tight')
-    plt.close()
-    print(f"  Saved: {save_path}")
+    # Combined view: all tokens, colored by prompt, shaped by region.
+    _render(
+        [
+            ("A", "image",    "tab:blue",   "o", 0.4, 15),
+            ("A", "language", "tab:blue",   "x", 0.8, 30),
+            ("B", "image",    "tab:orange", "o", 0.4, 15),
+            ("B", "language", "tab:orange", "x", 0.8, 30),
+        ],
+        'UMAP of per-token VLM hidden states (padding filtered)',
+        save_path,
+    )
+
+    # Language-only view: same projection, language tokens only (colored by prompt).
+    if save_path_lang is not None:
+        _render(
+            [
+                ("A", "language", "tab:blue",   "o", 0.8, 40),
+                ("B", "language", "tab:orange", "o", 0.8, 40),
+            ],
+            'UMAP of language-token VLM hidden states (padding filtered)',
+            save_path_lang,
+        )
 
 
 # --------------------------------------------------------------------------- #
@@ -427,6 +444,7 @@ def compare_pair(policy, image, prompt_a, prompt_b, output_dir, pooling="mean", 
         num_img_tokens,
         prompt_a, prompt_b,
         output_dir / f"umap_{ts}.png",
+        output_dir / f"umap_language_{ts}.png",
     )
 
 

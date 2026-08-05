@@ -10,3 +10,4 @@ __pycache__/
 lerobot_so101/data/frames/
 lerobot_so101/data/logs/
 lerobot_so101/data/embedding_analysis/
+.vscode/
