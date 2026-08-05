@@ -2,9 +2,10 @@
 .claude 
 openpi-leisaac/
 lerobot_so101/data/outputs/
-lerobot_so101/data/logs/
 lerobot_so101/data/.cache/
 .DS_Store
 personalreadme.md
 __pycache__/
 *.pyc
+lerobot_so101/data/frames/
+lerobot_so101/data/logs/

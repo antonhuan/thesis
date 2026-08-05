@@ -133,13 +133,14 @@ You MUST respond in the following JSON format exactly:
 Rules:
 - List ALL objects and surfaces on the table, including containers and destinations (trays, bowls, boxes, plates, placemats).
 - The orange robot arm/kumquat is part of the robot, NOT an object. Do not include it.
-- Use simple, concrete names for what you see (e.g. "red cup", "banana", "pink tray").
+- Use simple, concrete names for what you see (e.g. "cup", "banana", "tray").
+- Do not describe the object, use the simplest accurate label. Do not use adjectives such as color, size, texture to describe an object.
 - Do NOT plan, decompose, or reason about any instruction. Only identify what is visible.
 - If you are unsure of an object's identity, describe it by its most obvious visual feature (colour, shape).
 
 Examples:
-{"visible_objects": ["apple", "banana", "orange", "pink tray"]}
-{"visible_objects": ["red block", "blue block", "green block", "wooden box"]}
+{"visible_objects": ["apple", "banana", "orange", "tray"]}
+{"visible_objects": ["toy", "pouch", "computer", "tray"]}
 """
 
 # Second pass of the two-call split: the visible-objects list is provided, so the
@@ -420,7 +421,7 @@ Commands:
 def interactive_loop(model, processor, camera, image_paths, save_dir):
     """Interactive REPL — model stays loaded, type prompts freely."""
 
-    temp = 0.7
+    temp = 0.1
     saving = save_dir is not None
     two_pass = True
 

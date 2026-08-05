@@ -78,7 +78,7 @@ from vlm import (
     identify_objects,
     decompose_from_objects,
 )
-
+from datetime import datetime
 
 # ---------------------------------------------------------------------------
 # Config: extends the loop client config with VLM parameters
@@ -886,9 +886,9 @@ def main(cfg: OrchestratorConfig):
     # Mirror every byte written to the terminal (raw print()/input() as well as
     # logging output and third-party library prints) into a session log file so
     # the full run can be reviewed afterwards.
-    log_dir = Path("logs")
+    log_dir = Path(f"./logs/run_{datetime.now():%Y-%m-%d_%H-%M-%S}")
     log_dir.mkdir(exist_ok=True)
-    session_log_path = log_dir / f"orchestrator_{int(time.time())}.log"
+    session_log_path = log_dir /f"orchestrator.log"
     session_log = open(session_log_path, "a", buffering=1, encoding="utf-8")  # line-buffered
     _orig_stdout, _orig_stderr = sys.stdout, sys.stderr
     sys.stdout = _Tee(_orig_stdout, session_log)
@@ -909,13 +909,12 @@ def main(cfg: OrchestratorConfig):
         client.logger.error("Could not connect to policy server. Exiting.")
         client.stop()
         return
-
     # 2. VLM planner (reasoning layer)
     planner = VLMPlanner(cfg.vlm_model, temperature=cfg.vlm_temperature,
                          eval_fps=cfg.vlm_eval_fps,
                          two_pass=cfg.vlm_two_pass_decompose)
     # 3. Frame source for the VLM
-    save_dir = Path("./frames") if cfg.save_frames else None
+    save_dir = Path(f"./frames/run_{datetime.now():%Y-%m-%d_%H-%M-%S}") if cfg.save_frames else None
     frames = VLMFrameSource(client, camera_key=cfg.vlm_camera_key, save_dir=save_dir)
     # 4. Interjection manager (user can skip/replan mid-execution)
     interjection = InterjectionManager(client)
