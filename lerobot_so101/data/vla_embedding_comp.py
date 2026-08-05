@@ -1,9 +1,10 @@
 """
-Extract and compare VLM final hidden states from a finetuned PI05 model.
+Interactive VLM final-hidden-state comparison for a finetuned PI05 model.
 
-Given the same camera frame, vary the text instruction and analyse whether
-the VLM backbone's final representation — the KV cache boundary that
-conditions the action expert — separates preference variants or collapses them.
+Pulls a live frame from the RealSense camera, asks for two text instructions,
+and analyses whether the VLM backbone's final representation — the KV cache
+boundary that conditions the action expert — separates the two prompts or
+collapses them. Then loops.
 
 Architecture target:
     PI05Policy.model.paligemma_with_expert.paligemma.model.language_model
@@ -15,34 +16,34 @@ Architecture target:
     all denoising steps — if two instructions produce identical states here,
     the action expert has zero information to differentiate them.
 
-Analyses produced:
-    1. Cosine similarity matrix (pooled hidden states)
-    2. Per-token position analysis (image vs language token regions)
-    3. UMAP projection
-    4. Action output comparison (optional, requires full denoising)
+Per iteration:
+    1. Capture a live top-down frame from the RealSense D435.
+    2. Prompt for two instructions.
+    3. Cosine similarity between the two (full prefix / image tokens / language tokens).
+    4. Per-token position analysis (image vs language token regions), saved as a plot.
 
 Usage:
-    python extract_pi05_embeddings.py \
-        --checkpoint /path/to/finetuned/checkpoint \
-        --image /path/to/saved_frame.png \
+    python vla_embedding_comp.py --checkpoint /path/to/finetuned/checkpoint \
         --output embedding_analysis
 
-    # Compare base vs finetuned
-    python extract_pi05_embeddings.py \
-        --checkpoint /path/to/finetuned/checkpoint \
-        --checkpoint2 lerobot/pi05_base \
-        --image /path/to/saved_frame.png \
-        --output embedding_analysis
+Interactive commands:
+    /quit, /exit   exit
+    /help          show help
+    anything else  enter it at the "prompt A" / "prompt B" prompts
+
+Requires the RealSense SDK (pyrealsense2) and the RealSense D435 connected.
 """
 
 import argparse
-import json
+import time
 from pathlib import Path
 
 import numpy as np
 import torch
 import torch.nn.functional as F
-from PIL import Image
+
+# Reuse the RealSense capture helpers from the interactive VLM REPL (same dir).
+from vlm import RealSenseCamera, capture_scene
 
 
 # --------------------------------------------------------------------------- #
@@ -62,9 +63,9 @@ def load_policy(checkpoint_path: str, device: str = "cuda"):
 # 2. Prepare inputs
 # --------------------------------------------------------------------------- #
 
-def prepare_inputs(policy, image_path: str, instruction: str, device: str = "cuda"):
+def prepare_inputs(policy, image, instruction: str, device: str = "cuda"):
     """
-    Convert a raw image + instruction string into the tensors that
+    Convert a live PIL frame + instruction string into the tensors that
     PI05Pytorch.embed_prefix() expects: (images, img_masks, tokens, masks).
     """
     from lerobot.policies.pi05.modeling_pi05 import resize_with_pad_torch
@@ -73,7 +74,7 @@ def prepare_inputs(policy, image_path: str, instruction: str, device: str = "cud
     config = policy.config
 
     # --- Image ---
-    img = Image.open(image_path).convert("RGB")
+    img = image.convert("RGB")
     img_tensor = torch.tensor(np.array(img), dtype=torch.float32) / 255.0
     img_size = config.image_resolution[0]
     img_tensor = resize_with_pad_torch(img_tensor, img_size, img_size)
@@ -148,26 +149,7 @@ def extract_vlm_hidden_states(policy, images, img_masks, tokens, masks):
 
 
 # --------------------------------------------------------------------------- #
-# 4. Extract action outputs (full denoising)
-# --------------------------------------------------------------------------- #
-
-@torch.no_grad()
-def extract_action_outputs(policy, images, img_masks, tokens, masks):
-    """
-    Run full inference (prefix + denoising loop) and return the predicted
-    action chunk. This tests whether differences in the VLM hidden states
-    actually propagate through the action expert into different trajectories.
-
-    Returns:
-        actions: [B, chunk_size, action_dim]
-    """
-    model = policy.model
-    actions = model.sample_actions(images, img_masks, tokens, masks)
-    return actions
-
-
-# --------------------------------------------------------------------------- #
-# 5. Pooling utilities
+# 4. Pooling utilities
 # --------------------------------------------------------------------------- #
 
 def pool_embeddings(hidden_states, pad_masks, method="mean"):
@@ -193,7 +175,7 @@ def pool_region(hidden_states, pad_masks, start, end, method="mean"):
 
 
 # --------------------------------------------------------------------------- #
-# 6. Analysis functions
+# 5. Analysis functions
 # --------------------------------------------------------------------------- #
 
 def cosine_similarity_matrix(embeddings_dict):
@@ -227,7 +209,7 @@ def per_token_cosine_similarity(hidden_states_a, hidden_states_b):
 
 
 # --------------------------------------------------------------------------- #
-# 7. Plotting
+# 6. Plotting
 # --------------------------------------------------------------------------- #
 
 def plot_similarity_matrix(sim_matrix, names, title, save_path):
@@ -261,7 +243,7 @@ def plot_similarity_matrix(sim_matrix, names, title, save_path):
 
 def plot_per_token_similarity(per_token_sims, pair_labels, num_img_tokens, title, save_path):
     """
-    Plot per-position cosine similarity for multiple instruction pairs.
+    Plot per-position cosine similarity for one or more instruction pairs.
     Vertical line separates image token region from language token region.
     """
     import matplotlib
@@ -291,324 +273,181 @@ def plot_per_token_similarity(per_token_sims, pair_labels, num_img_tokens, title
     print(f"  Saved: {save_path}")
 
 
-def plot_umap(embeddings_dict, labels, title, save_path):
-    """UMAP projection colored by instruction group."""
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-
-    try:
-        import umap
-    except ImportError:
-        print("  Skipping UMAP (pip install umap-learn)")
-        return
-
-    names = list(embeddings_dict.keys())
-    vecs = torch.stack([embeddings_dict[n] for n in names]).numpy()
-
-    if len(vecs) < 3:
-        print("  Need at least 3 instructions for UMAP")
-        return
-
-    n_neighbors = min(5, len(vecs) - 1)
-    reducer = umap.UMAP(n_neighbors=n_neighbors, min_dist=0.3, random_state=42)
-    projected = reducer.fit_transform(vecs)
-
-    fig, ax = plt.subplots(figsize=(10, 8))
-    unique_labels = list(set(labels.values()))
-    colors = plt.cm.tab10(np.linspace(0, 1, len(unique_labels)))
-    color_map = {l: colors[i] for i, l in enumerate(unique_labels)}
-
-    for i, name in enumerate(names):
-        label = labels[name]
-        ax.scatter(projected[i, 0], projected[i, 1],
-                   c=[color_map[label]], s=120, zorder=5, edgecolors='white', linewidth=0.5)
-        ax.annotate(name[:35], (projected[i, 0], projected[i, 1]),
-                    fontsize=7, ha='center', va='bottom',
-                    xytext=(0, 8), textcoords='offset points')
-
-    for label, color in color_map.items():
-        ax.scatter([], [], c=[color], label=label, s=80)
-    ax.legend(loc='best', fontsize=9)
-
-    ax.set_title(title, fontsize=12)
-    ax.set_xlabel('UMAP 1')
-    ax.set_ylabel('UMAP 2')
-    plt.tight_layout()
-    plt.savefig(save_path, dpi=150, bbox_inches='tight')
-    plt.close()
-    print(f"  Saved: {save_path}")
-
-
 # --------------------------------------------------------------------------- #
-# 8. Main pipeline
+# 7. Two-prompt comparison
 # --------------------------------------------------------------------------- #
 
-def run_comparison(
-    checkpoint_path: str,
-    image_path: str,
-    instructions: list[dict],
-    output_dir: str = "embedding_analysis",
-    device: str = "cuda",
-    pooling: str = "mean",
-    checkpoint2_path: str | None = None,
-    compare_actions: bool = False,
-):
+def compare_pair(policy, image, prompt_a, prompt_b, output_dir, pooling="mean", device="cuda"):
+    """
+    Compare the VLM final hidden states of two instructions on a single frame.
+    Prints cosine similarities + per-token summary and saves two plots.
+    """
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    checkpoints = {"finetuned": checkpoint_path}
-    if checkpoint2_path:
-        checkpoints["base"] = checkpoint2_path
+    prefix_pooled = {}   # mean-pooled full prefix, keyed by prompt text
+    img_pooled = {}      # mean-pooled image tokens only
+    lang_pooled = {}     # mean-pooled language tokens only
+    all_hidden = {}      # raw [1, seq, 2048]
+    num_img_tokens = None
 
-    for ckpt_name, ckpt_path in checkpoints.items():
-        print(f"\n{'='*60}")
-        print(f"Checkpoint: {ckpt_name} ({ckpt_path})")
-        print(f"{'='*60}")
+    for text in (prompt_a, prompt_b):
+        print(f"  Extracting: '{text}'")
+        images, img_masks, tokens, masks = prepare_inputs(policy, image, text, device)
+        hidden_states, _prefix_embs, pad_masks, n_img = extract_vlm_hidden_states(
+            policy, images, img_masks, tokens, masks
+        )
+        num_img_tokens = n_img
 
-        policy = load_policy(ckpt_path, device)
+        prefix_pooled[text] = pool_embeddings(
+            hidden_states, pad_masks, method=pooling
+        ).squeeze(0).cpu()
+        img_pooled[text] = pool_region(
+            hidden_states, pad_masks, 0, num_img_tokens, method=pooling
+        ).squeeze(0).cpu()
+        lang_pooled[text] = pool_region(
+            hidden_states, pad_masks, num_img_tokens, hidden_states.shape[1], method=pooling
+        ).squeeze(0).cpu()
+        all_hidden[text] = hidden_states.cpu()
 
-        # --- Collect hidden states for all instructions ---
-        all_hidden_states = {}   # raw [1, seq, 2048] per instruction
-        prefix_pooled = {}       # mean-pooled full prefix
-        img_pooled = {}          # mean-pooled image tokens only
-        lang_pooled = {}         # mean-pooled language tokens only
-        action_outputs = {}      # action chunks (if requested)
-        labels = {}
-        num_img_tokens = None
+    # --- Cosine similarities (the single off-diagonal value per region) ---
+    print("\n--- Cosine similarities ---")
+    region_matrices = {}
+    for region_name, region_dict in [
+        ("full_prefix", prefix_pooled),
+        ("image_tokens", img_pooled),
+        ("language_tokens", lang_pooled),
+    ]:
+        results, sim_matrix, names = cosine_similarity_matrix(region_dict)
+        region_matrices[region_name] = (sim_matrix, names)
+        sim = results[(prompt_a, prompt_b)]
+        print(f"    {region_name:16s} →  {sim:.4f}")
 
-        for instr in instructions:
-            text = instr["text"]
-            group = instr.get("group", "default")
-            print(f"  Extracting: '{text}'")
+    # --- Per-token position analysis ---
+    print("\n--- Per-token analysis ---")
+    sims = per_token_cosine_similarity(all_hidden[prompt_a], all_hidden[prompt_b])
+    img_sim = sims[:num_img_tokens].mean().item()
+    lang_sim = sims[num_img_tokens:].mean().item()
+    print(f"    Image tokens mean sim:     {img_sim:.4f}")
+    print(f"    Language tokens mean sim:  {lang_sim:.4f}")
+    print(f"    Delta (lang - img):        {lang_sim - img_sim:+.4f}")
 
-            images, img_masks, tokens, masks = prepare_inputs(
-                policy, image_path, text, device
-            )
-
-            hidden_states, prefix_embs, pad_masks, n_img = extract_vlm_hidden_states(
-                policy, images, img_masks, tokens, masks
-            )
-            num_img_tokens = n_img
-
-            # Pool: full prefix
-            prefix_pooled[text] = pool_embeddings(
-                hidden_states, pad_masks, method=pooling
-            ).squeeze(0).cpu()
-
-            # Pool: image region only [0 : num_img_tokens]
-            img_pooled[text] = pool_region(
-                hidden_states, pad_masks, 0, num_img_tokens, method=pooling
-            ).squeeze(0).cpu()
-
-            # Pool: language region only [num_img_tokens : end]
-            lang_pooled[text] = pool_region(
-                hidden_states, pad_masks, num_img_tokens, hidden_states.shape[1],
-                method=pooling
-            ).squeeze(0).cpu()
-
-            # Keep raw hidden states for per-token analysis
-            all_hidden_states[text] = hidden_states.cpu()
-
-            labels[text] = group
-
-            # Optional: action outputs
-            if compare_actions:
-                actions = extract_action_outputs(
-                    policy, images, img_masks, tokens, masks
-                )
-                action_outputs[text] = actions.cpu()
-
-        # =====================================================================
-        # Analysis 1: Cosine similarity matrices
-        # =====================================================================
-        for region_name, region_dict in [
-            ("full_prefix", prefix_pooled),
-            ("image_tokens", img_pooled),
-            ("language_tokens", lang_pooled),
-        ]:
-            print(f"\n--- Cosine similarities: {region_name} ({ckpt_name}) ---")
-            results, sim_matrix, names = cosine_similarity_matrix(region_dict)
-
-            for (ni, nj), sim in results.items():
-                if ni < nj:
-                    print(f"    {ni[:40]:40s}  vs  {nj[:40]:40s}  →  {sim:.4f}")
-
-            plot_similarity_matrix(
-                sim_matrix, names,
-                f"{region_name} similarity ({ckpt_name})",
-                output_dir / f"sim_{region_name}_{ckpt_name}.png"
-            )
-
-        # =====================================================================
-        # Analysis 2: Per-token position similarity
-        # =====================================================================
-        print(f"\n--- Per-token analysis ({ckpt_name}) ---")
-        instr_texts = [i["text"] for i in instructions]
-        per_token_sims = []
-        pair_labels = []
-
-        # Compare each instruction against the first instruction
-        ref_text = instr_texts[0]
-        for other_text in instr_texts[1:]:
-            sims = per_token_cosine_similarity(
-                all_hidden_states[ref_text],
-                all_hidden_states[other_text],
-            )
-            per_token_sims.append(sims)
-            pair_labels.append(f"'{ref_text[:25]}' vs '{other_text[:25]}'")
-
-            # Summary stats
-            img_sim = sims[:num_img_tokens].mean().item()
-            lang_sim = sims[num_img_tokens:].mean().item()
-            print(f"    {ref_text[:30]:30s}  vs  {other_text[:30]:30s}")
-            print(f"      Image tokens mean sim:    {img_sim:.4f}")
-            print(f"      Language tokens mean sim:  {lang_sim:.4f}")
-            print(f"      Delta (lang - img):        {lang_sim - img_sim:+.4f}")
-
-        if per_token_sims:
-            plot_per_token_similarity(
-                per_token_sims, pair_labels, num_img_tokens,
-                f"Per-token cosine similarity ({ckpt_name})",
-                output_dir / f"per_token_{ckpt_name}.png"
-            )
-
-        # =====================================================================
-        # Analysis 3: UMAP
-        # =====================================================================
-        if len(instructions) >= 3:
-            plot_umap(
-                prefix_pooled, labels,
-                f"UMAP — full prefix ({ckpt_name})",
-                output_dir / f"umap_prefix_{ckpt_name}.png"
-            )
-            plot_umap(
-                img_pooled, labels,
-                f"UMAP — image tokens only ({ckpt_name})",
-                output_dir / f"umap_image_{ckpt_name}.png"
-            )
-            plot_umap(
-                lang_pooled, labels,
-                f"UMAP — language tokens only ({ckpt_name})",
-                output_dir / f"umap_lang_{ckpt_name}.png"
-            )
-
-        # =====================================================================
-        # Analysis 4: Action output comparison (optional)
-        # =====================================================================
-        if compare_actions and action_outputs:
-            print(f"\n--- Action output comparison ({ckpt_name}) ---")
-            action_texts = list(action_outputs.keys())
-            for i, t1 in enumerate(action_texts):
-                for t2 in action_texts[i + 1:]:
-                    a1 = action_outputs[t1]
-                    a2 = action_outputs[t2]
-                    l2_dist = torch.norm(a1 - a2).item()
-                    max_diff = torch.max(torch.abs(a1 - a2)).item()
-                    mean_diff = torch.mean(torch.abs(a1 - a2)).item()
-                    print(f"    '{t1[:35]}' vs '{t2[:35]}'")
-                    print(f"      L2 dist: {l2_dist:.4f}  |  max joint diff: {max_diff:.4f}  |  mean diff: {mean_diff:.4f}")
-
-        # =====================================================================
-        # Save raw results
-        # =====================================================================
-        results_data = {
-            "checkpoint": ckpt_path,
-            "num_img_tokens": num_img_tokens,
-            "pooling": pooling,
-            "instructions": [i["text"] for i in instructions],
-            "cosine_similarities": {
-                region: {
-                    f"{ni} ||| {nj}": sim
-                    for (ni, nj), sim in cosine_similarity_matrix(d)[0].items()
-                    if ni <= nj
-                }
-                for region, d in [
-                    ("full_prefix", prefix_pooled),
-                    ("image_tokens", img_pooled),
-                    ("language_tokens", lang_pooled),
-                ]
-            },
-        }
-
-        if compare_actions and action_outputs:
-            action_comparisons = {}
-            action_texts = list(action_outputs.keys())
-            for i, t1 in enumerate(action_texts):
-                for t2 in action_texts[i + 1:]:
-                    a1, a2 = action_outputs[t1], action_outputs[t2]
-                    action_comparisons[f"{t1} ||| {t2}"] = {
-                        "l2_dist": torch.norm(a1 - a2).item(),
-                        "max_joint_diff": torch.max(torch.abs(a1 - a2)).item(),
-                        "mean_diff": torch.mean(torch.abs(a1 - a2)).item(),
-                    }
-            results_data["action_comparisons"] = action_comparisons
-
-        with open(output_dir / f"results_{ckpt_name}.json", "w") as f:
-            json.dump(results_data, f, indent=2)
-        print(f"\n  Results saved to {output_dir / f'results_{ckpt_name}.json'}")
-
-        del policy
-        torch.cuda.empty_cache()
+    # --- Save plots (timestamped) ---
+    ts = time.strftime("%Y%m%d_%H%M%S")
+    full_matrix, full_names = region_matrices["full_prefix"]
+    plot_similarity_matrix(
+        full_matrix, full_names,
+        "full_prefix similarity",
+        output_dir / f"sim_{ts}.png",
+    )
+    plot_per_token_similarity(
+        [sims],
+        [f"'{prompt_a[:25]}' vs '{prompt_b[:25]}'"],
+        num_img_tokens,
+        "Per-token cosine similarity",
+        output_dir / f"per_token_{ts}.png",
+    )
 
 
 # --------------------------------------------------------------------------- #
-# 9. Example instructions
+# 8. Interactive loop
 # --------------------------------------------------------------------------- #
 
-EXAMPLE_INSTRUCTIONS = [
-    # Preference variants of the same base task
-    {"text": "pick up the red block and place it on the pink tray",      "group": "pick_place"},
-    {"text": "pick up the blue block and place it on the pink tray",     "group": "pick_place"},
-    {"text": "pick up the green block and place it on the pink tray",    "group": "pick_place"},
+INTERACTIVE_HELP = """
+Commands:
+  /help          show this help
+  /quit, /exit   exit
 
-    # Spatial preference variants
-    {"text": "pick up the block closest to the tray",                    "group": "spatial"},
-    {"text": "pick up the block farthest from the tray",                 "group": "spatial"},
+Otherwise: each iteration captures a fresh camera frame, then prompts you for
+two instructions ("prompt A" and "prompt B") and compares the VLM hidden states
+they produce on that frame. Blank input re-captures and re-prompts.
+"""
 
-    # Semantically different tasks (control — should be far apart)
-    {"text": "stack the blocks on top of each other",                    "group": "different_task"},
-    {"text": "push the block to the left side of the table",             "group": "different_task"},
 
-    # Minimal pair: same task with/without preference
-    {"text": "pick up a block and place it on the pink tray",            "group": "no_preference"},
-]
+def _read_prompt(label):
+    """Read one instruction, handling /commands. Returns text, or None to exit,
+    or "" to skip/re-loop."""
+    while True:
+        text = input(f"{label}> ").strip()
+        if not text:
+            return ""
+        low = text.lower()
+        if low in ("/quit", "/exit"):
+            return None
+        if low == "/help":
+            print(INTERACTIVE_HELP)
+            continue
+        return text
+
+
+def interactive_loop(policy, camera, output_dir, pooling="mean", device="cuda", save_frames=False):
+    print(INTERACTIVE_HELP)
+    frame_dir = Path(output_dir) / "frames" if save_frames else None
+
+    while True:
+        try:
+            print("\n" + "=" * 60)
+            print("Capturing frame...")
+            image = capture_scene(camera, save_dir=frame_dir)
+
+            prompt_a = _read_prompt("prompt A")
+            if prompt_a is None:
+                break
+            if not prompt_a:
+                continue
+
+            prompt_b = _read_prompt("prompt B")
+            if prompt_b is None:
+                break
+            if not prompt_b:
+                continue
+
+            compare_pair(policy, image, prompt_a, prompt_b, output_dir, pooling, device)
+        except (EOFError, KeyboardInterrupt):
+            print("\nExiting.")
+            break
+
+
+# --------------------------------------------------------------------------- #
+# 9. Main
+# --------------------------------------------------------------------------- #
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Interactive PI05 VLM embedding comparison (live camera, two prompts)"
+    )
+    parser.add_argument("--checkpoint", required=True,
+                        help="Path or HF repo of the checkpoint to analyse")
+    parser.add_argument("--output", default="embedding_analysis",
+                        help="Output directory for saved plots (and frames)")
+    parser.add_argument("--device", default="cuda")
+    parser.add_argument("--pooling", default="mean", choices=["mean", "last", "cls"])
+    parser.add_argument("--resolution", default="640x480",
+                        help="Camera resolution, WIDTHxHEIGHT (default 640x480)")
+    parser.add_argument("--save-frames", action="store_true",
+                        help="Save each captured frame to <output>/frames/")
+    args = parser.parse_args()
+
+    width, height = (int(x) for x in args.resolution.lower().split("x"))
+
+    print(f"Loading policy from {args.checkpoint} ...")
+    policy = load_policy(args.checkpoint, args.device)
+
+    camera = RealSenseCamera(width=width, height=height)
+    try:
+        camera.start()
+    except Exception as e:
+        print(f"Failed to start RealSense camera: {e}")
+        return
+
+    try:
+        interactive_loop(
+            policy, camera, args.output,
+            pooling=args.pooling, device=args.device, save_frames=args.save_frames,
+        )
+    finally:
+        camera.stop()
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="PI05 VLM embedding analysis")
-    parser.add_argument("--checkpoint", required=True,
-                        help="Path or HF repo of finetuned checkpoint")
-    parser.add_argument("--checkpoint2", default=None,
-                        help="Optional second checkpoint (e.g. base) for comparison")
-    parser.add_argument("--image", required=True,
-                        help="Path to a saved camera frame (.png/.jpg)")
-    parser.add_argument("--output", default="embedding_analysis",
-                        help="Output directory")
-    parser.add_argument("--device", default="cuda")
-    parser.add_argument("--pooling", default="mean", choices=["mean", "last", "cls"])
-    parser.add_argument("--compare-actions", action="store_true",
-                        help="Also run full denoising and compare action outputs")
-    parser.add_argument("--instructions-file", default=None,
-                        help="JSON file with instruction list (keys: text, group)")
-
-    args = parser.parse_args()
-
-    if args.instructions_file:
-        with open(args.instructions_file) as f:
-            instructions = json.load(f)
-    else:
-        instructions = EXAMPLE_INSTRUCTIONS
-        print("Using built-in example instructions. "
-              "Pass --instructions-file for custom ones.\n")
-
-    run_comparison(
-        checkpoint_path=args.checkpoint,
-        image_path=args.image,
-        instructions=instructions,
-        output_dir=args.output,
-        device=args.device,
-        pooling=args.pooling,
-        checkpoint2_path=args.checkpoint2,
-        compare_actions=args.compare_actions,
-    )
+    main()
