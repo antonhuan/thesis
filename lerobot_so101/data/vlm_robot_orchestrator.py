@@ -559,32 +559,30 @@ class VLMPlanner:
 # ---------------------------------------------------------------------------
 # Frame source for the VLM
 # ---------------------------------------------------------------------------
-def _slug(text: str, max_len: int = 40) -> str:
-    """Turn a free-text prompt into a filesystem-safe folder name."""
-    slug = re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
-    slug = slug[:max_len].strip("_")
-    return slug or "task"
-
-
 class VLMFrameSource:
     """Provides PIL frames for the VLM from the robot's camera observations."""
 
-    def __init__(self, client: LoopRobotClient, camera_key: str, save_dir: Path | None):
+    def __init__(self, client: LoopRobotClient, camera_key: str,
+                 session_dir: Path, save_frames: bool):
         self.client = client
         self.camera_key = camera_key
-        # save_dir is the per-run session root; save_dir is the currently-active
-        # write dir, repointed at a new sub-folder for each high-level task.
-        self.session_dir = save_dir
-        self.save_dir = save_dir
+        # session_dir is the per-run root (always set). task_dir is the
+        # currently-active sub-folder, repointed for each high-level task. Frame
+        # PNGs are only written when save_frames is True, but the per-task dir
+        # always exists so the task log has a home either way.
+        self.session_dir = session_dir
+        self.task_dir = session_dir
+        self.save_frames = save_frames
         self._task_counter = 0
 
-    def start_task(self, prompt: str):
+    def start_task(self) -> Path:
         """Begin a new high-level task: route subsequent saves into a fresh
-        `NN_<slug>` sub-folder under the session dir. No-op when saving is off."""
-        if self.session_dir is None:
-            return
+        `NN` sub-folder under the session dir, create it, and return it so the
+        caller can co-locate the task log there."""
         self._task_counter += 1
-        self.save_dir = self.session_dir / f"{self._task_counter:02d}_{_slug(prompt)}"
+        self.task_dir = self.session_dir / f"{self._task_counter:02d}"
+        self.task_dir.mkdir(parents=True, exist_ok=True)
+        return self.task_dir
 
     def capture(self, tag: str = "frame") -> Image.Image | None:
         obs = self.client.capture_frame()
@@ -609,10 +607,10 @@ class VLMFrameSource:
             logging.warning("No VLM frame available — running text-only.")
             return None
 
-        if self.save_dir is not None:
-            self.save_dir.mkdir(parents=True, exist_ok=True)
+        if self.save_frames:
+            self.task_dir.mkdir(parents=True, exist_ok=True)
             ts = time.strftime("%Y%m%d_%H%M%S")
-            path = self.save_dir / f"{tag}_{ts}.png"
+            path = self.task_dir / f"{tag}_{ts}.png"
             frame.save(path)
             logging.info(f"Saved VLM frame: {path}")
 
@@ -639,13 +637,13 @@ class VLMFrameSource:
             logging.warning("Episode clip buffer empty — no video for evaluation.")
             return [], 0.0
 
-        if self.save_dir is not None:
-            self.save_dir.mkdir(parents=True, exist_ok=True)
+        if self.save_frames:
+            self.task_dir.mkdir(parents=True, exist_ok=True)
             ts = time.strftime("%Y%m%d_%H%M%S")
             for i, img in enumerate(clip):
-                path = self.save_dir / f"{tag}_{ts}_{i:02d}.png"
+                path = self.task_dir / f"{tag}_{ts}_{i:02d}.png"
                 img.save(path)
-            logging.info(f"Saved VLM eval clip ({len(clip)} frames) to {self.save_dir}")
+            logging.info(f"Saved VLM eval clip ({len(clip)} frames) to {self.task_dir}")
 
         return clip, span
 
@@ -663,12 +661,31 @@ def run_high_level_task(
     cfg: OrchestratorConfig,
     prompt: str,
     interjection: InterjectionManager,
+    log_sink: TaskLogSink,
 ):
     logger = client.logger
 
-    # Route this task's saved frames into a fresh session/<task> sub-folder.
-    frames.start_task(prompt)
+    # Route this task's saved frames into a fresh session/<task> sub-folder, and
+    # mirror all terminal output for this task into task.log inside that folder.
+    task_dir = frames.start_task()
+    log_sink.open(task_dir / "task.log")
+    try:
+        _run_high_level_task_body(
+            client, planner, frames, cfg, prompt, interjection, logger
+        )
+    finally:
+        log_sink.close()
 
+
+def _run_high_level_task_body(
+    client: LoopRobotClient,
+    planner: VLMPlanner,
+    frames: VLMFrameSource,
+    cfg: OrchestratorConfig,
+    prompt: str,
+    interjection: InterjectionManager,
+    logger,
+):
     def abort(where: str):
         """Park the arm and report that the operator abandoned the task."""
         logger.warning(f"ABORT requested {where} — abandoning high-level task "
@@ -977,27 +994,61 @@ def run_high_level_task(
 # ---------------------------------------------------------------------------
 # Terminal capture
 # ---------------------------------------------------------------------------
-class _Tee:
-    """Duplicate a text stream to a second sink (the session log file)."""
+class TaskLogSink:
+    """A swappable mirror target for the terminal tees.
 
-    def __init__(self, primary, mirror):
+    Holds the currently-active per-high-level-task log file. `open()` points it
+    at a new file (closing any previous one); `close()` detaches it. Between
+    tasks `fh` is None, so nothing is mirrored. Shared by both stdout/stderr
+    tees so a single `open()` captures both streams into one file.
+    """
+
+    def __init__(self):
+        self.fh = None
+
+    def open(self, path):
+        self.close()
+        self.fh = open(path, "a", buffering=1, encoding="utf-8")  # line-buffered
+
+    def write(self, data):
+        if self.fh is not None:
+            try:
+                self.fh.write(data)
+            except (ValueError, OSError):
+                pass
+
+    def flush(self):
+        if self.fh is not None:
+            try:
+                self.fh.flush()
+            except (ValueError, OSError):
+                pass
+
+    def close(self):
+        self.flush()
+        if self.fh is not None:
+            try:
+                self.fh.close()
+            except (ValueError, OSError):
+                pass
+        self.fh = None
+
+
+class _Tee:
+    """Duplicate a text stream to a swappable sink (the active per-task log)."""
+
+    def __init__(self, primary, sink: "TaskLogSink"):
         self._primary = primary   # original sys.stdout / sys.stderr
-        self._mirror = mirror     # open log file handle
+        self._sink = sink         # shared TaskLogSink (per-task mirror)
 
     def write(self, data):
         self._primary.write(data)
-        try:
-            self._mirror.write(data)
-        except (ValueError, OSError):
-            pass
+        self._sink.write(data)
         return len(data)
 
     def flush(self):
         self._primary.flush()
-        try:
-            self._mirror.flush()
-        except (ValueError, OSError):
-            pass
+        self._sink.flush()
 
     def isatty(self):
         return self._primary.isatty()
@@ -1016,16 +1067,21 @@ class _Tee:
 def main(cfg: OrchestratorConfig):
     logging.basicConfig(level=logging.INFO)
 
+    # Single per-run root holding one sub-folder per high-level task; each
+    # sub-folder gets that task's log (task.log) and, when --save_frames is on,
+    # its saved frames. One timestamp for the whole run.
+    run_dir = Path(f"./runs/run_{datetime.now():%Y-%m-%d_%H-%M-%S}")
+    run_dir.mkdir(parents=True, exist_ok=True)
+
     # Mirror every byte written to the terminal (raw print()/input() as well as
-    # logging output and third-party library prints) into a session log file so
-    # the full run can be reviewed afterwards.
-    log_dir = Path(f"./logs/run_{datetime.now():%Y-%m-%d_%H-%M-%S}")
-    log_dir.mkdir(exist_ok=True)
-    session_log_path = log_dir /f"orchestrator.log"
-    session_log = open(session_log_path, "a", buffering=1, encoding="utf-8")  # line-buffered
+    # logging output and third-party library prints) into the currently-active
+    # per-task log, so each high-level task can be reviewed on its own. The sink
+    # is swapped at each task boundary (see run_high_level_task); between tasks
+    # nothing is mirrored.
+    log_sink = TaskLogSink()
     _orig_stdout, _orig_stderr = sys.stdout, sys.stderr
-    sys.stdout = _Tee(_orig_stdout, session_log)
-    sys.stderr = _Tee(_orig_stderr, session_log)
+    sys.stdout = _Tee(_orig_stdout, log_sink)
+    sys.stderr = _Tee(_orig_stderr, log_sink)
 
     # The root logger's console handler grabbed the ORIGINAL sys.stderr at import
     # time, so re-point it at the tee'd stderr; leave file handlers untouched.
@@ -1033,7 +1089,7 @@ def main(cfg: OrchestratorConfig):
         if isinstance(h, logging.StreamHandler) and not isinstance(h, logging.FileHandler):
             h.setStream(sys.stderr)
 
-    logging.info(f"Terminal output mirrored to {session_log_path}")
+    logging.info(f"Per-task logs will be written under {run_dir}")
     logging.info(pformat(asdict(cfg)))
 
     # 1. Robot + policy server (VLA layer)
@@ -1046,10 +1102,11 @@ def main(cfg: OrchestratorConfig):
     planner = VLMPlanner(cfg.vlm_model, temperature=cfg.vlm_temperature,
                          eval_fps=cfg.vlm_eval_fps,
                          two_pass=cfg.vlm_two_pass_decompose)
-    # 3. Frame source for the VLM. session_dir is the per-run root; each
-    #    high-level task gets its own sub-folder underneath (see start_task).
-    session_dir = Path(f"./frames/run_{datetime.now():%Y-%m-%d_%H-%M-%S}") if cfg.save_frames else None
-    frames = VLMFrameSource(client, camera_key=cfg.vlm_camera_key, save_dir=session_dir)
+    # 3. Frame source for the VLM. session_dir is the per-run root (shared with
+    #    the task logs); each high-level task gets its own sub-folder underneath
+    #    (see start_task). Frame PNGs are saved only when --save_frames is on.
+    frames = VLMFrameSource(client, camera_key=cfg.vlm_camera_key,
+                            session_dir=run_dir, save_frames=cfg.save_frames)
     # 4. Interjection manager (user can skip/replan mid-execution)
     interjection = InterjectionManager(client)
 
@@ -1085,7 +1142,8 @@ def main(cfg: OrchestratorConfig):
             # --enable_interjection=false it honours nothing else.
             interjection.start(abort_only=not cfg.enable_interjection)
             try:
-                run_high_level_task(client, planner, frames, cfg, prompt, interjection)
+                run_high_level_task(client, planner, frames, cfg, prompt,
+                                    interjection, log_sink)
             finally:
                 interjection.stop()
 
@@ -1097,11 +1155,8 @@ def main(cfg: OrchestratorConfig):
         frames.stop()
         client.stop()
         sys.stdout, sys.stderr = _orig_stdout, _orig_stderr
-        try:
-            session_log.flush()
-            session_log.close()
-        except (ValueError, OSError):
-            pass
+        # Close any task log still open (e.g. interrupted mid-task).
+        log_sink.close()
 
 
 if __name__ == "__main__":
