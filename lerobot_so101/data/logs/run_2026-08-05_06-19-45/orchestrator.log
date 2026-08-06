@@ -1,0 +1,92 @@
+INFO 2026-08-05 06:19:45 estrator.py:913 Terminal output mirrored to logs/run_2026-08-05_06-19-45/orchestrator.log
+INFO 2026-08-05 06:19:45 estrator.py:914 {'action_stall_timeout': 2.0,
+ 'actions_per_chunk': 50,
+ 'aggregate_fn_name': 'weighted_average',
+ 'chunk_size_threshold': 0.7,
+ 'client_device': 'cpu',
+ 'clip_buffer_maxlen': 128,
+ 'convergence_grace_period': 6,
+ 'convergence_threshold': 1,
+ 'convergence_window': 25,
+ 'debug_visualize_queue_size': False,
+ 'enable_clip_buffer': True,
+ 'enable_interjection': True,
+ 'episode_duration': 30.0,
+ 'evaluate_subtasks': True,
+ 'fps': 30,
+ 'home_step_dt': 0.04,
+ 'home_steps': 50,
+ 'max_replans': 1,
+ 'max_retries': 1,
+ 'no_movement_threshold': 0.02,
+ 'policy_device': 'cuda',
+ 'policy_type': 'pi05',
+ 'pretrained_name_or_path': 'ant0nh/pi05_500_30k',
+ 'robot': {'calibration_dir': None,
+           'cameras': {'front': {'color_mode': <ColorMode.RGB: 'rgb'>,
+                                 'fps': 30,
+                                 'height': 480,
+                                 'rotation': <Cv2Rotation.NO_ROTATION: 0>,
+                                 'serial_number_or_name': '342222071104',
+                                 'use_depth': False,
+                                 'use_rgb': True,
+                                 'warmup_s': 1,
+                                 'width': 640},
+                       'wrist': {'backend': <Cv2Backends.ANY: 0>,
+                                 'color_mode': <ColorMode.RGB: 'rgb'>,
+                                 'fourcc': None,
+                                 'fps': 30,
+                                 'height': 480,
+                                 'index_or_path': 1,
+                                 'rotation': <Cv2Rotation.NO_ROTATION: 0>,
+                                 'warmup_s': 1,
+                                 'width': 640}},
+           'disable_torque_on_disconnect': True,
+           'id': 'kumquat_follower',
+           'max_relative_target': None,
+           'port': '/dev/ttyACM0',
+           'use_degrees': True},
+ 'save_frames': True,
+ 'server_address': '127.0.0.1:8080',
+ 'task': 'idle',
+ 'vlm_camera_key': 'front',
+ 'vlm_eval_fps': 2.0,
+ 'vlm_eval_num_frames': 16,
+ 'vlm_eval_use_video': True,
+ 'vlm_model': 'Qwen/Qwen3-VL-4B-Instruct',
+ 'vlm_temperature': 0.7,
+ 'vlm_two_pass_decompose': True}
+INFO 2026-08-05 06:19:46 a_opencv.py:179 OpenCVCamera(1) connected.
+INFO 2026-08-05 06:19:48 ealsense.py:210 RealSenseCamera(342222071104) connected.
+Traceback (most recent call last):
+  File "/workspace/vlm_robot_orchestrator.py", line 981, in <module>
+    main()
+  File "/usr/local/lib/python3.12/dist-packages/draccus/argparsing.py", line 225, in wrapper_inner
+    response = fn(cfg, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/vlm_robot_orchestrator.py", line 917, in main
+    client = LoopRobotClient(cfg)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/robot_client_loop.py", line 136, in __init__
+    self.robot.connect()
+  File "/opt/lerobot/src/lerobot/utils/decorators.py", line 39, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/lerobot/src/lerobot/robots/so_follower/so_follower.py", line 108, in connect
+    self.configure()
+  File "/opt/lerobot/src/lerobot/robots/so_follower/so_follower.py", line 160, in configure
+    with self.bus.torque_disabled():
+  File "/usr/lib/python3.12/contextlib.py", line 144, in __exit__
+    next(self.gen)
+  File "/opt/lerobot/src/lerobot/motors/motors_bus.py", line 690, in torque_disabled
+    self.enable_torque(motors)
+  File "/opt/lerobot/src/lerobot/motors/feetech/feetech.py", line 304, in enable_torque
+    self.write("Torque_Enable", motor, TorqueMode.ENABLED.value, num_retry=num_retry)
+  File "/opt/lerobot/src/lerobot/utils/decorators.py", line 29, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/lerobot/src/lerobot/motors/motors_bus.py", line 1093, in write
+    self._write(addr, length, id_, int_value, num_retry=num_retry, raise_on_error=True, err_msg=err_msg)
+  File "/opt/lerobot/src/lerobot/motors/motors_bus.py", line 1117, in _write
+    raise ConnectionError(f"{err_msg} {self.packet_handler.getTxRxResult(comm)}")
+ConnectionError: Failed to write 'Torque_Enable' on id_=4 with '1' after 1 tries. [TxRxResult] There is no status packet!

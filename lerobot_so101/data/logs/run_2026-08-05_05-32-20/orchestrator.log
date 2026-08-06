@@ -1,0 +1,87 @@
+INFO 2026-08-05 05:32:20 estrator.py:903 Terminal output mirrored to logs/run_2026-08-05_05-32-20/orchestrator.log
+INFO 2026-08-05 05:32:20 estrator.py:904 {'action_stall_timeout': 2.0,
+ 'actions_per_chunk': 50,
+ 'aggregate_fn_name': 'weighted_average',
+ 'chunk_size_threshold': 0.7,
+ 'client_device': 'cpu',
+ 'clip_buffer_maxlen': 128,
+ 'convergence_grace_period': 6,
+ 'convergence_threshold': 1,
+ 'convergence_window': 25,
+ 'debug_visualize_queue_size': False,
+ 'enable_clip_buffer': True,
+ 'enable_interjection': True,
+ 'episode_duration': 30.0,
+ 'evaluate_subtasks': True,
+ 'fps': 30,
+ 'home_step_dt': 0.04,
+ 'home_steps': 50,
+ 'max_replans': 1,
+ 'max_retries': 1,
+ 'no_movement_threshold': 0.02,
+ 'policy_device': 'cuda',
+ 'policy_type': 'pi05',
+ 'pretrained_name_or_path': 'ant0nh/pi05_500_30k',
+ 'robot': {'calibration_dir': None,
+           'cameras': {'front': {'color_mode': <ColorMode.RGB: 'rgb'>,
+                                 'exposure': None,
+                                 'fps': 30,
+                                 'gain': None,
+                                 'height': 480,
+                                 'rotation': <Cv2Rotation.NO_ROTATION: 0>,
+                                 'serial_number_or_name': '342222071104',
+                                 'use_depth': False,
+                                 'use_rgb': True,
+                                 'warmup_s': 1,
+                                 'white_balance': None,
+                                 'width': 640},
+                       'wrist': {'backend': <Cv2Backends.ANY: 0>,
+                                 'color_mode': <ColorMode.RGB: 'rgb'>,
+                                 'fourcc': None,
+                                 'fps': 30,
+                                 'height': 480,
+                                 'index_or_path': 1,
+                                 'rotation': <Cv2Rotation.NO_ROTATION: 0>,
+                                 'warmup_s': 1,
+                                 'width': 640}},
+           'disable_torque_on_disconnect': True,
+           'id': 'kumquat_follower',
+           'max_relative_target': None,
+           'num_read_retries': 2,
+           'port': '/dev/ttyACM0',
+           'position_d_coefficient': 32,
+           'position_i_coefficient': 0,
+           'position_p_coefficient': 16,
+           'use_degrees': True},
+ 'save_frames': True,
+ 'server_address': '127.0.0.1:8080',
+ 'task': 'idle',
+ 'vlm_camera_key': 'front',
+ 'vlm_eval_fps': 2.0,
+ 'vlm_eval_num_frames': 16,
+ 'vlm_eval_use_video': True,
+ 'vlm_model': 'Qwen/Qwen3-VL-4B-Instruct',
+ 'vlm_temperature': 0.7,
+ 'vlm_two_pass_decompose': True}
+INFO 2026-08-05 05:32:20 follower.py:100 Mismatch between calibration values in the motor and the calibration file or no calibration file found
+INFO 2026-08-05 05:32:20 follower.py:126 
+Running calibration of kumquat_follower SOFollower
+Traceback (most recent call last):
+  File "/workspace/vlm_robot_orchestrator.py", line 971, in <module>
+    main()
+  File "/usr/local/lib/python3.12/dist-packages/draccus/argparsing.py", line 234, in wrapper_inner
+    response = fn(cfg, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/vlm_robot_orchestrator.py", line 907, in main
+    client = LoopRobotClient(cfg)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/robot_client_loop.py", line 136, in __init__
+    self.robot.connect()
+  File "/opt/lerobot/src/lerobot/utils/decorators.py", line 39, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/lerobot/src/lerobot/robots/so_follower/so_follower.py", line 103, in connect
+    self.calibrate()
+  File "/opt/lerobot/src/lerobot/robots/so_follower/so_follower.py", line 131, in calibrate
+    input(f"Move {self} to the middle of its range of motion and press ENTER....")
+KeyboardInterrupt

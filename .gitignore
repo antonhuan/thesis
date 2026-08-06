@@ -7,7 +7,4 @@ lerobot_so101/data/.cache/
 personalreadme.md
 __pycache__/
 *.pyc
-lerobot_so101/data/frames/
-lerobot_so101/data/logs/
-lerobot_so101/data/embedding_analysis/
 .vscode/

@@ -1,0 +1,195 @@
+INFO 2026-08-05 05:19:32 estrator.py:903 Terminal output mirrored to logs/run_2026-08-05_05-19-32/orchestrator.log
+INFO 2026-08-05 05:19:32 estrator.py:904 {'action_stall_timeout': 2.0,
+ 'actions_per_chunk': 50,
+ 'aggregate_fn_name': 'weighted_average',
+ 'chunk_size_threshold': 0.7,
+ 'client_device': 'cpu',
+ 'clip_buffer_maxlen': 128,
+ 'convergence_grace_period': 6,
+ 'convergence_threshold': 1,
+ 'convergence_window': 25,
+ 'debug_visualize_queue_size': False,
+ 'enable_clip_buffer': True,
+ 'enable_interjection': True,
+ 'episode_duration': 30.0,
+ 'evaluate_subtasks': True,
+ 'fps': 30,
+ 'home_step_dt': 0.04,
+ 'home_steps': 50,
+ 'max_replans': 0,
+ 'max_retries': 1,
+ 'no_movement_threshold': 0.02,
+ 'policy_device': 'cuda',
+ 'policy_type': 'pi05',
+ 'pretrained_name_or_path': 'ant0nh/pi05_500_30k',
+ 'robot': {'calibration_dir': None,
+           'cameras': {'front': {'color_mode': <ColorMode.RGB: 'rgb'>,
+                                 'exposure': None,
+                                 'fps': 30,
+                                 'gain': None,
+                                 'height': 480,
+                                 'rotation': <Cv2Rotation.NO_ROTATION: 0>,
+                                 'serial_number_or_name': '342222071104',
+                                 'use_depth': False,
+                                 'use_rgb': True,
+                                 'warmup_s': 1,
+                                 'white_balance': None,
+                                 'width': 640},
+                       'wrist': {'backend': <Cv2Backends.ANY: 0>,
+                                 'color_mode': <ColorMode.RGB: 'rgb'>,
+                                 'fourcc': None,
+                                 'fps': 30,
+                                 'height': 480,
+                                 'index_or_path': 1,
+                                 'rotation': <Cv2Rotation.NO_ROTATION: 0>,
+                                 'warmup_s': 1,
+                                 'width': 640}},
+           'disable_torque_on_disconnect': True,
+           'id': 'kumquat_follower',
+           'max_relative_target': None,
+           'num_read_retries': 2,
+           'port': '/dev/ttyACM0',
+           'position_d_coefficient': 32,
+           'position_i_coefficient': 0,
+           'position_p_coefficient': 16,
+           'use_degrees': True},
+ 'save_frames': True,
+ 'server_address': '127.0.0.1:8080',
+ 'task': 'idle',
+ 'vlm_camera_key': 'front',
+ 'vlm_eval_fps': 2.0,
+ 'vlm_eval_num_frames': 16,
+ 'vlm_eval_use_video': True,
+ 'vlm_model': 'Qwen/Qwen3-VL-4B-Instruct',
+ 'vlm_temperature': 0.7,
+ 'vlm_two_pass_decompose': True}
+INFO 2026-08-05 05:19:34 a_opencv.py:195 OpenCVCamera(1) connected.
+INFO 2026-08-05 05:19:35 ealsense.py:235 RealSenseCamera(342222071104) connected.
+INFO 2026-08-05 05:19:35 follower.py:109 kumquat_follower SOFollower connected.
+INFO 2026-08-05 05:19:35 ent_loop.py:155 Initializing client to connect to server at 127.0.0.1:8080
+INFO 2026-08-05 05:19:35 ent_loop.py:201 Home position captured: {'shoulder_pan.pos': -4.21978021978022, 'shoulder_lift.pos': -101.23076923076923, 'elbow_flex.pos': 95.16483516483517, 'wrist_flex.pos': 73.67032967032966, 'wrist_roll.pos': -1.4505494505494505, 'gripper.pos': 0.547945205479452}
+INFO 2026-08-05 05:19:35 ent_loop.py:203 Robot connected and ready
+INFO 2026-08-05 05:19:35 ent_loop.py:254 Sending policy instructions to policy server
+INFO 2026-08-05 05:19:35 ent_loop.py:255 Policy type: pi05 | Pretrained: ant0nh/pi05_500_30k | Device: cuda
+Loading Qwen/Qwen3-VL-4B-Instruct...
+Downloading bytes:                                                    |  0.00B            
+Reconstructing (incomplete total...): |                      |  0.00B /  0.00B            [A
+
+Fetching 2 files:   0%|                                             | 0/2 [00:00<?, ?it/s][A[AFetching 2 files: 100%|███████████████████████████████████| 2/2 [00:00<00:00, 7570.95it/s]
+Download complete: :                                                  |  0.00B            
+Reconstruction complete: |                                   |  0.00B /  0.00B            [ADownload complete: :                                                  |  0.00B            
+Reconstruction complete: |                                   |  0.00B /  0.00B            
+Loading weights:   0%|                                            | 0/713 [00:00<?, ?it/s]Loading weights:   2%|▌                                 | 13/713 [00:00<00:06, 113.52it/s]Loading weights:   4%|█▍                                | 31/713 [00:00<00:04, 148.81it/s]Loading weights:   7%|██▌                               | 53/713 [00:00<00:03, 178.69it/s]Loading weights:  10%|███▍                              | 72/713 [00:00<00:03, 179.65it/s]Loading weights:  13%|████▍                             | 93/713 [00:00<00:03, 185.43it/s]Loading weights:  16%|█████▎                           | 115/713 [00:00<00:03, 190.86it/s]Loading weights:  19%|██████▎                          | 136/713 [00:00<00:03, 190.40it/s]Loading weights:  22%|███████▎                         | 158/713 [00:00<00:02, 197.11it/s]Loading weights:  25%|████████▎                        | 179/713 [00:00<00:02, 194.96it/s]Loading weights:  28%|█████████▎                       | 202/713 [00:01<00:02, 198.17it/s]Loading weights:  31%|██████████▎                      | 223/713 [00:01<00:02, 201.44it/s]Loading weights:  34%|███████████▎                     | 245/713 [00:01<00:02, 199.95it/s]Loading weights:  37%|████████████▎                    | 266/713 [00:01<00:02, 192.52it/s]Loading weights:  40%|█████████████▏                   | 286/713 [00:01<00:02, 178.44it/s]Loading weights:  43%|██████████████                   | 305/713 [00:01<00:02, 180.73it/s]Loading weights:  45%|██████████████▉                  | 324/713 [00:01<00:02, 178.41it/s]Loading weights:  49%|████████████████                 | 346/713 [00:01<00:01, 184.19it/s]Loading weights:  51%|████████████████▉                | 367/713 [00:01<00:01, 186.78it/s]Loading weights:  54%|█████████████████▊               | 386/713 [00:02<00:01, 184.62it/s]Loading weights:  62%|████████████████████▍            | 442/713 [00:02<00:00, 289.44it/s]Loading weights:  77%|█████████████████████████▌       | 552/713 [00:02<00:00, 519.89it/s]Loading weights:  94%|███████████████████████████████  | 670/713 [00:02<00:00, 710.27it/s]Loading weights: 100%|█████████████████████████████████| 713/713 [00:02<00:00, 289.36it/s]
+Model loaded in 11.6s
+Device: cuda:0
+Parameters: 4.44B
+INFO 2026-08-05 05:23:06 estrator.py:922 ============================================================
+INFO 2026-08-05 05:23:06 estrator.py:923 Dual-system ready: VLM planner + VLA policy loaded.
+INFO 2026-08-05 05:23:06 estrator.py:924 Episode duration per sub-task: 30.0s
+INFO 2026-08-05 05:23:06 estrator.py:925 Max retries per sub-task: 1
+INFO 2026-08-05 05:23:06 estrator.py:926 Max replans per prompt: 0
+INFO 2026-08-05 05:23:06 estrator.py:927 Replans pause for operator context — type guidance and press Enter, or Enter alone to skip.
+INFO 2026-08-05 05:23:06 estrator.py:929 Type an instruction and press Enter to execute.
+INFO 2026-08-05 05:23:06 estrator.py:931 During execution: 's'+Enter to skip, 'r'+Enter to replan.
+INFO 2026-08-05 05:23:06 estrator.py:932 Type 'quit' or 'exit' to shut down.
+INFO 2026-08-05 05:23:06 estrator.py:933 ============================================================
+INFO 2026-08-05 05:25:35 estrator.py:598 Decomposing high-level prompt: 'put everything on the tray except for the banana'
+
+[INTERJECT] Press 's'+Enter to SKIP subtask | 'r'+Enter to REPLAN | Enter to skip
+INFO 2026-08-05 05:25:35 estrator.py:545 Saved VLM frame: frames/run_2026-08-05_05-23-06/decompose_20260805_052535.png
+  Generated 24 tokens in 3.1s (7.8 tok/s)
+
+Identification output:
+{"visible_objects": ["banana", "stuffed animal", "pouch", "tray", "table"]}
+INFO 2026-08-05 05:25:39 estrator.py:401 Identified objects (5): ['banana', 'stuffed animal', 'pouch', 'tray', 'table']
+  Generated 77 tokens in 5.8s (13.3 tok/s)
+INFO 2026-08-05 05:25:44 estrator.py:420 Raw VLM decomposition output (258 chars): '{\n  "visible_objects": ["banana", "stuffed animal", "pouch", "tray", "table"],\n  "excluded_objects": ["banana"],\n  "allowed_objects": ["stuffed animal", "pouch"],\n  "subtasks": [\n    "put the stuffed animal on the tray",\n    "put the pouch on the tray"\n  ]\n}'
+
+Visible: ['banana', 'stuffed animal', 'pouch', 'tray', 'table']
+Excluded: ['banana']
+Allowed: ['stuffed animal', 'pouch']
+
+Parsed 2 sub-tasks:
+  1. put the stuffed animal on the tray
+  2. put the pouch on the tray
+INFO 2026-08-05 05:25:44 estrator.py:607 Sub-task queue (2):
+INFO 2026-08-05 05:25:44 estrator.py:609   1. put the stuffed animal on the tray
+INFO 2026-08-05 05:25:44 estrator.py:609   2. put the pouch on the tray
+INFO 2026-08-05 05:25:44 estrator.py:656 [1] Executing sub-task: 'put the stuffed animal on the tray' (1 retries left)
+INFO 2026-08-05 05:25:44 ent_loop.py:412 Control loop started | task: 'put the stuffed animal on the tray' | duration: 30.0s
+INFO 2026-08-05 05:25:44 ent_loop.py:370 Action receiver thread started
+INFO 2026-08-05 05:25:59 ent_loop.py:579 Episode finished: 14.7s, converged=True, max_displacement=177.2751, actions=375
+INFO 2026-08-05 05:25:59 ent_loop.py:225 Returning to home position...
+INFO 2026-08-05 05:26:01 ent_loop.py:238 Home position reached.
+INFO 2026-08-05 05:26:02 estrator.py:576 Saved VLM eval clip (16 frames) to frames/run_2026-08-05_05-23-06
+INFO 2026-08-05 05:26:02 estrator.py:741 Evaluation observation: video clip (16 frames over 14.1s of a 14.7s episode, 1.07 fps)
+  Generated 22 tokens in 1.6s (13.4 tok/s)
+INFO 2026-08-05 05:26:04 estrator.py:453 Raw eval output: {"success": true, "reason": "The stuffed animal is now on the tray as instructed."}
+INFO 2026-08-05 05:26:04 estrator.py:785 VLM judgement: success=True | The stuffed animal is now on the tray as instructed.
+INFO 2026-08-05 05:26:04 estrator.py:656 [2] Executing sub-task: 'put the pouch on the tray' (1 retries left)
+INFO 2026-08-05 05:26:04 ent_loop.py:412 Control loop started | task: 'put the pouch on the tray' | duration: 30.0s
+INFO 2026-08-05 05:26:04 ent_loop.py:370 Action receiver thread started
+INFO 2026-08-05 05:26:14 ent_loop.py:579 Episode finished: 9.4s, converged=True, max_displacement=2.7048, actions=122
+INFO 2026-08-05 05:26:14 ent_loop.py:225 Returning to home position...
+INFO 2026-08-05 05:26:16 ent_loop.py:238 Home position reached.
+INFO 2026-08-05 05:26:17 estrator.py:576 Saved VLM eval clip (16 frames) to frames/run_2026-08-05_05-23-06
+INFO 2026-08-05 05:26:17 estrator.py:741 Evaluation observation: video clip (16 frames over 7.3s of a 9.4s episode, 2.05 fps)
+  Generated 24 tokens in 2.2s (10.9 tok/s)
+INFO 2026-08-05 05:26:20 estrator.py:453 Raw eval output: {"success": false, "reason": "The pouch is still on the table, not on the tray."}
+INFO 2026-08-05 05:26:20 estrator.py:785 VLM judgement: success=False | The pouch is still on the table, not on the tray.
+INFO 2026-08-05 05:26:20 estrator.py:792 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-08-05 05:26:20 estrator.py:656 [2] Executing sub-task: 'put the pouch on the tray' (0 retries left)
+INFO 2026-08-05 05:26:20 ent_loop.py:412 Control loop started | task: 'put the pouch on the tray' | duration: 30.0s
+INFO 2026-08-05 05:26:20 ent_loop.py:370 Action receiver thread started
+INFO 2026-08-05 05:26:28 ent_loop.py:579 Episode finished: 8.5s, converged=True, max_displacement=2.4388, actions=115
+INFO 2026-08-05 05:26:28 ent_loop.py:225 Returning to home position...
+INFO 2026-08-05 05:26:30 ent_loop.py:238 Home position reached.
+INFO 2026-08-05 05:26:31 estrator.py:576 Saved VLM eval clip (16 frames) to frames/run_2026-08-05_05-23-06
+INFO 2026-08-05 05:26:31 estrator.py:741 Evaluation observation: video clip (16 frames over 6.4s of a 8.5s episode, 2.34 fps)
+  Generated 24 tokens in 1.8s (13.1 tok/s)
+INFO 2026-08-05 05:26:33 estrator.py:453 Raw eval output: {"success": false, "reason": "The pouch is still on the table, not on the tray."}
+INFO 2026-08-05 05:26:33 estrator.py:785 VLM judgement: success=False | The pouch is still on the table, not on the tray.
+WARNING 2026-08-05 05:26:33 estrator.py:810 Sub-task 'put the pouch on the tray' failed after all retries.
+WARNING 2026-08-05 05:26:33 estrator.py:813 No replans remaining — skipping failed sub-task and continuing with the rest of the queue.
+INFO 2026-08-05 05:26:33 estrator.py:840 High-level task complete: 'put everything on the tray except for the banana'
+INFO 2026-08-05 05:26:33 estrator.py:841   Completed 1/2 original sub-tasks: ['put the stuffed animal on the tray']
+INFO 2026-08-05 05:27:27 estrator.py:598 Decomposing high-level prompt: 'put everything on the tray except for the toy'
+
+[INTERJECT] Press 's'+Enter to SKIP subtask | 'r'+Enter to REPLAN | Enter to skip
+INFO 2026-08-05 05:27:27 estrator.py:545 Saved VLM frame: frames/run_2026-08-05_05-23-06/decompose_20260805_052727.png
+  Generated 20 tokens in 1.6s (12.4 tok/s)
+
+Identification output:
+{"visible_objects": ["banana", "stuffed animal", "tray", "table"]}
+INFO 2026-08-05 05:27:29 estrator.py:401 Identified objects (4): ['banana', 'stuffed animal', 'tray', 'table']
+  Generated 55 tokens in 3.9s (14.0 tok/s)
+INFO 2026-08-05 05:27:33 estrator.py:420 Raw VLM decomposition output (191 chars): '{\n  "visible_objects": ["banana", "stuffed animal", "tray", "table"],\n  "excluded_objects": ["stuffed animal"],\n  "allowed_objects": ["banana"],\n  "subtasks": ["put the banana on the tray"]\n}'
+
+Visible: ['banana', 'stuffed animal', 'tray', 'table']
+Excluded: ['stuffed animal']
+Allowed: ['banana']
+
+Parsed 1 sub-tasks:
+  1. put the banana on the tray
+INFO 2026-08-05 05:27:33 estrator.py:607 Sub-task queue (1):
+INFO 2026-08-05 05:27:33 estrator.py:609   1. put the banana on the tray
+INFO 2026-08-05 05:27:33 estrator.py:656 [1] Executing sub-task: 'put the banana on the tray' (1 retries left)
+INFO 2026-08-05 05:27:33 ent_loop.py:412 Control loop started | task: 'put the banana on the tray' | duration: 30.0s
+INFO 2026-08-05 05:27:33 ent_loop.py:370 Action receiver thread started
+INFO 2026-08-05 05:28:00 ent_loop.py:579 Episode finished: 27.0s, converged=True, max_displacement=220.2472, actions=747
+INFO 2026-08-05 05:28:00 ent_loop.py:225 Returning to home position...
+INFO 2026-08-05 05:28:02 ent_loop.py:238 Home position reached.
+INFO 2026-08-05 05:28:03 estrator.py:576 Saved VLM eval clip (16 frames) to frames/run_2026-08-05_05-23-06
+INFO 2026-08-05 05:28:03 estrator.py:741 Evaluation observation: video clip (16 frames over 26.9s of a 27.0s episode, 0.56 fps)
+  Generated 21 tokens in 1.8s (12.0 tok/s)
+INFO 2026-08-05 05:28:05 estrator.py:453 Raw eval output: {"success": true, "reason": "The banana is now on the tray as instructed."}
+INFO 2026-08-05 05:28:05 estrator.py:785 VLM judgement: success=True | The banana is now on the tray as instructed.
+INFO 2026-08-05 05:28:05 estrator.py:840 High-level task complete: 'put everything on the tray except for the toy'
+INFO 2026-08-05 05:28:05 estrator.py:841   Completed 1/1 original sub-tasks: ['put the banana on the tray']
+INFO 2026-08-05 05:31:42 estrator.py:945 Shutdown requested.
+INFO 2026-08-05 05:31:42 ent_loop.py:225 Returning to home position...
+INFO 2026-08-05 05:31:44 ent_loop.py:238 Home position reached.
+INFO 2026-08-05 05:31:44 a_opencv.py:631 OpenCVCamera(1) disconnected.
+INFO 2026-08-05 05:31:45 ealsense.py:842 RealSenseCamera(342222071104) disconnected.
+INFO 2026-08-05 05:31:45 follower.py:238 kumquat_follower SOFollower disconnected.
+INFO 2026-08-05 05:31:45 ent_loop.py:684 Client stopped

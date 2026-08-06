@@ -75,6 +75,22 @@ from lerobot.async_inference.helpers import (
 
 
 # ---------------------------------------------------------------------------
+# Fixed home/rest pose. The arm is returned here between episodes instead of to
+# whatever pose it happened to be in at startup, so homing is reproducible
+# across runs. Keys are joint names; the ".pos" suffix is matched loosely
+# against whatever the robot's action features are called.
+# ---------------------------------------------------------------------------
+HOME_POSITION: dict[str, float] = {
+    "shoulder_pan.pos": -4.571428571428571,
+    "shoulder_lift.pos": -101.49450549450549,
+    "elbow_flex.pos": 91.91208791208791,
+    "wrist_flex.pos": 74.28571428571429,
+    "wrist_roll.pos": -0.7472527472527473,
+    "gripper.pos": 1.3013698630136987,
+}
+
+
+# ---------------------------------------------------------------------------
 # Extended config: adds episode_duration and home_steps
 # ---------------------------------------------------------------------------
 @dataclass
@@ -86,6 +102,8 @@ class LoopClientConfig(RobotClientConfig):
     home_steps: int = 50
     # Seconds to sleep between interpolation steps during homing
     home_step_dt: float = 0.04
+    # Fixed joint targets used as the home/rest pose (see HOME_POSITION above)
+    home_position: dict[str, float] = field(default_factory=lambda: dict(HOME_POSITION))
     # Number of consecutive similar actions before declaring convergence
     convergence_window: int = 25
     # L2 threshold: actions closer than this are "similar"
@@ -120,7 +138,7 @@ class LoopRobotClient:
     """
     Wraps the core async inference client logic with an outer loop that:
       1. Connects to the policy server and loads the model (once)
-      2. Captures the arm's resting position as "home"
+      2. Uses a fixed, configured pose as "home" (see HOME_POSITION)
       3. Waits for a task prompt from stdin
       4. Runs the async control loop for --episode_duration seconds
       5. Returns the arm to home
@@ -196,15 +214,38 @@ class LoopRobotClient:
         self._total_actions = 0
         self._last_action_time = 0.0
 
-        # Capture home position on startup
-        self.home_position = self._capture_current_position()
-        self.logger.info(f"Home position captured: {self.home_position}")
+        # Fixed home position (not whatever pose the arm starts in)
+        self.home_position = self._resolve_home_position(config.home_position)
+        self.logger.info(f"Home position (fixed): {self.home_position}")
 
         self.logger.info("Robot connected and ready")
 
     # ------------------------------------------------------------------
     # Home position helpers
     # ------------------------------------------------------------------
+    def _resolve_home_position(self, home: dict[str, float]) -> dict[str, float]:
+        """Map the configured home pose onto the robot's action feature keys.
+
+        The configured keys carry a ".pos" suffix; the robot's action features
+        may or may not, so match both ways and fall back to the arm's current
+        reading for any joint the config doesn't mention.
+        """
+        current = self._capture_current_position()
+        resolved = {}
+        for key in self.robot.action_features:
+            if key in home:
+                resolved[key] = float(home[key])
+            elif f"{key}.pos" in home:
+                resolved[key] = float(home[f"{key}.pos"])
+            elif key.removesuffix(".pos") in home:
+                resolved[key] = float(home[key.removesuffix(".pos")])
+            else:
+                resolved[key] = current.get(key, 0.0)
+                self.logger.warning(
+                    f"No home position configured for {key}; using current value {resolved[key]}"
+                )
+        return resolved
+
     def _capture_current_position(self) -> dict[str, float]:
         """Read the current joint positions as the home/rest pose."""
         obs = self.robot.get_observation()

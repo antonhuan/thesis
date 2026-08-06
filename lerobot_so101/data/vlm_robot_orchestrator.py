@@ -50,6 +50,11 @@
 # (e.g. "the toy is behind the cup"). Press Enter alone to replan without it.
 # Note this blocks: an unattended run waits at a replan until someone responds.
 #
+# Press 'q'+Enter at any point during execution (or at a replan prompt) to ABORT
+# the whole high-level task: the current episode stops, the arm returns home, and
+# you are asked for a new high-level prompt. This works regardless of
+# --enable_interjection.
+#
 # Type 'quit' or 'exit' to shut down cleanly.
 
 import enum
@@ -88,7 +93,7 @@ class OrchestratorConfig(LoopClientConfig):
     # HuggingFace model name or local path for the VLM planner
     vlm_model: str = "Qwen/Qwen3-VL-4B-Instruct"
     # Sampling temperature for VLM generation
-    vlm_temperature: float = 0.7
+    vlm_temperature: float = 0.1
     # Split decomposition into two model calls against the same frame:
     # (1) identify visible objects, then (2) decompose given that object list.
     # Set false to use the single-call DECOMPOSITION_SYSTEM_PROMPT instead.
@@ -199,10 +204,21 @@ class InterjectionType(enum.Enum):
     NONE = "none"
     SKIP = "skip"
     REPLAN = "replan"
+    ABORT = "abort"
+
+
+# Typed at any interjection prompt (and by the background listener) to abandon
+# the whole high-level task and go back to asking for a new prompt.
+ABORT_KEY = "q"
 
 
 class InterjectionManager:
-    """Background stdin listener that lets the user skip or replan mid-execution."""
+    """Background stdin listener that lets the user skip, replan, or abort
+    mid-execution.
+
+    In abort-only mode the listener still runs but honours nothing except
+    ABORT_KEY, so 'q'+Enter always works even when skip/replan are disabled.
+    """
 
     def __init__(self, client: "LoopRobotClient"):
         self.client = client
@@ -213,10 +229,12 @@ class InterjectionManager:
         # Set while the main thread is blocking on stdin itself; the listener
         # must not consume input during that window.
         self._paused = threading.Event()
+        self._abort_only = False
         self._thread: threading.Thread | None = None
 
-    def start(self):
+    def start(self, abort_only: bool = False):
         self._clear()
+        self._abort_only = abort_only
         self._active.set()
         self._thread = threading.Thread(target=self._listener, daemon=True)
         self._thread.start()
@@ -240,21 +258,34 @@ class InterjectionManager:
             self._replan_context = ""
         return t, ctx
 
+    def request_abort(self):
+        """Mark the high-level task as aborted and end any running episode."""
+        with self._lock:
+            self._type = InterjectionType.ABORT
+            self._replan_context = ""
+        self.client.episode_done.set()
+
     def prompt_for_context(self, header: str) -> str:
         """Block on stdin for one line of operator guidance and return it.
 
+        Typing the abort key instead records an ABORT (retrievable via
+        check_and_consume) and returns "".
+
         Pauses the background listener first so it does not swallow the typed
-        line. Safe to call when no listener is running (--enable_interjection
-        =false): it falls back to a plain input().
+        line. Safe to call when no listener is running: it falls back to a
+        plain input().
         """
         listener_running = self._thread is not None and self._active.is_set()
+        hint = (f"[REPLAN] Additional context for the planner "
+                f"(Enter for none, '{ABORT_KEY}' to abort): ")
+
         if not listener_running:
             print(f"\n{header}")
             try:
-                return input("[REPLAN] Additional context for the planner "
-                             "(Enter for none): ").strip()
+                line = input(hint).strip()
             except EOFError:
                 return ""
+            return self._consume_context_line(line)
 
         self._paused.set()
         # Longer than the listener's select() timeout, so any in-flight poll
@@ -262,15 +293,24 @@ class InterjectionManager:
         time.sleep(0.25)
         try:
             print(f"\n{header}")
-            print("[REPLAN] Additional context for the planner (Enter for none): ",
-                  end="", flush=True)
+            print(hint, end="", flush=True)
             line = sys.stdin.readline()
-            return line.strip() if line else ""
+            return self._consume_context_line(line.strip() if line else "")
         finally:
             self._paused.clear()
 
+    def _consume_context_line(self, line: str) -> str:
+        if line.lower() == ABORT_KEY:
+            self.request_abort()
+            return ""
+        return line
+
     def _listener(self):
-        print("\n[INTERJECT] Press 's'+Enter to SKIP subtask | 'r'+Enter to REPLAN | Enter to skip")
+        if self._abort_only:
+            print(f"\n[INTERJECT] Press '{ABORT_KEY}'+Enter to ABORT the whole task")
+        else:
+            print(f"\n[INTERJECT] Press 's'+Enter to SKIP subtask | 'r'+Enter to REPLAN "
+                  f"| '{ABORT_KEY}'+Enter to ABORT the whole task | Enter to skip")
         while self._active.is_set():
             if self._paused.is_set():
                 time.sleep(0.05)
@@ -283,7 +323,20 @@ class InterjectionManager:
                 line = sys.stdin.readline().strip().lower()
                 if not self._active.is_set():
                     break
-                if line == "r":
+                with self._lock:
+                    abort_pending = self._type is InterjectionType.ABORT
+                if abort_pending and line != ABORT_KEY:
+                    # An abort is already queued and not yet consumed; a stray
+                    # keystroke must not downgrade it to a skip/replan.
+                    continue
+                if line == ABORT_KEY:
+                    print("[INTERJECT] ABORT requested — stopping current action...")
+                    self.request_abort()
+                elif self._abort_only:
+                    # Skip/replan are disabled; ignore everything but the abort
+                    # key rather than acting on a keystroke the operator opted out of.
+                    continue
+                elif line == "r":
                     # End the episode immediately; context is collected on the
                     # main thread once the arm has stopped (prompt_for_context),
                     # so the robot never keeps executing while the user types and
@@ -594,6 +647,12 @@ def run_high_level_task(
 ):
     logger = client.logger
 
+    def abort(where: str):
+        """Park the arm and report that the operator abandoned the task."""
+        logger.warning(f"ABORT requested {where} — abandoning high-level task "
+                       f"'{prompt}' and returning to the prompt.")
+        client.go_home()
+
     # 1. Decompose with a fresh observation
     logger.info(f"Decomposing high-level prompt: '{prompt}'")
     frame = frames.capture(tag="decompose")
@@ -603,6 +662,15 @@ def run_high_level_task(
         logger.error(str(e))
         logger.error("Decomposition failed — skipping this prompt.")
         return
+
+    # Abort typed while the VLM was decomposing: nothing has moved yet.
+    itype, _ = interjection.check_and_consume()
+    if itype == InterjectionType.ABORT:
+        abort("during decomposition")
+        return
+    elif itype != InterjectionType.NONE:
+        logger.info(f"Ignoring {itype.value} requested during decomposition "
+                    f"— no sub-task has run yet.")
 
     logger.info(f"Sub-task queue ({len(subtasks)}):")
     for i, st in enumerate(subtasks, 1):
@@ -645,6 +713,7 @@ def run_high_level_task(
         no_movement = False
         user_replanned = False
         user_skipped = False
+        user_aborted = False
         reason = ""  # last failure reason, passed to replan
 
         while attempts_left > 0:
@@ -659,7 +728,11 @@ def run_high_level_task(
 
             # --- Interjection check: after episode ---
             itype, _ = interjection.check_and_consume()
-            if itype == InterjectionType.SKIP:
+            if itype == InterjectionType.ABORT:
+                abort(f"during sub-task '{sub_task}'")
+                user_aborted = True
+                break
+            elif itype == InterjectionType.SKIP:
                 user_skipped = True
                 reason = "The user skipped this episode."
                 logger.info(f"User skipped sub-task: '{sub_task}' "
@@ -672,6 +745,11 @@ def run_high_level_task(
                 user_context = interjection.prompt_for_context(
                     f"[REPLAN] Replan requested during sub-task '{sub_task}'"
                 )
+                # The operator can type the abort key instead of context.
+                if interjection.check_and_consume()[0] == InterjectionType.ABORT:
+                    abort("at the replan prompt")
+                    user_aborted = True
+                    break
                 if user_context:
                     logger.info(f"  Operator context: {user_context}")
                 new_queue = do_replan(sub_task, "The user requested a replan.",
@@ -687,7 +765,11 @@ def run_high_level_task(
 
             # --- Interjection check: after go_home ---
             itype, _ = interjection.check_and_consume()
-            if itype == InterjectionType.SKIP:
+            if itype == InterjectionType.ABORT:
+                abort(f"during sub-task '{sub_task}'")
+                user_aborted = True
+                break
+            elif itype == InterjectionType.SKIP:
                 user_skipped = True
                 reason = "The user skipped this episode."
                 logger.info(f"User skipped sub-task: '{sub_task}' "
@@ -698,6 +780,11 @@ def run_high_level_task(
                 user_context = interjection.prompt_for_context(
                     f"[REPLAN] Replan requested during sub-task '{sub_task}'"
                 )
+                # The operator can type the abort key instead of context.
+                if interjection.check_and_consume()[0] == InterjectionType.ABORT:
+                    abort("at the replan prompt")
+                    user_aborted = True
+                    break
                 if user_context:
                     logger.info(f"  Operator context: {user_context}")
                 new_queue = do_replan(sub_task, "The user requested a replan.",
@@ -780,13 +867,18 @@ def run_high_level_task(
                 )
                 return
 
-            # Interjecting during evaluation is not an option: the judgement
-            # has already been produced, so acting on the request would throw
-            # it away. Consume and discard anything that arrived while the VLM
-            # was running, so it cannot leak into the next episode as a stale
-            # skip the operator no longer intends.
+            # Skipping/replanning during evaluation is not an option: the
+            # judgement has already been produced, so acting on the request would
+            # throw it away. Consume and discard anything that arrived while the
+            # VLM was running, so it cannot leak into the next episode as a stale
+            # skip the operator no longer intends. An abort is honoured, though —
+            # it is about the whole task, not this one judgement.
             itype, _ = interjection.check_and_consume()
-            if itype != InterjectionType.NONE:
+            if itype == InterjectionType.ABORT:
+                abort("during evaluation")
+                user_aborted = True
+                break
+            elif itype != InterjectionType.NONE:
                 logger.info(f"Ignoring {itype.value} requested during evaluation "
                             f"— '{sub_task}' was already judged.")
 
@@ -800,6 +892,10 @@ def run_high_level_task(
 
             if attempts_left > 0:
                 logger.info(f"Retrying sub-task ({attempts_left} attempt(s) left)...")
+
+        if user_aborted:
+            logger.info(f"  Completed before the abort: {completed}")
+            return
 
         if user_replanned:
             continue
@@ -837,6 +933,11 @@ def run_high_level_task(
         user_context = interjection.prompt_for_context(
             f"[REPLAN] Sub-task '{sub_task}' failed after all retries: {reason}"
         )
+        # The operator can type the abort key instead of context.
+        if interjection.check_and_consume()[0] == InterjectionType.ABORT:
+            abort("at the replan prompt")
+            logger.info(f"  Completed before the abort: {completed}")
+            return
         if user_context:
             logger.info(f"  Operator context: {user_context}")
 
@@ -939,6 +1040,8 @@ def main(cfg: OrchestratorConfig):
     client.logger.info("Type an instruction and press Enter to execute.")
     if cfg.enable_interjection:
         client.logger.info("During execution: 's'+Enter to skip, 'r'+Enter to replan.")
+    client.logger.info(f"At any point during execution (and at any replan prompt): "
+                       f"'{ABORT_KEY}'+Enter aborts the whole task and returns here.")
     client.logger.info("Type 'quit' or 'exit' to shut down.")
     client.logger.info("=" * 60)
 
@@ -955,10 +1058,12 @@ def main(cfg: OrchestratorConfig):
                 client.logger.info("Shutdown requested.")
                 break
 
-            if cfg.enable_interjection:
-                interjection.start()
-            run_high_level_task(client, planner, frames, cfg, prompt, interjection)
-            if cfg.enable_interjection:
+            # The listener always runs so 'q'+Enter can abort at any time; with
+            # --enable_interjection=false it honours nothing else.
+            interjection.start(abort_only=not cfg.enable_interjection)
+            try:
+                run_high_level_task(client, planner, frames, cfg, prompt, interjection)
+            finally:
                 interjection.stop()
 
     except KeyboardInterrupt:
