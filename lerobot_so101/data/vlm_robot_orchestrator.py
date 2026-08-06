@@ -559,13 +559,32 @@ class VLMPlanner:
 # ---------------------------------------------------------------------------
 # Frame source for the VLM
 # ---------------------------------------------------------------------------
+def _slug(text: str, max_len: int = 40) -> str:
+    """Turn a free-text prompt into a filesystem-safe folder name."""
+    slug = re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
+    slug = slug[:max_len].strip("_")
+    return slug or "task"
+
+
 class VLMFrameSource:
     """Provides PIL frames for the VLM from the robot's camera observations."""
 
     def __init__(self, client: LoopRobotClient, camera_key: str, save_dir: Path | None):
         self.client = client
         self.camera_key = camera_key
+        # save_dir is the per-run session root; save_dir is the currently-active
+        # write dir, repointed at a new sub-folder for each high-level task.
+        self.session_dir = save_dir
         self.save_dir = save_dir
+        self._task_counter = 0
+
+    def start_task(self, prompt: str):
+        """Begin a new high-level task: route subsequent saves into a fresh
+        `NN_<slug>` sub-folder under the session dir. No-op when saving is off."""
+        if self.session_dir is None:
+            return
+        self._task_counter += 1
+        self.save_dir = self.session_dir / f"{self._task_counter:02d}_{_slug(prompt)}"
 
     def capture(self, tag: str = "frame") -> Image.Image | None:
         obs = self.client.capture_frame()
@@ -646,6 +665,9 @@ def run_high_level_task(
     interjection: InterjectionManager,
 ):
     logger = client.logger
+
+    # Route this task's saved frames into a fresh session/<task> sub-folder.
+    frames.start_task(prompt)
 
     def abort(where: str):
         """Park the arm and report that the operator abandoned the task."""
@@ -1024,9 +1046,10 @@ def main(cfg: OrchestratorConfig):
     planner = VLMPlanner(cfg.vlm_model, temperature=cfg.vlm_temperature,
                          eval_fps=cfg.vlm_eval_fps,
                          two_pass=cfg.vlm_two_pass_decompose)
-    # 3. Frame source for the VLM
-    save_dir = Path(f"./frames/run_{datetime.now():%Y-%m-%d_%H-%M-%S}") if cfg.save_frames else None
-    frames = VLMFrameSource(client, camera_key=cfg.vlm_camera_key, save_dir=save_dir)
+    # 3. Frame source for the VLM. session_dir is the per-run root; each
+    #    high-level task gets its own sub-folder underneath (see start_task).
+    session_dir = Path(f"./frames/run_{datetime.now():%Y-%m-%d_%H-%M-%S}") if cfg.save_frames else None
+    frames = VLMFrameSource(client, camera_key=cfg.vlm_camera_key, save_dir=session_dir)
     # 4. Interjection manager (user can skip/replan mid-execution)
     interjection = InterjectionManager(client)
 
