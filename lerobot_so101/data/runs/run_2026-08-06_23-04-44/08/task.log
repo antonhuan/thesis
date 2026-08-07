@@ -1,0 +1,31 @@
+INFO 2026-08-06 23:23:21 estrator.py:696 Decomposing high-level prompt: 'put everything on the tray except for the banana'
+INFO 2026-08-06 23:23:21 estrator.py:615 Saved VLM frame: runs/run_2026-08-06_23-04-44/08/decompose_20260806_232321.png
+  Generated 20 tokens in 1.5s (13.3 tok/s)
+
+Identification output:
+{"visible_objects": ["stuffed animal", "banana", "tray", "table"]}
+INFO 2026-08-06 23:23:22 estrator.py:454 Identified objects (4): ['stuffed animal', 'banana', 'tray', 'table']
+  Generated 56 tokens in 3.8s (14.8 tok/s)
+INFO 2026-08-06 23:23:26 estrator.py:473 Raw VLM decomposition output (199 chars): '{\n  "visible_objects": ["stuffed animal", "banana", "tray", "table"],\n  "excluded_objects": ["banana"],\n  "allowed_objects": ["stuffed animal"],\n  "subtasks": ["put the stuffed animal on the tray"]\n}'
+
+Visible: ['stuffed animal', 'banana', 'tray', 'table']
+Excluded: ['banana']
+Allowed: ['stuffed animal']
+
+Parsed 1 sub-tasks:
+  1. put the stuffed animal on the tray
+INFO 2026-08-06 23:23:26 estrator.py:714 Sub-task queue (1):
+INFO 2026-08-06 23:23:26 estrator.py:716   1. put the stuffed animal on the tray
+INFO 2026-08-06 23:23:26 estrator.py:764 [1] Executing sub-task: 'put the stuffed animal on the tray' (1 retries left)
+INFO 2026-08-06 23:23:26 ent_loop.py:453 Control loop started | task: 'put the stuffed animal on the tray' | duration: 30.0s
+INFO 2026-08-06 23:23:26 ent_loop.py:411 Action receiver thread started
+INFO 2026-08-06 23:23:49 ent_loop.py:620 Episode finished: 22.8s, converged=True, max_displacement=164.5152, actions=611
+INFO 2026-08-06 23:23:49 ent_loop.py:266 Returning to home position...
+INFO 2026-08-06 23:23:51 ent_loop.py:279 Home position reached.
+INFO 2026-08-06 23:23:53 estrator.py:646 Saved VLM eval clip (32 frames) to runs/run_2026-08-06_23-04-44/08
+INFO 2026-08-06 23:23:53 estrator.py:877 Evaluation observation: video clip (32 frames over 22.5s of a 22.8s episode, 1.38 fps)
+  Generated 22 tokens in 1.9s (11.7 tok/s)
+INFO 2026-08-06 23:23:56 estrator.py:506 Raw eval output: {"success": true, "reason": "The stuffed animal is now on the tray as instructed."}
+INFO 2026-08-06 23:23:56 estrator.py:926 VLM judgement: success=True | The stuffed animal is now on the tray as instructed.
+INFO 2026-08-06 23:23:56 estrator.py:990 High-level task complete: 'put everything on the tray except for the banana'
+INFO 2026-08-06 23:23:56 estrator.py:991   Completed 1/1 original sub-tasks: ['put the stuffed animal on the tray']

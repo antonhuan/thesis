@@ -661,7 +661,7 @@ def run_high_level_task(
     cfg: OrchestratorConfig,
     prompt: str,
     interjection: InterjectionManager,
-    log_sink: TaskLogSink,
+    log_sink: "TaskLogSink",
 ):
     logger = client.logger
 

@@ -1,0 +1,29 @@
+INFO 2026-08-06 23:41:45 estrator.py:696 Decomposing high-level prompt: 'put everything on the tray, pouch first'
+INFO 2026-08-06 23:41:45 estrator.py:615 Saved VLM frame: runs/run_2026-08-06_23-31-04/04/decompose_20260806_234145.png
+  Generated 18 tokens in 1.4s (12.7 tok/s)
+
+Identification output:
+{"visible_objects": ["banana", "toy", "tray", "table"]}
+INFO 2026-08-06 23:41:47 estrator.py:454 Identified objects (4): ['banana', 'toy', 'tray', 'table']
+  Generated 65 tokens in 6.0s (10.8 tok/s)
+INFO 2026-08-06 23:41:53 estrator.py:473 Raw VLM decomposition output (210 chars): '{\n  "visible_objects": ["banana", "toy", "tray", "table"],\n  "excluded_objects": [],\n  "allowed_objects": ["banana", "toy"],\n  "subtasks": [\n    "put the toy on the tray",\n    "put the banana on the tray"\n  ]\n}'
+
+Visible: ['banana', 'toy', 'tray', 'table']
+Excluded: []
+Allowed: ['banana', 'toy']
+
+Parsed 2 sub-tasks:
+  1. put the toy on the tray
+  2. put the banana on the tray
+INFO 2026-08-06 23:41:53 estrator.py:714 Sub-task queue (2):
+INFO 2026-08-06 23:41:53 estrator.py:716   1. put the toy on the tray
+INFO 2026-08-06 23:41:53 estrator.py:716   2. put the banana on the tray
+INFO 2026-08-06 23:41:53 estrator.py:764 [1] Executing sub-task: 'put the toy on the tray' (1 retries left)
+INFO 2026-08-06 23:41:53 ent_loop.py:453 Control loop started | task: 'put the toy on the tray' | duration: 30.0s
+INFO 2026-08-06 23:41:53 ent_loop.py:411 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-08-06 23:42:09 ent_loop.py:620 Episode finished: 16.1s, converged=False, max_displacement=86.6175, actions=403
+WARNING 2026-08-06 23:42:09 estrator.py:691 ABORT requested during sub-task 'put the toy on the tray' — abandoning high-level task 'put everything on the tray, pouch first' and returning to the prompt.
+INFO 2026-08-06 23:42:09 ent_loop.py:266 Returning to home position...
+INFO 2026-08-06 23:42:11 ent_loop.py:279 Home position reached.
+INFO 2026-08-06 23:42:11 estrator.py:936   Completed before the abort: []

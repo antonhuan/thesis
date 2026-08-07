@@ -1,0 +1,66 @@
+INFO 2026-08-06 23:10:28 estrator.py:696 Decomposing high-level prompt: 'put everything on the tray except for the pouch'
+INFO 2026-08-06 23:10:28 estrator.py:615 Saved VLM frame: runs/run_2026-08-06_23-04-44/02/decompose_20260806_231028.png
+  Generated 20 tokens in 1.5s (13.2 tok/s)
+
+Identification output:
+{"visible_objects": ["stuffed animal", "banana", "tray", "table"]}
+INFO 2026-08-06 23:10:30 estrator.py:454 Identified objects (4): ['stuffed animal', 'banana', 'tray', 'table']
+  Generated 73 tokens in 5.3s (13.7 tok/s)
+INFO 2026-08-06 23:10:35 estrator.py:473 Raw VLM decomposition output (250 chars): '{\n  "visible_objects": ["stuffed animal", "banana", "tray", "table"],\n  "excluded_objects": ["pouch"],\n  "allowed_objects": ["stuffed animal", "banana"],\n  "subtasks": [\n    "put the stuffed animal on the tray",\n    "put the banana on the tray"\n  ]\n}'
+
+Visible: ['stuffed animal', 'banana', 'tray', 'table']
+Excluded: ['pouch']
+Allowed: ['stuffed animal', 'banana']
+
+Parsed 2 sub-tasks:
+  1. put the stuffed animal on the tray
+  2. put the banana on the tray
+INFO 2026-08-06 23:10:35 estrator.py:714 Sub-task queue (2):
+INFO 2026-08-06 23:10:35 estrator.py:716   1. put the stuffed animal on the tray
+INFO 2026-08-06 23:10:35 estrator.py:716   2. put the banana on the tray
+INFO 2026-08-06 23:10:35 estrator.py:764 [1] Executing sub-task: 'put the stuffed animal on the tray' (1 retries left)
+INFO 2026-08-06 23:10:35 ent_loop.py:453 Control loop started | task: 'put the stuffed animal on the tray' | duration: 30.0s
+INFO 2026-08-06 23:10:35 ent_loop.py:411 Action receiver thread started
+INFO 2026-08-06 23:11:05 ent_loop.py:464 Episode timeout (30.0s)
+INFO 2026-08-06 23:11:06 ent_loop.py:620 Episode finished: 30.5s, converged=False, max_displacement=192.4625, actions=851
+INFO 2026-08-06 23:11:06 ent_loop.py:266 Returning to home position...
+INFO 2026-08-06 23:11:08 ent_loop.py:279 Home position reached.
+INFO 2026-08-06 23:11:10 estrator.py:646 Saved VLM eval clip (32 frames) to runs/run_2026-08-06_23-04-44/02
+INFO 2026-08-06 23:11:10 estrator.py:877 Evaluation observation: video clip (32 frames over 29.8s of a 30.5s episode, 1.04 fps)
+  Generated 22 tokens in 1.9s (11.9 tok/s)
+INFO 2026-08-06 23:11:13 estrator.py:506 Raw eval output: {"success": true, "reason": "The stuffed animal is now on the tray as instructed."}
+INFO 2026-08-06 23:11:13 estrator.py:926 VLM judgement: success=True | The stuffed animal is now on the tray as instructed.
+INFO 2026-08-06 23:11:13 estrator.py:764 [2] Executing sub-task: 'put the banana on the tray' (1 retries left)
+INFO 2026-08-06 23:11:13 ent_loop.py:453 Control loop started | task: 'put the banana on the tray' | duration: 30.0s
+INFO 2026-08-06 23:11:13 ent_loop.py:411 Action receiver thread started
+INFO 2026-08-06 23:11:33 ent_loop.py:620 Episode finished: 20.0s, converged=True, max_displacement=202.4316, actions=541
+INFO 2026-08-06 23:11:33 ent_loop.py:266 Returning to home position...
+INFO 2026-08-06 23:11:35 ent_loop.py:279 Home position reached.
+INFO 2026-08-06 23:11:37 estrator.py:646 Saved VLM eval clip (32 frames) to runs/run_2026-08-06_23-04-44/02
+INFO 2026-08-06 23:11:37 estrator.py:877 Evaluation observation: video clip (32 frames over 19.3s of a 20.0s episode, 1.61 fps)
+  Generated 25 tokens in 2.1s (12.0 tok/s)
+INFO 2026-08-06 23:11:40 estrator.py:506 Raw eval output: {"success": false, "reason": "The banana remains on the table and is not placed on the tray."}
+INFO 2026-08-06 23:11:40 estrator.py:926 VLM judgement: success=False | The banana remains on the table and is not placed on the tray.
+INFO 2026-08-06 23:11:40 estrator.py:933 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-08-06 23:11:40 estrator.py:764 [2] Executing sub-task: 'put the banana on the tray' (0 retries left)
+INFO 2026-08-06 23:11:40 ent_loop.py:453 Control loop started | task: 'put the banana on the tray' | duration: 30.0s
+INFO 2026-08-06 23:11:40 ent_loop.py:411 Action receiver thread started
+INFO 2026-08-06 23:11:47 ent_loop.py:620 Episode finished: 6.7s, converged=True, max_displacement=1.6619, actions=107
+INFO 2026-08-06 23:11:47 ent_loop.py:266 Returning to home position...
+INFO 2026-08-06 23:11:49 ent_loop.py:279 Home position reached.
+INFO 2026-08-06 23:11:51 estrator.py:646 Saved VLM eval clip (29 frames) to runs/run_2026-08-06_23-04-44/02
+INFO 2026-08-06 23:11:51 estrator.py:877 Evaluation observation: video clip (29 frames over 6.0s of a 6.7s episode, 4.70 fps)
+  Generated 23 tokens in 2.0s (11.6 tok/s)
+INFO 2026-08-06 23:11:53 estrator.py:506 Raw eval output: {"success": false, "reason": "The banana remains on the table, not on the tray."}
+INFO 2026-08-06 23:11:53 estrator.py:926 VLM judgement: success=False | The banana remains on the table, not on the tray.
+WARNING 2026-08-06 23:11:53 estrator.py:955 Sub-task 'put the banana on the tray' failed after all retries.
+INFO 2026-08-06 23:11:53 estrator.py:964 Triggering replan (0 replan(s) left after this)...
+INFO 2026-08-06 23:11:53 estrator.py:965   Completed so far: ['put the stuffed animal on the tray']
+INFO 2026-08-06 23:11:53 estrator.py:966   Failed: 'put the banana on the tray' — The banana remains on the table, not on the tray.
+INFO 2026-08-06 23:11:53 estrator.py:967   Remaining (discarded): []
+
+[REPLAN] Sub-task 'put the banana on the tray' failed after all retries: The banana remains on the table, not on the tray.
+[REPLAN] Additional context for the planner (Enter for none, 'q' to abort): WARNING 2026-08-06 23:12:09 estrator.py:691 ABORT requested at the replan prompt — abandoning high-level task 'put everything on the tray except for the pouch' and returning to the prompt.
+INFO 2026-08-06 23:12:09 ent_loop.py:266 Returning to home position...
+INFO 2026-08-06 23:12:11 ent_loop.py:279 Home position reached.
+INFO 2026-08-06 23:12:11 estrator.py:978   Completed before the abort: ['put the stuffed animal on the tray']

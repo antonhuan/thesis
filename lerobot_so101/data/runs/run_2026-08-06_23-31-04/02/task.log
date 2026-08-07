@@ -1,0 +1,29 @@
+INFO 2026-08-06 23:39:13 estrator.py:696 Decomposing high-level prompt: 'put everything on the tray, banana first'
+INFO 2026-08-06 23:39:13 estrator.py:615 Saved VLM frame: runs/run_2026-08-06_23-31-04/02/decompose_20260806_233913.png
+  Generated 19 tokens in 1.5s (12.7 tok/s)
+
+Identification output:
+{"visible_objects": ["banana", "stuffed animal", "box", "table"]}
+INFO 2026-08-06 23:39:15 estrator.py:454 Identified objects (4): ['banana', 'stuffed animal', 'box', 'table']
+  Generated 72 tokens in 5.1s (14.0 tok/s)
+INFO 2026-08-06 23:39:20 estrator.py:473 Raw VLM decomposition output (247 chars): '{\n  "visible_objects": ["banana", "stuffed animal", "box", "table"],\n  "excluded_objects": [],\n  "allowed_objects": ["banana", "stuffed animal", "box"],\n  "subtasks": [\n    "put the banana on the box",\n    "put the stuffed animal on the box"\n  ]\n}'
+
+Visible: ['banana', 'stuffed animal', 'box', 'table']
+Excluded: []
+Allowed: ['banana', 'stuffed animal', 'box']
+
+Parsed 2 sub-tasks:
+  1. put the banana on the box
+  2. put the stuffed animal on the box
+INFO 2026-08-06 23:39:20 estrator.py:714 Sub-task queue (2):
+INFO 2026-08-06 23:39:20 estrator.py:716   1. put the banana on the box
+INFO 2026-08-06 23:39:20 estrator.py:716   2. put the stuffed animal on the box
+INFO 2026-08-06 23:39:20 estrator.py:764 [1] Executing sub-task: 'put the banana on the box' (1 retries left)
+INFO 2026-08-06 23:39:20 ent_loop.py:453 Control loop started | task: 'put the banana on the box' | duration: 30.0s
+INFO 2026-08-06 23:39:20 ent_loop.py:411 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-08-06 23:39:40 ent_loop.py:620 Episode finished: 20.3s, converged=False, max_displacement=187.5010, actions=547
+WARNING 2026-08-06 23:39:40 estrator.py:691 ABORT requested during sub-task 'put the banana on the box' — abandoning high-level task 'put everything on the tray, banana first' and returning to the prompt.
+INFO 2026-08-06 23:39:40 ent_loop.py:266 Returning to home position...
+INFO 2026-08-06 23:39:43 ent_loop.py:279 Home position reached.
+INFO 2026-08-06 23:39:43 estrator.py:936   Completed before the abort: []
