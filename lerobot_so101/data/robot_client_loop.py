@@ -32,6 +32,7 @@ import threading
 import time
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from pprint import pformat
 from queue import Queue, Empty
 from typing import Any
@@ -120,6 +121,22 @@ class LoopClientConfig(RobotClientConfig):
     # spans the whole episode start->now; this bounds memory while keeping full
     # temporal coverage. Higher = finer retained resolution before subsampling.
     clip_buffer_maxlen: int = 128
+    # Log the joint targets actually sent to the arm. Actions arrive at ~fps, so
+    # they go to their own file (see action_log_dir) instead of the main client
+    # log, which they would otherwise bury.
+    log_actions: bool = True
+    # Directory for the per-run action log; the file is named
+    # <prefix>_actions_<unix_ts>.log to pair with the main client log.
+    action_log_dir: str = "logs"
+    # Mirror an occasional action line to the terminal so a run is watchable
+    # without tailing the action log.
+    log_actions_to_console: bool = True
+    # Console cadence for action logging; <= 0 keeps the terminal quiet (the
+    # action log file still gets every action).
+    log_action_every_n: int = 10
+    # Also log each action chunk as it arrives from the policy server (size and
+    # timestep range) to the action log.
+    log_action_chunks: bool = True
 
 
 @dataclass
@@ -150,6 +167,8 @@ class LoopRobotClient:
 
     def __init__(self, config: LoopClientConfig):
         self.config = config
+        self.action_log_path: Path | None = None
+        self.action_logger = self._setup_action_logger()
         self.robot = make_robot_from_config(config.robot)
         self.robot.connect()
 
@@ -213,12 +232,58 @@ class LoopRobotClient:
         self._converged = False
         self._total_actions = 0
         self._last_action_time = 0.0
+        self._last_action_dict = None
 
         # Fixed home position (not whatever pose the arm starts in)
         self.home_position = self._resolve_home_position(config.home_position)
         self.logger.info(f"Home position (fixed): {self.home_position}")
 
         self.logger.info("Robot connected and ready")
+
+    # ------------------------------------------------------------------
+    # Action logging
+    # ------------------------------------------------------------------
+    def _setup_action_logger(self) -> logging.Logger:
+        """Build the dedicated logger for per-action output.
+
+        Actions arrive at ~fps, so they get their own file rather than sharing
+        the main client log. The logger does not propagate to the root logger:
+        the file receives every action, and the terminal only receives the
+        every-n heartbeat (see _log_action).
+        """
+        logger = logging.getLogger(f"{self.prefix}_actions")
+        logger.setLevel(logging.DEBUG)
+        logger.propagate = False
+        # A second client in the same process would otherwise double up handlers
+        # (and keep writing to the previous run's file).
+        for handler in list(logger.handlers):
+            logger.removeHandler(handler)
+            handler.close()
+
+        if not self.config.log_actions:
+            logger.addHandler(logging.NullHandler())
+            return logger
+
+        formatter = logging.Formatter(
+            "%(levelname)s %(asctime)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+        )
+
+        log_dir = Path(self.config.action_log_dir)
+        log_dir.mkdir(parents=True, exist_ok=True)
+        self.action_log_path = log_dir / f"{self.prefix}_actions_{int(time.time())}.log"
+        file_handler = logging.FileHandler(self.action_log_path)
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+        if self.config.log_actions_to_console:
+            console_handler = logging.StreamHandler()
+            console_handler.setLevel(logging.INFO)
+            console_handler.setFormatter(formatter)
+            logger.addHandler(console_handler)
+
+        self.logger.info(f"Action log: {self.action_log_path}")
+        return logger
 
     # ------------------------------------------------------------------
     # Home position helpers
@@ -373,6 +438,36 @@ class LoopRobotClient:
             for i, key in enumerate(self.robot.action_features)
         }
 
+    @staticmethod
+    def _format_action(action: dict[str, float]) -> str:
+        """Compact one-line rendering of a joint-target dict for the logs."""
+        return " ".join(f"{key}={value:+.2f}" for key, value in action.items())
+
+    def _log_action(self, action: dict[str, float], timestep: int, elapsed: float,
+                    queue_size: int, delta: float | None):
+        """Log a single action sent to the arm to the dedicated action log.
+
+        Every action is written to the action log file; every
+        log_action_every_n-th one is logged at INFO so it also reaches the
+        terminal. `delta` is the max per-joint change from the previous action,
+        or None for the first action of the episode.
+        """
+        if not self.config.log_actions:
+            return
+
+        every_n = self.config.log_action_every_n
+        at_info = every_n > 0 and self._total_actions % every_n == 0
+
+        delta_str = f"{delta:.3f}" if delta is not None else "n/a"
+        message = (
+            f"[action #{self._total_actions}] t={elapsed:.2f}s step={timestep} "
+            f"queue={queue_size} dmax={delta_str} | {self._format_action(action)}"
+        )
+        if at_info:
+            self.action_logger.info(message)
+        else:
+            self.action_logger.debug(message)
+
     def _ready_to_send_observation(self) -> bool:
         with self.action_queue_lock:
             return self.action_queue.qsize() / max(self.action_chunk_size, 1) <= self._chunk_size_threshold
@@ -396,6 +491,7 @@ class LoopRobotClient:
         self._converged = False
         self._total_actions = 0
         self._last_action_time = 0.0
+        self._last_action_dict = None
         # Start each episode's clip fresh
         with self._clip_lock:
             self._episode_clip.clear()
@@ -425,6 +521,17 @@ class LoopRobotClient:
                         if ta.get_action().device.type != client_device:
                             ta.action = ta.get_action().to(client_device)
 
+                if self.config.log_actions and self.config.log_action_chunks:
+                    timesteps = [ta.get_timestep() for ta in timed_actions]
+                    first = self._action_tensor_to_action_dict(timed_actions[0].get_action())
+                    last = self._action_tensor_to_action_dict(timed_actions[-1].get_action())
+                    self.action_logger.debug(
+                        f"[chunk] received {len(timed_actions)} actions, "
+                        f"timesteps {min(timesteps)}..{max(timesteps)} | "
+                        f"first: {self._format_action(first)} | "
+                        f"last: {self._format_action(last)}"
+                    )
+
                 self.action_chunk_size = max(self.action_chunk_size, len(timed_actions))
                 self._aggregate_action_queues(timed_actions, self.config.aggregate_fn)
                 self.must_go.set()
@@ -451,6 +558,12 @@ class LoopRobotClient:
         """Main thread: sends observations and executes actions until episode ends."""
         self.start_barrier.wait()
         self.logger.info(f"Control loop started | task: '{task}' | duration: {self.config.episode_duration}s")
+        # Episode boundary marker in the action log (file only), so the action
+        # stream can be split by task without cross-referencing the main log.
+        self.action_logger.debug(
+            f"=== episode start | task: '{task}' | "
+            f"duration: {self.config.episode_duration}s ==="
+        )
 
         episode_start = time.perf_counter()
         self._episode_start_perf = episode_start
@@ -476,9 +589,8 @@ class LoopRobotClient:
                         timed_action = self.action_queue.get_nowait()
 
                     action_tensor = timed_action.get_action()
-                    self.robot.send_action(
-                        self._action_tensor_to_action_dict(action_tensor)
-                    )
+                    action_dict = self._action_tensor_to_action_dict(action_tensor)
+                    self.robot.send_action(action_dict)
 
                     with self.latest_action_lock:
                         self.latest_action = timed_action.get_timestep()
@@ -487,6 +599,22 @@ class LoopRobotClient:
                     action_np = action_tensor.cpu().numpy().flatten()
                     self._total_actions += 1
                     self._last_action_time = elapsed
+
+                    # --- Action logging ---
+                    previous = self._action_history[-1] if self._action_history else None
+                    step_delta = (
+                        float(np.max(np.abs(action_np - previous)))
+                        if previous is not None
+                        else None
+                    )
+                    self._last_action_dict = action_dict
+                    self._log_action(
+                        action_dict,
+                        timestep=timed_action.get_timestep(),
+                        elapsed=elapsed,
+                        queue_size=self.action_queue_size[-1],
+                        delta=step_delta,
+                    )
 
                     if self._first_action is None:
                         self._first_action = action_np.copy()
@@ -622,6 +750,14 @@ class LoopRobotClient:
             f"max_displacement={result.max_displacement:.4f}, "
             f"actions={result.total_actions}"
         )
+        if self.config.log_actions and self._last_action_dict is not None:
+            self.action_logger.info(
+                f"Final action sent: {self._format_action(self._last_action_dict)}"
+            )
+            self.action_logger.debug(
+                f"=== episode end | {result.duration:.1f}s | "
+                f"converged={result.converged} | actions={result.total_actions} ==="
+            )
         return result
 
     # ------------------------------------------------------------------
@@ -722,6 +858,9 @@ class LoopRobotClient:
         self.episode_done.set()
         self.robot.disconnect()
         self.channel.close()
+        for handler in list(self.action_logger.handlers):
+            self.action_logger.removeHandler(handler)
+            handler.close()
         self.logger.info("Client stopped")
 
 
