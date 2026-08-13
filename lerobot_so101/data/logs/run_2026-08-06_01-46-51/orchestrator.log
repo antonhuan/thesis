@@ -1,133 +1,0 @@
-INFO 2026-08-06 01:46:51 strator.py:1014 Terminal output mirrored to logs/run_2026-08-06_01-46-51/orchestrator.log
-INFO 2026-08-06 01:46:51 strator.py:1015 {'action_stall_timeout': 2.0,
- 'actions_per_chunk': 50,
- 'aggregate_fn_name': 'weighted_average',
- 'chunk_size_threshold': 0.7,
- 'client_device': 'cpu',
- 'clip_buffer_maxlen': 128,
- 'convergence_grace_period': 6,
- 'convergence_threshold': 1,
- 'convergence_window': 25,
- 'debug_visualize_queue_size': False,
- 'enable_clip_buffer': True,
- 'enable_interjection': True,
- 'episode_duration': 30.0,
- 'evaluate_subtasks': True,
- 'fps': 30,
- 'home_step_dt': 0.04,
- 'home_steps': 50,
- 'max_replans': 1,
- 'max_retries': 1,
- 'no_movement_threshold': 0.02,
- 'policy_device': 'cuda',
- 'policy_type': 'pi05',
- 'pretrained_name_or_path': 'ant0nh/pi05_500_30k',
- 'robot': {'calibration_dir': None,
-           'cameras': {'front': {'color_mode': <ColorMode.RGB: 'rgb'>,
-                                 'fps': 30,
-                                 'height': 480,
-                                 'rotation': <Cv2Rotation.NO_ROTATION: 0>,
-                                 'serial_number_or_name': '342222071104',
-                                 'use_depth': False,
-                                 'use_rgb': True,
-                                 'warmup_s': 1,
-                                 'width': 640},
-                       'wrist': {'backend': <Cv2Backends.ANY: 0>,
-                                 'color_mode': <ColorMode.RGB: 'rgb'>,
-                                 'fourcc': None,
-                                 'fps': 30,
-                                 'height': 480,
-                                 'index_or_path': 1,
-                                 'rotation': <Cv2Rotation.NO_ROTATION: 0>,
-                                 'warmup_s': 1,
-                                 'width': 640}},
-           'disable_torque_on_disconnect': True,
-           'id': 'kumquat_follower',
-           'max_relative_target': None,
-           'port': '/dev/ttyACM0',
-           'use_degrees': True},
- 'save_frames': True,
- 'server_address': '127.0.0.1:8080',
- 'task': 'idle',
- 'vlm_camera_key': 'front',
- 'vlm_eval_fps': 2.0,
- 'vlm_eval_num_frames': 32,
- 'vlm_eval_use_video': True,
- 'vlm_model': 'Qwen/Qwen3-VL-4B-Instruct',
- 'vlm_temperature': 0.1,
- 'vlm_two_pass_decompose': True}
-INFO 2026-08-06 01:46:53 a_opencv.py:179 OpenCVCamera(1) connected.
-INFO 2026-08-06 01:46:54 ealsense.py:210 RealSenseCamera(342222071104) connected.
-INFO 2026-08-06 01:46:54 follower.py:109 kumquat_follower SOFollower connected.
-INFO 2026-08-06 01:46:54 ent_loop.py:155 Initializing client to connect to server at 127.0.0.1:8080
-INFO 2026-08-06 01:46:54 ent_loop.py:201 Home position captured: {'shoulder_pan.pos': -1.934065934065934, 'shoulder_lift.pos': -101.58241758241758, 'elbow_flex.pos': 92.17582417582418, 'wrist_flex.pos': 74.81318681318682, 'wrist_roll.pos': 0.13186813186813187, 'gripper.pos': 1.9863013698630139}
-INFO 2026-08-06 01:46:54 ent_loop.py:203 Robot connected and ready
-INFO 2026-08-06 01:46:54 ent_loop.py:254 Sending policy instructions to policy server
-INFO 2026-08-06 01:46:54 ent_loop.py:255 Policy type: pi05 | Pretrained: ant0nh/pi05_500_30k | Device: cuda
-Loading Qwen/Qwen3-VL-4B-Instruct...
-Downloading bytes:                                                    |  0.00B            
-Reconstructing (incomplete total...): |                      |  0.00B /  0.00B            [A
-
-Fetching 2 files:   0%|                                             | 0/2 [00:00<?, ?it/s][A[AFetching 2 files: 100%|███████████████████████████████████| 2/2 [00:00<00:00, 2865.94it/s]
-Download complete: :                                                  |  0.00B            
-Reconstruction complete: |                                   |  0.00B /  0.00B            [ADownload complete: :                                                  |  0.00B            
-Reconstruction complete: |                                   |  0.00B /  0.00B            
-Loading weights:   0%|                                            | 0/713 [00:00<?, ?it/s]Loading weights:   2%|▌                                 | 11/713 [00:00<00:06, 106.93it/s]Loading weights:   4%|█▎                                | 27/713 [00:00<00:05, 128.47it/s]Loading weights:   7%|██▎                               | 49/713 [00:00<00:04, 162.56it/s]Loading weights:  10%|███▍                              | 71/713 [00:00<00:03, 180.69it/s]Loading weights:  13%|████▍                             | 93/713 [00:00<00:03, 185.52it/s]Loading weights:  16%|█████▎                           | 114/713 [00:00<00:03, 193.34it/s]Loading weights:  19%|██████▎                          | 136/713 [00:00<00:02, 192.71it/s]Loading weights:  22%|███████▎                         | 157/713 [00:00<00:02, 191.65it/s]Loading weights:  25%|████████▎                        | 179/713 [00:00<00:02, 193.53it/s]Loading weights:  28%|█████████▎                       | 200/713 [00:01<00:02, 192.42it/s]Loading weights:  31%|██████████▎                      | 223/713 [00:01<00:02, 197.71it/s]Loading weights:  34%|███████████▎                     | 245/713 [00:01<00:02, 195.58it/s]Loading weights:  37%|████████████▎                    | 265/713 [00:01<00:02, 186.41it/s]Loading weights:  40%|█████████████▏                   | 284/713 [00:01<00:02, 177.18it/s]Loading weights:  42%|█████████████▉                   | 302/713 [00:01<00:02, 174.89it/s]Loading weights:  45%|██████████████▉                  | 324/713 [00:01<00:02, 181.22it/s]Loading weights:  49%|████████████████                 | 346/713 [00:01<00:01, 185.55it/s]Loading weights:  51%|████████████████▉                | 367/713 [00:01<00:01, 188.95it/s]Loading weights:  54%|█████████████████▉               | 387/713 [00:02<00:01, 179.87it/s]Loading weights:  68%|██████████████████████▎          | 482/713 [00:02<00:00, 387.99it/s]Loading weights:  84%|███████████████████████████▋     | 599/713 [00:02<00:00, 605.62it/s]Loading weights:  97%|████████████████████████████████ | 693/713 [00:02<00:00, 689.73it/s]Loading weights: 100%|█████████████████████████████████| 713/713 [00:02<00:00, 289.47it/s]
-Model loaded in 11.7s
-Device: cuda:0
-Parameters: 4.44B
-INFO 2026-08-06 01:50:34 strator.py:1033 ============================================================
-INFO 2026-08-06 01:50:34 strator.py:1034 Dual-system ready: VLM planner + VLA policy loaded.
-INFO 2026-08-06 01:50:34 strator.py:1035 Episode duration per sub-task: 30.0s
-INFO 2026-08-06 01:50:34 strator.py:1036 Max retries per sub-task: 1
-INFO 2026-08-06 01:50:34 strator.py:1037 Max replans per prompt: 1
-INFO 2026-08-06 01:50:34 strator.py:1038 Replans pause for operator context — type guidance and press Enter, or Enter alone to skip.
-INFO 2026-08-06 01:50:34 strator.py:1040 Type an instruction and press Enter to execute.
-INFO 2026-08-06 01:50:34 strator.py:1042 During execution: 's'+Enter to skip, 'r'+Enter to replan.
-INFO 2026-08-06 01:50:34 strator.py:1043 At any point during execution (and at any replan prompt): 'q'+Enter aborts the whole task and returns here.
-INFO 2026-08-06 01:50:34 strator.py:1045 Type 'quit' or 'exit' to shut down.
-INFO 2026-08-06 01:50:34 strator.py:1046 ============================================================
-
-[INTERJECT] Press 's'+Enter to SKIP subtask | 'r'+Enter to REPLAN | 'q'+Enter to ABORT the whole task | Enter to skipINFO 2026-08-06 01:50:57 estrator.py:657 Decomposing high-level prompt: 'put everything on the tray except for the banana'
-
-INFO 2026-08-06 01:50:57 estrator.py:598 Saved VLM frame: frames/run_2026-08-06_01-50-34/decompose_20260806_015057.png
-  Generated 20 tokens in 2.9s (6.8 tok/s)
-
-Identification output:
-{"visible_objects": ["plush toy", "banana", "tray", "table"]}
-INFO 2026-08-06 01:51:00 estrator.py:454 Identified objects (4): ['plush toy', 'banana', 'tray', 'table']
-  Generated 56 tokens in 4.1s (13.6 tok/s)
-INFO 2026-08-06 01:51:05 estrator.py:473 Raw VLM decomposition output (184 chars): '{\n  "visible_objects": ["plush toy", "banana", "tray", "table"],\n  "excluded_objects": ["banana"],\n  "allowed_objects": ["plush toy"],\n  "subtasks": ["put the plush toy on the tray"]\n}'
-
-Visible: ['plush toy', 'banana', 'tray', 'table']
-Excluded: ['banana']
-Allowed: ['plush toy']
-
-Parsed 1 sub-tasks:
-  1. put the plush toy on the tray
-INFO 2026-08-06 01:51:05 estrator.py:675 Sub-task queue (1):
-INFO 2026-08-06 01:51:05 estrator.py:677   1. put the plush toy on the tray
-INFO 2026-08-06 01:51:05 estrator.py:725 [1] Executing sub-task: 'put the plush toy on the tray' (1 retries left)
-INFO 2026-08-06 01:51:05 ent_loop.py:412 Control loop started | task: 'put the plush toy on the tray' | duration: 30.0s
-INFO 2026-08-06 01:51:05 ent_loop.py:370 Action receiver thread started
-[INTERJECT] SKIP requested — stopping current action...
-INFO 2026-08-06 01:51:17 ent_loop.py:579 Episode finished: 12.1s, converged=False, max_displacement=171.9229, actions=296
-INFO 2026-08-06 01:51:17 estrator.py:738 User skipped sub-task: 'put the plush toy on the tray' (1 attempt(s) left)
-INFO 2026-08-06 01:51:17 ent_loop.py:225 Returning to home position...
-INFO 2026-08-06 01:51:19 ent_loop.py:238 Home position reached.
-INFO 2026-08-06 01:51:19 estrator.py:725 [1] Executing sub-task: 'put the plush toy on the tray' (0 retries left)
-INFO 2026-08-06 01:51:19 ent_loop.py:412 Control loop started | task: 'put the plush toy on the tray' | duration: 30.0s
-INFO 2026-08-06 01:51:19 ent_loop.py:370 Action receiver thread started
-[INTERJECT] ABORT requested — stopping current action...
-INFO 2026-08-06 01:51:24 ent_loop.py:579 Episode finished: 5.5s, converged=False, max_displacement=58.7735, actions=93
-WARNING 2026-08-06 01:51:24 estrator.py:652 ABORT requested during sub-task 'put the plush toy on the tray' — abandoning high-level task 'put everything on the tray except for the banana' and returning to the prompt.
-INFO 2026-08-06 01:51:24 ent_loop.py:225 Returning to home position...
-INFO 2026-08-06 01:51:26 ent_loop.py:238 Home position reached.
-INFO 2026-08-06 01:51:26 estrator.py:897   Completed before the abort: []
-INFO 2026-08-06 01:51:29 strator.py:1058 Shutdown requested.
-INFO 2026-08-06 01:51:29 ent_loop.py:225 Returning to home position...
-INFO 2026-08-06 01:51:31 ent_loop.py:238 Home position reached.
-INFO 2026-08-06 01:51:31 a_opencv.py:601 OpenCVCamera(1) disconnected.
-INFO 2026-08-06 01:51:31 ealsense.py:701 RealSenseCamera(342222071104) disconnected.
-INFO 2026-08-06 01:51:31 follower.py:240 kumquat_follower SOFollower disconnected.
-INFO 2026-08-06 01:51:31 ent_loop.py:684 Client stopped

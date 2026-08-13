@@ -1,0 +1,92 @@
+INFO 2026-08-13 05:22:55 estrator.py:696 Decomposing high-level prompt: 'put the banana on the tray'
+INFO 2026-08-13 05:22:56 estrator.py:615 Saved VLM frame: runs/run_2026-08-13_05-18-42/01/decompose_20260813_052255.png
+  Generated 24 tokens in 3.2s (7.5 tok/s)
+
+Identification output:
+{"visible_objects": ["banana", "cylinder", "stuffed animal", "tray", "table"]}
+INFO 2026-08-13 05:22:59 estrator.py:454 Identified objects (5): ['banana', 'cylinder', 'stuffed animal', 'tray', 'table']
+  Generated 55 tokens in 4.2s (13.2 tok/s)
+INFO 2026-08-13 05:23:03 estrator.py:473 Raw VLM decomposition output (187 chars): '{\n  "visible_objects": ["banana", "cylinder", "stuffed animal", "tray", "table"],\n  "excluded_objects": [],\n  "allowed_objects": ["banana"],\n  "subtasks": ["put the banana on the tray"]\n}'
+
+Visible: ['banana', 'cylinder', 'stuffed animal', 'tray', 'table']
+Excluded: []
+Allowed: ['banana']
+
+Parsed 1 sub-tasks:
+  1. put the banana on the tray
+INFO 2026-08-13 05:23:03 estrator.py:714 Sub-task queue (1):
+INFO 2026-08-13 05:23:03 estrator.py:716   1. put the banana on the tray
+INFO 2026-08-13 05:23:03 estrator.py:764 [1] Executing sub-task: 'put the banana on the tray' (1 retries left)
+INFO 2026-08-13 05:23:03 ent_loop.py:560 Control loop started | task: 'put the banana on the tray' | duration: 30.0s
+INFO 2026-08-13 05:23:03 ent_loop.py:507 Action receiver thread started
+INFO 2026-08-13 05:23:04 [action #10] t=1.24s step=9 queue=41 dmax=0.912 | shoulder_pan.pos=-10.66 shoulder_lift.pos=-102.22 elbow_flex.pos=+89.56 wrist_flex.pos=+76.94 wrist_roll.pos=-0.81 gripper.pos=+0.88
+INFO 2026-08-13 05:23:05 [action #20] t=1.57s step=19 queue=31 dmax=0.820 | shoulder_pan.pos=-17.51 shoulder_lift.pos=-102.25 elbow_flex.pos=+89.91 wrist_flex.pos=+76.54 wrist_roll.pos=-0.76 gripper.pos=+0.83
+INFO 2026-08-13 05:23:05 [action #30] t=1.91s step=29 queue=21 dmax=0.644 | shoulder_pan.pos=-23.39 shoulder_lift.pos=-102.63 elbow_flex.pos=+90.52 wrist_flex.pos=+76.91 wrist_roll.pos=-0.78 gripper.pos=+0.80
+INFO 2026-08-13 05:23:05 [action #40] t=2.24s step=39 queue=11 dmax=1.067 | shoulder_pan.pos=-32.77 shoulder_lift.pos=-101.89 elbow_flex.pos=+89.81 wrist_flex.pos=+76.88 wrist_roll.pos=-0.78 gripper.pos=+0.81
+INFO 2026-08-13 05:23:06 [action #50] t=2.58s step=49 queue=15 dmax=0.358 | shoulder_pan.pos=-38.81 shoulder_lift.pos=-101.96 elbow_flex.pos=+89.02 wrist_flex.pos=+76.76 wrist_roll.pos=-1.02 gripper.pos=+0.70
+INFO 2026-08-13 05:23:06 [action #60] t=2.91s step=59 queue=5 dmax=0.471 | shoulder_pan.pos=-41.30 shoulder_lift.pos=-102.23 elbow_flex.pos=+88.67 wrist_flex.pos=+75.51 wrist_roll.pos=-2.02 gripper.pos=+0.57
+INFO 2026-08-13 05:23:07 [action #70] t=3.45s step=69 queue=22 dmax=0.423 | shoulder_pan.pos=-41.10 shoulder_lift.pos=-101.86 elbow_flex.pos=+88.89 wrist_flex.pos=+67.39 wrist_roll.pos=-1.25 gripper.pos=+0.88
+INFO 2026-08-13 05:23:07 [action #80] t=3.78s step=79 queue=12 dmax=1.104 | shoulder_pan.pos=-42.74 shoulder_lift.pos=-101.23 elbow_flex.pos=+90.36 wrist_flex.pos=+64.28 wrist_roll.pos=-1.26 gripper.pos=+0.79
+INFO 2026-08-13 05:23:07 [action #90] t=4.11s step=89 queue=24 dmax=0.552 | shoulder_pan.pos=-46.12 shoulder_lift.pos=-102.19 elbow_flex.pos=+90.16 wrist_flex.pos=+61.60 wrist_roll.pos=-3.49 gripper.pos=+0.67
+INFO 2026-08-13 05:23:08 [action #100] t=4.45s step=99 queue=14 dmax=0.427 | shoulder_pan.pos=-47.90 shoulder_lift.pos=-102.71 elbow_flex.pos=+89.49 wrist_flex.pos=+60.67 wrist_roll.pos=-4.18 gripper.pos=+0.48
+INFO 2026-08-13 05:23:08 [action #110] t=4.78s step=109 queue=4 dmax=0.461 | shoulder_pan.pos=-48.25 shoulder_lift.pos=-101.27 elbow_flex.pos=+88.46 wrist_flex.pos=+59.84 wrist_roll.pos=-4.38 gripper.pos=+0.64
+INFO 2026-08-13 05:23:08 [action #120] t=5.32s step=119 queue=18 dmax=3.347 | shoulder_pan.pos=-46.77 shoulder_lift.pos=-82.13 elbow_flex.pos=+77.77 wrist_flex.pos=+55.33 wrist_roll.pos=-4.06 gripper.pos=+1.00
+INFO 2026-08-13 05:23:09 [action #130] t=5.65s step=129 queue=8 dmax=1.955 | shoulder_pan.pos=-47.09 shoulder_lift.pos=-58.39 elbow_flex.pos=+64.28 wrist_flex.pos=+51.98 wrist_roll.pos=-4.53 gripper.pos=+0.78
+INFO 2026-08-13 05:23:09 [action #140] t=6.09s step=139 queue=23 dmax=3.815 | shoulder_pan.pos=-47.63 shoulder_lift.pos=-72.63 elbow_flex.pos=+73.45 wrist_flex.pos=+51.44 wrist_roll.pos=-5.65 gripper.pos=+1.48
+INFO 2026-08-13 05:23:10 [action #150] t=6.42s step=149 queue=13 dmax=2.018 | shoulder_pan.pos=-47.84 shoulder_lift.pos=-46.78 elbow_flex.pos=+60.53 wrist_flex.pos=+45.68 wrist_roll.pos=-6.16 gripper.pos=+1.14
+INFO 2026-08-13 05:23:10 [action #160] t=6.76s step=159 queue=3 dmax=1.421 | shoulder_pan.pos=-48.06 shoulder_lift.pos=-29.74 elbow_flex.pos=+47.32 wrist_flex.pos=+48.39 wrist_roll.pos=-7.15 gripper.pos=+1.01
+INFO 2026-08-13 05:23:10 [action #170] t=7.09s step=169 queue=17 dmax=1.481 | shoulder_pan.pos=-45.75 shoulder_lift.pos=-5.75 elbow_flex.pos=+20.33 wrist_flex.pos=+60.86 wrist_roll.pos=-7.19 gripper.pos=+21.06
+INFO 2026-08-13 05:23:11 [action #180] t=7.42s step=179 queue=7 dmax=1.367 | shoulder_pan.pos=-45.68 shoulder_lift.pos=+7.66 elbow_flex.pos=+12.53 wrist_flex.pos=+64.89 wrist_roll.pos=-7.19 gripper.pos=+27.78
+INFO 2026-08-13 05:23:11 [action #190] t=7.83s step=189 queue=22 dmax=0.738 | shoulder_pan.pos=-47.69 shoulder_lift.pos=+3.47 elbow_flex.pos=+16.20 wrist_flex.pos=+62.16 wrist_roll.pos=-7.89 gripper.pos=+28.45
+INFO 2026-08-13 05:23:11 [action #200] t=8.16s step=199 queue=12 dmax=0.753 | shoulder_pan.pos=-46.30 shoulder_lift.pos=+11.46 elbow_flex.pos=+10.19 wrist_flex.pos=+63.62 wrist_roll.pos=-7.70 gripper.pos=+28.63
+INFO 2026-08-13 05:23:12 [action #210] t=8.49s step=209 queue=2 dmax=0.592 | shoulder_pan.pos=-45.85 shoulder_lift.pos=+18.43 elbow_flex.pos=+5.87 wrist_flex.pos=+65.22 wrist_roll.pos=-7.77 gripper.pos=+28.39
+INFO 2026-08-13 05:23:12 [action #220] t=8.93s step=219 queue=16 dmax=0.853 | shoulder_pan.pos=-49.02 shoulder_lift.pos=+26.50 elbow_flex.pos=-4.87 wrist_flex.pos=+74.22 wrist_roll.pos=-8.59 gripper.pos=+8.40
+INFO 2026-08-13 05:23:12 [action #230] t=9.26s step=229 queue=6 dmax=0.698 | shoulder_pan.pos=-49.63 shoulder_lift.pos=+26.63 elbow_flex.pos=-8.98 wrist_flex.pos=+78.55 wrist_roll.pos=-9.90 gripper.pos=+8.51
+INFO 2026-08-13 05:23:13 [action #240] t=9.70s step=239 queue=21 dmax=0.550 | shoulder_pan.pos=-49.13 shoulder_lift.pos=+27.74 elbow_flex.pos=-4.22 wrist_flex.pos=+75.00 wrist_roll.pos=-9.05 gripper.pos=+9.24
+INFO 2026-08-13 05:23:13 [action #250] t=10.03s step=249 queue=11 dmax=1.075 | shoulder_pan.pos=-48.57 shoulder_lift.pos=+24.31 elbow_flex.pos=-12.27 wrist_flex.pos=+82.68 wrist_roll.pos=-10.34 gripper.pos=+8.46
+INFO 2026-08-13 05:23:14 [action #260] t=10.37s step=259 queue=1 dmax=1.408 | shoulder_pan.pos=-47.05 shoulder_lift.pos=+17.96 elbow_flex.pos=-21.39 wrist_flex.pos=+92.69 wrist_roll.pos=-10.51 gripper.pos=+8.30
+INFO 2026-08-13 05:23:14 [action #270] t=10.70s step=269 queue=15 dmax=2.490 | shoulder_pan.pos=-27.67 shoulder_lift.pos=-1.93 elbow_flex.pos=-20.37 wrist_flex.pos=+98.93 wrist_roll.pos=-8.21 gripper.pos=+10.45
+INFO 2026-08-13 05:23:14 [action #280] t=11.04s step=279 queue=5 dmax=1.661 | shoulder_pan.pos=-6.79 shoulder_lift.pos=-1.90 elbow_flex.pos=-22.89 wrist_flex.pos=+99.03 wrist_roll.pos=-4.51 gripper.pos=+10.77
+INFO 2026-08-13 05:23:15 [action #290] t=11.47s step=289 queue=20 dmax=1.650 | shoulder_pan.pos=-9.19 shoulder_lift.pos=-3.11 elbow_flex.pos=-20.77 wrist_flex.pos=+99.05 wrist_roll.pos=-2.04 gripper.pos=+10.16
+INFO 2026-08-13 05:23:15 [action #300] t=11.81s step=299 queue=10 dmax=1.358 | shoulder_pan.pos=+4.52 shoulder_lift.pos=-3.50 elbow_flex.pos=-20.65 wrist_flex.pos=+94.36 wrist_roll.pos=-0.24 gripper.pos=+9.88
+INFO 2026-08-13 05:23:15 [action #310] t=12.17s step=309 queue=24 dmax=12.430 | shoulder_pan.pos=+26.87 shoulder_lift.pos=+4.49 elbow_flex.pos=-23.61 wrist_flex.pos=+81.23 wrist_roll.pos=+2.81 gripper.pos=+8.96
+INFO 2026-08-13 05:23:16 [action #320] t=12.51s step=319 queue=14 dmax=0.746 | shoulder_pan.pos=+30.67 shoulder_lift.pos=+10.28 elbow_flex.pos=-22.96 wrist_flex.pos=+73.08 wrist_roll.pos=+3.81 gripper.pos=+9.08
+INFO 2026-08-13 05:23:16 [action #330] t=12.84s step=329 queue=4 dmax=1.267 | shoulder_pan.pos=+33.21 shoulder_lift.pos=+20.05 elbow_flex.pos=-21.78 wrist_flex.pos=+67.16 wrist_roll.pos=+3.67 gripper.pos=+9.38
+INFO 2026-08-13 05:23:17 [action #340] t=13.38s step=339 queue=19 dmax=0.980 | shoulder_pan.pos=+35.16 shoulder_lift.pos=+13.82 elbow_flex.pos=-23.33 wrist_flex.pos=+74.02 wrist_roll.pos=+7.97 gripper.pos=+10.32
+INFO 2026-08-13 05:23:17 [action #350] t=13.71s step=349 queue=9 dmax=0.973 | shoulder_pan.pos=+36.81 shoulder_lift.pos=+21.32 elbow_flex.pos=-23.58 wrist_flex.pos=+68.25 wrist_roll.pos=+9.39 gripper.pos=+10.25
+INFO 2026-08-13 05:23:17 [action #360] t=14.11s step=359 queue=23 dmax=1.595 | shoulder_pan.pos=+29.92 shoulder_lift.pos=+24.26 elbow_flex.pos=-16.42 wrist_flex.pos=+73.42 wrist_roll.pos=+5.27 gripper.pos=+36.57
+INFO 2026-08-13 05:23:18 [action #370] t=14.45s step=369 queue=13 dmax=1.572 | shoulder_pan.pos=+26.68 shoulder_lift.pos=+23.20 elbow_flex.pos=-30.16 wrist_flex.pos=+89.43 wrist_roll.pos=+5.55 gripper.pos=+34.88
+INFO 2026-08-13 05:23:18 [action #380] t=14.78s step=379 queue=3 dmax=1.176 | shoulder_pan.pos=+20.98 shoulder_lift.pos=+19.48 elbow_flex.pos=-35.80 wrist_flex.pos=+99.61 wrist_roll.pos=+6.13 gripper.pos=+32.13
+INFO 2026-08-13 05:23:18 [action #390] t=15.25s step=389 queue=18 dmax=1.613 | shoulder_pan.pos=+28.21 shoulder_lift.pos=+25.07 elbow_flex.pos=-30.45 wrist_flex.pos=+87.34 wrist_roll.pos=+10.85 gripper.pos=+35.34
+INFO 2026-08-13 05:23:19 [action #400] t=15.58s step=399 queue=8 dmax=1.731 | shoulder_pan.pos=+22.07 shoulder_lift.pos=+20.51 elbow_flex.pos=-43.08 wrist_flex.pos=+98.60 wrist_roll.pos=+12.00 gripper.pos=+33.85
+INFO 2026-08-13 05:23:19 [action #410] t=15.95s step=409 queue=22 dmax=1.035 | shoulder_pan.pos=-2.20 shoulder_lift.pos=-33.65 elbow_flex.pos=+30.56 wrist_flex.pos=+79.61 wrist_roll.pos=+3.61 gripper.pos=+1.01
+INFO 2026-08-13 05:23:19 [action #420] t=16.29s step=419 queue=12 dmax=1.303 | shoulder_pan.pos=-5.13 shoulder_lift.pos=-44.32 elbow_flex.pos=+47.61 wrist_flex.pos=+70.21 wrist_roll.pos=+2.10 gripper.pos=+0.76
+INFO 2026-08-13 05:23:20 [action #430] t=16.62s step=429 queue=2 dmax=2.287 | shoulder_pan.pos=-6.68 shoulder_lift.pos=-57.91 elbow_flex.pos=+60.36 wrist_flex.pos=+66.77 wrist_roll.pos=-0.05 gripper.pos=+0.52
+INFO 2026-08-13 05:23:20 [action #440] t=17.06s step=439 queue=17 dmax=1.879 | shoulder_pan.pos=-3.33 shoulder_lift.pos=-43.43 elbow_flex.pos=+37.60 wrist_flex.pos=+70.27 wrist_roll.pos=+6.42 gripper.pos=+0.24
+INFO 2026-08-13 05:23:21 [action #450] t=17.39s step=449 queue=7 dmax=1.806 | shoulder_pan.pos=-6.02 shoulder_lift.pos=-57.94 elbow_flex.pos=+53.04 wrist_flex.pos=+66.20 wrist_roll.pos=+4.16 gripper.pos=+0.65
+INFO 2026-08-13 05:23:21 [action #460] t=17.79s step=459 queue=21 dmax=0.502 | shoulder_pan.pos=-3.95 shoulder_lift.pos=-101.08 elbow_flex.pos=+86.65 wrist_flex.pos=+76.44 wrist_roll.pos=-2.11 gripper.pos=-0.04
+INFO 2026-08-13 05:23:21 [action #470] t=18.13s step=469 queue=11 dmax=0.241 | shoulder_pan.pos=-4.53 shoulder_lift.pos=-100.06 elbow_flex.pos=+86.72 wrist_flex.pos=+77.81 wrist_roll.pos=-2.20 gripper.pos=+0.20
+INFO 2026-08-13 05:23:22 [action #480] t=18.46s step=479 queue=1 dmax=0.868 | shoulder_pan.pos=-4.37 shoulder_lift.pos=-101.28 elbow_flex.pos=+87.18 wrist_flex.pos=+77.45 wrist_roll.pos=-2.88 gripper.pos=+0.31
+INFO 2026-08-13 05:23:22 [action #490] t=18.86s step=489 queue=16 dmax=0.278 | shoulder_pan.pos=-3.61 shoulder_lift.pos=-101.05 elbow_flex.pos=+87.21 wrist_flex.pos=+78.72 wrist_roll.pos=-1.88 gripper.pos=-0.19
+INFO 2026-08-13 05:23:22 [action #500] t=19.20s step=499 queue=6 dmax=0.368 | shoulder_pan.pos=-3.19 shoulder_lift.pos=-101.12 elbow_flex.pos=+87.33 wrist_flex.pos=+78.48 wrist_roll.pos=-2.52 gripper.pos=-0.03
+INFO 2026-08-13 05:23:23 [action #510] t=19.66s step=509 queue=20 dmax=0.411 | shoulder_pan.pos=-4.85 shoulder_lift.pos=-101.53 elbow_flex.pos=+89.15 wrist_flex.pos=+78.36 wrist_roll.pos=-2.10 gripper.pos=+0.23
+INFO 2026-08-13 05:23:23 [action #520] t=20.00s step=519 queue=10 dmax=0.334 | shoulder_pan.pos=-4.72 shoulder_lift.pos=-101.44 elbow_flex.pos=+88.84 wrist_flex.pos=+78.40 wrist_roll.pos=-2.19 gripper.pos=+0.16
+INFO 2026-08-13 05:23:24 [action #530] t=20.50s step=529 queue=25 dmax=1.482 | shoulder_pan.pos=-3.42 shoulder_lift.pos=-101.37 elbow_flex.pos=+89.01 wrist_flex.pos=+79.50 wrist_roll.pos=-1.53 gripper.pos=+0.07
+INFO 2026-08-13 05:23:24 [action #540] t=20.83s step=539 queue=15 dmax=0.652 | shoulder_pan.pos=-3.15 shoulder_lift.pos=-101.78 elbow_flex.pos=+89.21 wrist_flex.pos=+79.07 wrist_roll.pos=-1.53 gripper.pos=+0.05
+INFO 2026-08-13 05:23:24 [action #550] t=21.17s step=549 queue=5 dmax=0.481 | shoulder_pan.pos=-3.25 shoulder_lift.pos=-101.89 elbow_flex.pos=+89.55 wrist_flex.pos=+79.52 wrist_roll.pos=-1.60 gripper.pos=+0.19
+INFO 2026-08-13 05:23:25 [action #560] t=21.60s step=559 queue=19 dmax=0.859 | shoulder_pan.pos=-3.77 shoulder_lift.pos=-101.66 elbow_flex.pos=+89.38 wrist_flex.pos=+78.37 wrist_roll.pos=-1.51 gripper.pos=-0.03
+INFO 2026-08-13 05:23:25 [action #570] t=21.94s step=569 queue=9 dmax=0.444 | shoulder_pan.pos=-4.08 shoulder_lift.pos=-102.18 elbow_flex.pos=+90.10 wrist_flex.pos=+78.41 wrist_roll.pos=-1.47 gripper.pos=+0.08
+INFO 2026-08-13 05:23:26 [action #580] t=22.37s step=579 queue=24 dmax=0.432 | shoulder_pan.pos=-2.85 shoulder_lift.pos=-101.05 elbow_flex.pos=+89.08 wrist_flex.pos=+77.49 wrist_roll.pos=-1.39 gripper.pos=+0.07
+INFO 2026-08-13 05:23:26 [action #590] t=22.71s step=589 queue=14 dmax=0.423 | shoulder_pan.pos=-2.78 shoulder_lift.pos=-101.53 elbow_flex.pos=+88.71 wrist_flex.pos=+77.73 wrist_roll.pos=-1.42 gripper.pos=+0.15
+INFO 2026-08-13 05:23:26 [action #600] t=23.04s step=599 queue=4 dmax=0.277 | shoulder_pan.pos=-3.09 shoulder_lift.pos=-101.04 elbow_flex.pos=+88.48 wrist_flex.pos=+77.98 wrist_roll.pos=-1.40 gripper.pos=+0.04
+INFO 2026-08-13 05:23:26 ent_loop.py:748 Episode finished: 23.2s, converged=True, max_displacement=186.6105, actions=603
+INFO 2026-08-13 05:23:26 Final action sent: shoulder_pan.pos=-3.10 shoulder_lift.pos=-101.59 elbow_flex.pos=+88.98 wrist_flex.pos=+78.24 wrist_roll.pos=-1.33 gripper.pos=+0.03
+INFO 2026-08-13 05:23:26 ent_loop.py:331 Returning to home position...
+INFO 2026-08-13 05:23:28 ent_loop.py:344 Home position reached.
+INFO 2026-08-13 05:23:31 estrator.py:646 Saved VLM eval clip (32 frames) to runs/run_2026-08-13_05-18-42/01
+INFO 2026-08-13 05:23:31 estrator.py:877 Evaluation observation: video clip (32 frames over 22.9s of a 23.2s episode, 1.35 fps)
+  Generated 21 tokens in 1.9s (10.9 tok/s)
+INFO 2026-08-13 05:23:33 estrator.py:506 Raw eval output: {"success": true, "reason": "The banana is now on the tray as instructed."}
+INFO 2026-08-13 05:23:33 estrator.py:926 VLM judgement: success=True | The banana is now on the tray as instructed.
+INFO 2026-08-13 05:23:33 estrator.py:990 High-level task complete: 'put the banana on the tray'
+INFO 2026-08-13 05:23:33 estrator.py:991   Completed 1/1 original sub-tasks: ['put the banana on the tray']
