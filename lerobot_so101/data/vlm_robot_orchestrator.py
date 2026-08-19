@@ -104,6 +104,10 @@ class OrchestratorConfig(LoopClientConfig):
     vlm_camera_key: str = "front"
     # After each sub-task episode, ask the VLM whether it succeeded
     evaluate_subtasks: bool = True
+    # After the whole sub-task queue finishes, ask the VLM whether the ORIGINAL
+    # high-level instruction was accomplished, judging the final scene against the
+    # prompt. Runs once per high-level task; skipped on abort.
+    evaluate_final: bool = True
     # Show the evaluator a short video clip of the episode (buffered during
     # execution) instead of a single still frame. Falls back to a still if the
     # clip buffer is empty (e.g. a very short / no-movement episode).
@@ -154,6 +158,33 @@ Return ONLY a JSON object with two fields:
 Example:
 {"success": true, "reason": "The apple is now on the tray as instructed."}
 {"success": false, "reason": "The banana is still on the table, not on the tray."}
+"""
+
+
+# ---------------------------------------------------------------------------
+# System prompt for the final whole-task evaluation
+# ---------------------------------------------------------------------------
+FINAL_EVALUATION_SYSTEM_PROMPT = """You are a robot task evaluator. You receive a single camera image of a tabletop workspace after a robot arm has finished attempting a high-level instruction, plus the original instruction text. Judge whether the WHOLE instruction was accomplished, based only on the final scene.
+
+Scene context:
+- The tray visible in the scene is the destination. It may be any colour (pink, black, etc.). "the tray" and "away" in the instruction always mean this tray.
+- The orange robot arm is part of the setup, ignore it. It is not an object.
+
+Judge overall success as ALL of the following:
+- Every object the instruction asked to move (or clear/put away/tidy) is now at its destination (e.g. on the tray).
+- Every object the instruction asked to LEAVE, skip, keep, ignore, or not touch is still in its original place on the table and is NOT on the tray.
+- Any arrangement or spatial relationship the instruction called for (e.g. "next to", "on top of") holds in the final scene.
+
+If any of these is not met, the task failed. When it failed, name the specific object(s) and what is wrong (still on the table, wrongly moved onto the tray, misplaced).
+
+Output format:
+Return ONLY a JSON object with two fields:
+- "success": true or false
+- "reason": a brief explanation of your judgement
+
+Example:
+{"success": true, "reason": "The apple and orange are on the tray and the banana was correctly left on the table."}
+{"success": false, "reason": "The banana was moved onto the tray even though the instruction said to leave it."}
 """
 
 
@@ -504,6 +535,30 @@ class VLMPlanner:
             self.model, self.processor, messages, temperature=self.temperature
         )
         logging.info(f"Raw eval output: {output}")
+        return parse_evaluation(output)
+
+    def evaluate_final(
+        self,
+        original_prompt: str,
+        frame: "Image.Image | None",
+    ) -> dict:
+        """Final scene + original instruction -> {'success': bool, 'reason': str}.
+
+        Judges the whole high-level instruction from a single still of the final
+        scene, with no knowledge of what the pipeline believes it completed.
+        """
+        text = (
+            f'\nThe robot was given this high-level instruction: "{original_prompt}"'
+            f'\nLooking at the final scene, was the whole instruction accomplished?'
+        )
+        messages = [
+            {"role": "system", "content": [{"type": "text", "text": FINAL_EVALUATION_SYSTEM_PROMPT}]},
+            {"role": "user", "content": self._user_content(frame, text)},
+        ]
+        output = generate(
+            self.model, self.processor, messages, temperature=self.temperature
+        )
+        logging.info(f"Raw final-eval output: {output}")
         return parse_evaluation(output)
 
     def replan(
@@ -986,6 +1041,21 @@ def _run_high_level_task_body(
 
         # Replace the pending queue with the replanned tasks
         pending = new_subtasks
+
+    # 5. Final whole-task evaluation against the original prompt. Reached only
+    #    when the queue empties normally — every abort / early return above skips
+    #    this. Log-only: it does not trigger retries or replans.
+    if cfg.evaluate_final:
+        logger.info("Running final evaluation against the original prompt...")
+        final_frame = frames.capture(tag="final_eval")
+        try:
+            final = planner.evaluate_final(prompt, final_frame)
+            logger.info(f"FINAL VLM judgement for '{prompt}': "
+                        f"success={bool(final.get('success'))} | {final.get('reason', '')}")
+        except ValueError as e:
+            logger.warning(f"Could not parse final evaluation ({e}); no overall verdict.")
+        except Exception as e:
+            logger.exception(f"Final evaluation errored ({e}); no overall verdict.")
 
     logger.info(f"High-level task complete: '{prompt}'")
     logger.info(f"  Completed {len(completed)}/{len(subtasks)} original sub-tasks: {completed}")
