@@ -94,6 +94,8 @@ from robot_client_loop import LoopClientConfig, LoopRobotClient
 from vlm_core import generate, load_model
 from vlm import (
     DECOMPOSITION_SYSTEM_PROMPT,
+    REFINEMENT_SYSTEM_PROMPT,
+    GUIDED_VOCAB_MATCH_SYSTEM_PROMPT,
     identify_objects,
     survey_scene,
     decompose_from_objects,
@@ -154,6 +156,11 @@ class OrchestratorConfig(LoopClientConfig):
     # "no movement" — i.e. the VLA did not understand the instruction.
     # Tunable: start at 0.02 and adjust based on your arm's joint scale.
     no_movement_threshold: float = 0.02
+    # --- Vocabulary refinement (closed-loop failure classification) ---
+    enable_vocab_refinement: bool = True
+    training_labels: list[str] = field(
+        default_factory=lambda: ["banana", "toy", "pouch"]
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -170,15 +177,22 @@ Scene context:
 - "away" means onto the tray.
 - The orange robot arm is part of the setup, ignore it.
 - Judge ONLY whether the specific object named in the sub-task is now at the destination. Do not assess other objects. If the object is partially in the destination, count it as a success.
+- The arm begins from a resting position. Focus on the directed motion phase when classifying failure — do not interpret the initial stationary period as hesitation.
 
 Output format:
-Return ONLY a JSON object with two fields:
+Return ONLY a JSON object:
 - "success": true or false
+- "failure_type": one of "VOCAB" or "RETRY" (only when success is false)
 - "reason": a brief explanation of your judgement
+
+Failure classification (only when success is false):
+- VOCAB: The arm moved aggressively or erratically toward the wrong object, OR moved with no clear target commitment (wandering, hesitation, small uncertain motions). This suggests the instruction label confused the robot.
+- RETRY: The arm reached toward the correct object but the grasp or placement failed (e.g. gripper closed on air, object slipped, placed in wrong spot, dropped during transport). The instruction was understood but execution failed.
 
 Example:
 {"success": true, "reason": "The apple is now on the tray as instructed."}
-{"success": false, "reason": "The banana is still on the table, not on the tray."}
+{"success": false, "failure_type": "RETRY", "reason": "The arm reached the banana but the gripper closed on air and did not grasp it."}
+{"success": false, "failure_type": "VOCAB", "reason": "The arm moved aggressively toward the pouch instead of the banana."}
 """
 
 
@@ -896,6 +910,59 @@ class VLMPlanner:
         logging.info(f"Raw final-judge output: {output}")
         return parse_evaluation(output)
 
+    def refine_label(
+        self,
+        failed_instruction: str,
+        failure_reason: str,
+        frame: "Image.Image | None" = None,
+    ) -> list[str]:
+        """Suggest alternative object names after a vocabulary failure."""
+        text = (
+            f'The robot failed to execute: "{failed_instruction}"\n'
+            f"Diagnosis: {failure_reason}\n\n"
+            "Suggest 3 alternative names for the target object."
+        )
+        messages = [
+            {"role": "system", "content": [{"type": "text", "text": REFINEMENT_SYSTEM_PROMPT}]},
+            {"role": "user", "content": self._user_content(frame, text)},
+        ]
+        output = generate(
+            self.model, self.processor, messages, temperature=self.temperature
+        )
+        logging.info(f"Raw refinement output: {output}")
+        lines = [
+            re.sub(r"^[\d.\-\)\s]+", "", line).strip()
+            for line in output.strip().splitlines()
+        ]
+        return [l for l in lines if l]
+
+    def guided_vocab_match(
+        self,
+        vlm_label: str,
+        training_labels: list[str],
+        frame: "Image.Image | None" = None,
+    ) -> "str | None":
+        """Match a VLM label against the training vocabulary as a last resort."""
+        label_list = ", ".join(training_labels)
+        text = (
+            f'You identified an object as "{vlm_label}".\n'
+            f"Training vocabulary: [{label_list}].\n"
+            "Which training label refers to the same object?"
+        )
+        messages = [
+            {"role": "system", "content": [{"type": "text", "text": GUIDED_VOCAB_MATCH_SYSTEM_PROMPT}]},
+            {"role": "user", "content": self._user_content(frame, text)},
+        ]
+        output = generate(
+            self.model, self.processor, messages, temperature=self.temperature
+        )
+        logging.info(f"Raw guided-vocab output: {output}")
+        answer = output.strip().lower()
+        for label in training_labels:
+            if label.lower() == answer:
+                return label
+        return None
+
     def replan(
         self,
         original_prompt: str,
@@ -1200,6 +1267,46 @@ def run_high_level_task(
         log_sink.close()
 
 
+# ---------------------------------------------------------------------------
+# Vocabulary refinement helpers
+# ---------------------------------------------------------------------------
+
+_INSTRUCTION_PATTERN = re.compile(
+    r"^(put\s+the\s+)(.+?)(\s+(?:on|in|into|onto|next\s+to|near)\s+.+)$",
+    re.IGNORECASE,
+)
+
+
+def extract_object_name(instruction: str) -> str:
+    """Pull the object noun from 'put the X on the tray'."""
+    m = _INSTRUCTION_PATTERN.match(instruction.strip())
+    return m.group(2) if m else instruction
+
+
+def rebuild_instruction(original: str, new_label: str) -> str:
+    """Replace the object name in a pick-and-place instruction."""
+    m = _INSTRUCTION_PATTERN.match(original.strip())
+    if m:
+        return f"{m.group(1)}{new_label}{m.group(3)}"
+    return original
+
+
+def log_attempt(logger, *, attempt, original_instruction, current_instruction,
+                success, failure_type, reason, refinement_applied):
+    logger.info(
+        f"ATTEMPT attempt={attempt} "
+        f"original={original_instruction!r} "
+        f"current={current_instruction!r} "
+        f"success={success} "
+        f"failure_type={failure_type} "
+        f"reason={reason!r} "
+        f"refinement={refinement_applied}"
+    )
+
+
+# ---------------------------------------------------------------------------
+
+
 def _run_high_level_task_body(
     client: LoopRobotClient,
     planner: VLMPlanner,
@@ -1284,6 +1391,9 @@ def _run_high_level_task_body(
         user_skipped = False
         user_aborted = False
         reason = ""  # last failure reason, passed to replan
+        current_instruction = sub_task
+        vocab_refinement_used = False
+        vocab_fallback_used = False
 
         while attempts_left > 0:
             attempts_left -= 1
@@ -1291,9 +1401,12 @@ def _run_high_level_task_body(
             # failure on attempt N+1 must still replan like any other failure.
             user_skipped = False
 
-            logger.info(f"[{task_num}] Executing sub-task: '{sub_task}' "
-                        f"({attempts_left} retries left)")
-            ep_result = client.run_episode(sub_task, enable_abort_listener=False)
+            logger.info(f"[{task_num}] Executing sub-task: '{current_instruction}' "
+                        f"({attempts_left} retries left)"
+                        + (f" [original: '{sub_task}']"
+                           if current_instruction != sub_task else ""))
+            ep_result = client.run_episode(current_instruction,
+                                           enable_abort_listener=False)
 
             # --- Interjection check: after episode ---
             itype, _ = interjection.check_and_consume()
@@ -1374,94 +1487,138 @@ def _run_high_level_task_body(
                     f"understand the object name in the instruction."
                 )
                 logger.warning(reason)
-                break  # skip remaining retries, fall through to replan
+                if cfg.enable_vocab_refinement:
+                    failure_type = "VOCAB"
+                    # fall through to vocab refinement below
+                else:
+                    break  # original behavior: skip to replan
 
-            if not cfg.evaluate_subtasks:
+            if no_movement and cfg.enable_vocab_refinement:
+                success = False
+                # failure_type and reason already set above
+            elif not cfg.evaluate_subtasks:
                 succeeded = True
                 break
-
-            # 3. Judge success — from a video clip of the attempt if available,
-            #    otherwise a fresh still frame.
-            clip_fps = None
-            if cfg.vlm_eval_use_video:
-                observation, clip_span = frames.capture_clip(
-                    tag=f"eval_task{task_num}",
-                    num_frames=cfg.vlm_eval_num_frames,
-                )
-                if not observation:
-                    # Empty buffer (e.g. very short episode) — fall back to a still.
+            else:
+                # 3. Judge success — from a video clip of the attempt if available,
+                #    otherwise a fresh still frame.
+                clip_fps = None
+                if cfg.vlm_eval_use_video:
+                    observation, clip_span = frames.capture_clip(
+                        tag=f"eval_task{task_num}",
+                        num_frames=cfg.vlm_eval_num_frames,
+                    )
+                    if not observation:
+                        observation = frames.capture(tag=f"eval_task{task_num}")
+                        logger.info("Evaluation observation: static image "
+                                    "(video requested but clip buffer was empty).")
+                    else:
+                        if clip_span > 0 and len(observation) > 1:
+                            clip_fps = (len(observation) - 1) / clip_span
+                        logger.info(
+                            f"Evaluation observation: video clip "
+                            f"({len(observation)} frames over {clip_span:.1f}s "
+                            f"of a {ep_result.duration:.1f}s episode, "
+                            + (f"{clip_fps:.2f} fps)" if clip_fps
+                               else f"nominal {cfg.vlm_eval_fps} fps)")
+                        )
+                else:
                     observation = frames.capture(tag=f"eval_task{task_num}")
                     logger.info("Evaluation observation: static image "
-                                "(video requested but clip buffer was empty).")
-                else:
-                    if clip_span > 0 and len(observation) > 1:
-                        # The clip's true rate is measured over the span those frames
-                        # actually cover. The buffer decimates rather than dropping
-                        # its head, so the span now tracks the whole episode; deriving
-                        # the rate from the measured span (rather than assuming the
-                        # episode duration) keeps the model's frame timestamps honest
-                        # even if the buffer started or ended slightly inside the run.
-                        # n frames span n-1 intervals, which is what a rate divides:
-                        # 8 frames over 14s is 0.5 fps, not 0.571.
-                        clip_fps = (len(observation) - 1) / clip_span
-                    logger.info(
-                        f"Evaluation observation: video clip "
-                        f"({len(observation)} frames over {clip_span:.1f}s "
-                        f"of a {ep_result.duration:.1f}s episode, "
-                        + (f"{clip_fps:.2f} fps)" if clip_fps
-                           else f"nominal {cfg.vlm_eval_fps} fps)")
+                                "(vlm_eval_use_video disabled).")
+                try:
+                    eval_result = planner.evaluate(current_instruction, observation,
+                                                   fps=clip_fps)
+                except ValueError as e:
+                    logger.warning(f"Could not parse VLM evaluation ({e}); "
+                                   "assuming success and moving on.")
+                    succeeded = True
+                    break
+                except Exception as e:
+                    logger.exception(
+                        f"VLM evaluation errored ({e}); abandoning high-level task "
+                        f"'{prompt}' — sub-task success can no longer be verified. "
+                        f"Completed and verified before the failure: {completed}"
                     )
-            else:
-                observation = frames.capture(tag=f"eval_task{task_num}")
-                logger.info("Evaluation observation: static image "
-                            "(vlm_eval_use_video disabled).")
-            try:
-                eval_result = planner.evaluate(sub_task, observation, fps=clip_fps)
-            except ValueError as e:
-                logger.warning(f"Could not parse VLM evaluation ({e}); "
-                               "assuming success and moving on.")
-                succeeded = True
-                break
-            except Exception as e:
-                # An unexpected evaluator failure (CUDA OOM, an unsupported
-                # processor kwarg) is typically systematic, so continuing would
-                # march through the queue with no working success signal. Abandon
-                # the high-level task rather than report unverified sub-tasks as
-                # done — a run that silently claims success is worse than one that
-                # stops. `completed` deliberately does not gain this sub-task.
-                logger.exception(
-                    f"VLM evaluation errored ({e}); abandoning high-level task "
-                    f"'{prompt}' — sub-task success can no longer be verified. "
-                    f"Completed and verified before the failure: {completed}"
-                )
-                return RoundResult(stopped=True, planned=len(subtasks),
-                                   completed=list(completed))
+                    return RoundResult(stopped=True, planned=len(subtasks),
+                                       completed=list(completed))
 
-            # Skipping/replanning during evaluation is not an option: the
-            # judgement has already been produced, so acting on the request would
-            # throw it away. Consume and discard anything that arrived while the
-            # VLM was running, so it cannot leak into the next episode as a stale
-            # skip the operator no longer intends. An abort is honoured, though —
-            # it is about the whole task, not this one judgement.
-            itype, _ = interjection.check_and_consume()
-            if itype == InterjectionType.ABORT:
-                abort("during evaluation")
-                user_aborted = True
-                break
-            elif itype != InterjectionType.NONE:
-                logger.info(f"Ignoring {itype.value} requested during evaluation "
-                            f"— '{sub_task}' was already judged.")
+                itype, _ = interjection.check_and_consume()
+                if itype == InterjectionType.ABORT:
+                    abort("during evaluation")
+                    user_aborted = True
+                    break
+                elif itype != InterjectionType.NONE:
+                    logger.info(f"Ignoring {itype.value} requested during evaluation "
+                                f"— '{current_instruction}' was already judged.")
 
-            success = bool(eval_result.get("success"))
-            reason = eval_result.get("reason", "")
-            logger.info(f"VLM judgement: success={success} | {reason}")
+                success = bool(eval_result.get("success"))
+                reason = eval_result.get("reason", "")
+                failure_type = eval_result.get("failure_type", "RETRY")
+                logger.info(f"VLM judgement: success={success} | "
+                            f"failure_type={failure_type} | {reason}")
 
             if success:
                 succeeded = True
                 break
 
-            if attempts_left > 0:
-                logger.info(f"Retrying sub-task ({attempts_left} attempt(s) left)...")
+            # --- Structured attempt logging ---
+            attempt_num = (1 + max(cfg.max_retries, 0)) - attempts_left
+            log_attempt(
+                logger,
+                attempt=attempt_num,
+                original_instruction=sub_task,
+                current_instruction=current_instruction,
+                success=False,
+                failure_type=failure_type,
+                reason=reason,
+                refinement_applied=(current_instruction != sub_task),
+            )
+
+            # --- Failure-classified retry logic ---
+            if (cfg.enable_vocab_refinement
+                    and failure_type == "VOCAB"
+                    and attempts_left > 0):
+                eval_frame = frames.capture(tag=f"refine_task{task_num}")
+                if not vocab_refinement_used:
+                    logger.info("VOCAB failure — attempting label refinement...")
+                    try:
+                        alternatives = planner.refine_label(
+                            current_instruction, reason, frame=eval_frame)
+                    except Exception as e:
+                        logger.warning(f"Refinement call failed ({e}); "
+                                       "retrying with current instruction.")
+                        alternatives = []
+                    if alternatives:
+                        new_instr = rebuild_instruction(
+                            current_instruction, alternatives[0])
+                        logger.info(f"Refined: '{current_instruction}' -> "
+                                    f"'{new_instr}' "
+                                    f"(candidates: {alternatives})")
+                        current_instruction = new_instr
+                    vocab_refinement_used = True
+                elif not vocab_fallback_used:
+                    logger.info("VOCAB failure after refinement — "
+                                "trying guided vocabulary match...")
+                    try:
+                        matched = planner.guided_vocab_match(
+                            extract_object_name(current_instruction),
+                            cfg.training_labels,
+                            frame=eval_frame,
+                        )
+                    except Exception as e:
+                        logger.warning(f"Guided vocab match failed ({e}).")
+                        matched = None
+                    if matched:
+                        new_instr = rebuild_instruction(
+                            current_instruction, matched)
+                        logger.info(f"Guided match: '{current_instruction}' "
+                                    f"-> '{new_instr}'")
+                        current_instruction = new_instr
+                    vocab_fallback_used = True
+            elif attempts_left > 0:
+                logger.info(f"Retrying sub-task ({attempts_left} attempt(s) "
+                            f"left)...")
 
         if user_aborted:
             logger.info(f"  Completed before the abort: {completed}")
