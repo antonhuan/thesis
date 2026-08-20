@@ -13,10 +13,17 @@
 #        |
 #        v
 #   [VLM: success evaluation]  -- retry on failure, replan if retries exhausted
+#        |
+#        v
+#   [VLM: final whole-task evaluation]  -- if it judges the high-level prompt
+#        incomplete, decompose again against the current scene and run the whole
+#        loop over (up to --max_final_retries rounds)
 #
 # Usage:
 #   Terminal 1 (policy server, stays running):
-#     python -m lerobot.async_inference.policy_server --host=127.0.0.1 --port=8080
+#     python fast_policy_server.py --host=127.0.0.1 --port=8080
+#     (same flags as `python -m lerobot.async_inference.policy_server`, but skips
+#      the ~3 min random init pi05 otherwise pays for on every load)
 #
 #   Terminal 2 (this script):
 #     python vlm_robot_orchestrator.py \
@@ -38,6 +45,7 @@
 #       --clip_buffer_maxlen=128 \
 #       --max_retries=3 \
 #       --max_replans=1 \
+#       --max_final_retries=1 \
 #       --enable_interjection=true
 #
 # At the prompt, type a HIGH-LEVEL instruction (e.g. "clean up the table but
@@ -45,6 +53,12 @@
 # executed by the VLA policy, and (optionally) the VLM judges success from a
 # fresh camera frame, retrying failed sub-tasks. If retries are exhausted the
 # VLM replans the remaining sequence given the current scene state.
+#
+# Once the queue empties, the VLM judges the ORIGINAL instruction against the
+# final scene. If that verdict is a failure, the prompt is decomposed again —
+# against the current scene, with the evaluator's reason as context — and the
+# whole queue/execute/evaluate loop runs again, for up to --max_final_retries
+# extra rounds. All rounds of one prompt share a single task folder and log.
 #
 # Every replan pauses and asks you for additional context to pass to the VLM
 # (e.g. "the toy is behind the cup"). Press Enter alone to replan without it.
@@ -65,7 +79,7 @@ import select
 import sys
 import threading
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from pprint import pformat
 
@@ -81,6 +95,7 @@ from vlm_core import generate, load_model
 from vlm import (
     DECOMPOSITION_SYSTEM_PROMPT,
     identify_objects,
+    survey_scene,
     decompose_from_objects,
 )
 from datetime import datetime
@@ -106,8 +121,14 @@ class OrchestratorConfig(LoopClientConfig):
     evaluate_subtasks: bool = True
     # After the whole sub-task queue finishes, ask the VLM whether the ORIGINAL
     # high-level instruction was accomplished, judging the final scene against the
-    # prompt. Runs once per high-level task; skipped on abort.
+    # prompt. Runs once per round; skipped on abort.
     evaluate_final: bool = True
+    # How many extra rounds to run when the final evaluation judges the whole
+    # high-level task a failure: the prompt is decomposed again against the
+    # current scene (with the final evaluator's reason as context) and the entire
+    # queue -> execute -> evaluate loop runs again. 0 disables the behaviour
+    # (final eval stays log-only). Requires evaluate_final.
+    max_final_retries: int = 1
     # Show the evaluator a short video clip of the episode (buffered during
     # execution) instead of a single still frame. Falls back to a still if the
     # clip buffer is empty (e.g. a very short / no-movement episode).
@@ -148,7 +169,7 @@ Scene context:
 - The tray visible in the scene is the destination. It may be any colour (pink, black, etc.). "the tray" in the sub-task always means this tray.
 - "away" means onto the tray.
 - The orange robot arm is part of the setup, ignore it.
-- Judge ONLY whether the specific object named in the sub-task is now at the destination. Do not assess other objects.
+- Judge ONLY whether the specific object named in the sub-task is now at the destination. Do not assess other objects. If the object is partially in the destination, count it as a success.
 
 Output format:
 Return ONLY a JSON object with two fields:
@@ -175,16 +196,85 @@ Judge overall success as ALL of the following:
 - Every object the instruction asked to LEAVE, skip, keep, ignore, or not touch is still in its original place on the table and is NOT on the tray.
 - Any arrangement or spatial relationship the instruction called for (e.g. "next to", "on top of") holds in the final scene.
 
-If any of these is not met, the task failed. When it failed, name the specific object(s) and what is wrong (still on the table, wrongly moved onto the tray, misplaced).
+If any of these is not met, the task failed.
 
 Output format:
-Return ONLY a JSON object with two fields:
-- "success": true or false
-- "reason": a brief explanation of your judgement
+Return ONLY a JSON object with these fields, IN THIS ORDER — observe first, judge last:
 
-Example:
-{"success": true, "reason": "The apple and orange are on the tray and the banana was correctly left on the table."}
-{"success": false, "reason": "The banana was moved onto the tray even though the instruction said to leave it."}
+{
+  "object_status": [
+    {"object": "<name>", "location": "<where it actually is now>", "required": "<where the instruction requires it>", "ok": true or false}
+  ],
+  "reason": "<one sentence>",
+  "success": true or false
+}
+
+Rules:
+- Fill in object_status FIRST, before deciding anything. One row per movable object in the scene. Do not include the tray or the table; they are destinations, not objects.
+- "location": where the object actually is in this image — read it off the image, do not assume the robot succeeded.
+- "required": where the instruction requires that object to end up. For an object the instruction says to leave, skip, or not touch, the required location is its original place on the table.
+- "ok": true only when location matches required.
+- "success": true if and only if EVERY row has "ok": true. Count the rows and check.
+- "reason": ONE sentence. If any row is not ok, name those objects and where they actually are. State a conclusion only — do NOT deliberate, reconsider, re-read the instruction, or revise yourself inside this field. Never write "wait", "actually", or "I made a mistake".
+
+Examples:
+{"object_status": [{"object": "apple", "location": "tray", "required": "tray", "ok": true}, {"object": "banana", "location": "table", "required": "table", "ok": true}], "reason": "The apple is on the tray and the banana was correctly left on the table.", "success": true}
+{"object_status": [{"object": "pouch", "location": "table", "required": "tray", "ok": false}, {"object": "plush toy", "location": "tray", "required": "tray", "ok": true}, {"object": "banana", "location": "table", "required": "table", "ok": true}], "reason": "The pouch is still on the table instead of on the tray.", "success": false}
+"""
+
+
+# ---------------------------------------------------------------------------
+# System prompt for the judging half of the two-pass final evaluation
+# ---------------------------------------------------------------------------
+# Pass 2 of locate -> judge. The locations are handed in as findings from a
+# separate perception pass that never saw the instruction, so this call does no
+# looking at all: it only decides what the instruction REQUIRES and compares.
+# Splitting it this way is the fix for the evaluator filling "location" in from
+# "required" — it no longer gets to write "location".
+FINAL_JUDGE_SYSTEM_PROMPT = """You are a robot task evaluator. A robot arm has finished attempting a high-level instruction on a tabletop workspace. You receive the original instruction, plus the findings of a separate perception module that inspected the final scene and reported where each object now rests.
+
+The perception findings are GROUND TRUTH about where the objects are. You did not see the scene and you cannot revise the findings — copy each object's reported support into your "location" field verbatim. Your job is only to decide where the instruction REQUIRED each object to end up, and whether the two match.
+
+Scene context:
+- The tray is the destination. It may be any colour (pink, black, etc.). "the tray" and "away" in the instruction always mean this tray.
+- The orange robot arm is part of the setup, ignore it. It is not an object.
+
+Judge overall success as ALL of the following:
+- Every object the instruction asked to move (or clear/put away/tidy) is now at its destination (e.g. on the tray).
+- Every object the instruction asked to LEAVE, skip, keep, ignore, or not touch is still on the table and is NOT on the tray.
+- Any arrangement or spatial relationship the instruction called for (e.g. "next to", "on top of") holds in the findings.
+
+If any of these is not met, the task failed.
+
+Output format:
+Return ONLY a JSON object with these fields, IN THIS ORDER:
+
+{
+  "object_status": [
+    {"object": "<name>", "location": "<the support the findings report>", "required": "<where the instruction requires it>", "ok": true or false}
+  ],
+  "reason": "<one sentence>",
+  "success": true or false
+}
+
+Rules:
+- One row per object in the findings, using the same names. Do not add objects the findings do not mention.
+- Do NOT give the tray or the table a row of their own, even if the findings mention one. They are destinations, not objects to move. Drop those rows; keep every other one.
+- "location": copy the object's reported support exactly. NEVER change it to what the instruction wanted, and never write a location the findings did not report.
+- "required": where the instruction requires that object to end up. For an object the instruction says to leave, skip, or not touch, the required location is the table.
+- "ok": true only when location matches required.
+- "success": true if and only if EVERY row has "ok": true. Count the rows and check.
+- "reason": ONE sentence. If any row is not ok, name those objects and where they actually are. State a conclusion only — do NOT deliberate, reconsider, re-read the instruction, or revise yourself inside this field. Never write "wait", "actually", or "I made a mistake".
+
+Examples:
+
+Instruction: "put everything on the tray except for the banana"
+Findings: [{"object": "apple", "support": "tray"}, {"object": "banana", "support": "table"}]
+{"object_status": [{"object": "apple", "location": "tray", "required": "tray", "ok": true}, {"object": "banana", "location": "table", "required": "table", "ok": true}], "reason": "The apple is on the tray and the banana was correctly left on the table.", "success": true}
+
+Instruction: "put everything on the tray except for the banana"
+Findings: [{"object": "pouch", "support": "table"}, {"object": "plush toy", "support": "tray"}, {"object": "banana", "support": "table"}]
+{"object_status": [{"object": "pouch", "location": "table", "required": "tray", "ok": false}, {"object": "plush toy", "location": "tray", "required": "tray", "ok": true}, {"object": "banana", "location": "table", "required": "table", "ok": true}], "reason": "The pouch is still on the table instead of on the tray.", "success": false}
 """
 
 
@@ -226,6 +316,21 @@ Rules:
 - Keep every sub-task short and direct (e.g. "put the X on the tray").
 - If the human operator provides additional guidance, treat it as ground truth about the scene and prefer it over your own visual interpretation wherever the two conflict.
 """
+
+
+# ---------------------------------------------------------------------------
+# Corrective note for a decomposition that left allowed objects unplanned
+# ---------------------------------------------------------------------------
+# Appended and the planner re-asked once when its own output contradicts itself:
+# objects sit in allowed_objects (the work that remains) with no sub-task to do
+# them. Names the gap rather than the rule, so the model has to resolve it.
+UNCOVERED_OBJECTS_CONTEXT = """Your previous answer was INVALID. You listed these objects in allowed_objects but gave them no sub-task: {objects}
+
+allowed_objects means "still needs to be moved", so every object in it MUST have exactly one sub-task. Answer again and resolve this for each of those objects, one of two ways:
+- It still needs moving: keep it in allowed_objects and give it a sub-task.
+- It needs no action (already at its destination, or the instruction says to leave it): move it to completed_objects or excluded_objects and take it OUT of allowed_objects.
+
+Do not return an empty subtasks list while allowed_objects is non-empty."""
 
 
 # ---------------------------------------------------------------------------
@@ -396,7 +501,13 @@ def _strip_code_fences(text: str) -> str:
     return text.strip()
 
 
-def parse_subtask_list(output: str) -> list[str]:
+def parse_decomposition(output: str) -> tuple[list[str], dict]:
+    """Parse a decomposition into (sub-tasks, the full object dict).
+
+    The dict carries visible/excluded/completed/allowed_objects, which the
+    caller needs to check that every object the planner said still needs moving
+    actually got a sub-task. Empty dict when the model returned a bare list.
+    """
     text = _strip_code_fences(output.strip())
 
     try:
@@ -405,18 +516,100 @@ def parse_subtask_list(output: str) -> list[str]:
             tasks = result["subtasks"]
             print(f"\nVisible: {result.get('visible_objects')}")
             print(f"Excluded: {result.get('excluded_objects')}")
+            print(f"Completed: {result.get('completed_objects')}")
             print(f"Allowed: {result.get('allowed_objects')}")
         else:
             tasks = result
+            result = {}
         print(f"\nParsed {len(tasks)} sub-tasks:")
         for i, task in enumerate(tasks, 1):
             print(f"  {i}. {task}")
-        return tasks
+        return tasks, result
     except json.JSONDecodeError:
         raise ValueError(f"Could not parse subtasks from VLM output:\n{output}")
 
+
+def parse_subtask_list(output: str) -> list[str]:
+    return parse_decomposition(output)[0]
+
+
+def uncovered_allowed_objects(tasks: list[str], parsed: dict) -> list[str]:
+    """Objects the planner listed as still needing a move but gave no sub-task.
+
+    A non-empty result means the plan contradicts itself: `allowed_objects` is
+    by definition the work that remains, so every entry must appear in some
+    sub-task. Matching is substring-based because sub-tasks name objects in
+    prose ("put the pouch on the tray").
+    """
+    allowed = parsed.get("allowed_objects")
+    if not isinstance(allowed, list):
+        return []
+    joined = " ".join(str(t) for t in tasks).lower()
+    return [str(o) for o in allowed if str(o).lower() not in joined]
+
+
+# Words too generic to identify an object by. Dropped before matching a ledger
+# row's object name against sub-task prose, so that "brown cylindrical object"
+# is matched on "brown"/"cylindrical" and never on the bare word "object".
+_GENERIC_OBJECT_WORDS = frozenset({
+    "the", "a", "an", "of", "and", "object", "objects", "item", "items",
+    "thing", "things", "shaped", "coloured", "colored",
+})
+
+# A ledger location containing one of these means the object never left the
+# table — i.e. it is where it started, which needs no sub-task to explain.
+_UNMOVED_SUPPORTS = ("table", "desk", "worktop", "workspace", "floor")
+
+
+def _object_tokens(name: str) -> set[str]:
+    """Content words of an object name, for matching it against sub-task prose."""
+    words = re.findall(r"[a-z0-9]+", str(name).lower())
+    return {w for w in words if w not in _GENERIC_OBJECT_WORDS}
+
+
+def implausible_ledger_rows(rows: "list[dict] | None",
+                            completed_subtasks: list[str]) -> list[str]:
+    """Ledger rows claiming an object moved when nothing ever moved it.
+
+    The robot only ever changes the scene by executing a sub-task, so an object
+    reported somewhere other than the table must have been the subject of a
+    sub-task that completed. When it was not, the evaluator has asserted a move
+    that never happened — the exact failure where it fills a row's location in
+    from where the instruction wanted the object rather than from the image.
+
+    Matching is on content-word overlap rather than the substring test
+    `uncovered_allowed_objects` uses, because the evaluator names objects
+    independently of the planner: the row "plush toy" has to match the sub-task
+    "put the toy on the tray", while "brown cylindrical object" must not.
+
+    Returns the offending object names, in ledger order.
+    """
+    if not isinstance(rows, list):
+        return []
+    task_words = _object_tokens(" ".join(str(t) for t in completed_subtasks))
+    flagged = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        location = str(row.get("location", "")).lower()
+        if not location or any(s in location for s in _UNMOVED_SUPPORTS):
+            continue  # still where it started; no sub-task needed to explain it
+        tokens = _object_tokens(row.get("object", ""))
+        if tokens & _object_tokens(location):
+            continue  # a surface described as resting on itself, not an object
+        if tokens and not (tokens & task_words):
+            flagged.append(str(row.get("object")))
+    return flagged
+
+
 def parse_evaluation(output: str) -> dict:
-    """Extract a {'success': bool, 'reason': str} object from model output."""
+    """Extract a {'success': bool, 'reason': str} object from model output.
+
+    The final evaluator also returns an `object_status` ledger (one row per
+    object, with where it is and where it should be). When that is present the
+    verdict is DERIVED from the rows rather than trusted from the model's own
+    `success` field, which it emits after — but has been observed to contradict.
+    """
     text = _strip_code_fences(output)
 
     candidates = [text]
@@ -428,11 +621,57 @@ def parse_evaluation(output: str) -> dict:
         try:
             parsed = json.loads(candidate)
             if isinstance(parsed, dict) and "success" in parsed:
-                return parsed
+                return _reconcile_with_ledger(parsed)
         except json.JSONDecodeError:
             continue
 
     raise ValueError(f"Could not parse evaluation from VLM output:\n{output}")
+
+
+def _reconcile_with_ledger(parsed: dict) -> dict:
+    """Derive `success` from an `object_status` ledger, if the model gave one.
+
+    A ledger row is satisfied when its "ok" is true; the whole task succeeded
+    only when every row is. Disagreement between that and the model's own
+    `success` field means the model narrated one verdict and emitted another, so
+    log it loudly and keep the ledger's answer.
+    """
+    rows = parsed.get("object_status")
+    if not isinstance(rows, list) or not rows:
+        return parsed
+
+    derived = all(bool(r.get("ok")) for r in rows if isinstance(r, dict))
+    stated = bool(parsed.get("success"))
+    if derived != stated:
+        bad = [str(r.get("object")) for r in rows
+               if isinstance(r, dict) and not r.get("ok")]
+        logging.warning(
+            f"Final evaluator contradicted itself: stated success={stated} but "
+            f"its object ledger implies success={derived} "
+            f"(not-ok objects: {bad or 'none'}). Trusting the ledger."
+        )
+        parsed["success"] = derived
+    return parsed
+
+
+def format_status_ledger(rows: list[dict] | None) -> str:
+    """Render the not-ok rows of an object_status ledger as planner-facing facts.
+
+    Returns "" when there is no usable ledger, so callers can fall back to the
+    evaluator's prose reason.
+    """
+    if not isinstance(rows, list) or not rows:
+        return ""
+    bad = [r for r in rows if isinstance(r, dict) and not r.get("ok")]
+    if not bad:
+        return ""
+    lines = "\n".join(
+        f"- {r.get('object')}: currently {r.get('location')}, "
+        f"should be {r.get('required')}"
+        for r in bad
+    )
+    return ("These objects are not yet where the instruction requires them:\n"
+            f"{lines}")
 
 
 
@@ -466,13 +705,17 @@ class VLMPlanner:
             {"type": "text", "text": text},
         ]
 
-    def decompose(self, prompt: str, frame: Image.Image | None) -> list[str]:
+    def decompose(self, prompt: str, frame: Image.Image | None,
+                  extra_context: str = "") -> list[str]:
         """High-level prompt + observation -> ordered list of sub-tasks.
 
         Two-pass (default) identifies the visible objects first, then decomposes
         given that list; both calls share the single `frame`. Falls back to the
         single-call prompt when two-pass is disabled or there is no frame to
         identify objects from.
+
+        `extra_context` is appended after the instruction — used on a re-decompose
+        to tell the planner why the previous attempt was judged incomplete.
         """
         if self.two_pass and frame is not None:
             image_content = [
@@ -485,8 +728,40 @@ class VLMPlanner:
             logging.info(f"Identified objects ({len(visible)}): {visible}")
             output = decompose_from_objects(
                 self.model, self.processor, image_content, prompt, visible,
-                self.temperature,
+                self.temperature, extra_context=extra_context,
             )
+            logging.info(f"Raw VLM decomposition output ({len(output)} chars): {output!r}")
+            tasks, parsed = parse_decomposition(output)
+
+            # The planner is required to give every object in allowed_objects a
+            # sub-task. When it does not, the plan silently drops real work — so
+            # name the gap and give it one chance to fix it. Re-asking rather
+            # than synthesising "put the X on the tray" keeps destination
+            # inference in the model, which arrangement tasks depend on.
+            missing = uncovered_allowed_objects(tasks, parsed)
+            if missing:
+                logging.warning(
+                    f"Decomposition left {len(missing)} allowed object(s) with no "
+                    f"sub-task: {missing} — re-asking the planner once."
+                )
+                retry_note = UNCOVERED_OBJECTS_CONTEXT.format(
+                    objects=", ".join(missing)
+                )
+                output = decompose_from_objects(
+                    self.model, self.processor, image_content, prompt, visible,
+                    self.temperature,
+                    extra_context=(f"{extra_context}\n\n{retry_note}"
+                                   if extra_context else retry_note),
+                )
+                logging.info(f"Raw VLM re-decomposition output ({len(output)} chars): {output!r}")
+                tasks, parsed = parse_decomposition(output)
+                still_missing = uncovered_allowed_objects(tasks, parsed)
+                if still_missing:
+                    logging.warning(
+                        f"Re-ask still left {still_missing} uncovered; proceeding "
+                        f"with {len(tasks)} sub-task(s)."
+                    )
+            return tasks
         else:
             text = f"\nInstruction: {prompt}"
             if frame is None:
@@ -494,6 +769,8 @@ class VLMPlanner:
                     "No camera observation is available. Decompose the instruction "
                     "based on the text alone.\n" + text
                 )
+            if extra_context:
+                text += f"\n\n{extra_context}"
             messages = [
                 {"role": "system", "content": [{"type": "text", "text": DECOMPOSITION_SYSTEM_PROMPT}]},
                 {"role": "user", "content": self._user_content(frame, text)},
@@ -546,7 +823,37 @@ class VLMPlanner:
 
         Judges the whole high-level instruction from a single still of the final
         scene, with no knowledge of what the pipeline believes it completed.
+
+        Two calls by default (survey -> judge). The survey sees the image but not
+        the instruction; the judge sees the instruction but only the surveyed
+        locations. That split is what stops the evaluator asserting an object
+        reached the tray because the instruction asked for it — it no longer
+        writes the location it judges against. Falls back to the single-call
+        prompt when there is no frame, two-pass is off, or the survey comes back
+        empty.
         """
+        if self.two_pass and frame is not None:
+            image_content = [
+                {"type": "text", "text": "[top-down camera]"},
+                {"type": "image", "image": frame},
+            ]
+            surveyed = survey_scene(
+                self.model, self.processor, image_content, self.temperature
+            )
+            if surveyed:
+                # Row count is logged because a thin survey is the one failure
+                # this design cannot catch: an object the survey never mentions
+                # gets no ledger row, and a missing row can never be `ok: false`.
+                logging.info(f"Final-eval surveyed {len(surveyed)} object(s):")
+                for row in surveyed:
+                    logging.info(f"  {row.get('object')} -> {row.get('support')} "
+                                 f"({row.get('evidence')})")
+                return self._judge_final(original_prompt, surveyed)
+            logging.warning(
+                "Final-eval scene survey returned no rows — falling back to the "
+                "single-call final evaluation."
+            )
+
         text = (
             f'\nThe robot was given this high-level instruction: "{original_prompt}"'
             f'\nLooking at the final scene, was the whole instruction accomplished?'
@@ -559,6 +866,34 @@ class VLMPlanner:
             self.model, self.processor, messages, temperature=self.temperature
         )
         logging.info(f"Raw final-eval output: {output}")
+        return parse_evaluation(output)
+
+    def _judge_final(self, original_prompt: str, located: list[dict]) -> dict:
+        """Judging half of the two-pass final evaluation.
+
+        Text-only: the perception rows stand in for the image, so the judge can
+        compare against the instruction without being able to restate where
+        anything is. Emits the same contract as the single-call path, so
+        `parse_evaluation` / `_reconcile_with_ledger` are unchanged.
+        """
+        findings = [
+            {"object": str(r.get("object")), "support": str(r.get("support"))}
+            for r in located
+        ]
+        text = (
+            f'The robot was given this high-level instruction: "{original_prompt}"'
+            f"\n\nPerception findings for the final scene:"
+            f"\n{json.dumps(findings)}"
+            f"\n\nWas the whole instruction accomplished?"
+        )
+        messages = [
+            {"role": "system", "content": [{"type": "text", "text": FINAL_JUDGE_SYSTEM_PROMPT}]},
+            {"role": "user", "content": [{"type": "text", "text": text}]},
+        ]
+        output = generate(
+            self.model, self.processor, messages, temperature=self.temperature
+        )
+        logging.info(f"Raw final-judge output: {output}")
         return parse_evaluation(output)
 
     def replan(
@@ -709,6 +1044,63 @@ class VLMFrameSource:
 # ---------------------------------------------------------------------------
 # Orchestration: one high-level prompt -> decompose -> execute -> evaluate
 # ---------------------------------------------------------------------------
+@dataclass
+class RoundResult:
+    """Outcome of one decompose -> execute -> final-evaluate round.
+
+    `stopped` marks a round that ended for a reason no further round can fix (the
+    operator aborted, decomposition failed to parse, the evaluator errored out) —
+    the caller must not start another round. `final_success` is None when no
+    overall verdict was produced (--evaluate_final=false, or the final evaluation
+    failed to parse/errored), which likewise ends the task.
+    """
+    stopped: bool = False
+    final_success: bool | None = None
+    final_reason: str = ""
+    # The final evaluator's per-object ledger (object / location / required /
+    # ok), when it produced one. Preferred over `final_reason` for building the
+    # retry context: the rows are facts the planner can act on, where the prose
+    # has been observed to assert the opposite of the verdict.
+    final_status: list[dict] | None = None
+    planned: int = 0  # sub-tasks this round's decomposition produced
+    # Sub-tasks this round finished — i.e. what it believes it accomplished, in
+    # execution order. Carried out of the round so a retry re-decompose can tell
+    # the planner which work is already done instead of re-deriving it from the
+    # image alone.
+    completed: list[str] = field(default_factory=list)
+
+
+# Handed to the planner when re-decomposing after a failed final evaluation.
+RETRY_DECOMPOSE_CONTEXT = """A previous attempt at this same instruction was judged INCOMPLETE by the evaluator, who reported:
+{reason}
+{completed}
+The camera image shows the CURRENT scene, after that attempt. The image is GROUND TRUTH: where the evaluator's report and the image disagree, believe the image.
+
+Plan only the work that still REMAINS to satisfy the original instruction. If an object is already at its destination in the image, list it in completed_objects — do not put it in allowed_objects and do not give it a sub-task. Do not move any object the instruction says to leave alone; those go in excluded_objects.
+
+Remember the invariant: every object in allowed_objects gets exactly one sub-task. Never return an empty subtasks list while allowed_objects is non-empty — an object that needs no action belongs in completed_objects."""
+
+
+# Slotted into RETRY_DECOMPOSE_CONTEXT's {completed}.
+COMPLETED_CONTEXT = """
+These sub-tasks were already executed and verified complete in the previous attempt:
+{lines}
+The objects they name are already at their destinations. Put those objects in completed_objects, NOT in allowed_objects, and do not plan any sub-task for them.
+"""
+
+NOTHING_COMPLETED_CONTEXT = """
+No sub-task from the previous attempt completed successfully, so treat none of the work as done on that basis. Judge from the image alone which objects, if any, are already at their destination.
+"""
+
+
+def _format_completed_context(completed: list[str]) -> str:
+    """Render the completed sub-tasks as the {completed} block of the retry context."""
+    if not completed:
+        return NOTHING_COMPLETED_CONTEXT
+    lines = "\n".join(f"- {st}" for st in completed)
+    return COMPLETED_CONTEXT.format(lines=lines)
+
+
 def run_high_level_task(
     client: LoopRobotClient,
     planner: VLMPlanner,
@@ -722,12 +1114,88 @@ def run_high_level_task(
 
     # Route this task's saved frames into a fresh session/<task> sub-folder, and
     # mirror all terminal output for this task into task.log inside that folder.
+    # Per-action joint targets are far too dense for task.log (and for the
+    # terminal), so they go to actions.log beside it. Every round of this task
+    # shares the one folder and the one log.
     task_dir = frames.start_task()
     log_sink.open(task_dir / "task.log")
+    client.start_action_log(task_dir / "actions.log")
     try:
-        _run_high_level_task_body(
-            client, planner, frames, cfg, prompt, interjection, logger
-        )
+        retries_left = max(cfg.max_final_retries, 0)
+        round_num = 0
+        retry_context = ""
+        # Union of every round's completed sub-tasks, in first-completed order.
+        # Accumulated rather than taken from the last round alone so that with
+        # --max_final_retries > 1 round 3 still knows what round 1 finished.
+        completed_all: list[str] = []
+
+        while True:
+            round_num += 1
+            if round_num > 1:
+                logger.info("=" * 60)
+                logger.info(f"ROUND {round_num} for '{prompt}' — re-decomposing "
+                            f"against the current scene ({retries_left} retry "
+                            f"round(s) left after this one).")
+                logger.info("=" * 60)
+
+            result = _run_high_level_task_body(
+                client, planner, frames, cfg, prompt, interjection, logger,
+                round_num=round_num, retry_context=retry_context,
+                completed_before=completed_all,
+            )
+
+            if result.stopped:
+                return
+            if result.final_success is None:
+                # No verdict to act on (final eval disabled, unparseable, or it
+                # errored) — the round's own logging already said why.
+                return
+            if result.final_success:
+                logger.info(f"High-level task '{prompt}' judged COMPLETE "
+                            f"after {round_num} round(s).")
+                return
+            if retries_left <= 0:
+                logger.warning(
+                    f"High-level task '{prompt}' judged INCOMPLETE after "
+                    f"{round_num} round(s) and no retry rounds remain: "
+                    f"{result.final_reason}"
+                )
+                return
+            if round_num > 1 and result.planned == 0:
+                # The re-decompose saw the completed list and found nothing left
+                # to do, so the final evaluator and the planner disagree. Another
+                # round would plan nothing either (the scene cannot change), so
+                # stop rather than burn the remaining budget on empty rounds.
+                logger.info(
+                    f"High-level task '{prompt}' judged INCOMPLETE, but the "
+                    f"re-decomposition found nothing left to plan against the "
+                    f"current scene — stopping. Final evaluator said: "
+                    f"{result.final_reason}"
+                )
+                return
+
+            for st in result.completed:
+                if st not in completed_all:
+                    completed_all.append(st)
+
+            retries_left -= 1
+            # Prefer the structured ledger over the evaluator's prose: the prose
+            # can contradict its own verdict, and that text goes straight into
+            # the planner's user message.
+            reason = (format_status_ledger(result.final_status)
+                      or result.final_reason
+                      or "(no reason given)")
+            retry_context = RETRY_DECOMPOSE_CONTEXT.format(
+                reason=reason,
+                completed=_format_completed_context(completed_all),
+            )
+            logger.info(f"Carrying {len(completed_all)} completed sub-task(s) into "
+                        f"the re-decompose: {completed_all}")
+            logger.info(f"Retry context passed to the planner:\n{retry_context}")
+            logger.warning(
+                f"Final evaluation judged '{prompt}' INCOMPLETE: "
+                f"{result.final_reason} — running the whole loop again."
+            )
     finally:
         log_sink.close()
 
@@ -740,28 +1208,35 @@ def _run_high_level_task_body(
     prompt: str,
     interjection: InterjectionManager,
     logger,
-):
+    round_num: int = 1,
+    retry_context: str = "",
+    completed_before: list[str] | None = None,
+) -> RoundResult:
     def abort(where: str):
         """Park the arm and report that the operator abandoned the task."""
         logger.warning(f"ABORT requested {where} — abandoning high-level task "
                        f"'{prompt}' and returning to the prompt.")
         client.go_home()
 
-    # 1. Decompose with a fresh observation
-    logger.info(f"Decomposing high-level prompt: '{prompt}'")
-    frame = frames.capture(tag="decompose")
+    # 1. Decompose with a fresh observation. On a retry round `retry_context`
+    #    carries the final evaluator's verdict plus every sub-task earlier rounds
+    #    completed, so the planner sees what is already done and what the previous
+    #    round left undone as well as the current scene.
+    tag = "decompose" if round_num == 1 else f"decompose_round{round_num}"
+    logger.info(f"Decomposing high-level prompt (round {round_num}): '{prompt}'")
+    frame = frames.capture(tag=tag)
     try:
-        subtasks = planner.decompose(prompt, frame)
+        subtasks = planner.decompose(prompt, frame, extra_context=retry_context)
     except ValueError as e:
         logger.error(str(e))
         logger.error("Decomposition failed — skipping this prompt.")
-        return
+        return RoundResult(stopped=True)
 
     # Abort typed while the VLM was decomposing: nothing has moved yet.
     itype, _ = interjection.check_and_consume()
     if itype == InterjectionType.ABORT:
         abort("during decomposition")
-        return
+        return RoundResult(stopped=True)
     elif itype != InterjectionType.NONE:
         logger.info(f"Ignoring {itype.value} requested during decomposition "
                     f"— no sub-task has run yet.")
@@ -959,7 +1434,8 @@ def _run_high_level_task_body(
                     f"'{prompt}' — sub-task success can no longer be verified. "
                     f"Completed and verified before the failure: {completed}"
                 )
-                return
+                return RoundResult(stopped=True, planned=len(subtasks),
+                                   completed=list(completed))
 
             # Skipping/replanning during evaluation is not an option: the
             # judgement has already been produced, so acting on the request would
@@ -989,7 +1465,8 @@ def _run_high_level_task_body(
 
         if user_aborted:
             logger.info(f"  Completed before the abort: {completed}")
-            return
+            return RoundResult(stopped=True, planned=len(subtasks),
+                               completed=list(completed))
 
         if user_replanned:
             continue
@@ -1031,7 +1508,8 @@ def _run_high_level_task_body(
         if interjection.check_and_consume()[0] == InterjectionType.ABORT:
             abort("at the replan prompt")
             logger.info(f"  Completed before the abort: {completed}")
-            return
+            return RoundResult(stopped=True, planned=len(subtasks),
+                               completed=list(completed))
         if user_context:
             logger.info(f"  Operator context: {user_context}")
 
@@ -1044,21 +1522,73 @@ def _run_high_level_task_body(
 
     # 5. Final whole-task evaluation against the original prompt. Reached only
     #    when the queue empties normally — every abort / early return above skips
-    #    this. Log-only: it does not trigger retries or replans.
+    #    this. A failed verdict is returned to the caller, which decomposes the
+    #    prompt again and runs another round (up to --max_final_retries).
+    result = RoundResult(planned=len(subtasks), completed=list(completed))
     if cfg.evaluate_final:
         logger.info("Running final evaluation against the original prompt...")
-        final_frame = frames.capture(tag="final_eval")
+        final_frame = frames.capture(
+            tag="final_eval" if round_num == 1 else f"final_eval_round{round_num}"
+        )
         try:
             final = planner.evaluate_final(prompt, final_frame)
-            logger.info(f"FINAL VLM judgement for '{prompt}': "
-                        f"success={bool(final.get('success'))} | {final.get('reason', '')}")
+            status = final.get("object_status")
+            status = status if isinstance(status, list) else None
+
+            # Motion guard: the scene only changes when a sub-task runs, so a row
+            # claiming an object left the table must be backed by a completed
+            # sub-task naming it. Rows that are not are the evaluator reporting a
+            # move that never happened; force them false so the round is judged
+            # incomplete and the retry machinery gets to replan the object. This
+            # only ever downgrades a verdict — it never turns a failure into a
+            # success.
+            all_completed = list(completed_before or []) + list(completed)
+            fabricated = implausible_ledger_rows(status, all_completed)
+            if fabricated:
+                logger.warning(
+                    f"Final evaluator reported {len(fabricated)} object(s) away "
+                    f"from the table that no completed sub-task ever moved: "
+                    f"{fabricated}. Nothing in this task could have moved them, "
+                    f"so the claim is rejected and the round is judged incomplete."
+                )
+                for row in status or []:
+                    if isinstance(row, dict) and str(row.get("object")) in fabricated:
+                        row["ok"] = False
+                final["success"] = False
+                named = ", ".join(fabricated)
+                final["reason"] = (
+                    f"{named} reported away from the table, but no sub-task ever "
+                    f"moved {'them' if len(fabricated) > 1 else 'it'} — treating "
+                    f"{'them' if len(fabricated) > 1 else 'it'} as still on the "
+                    f"table and the task as incomplete."
+                )
+
+            result.final_success = bool(final.get("success"))
+            result.final_reason = final.get("reason", "")
+            result.final_status = status
+            logger.info(f"FINAL VLM judgement for '{prompt}' (round {round_num}): "
+                        f"success={result.final_success} | {result.final_reason}")
+            for row in result.final_status or []:
+                if isinstance(row, dict):
+                    mark = "ok " if row.get("ok") else "BAD"
+                    logger.info(f"  [{mark}] {row.get('object')}: "
+                                f"{row.get('location')} (required: "
+                                f"{row.get('required')})")
         except ValueError as e:
             logger.warning(f"Could not parse final evaluation ({e}); no overall verdict.")
         except Exception as e:
             logger.exception(f"Final evaluation errored ({e}); no overall verdict.")
 
-    logger.info(f"High-level task complete: '{prompt}'")
-    logger.info(f"  Completed {len(completed)}/{len(subtasks)} original sub-tasks: {completed}")
+    # An abort typed while the final evaluation was running ends the whole task:
+    # it must not be carried silently into a retry round.
+    if interjection.check_and_consume()[0] == InterjectionType.ABORT:
+        abort("during final evaluation")
+        result.stopped = True
+
+    logger.info(f"Round {round_num} complete for: '{prompt}'")
+    logger.info(f"  Completed {len(completed)}/{len(subtasks)} sub-tasks "
+                f"planned this round: {completed}")
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -1142,6 +1672,10 @@ def main(cfg: OrchestratorConfig):
     # its saved frames. One timestamp for the whole run.
     run_dir = Path(f"./runs/run_{datetime.now():%Y-%m-%d_%H-%M-%S}")
     run_dir.mkdir(parents=True, exist_ok=True)
+    # Keep the action log inside the run too; run_high_level_task then repoints
+    # it at the active task's sub-folder, so this file only ever holds actions
+    # sent outside a task (e.g. none in practice).
+    cfg.action_log_dir = str(run_dir)
 
     # Mirror every byte written to the terminal (raw print()/input() as well as
     # logging output and third-party library prints) into the currently-active
@@ -1185,6 +1719,14 @@ def main(cfg: OrchestratorConfig):
     client.logger.info(f"Episode duration per sub-task: {cfg.episode_duration}s")
     client.logger.info(f"Max retries per sub-task: {cfg.max_retries}")
     client.logger.info(f"Max replans per prompt: {cfg.max_replans}")
+    if cfg.evaluate_final:
+        client.logger.info(
+            f"Final eval: on — up to {cfg.max_final_retries} extra full round(s) "
+            f"if the whole task is judged incomplete."
+        )
+    elif cfg.max_final_retries:
+        client.logger.warning("--max_final_retries is set but --evaluate_final is "
+                              "off; no final verdict, so no retry rounds will run.")
     client.logger.info("Replans pause for operator context — type guidance and press "
                        "Enter, or Enter alone to skip.")
     client.logger.info("Type an instruction and press Enter to execute.")

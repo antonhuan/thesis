@@ -7,7 +7,9 @@
 #
 # Usage:
 #   Terminal 1 (policy server, stays running):
-#     python -m lerobot.async_inference.policy_server --host=127.0.0.1 --port=8080
+#     python fast_policy_server.py --host=127.0.0.1 --port=8080
+#     (same flags as `python -m lerobot.async_inference.policy_server`, but skips
+#      the ~3 min random init pi05 otherwise pays for on every load)
 #
 #   Terminal 2 (this script):
 #     python robot_client_loop.py \
@@ -81,6 +83,11 @@ from lerobot.async_inference.helpers import (
 # across runs. Keys are joint names; the ".pos" suffix is matched loosely
 # against whatever the robot's action features are called.
 # ---------------------------------------------------------------------------
+ACTION_LOG_FORMATTER = logging.Formatter(
+    "%(levelname)s %(asctime)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+)
+
+
 HOME_POSITION: dict[str, float] = {
     "shoulder_pan.pos": -4.571428571428571,
     "shoulder_lift.pos": -101.49450549450549,
@@ -123,17 +130,12 @@ class LoopClientConfig(RobotClientConfig):
     clip_buffer_maxlen: int = 128
     # Log the joint targets actually sent to the arm. Actions arrive at ~fps, so
     # they go to their own file (see action_log_dir) instead of the main client
-    # log, which they would otherwise bury.
+    # log, which they would otherwise bury. Nothing action-related is ever
+    # written to the terminal: tail the action log to watch a run live.
     log_actions: bool = True
     # Directory for the per-run action log; the file is named
     # <prefix>_actions_<unix_ts>.log to pair with the main client log.
     action_log_dir: str = "logs"
-    # Mirror an occasional action line to the terminal so a run is watchable
-    # without tailing the action log.
-    log_actions_to_console: bool = True
-    # Console cadence for action logging; <= 0 keeps the terminal quiet (the
-    # action log file still gets every action).
-    log_action_every_n: int = 10
     # Also log each action chunk as it arrives from the policy server (size and
     # timestep range) to the action log.
     log_action_chunks: bool = True
@@ -247,43 +249,56 @@ class LoopRobotClient:
         """Build the dedicated logger for per-action output.
 
         Actions arrive at ~fps, so they get their own file rather than sharing
-        the main client log. The logger does not propagate to the root logger:
-        the file receives every action, and the terminal only receives the
-        every-n heartbeat (see _log_action).
+        the main client log. The logger has no console handler and does not
+        propagate to the root logger, so actions never reach the terminal (and,
+        in the orchestrator, are not picked up by the stdout/stderr tee either):
+        the action log file is the only sink.
         """
         logger = logging.getLogger(f"{self.prefix}_actions")
         logger.setLevel(logging.DEBUG)
         logger.propagate = False
         # A second client in the same process would otherwise double up handlers
         # (and keep writing to the previous run's file).
-        for handler in list(logger.handlers):
-            logger.removeHandler(handler)
-            handler.close()
+        self._clear_action_handlers(logger)
 
         if not self.config.log_actions:
             logger.addHandler(logging.NullHandler())
             return logger
 
-        formatter = logging.Formatter(
-            "%(levelname)s %(asctime)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-        )
-
         log_dir = Path(self.config.action_log_dir)
-        log_dir.mkdir(parents=True, exist_ok=True)
-        self.action_log_path = log_dir / f"{self.prefix}_actions_{int(time.time())}.log"
-        file_handler = logging.FileHandler(self.action_log_path)
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
-        if self.config.log_actions_to_console:
-            console_handler = logging.StreamHandler()
-            console_handler.setLevel(logging.INFO)
-            console_handler.setFormatter(formatter)
-            logger.addHandler(console_handler)
-
+        default_path = log_dir / f"{self.prefix}_actions_{int(time.time())}.log"
+        self._attach_action_file_handler(logger, default_path)
         self.logger.info(f"Action log: {self.action_log_path}")
         return logger
+
+    @staticmethod
+    def _clear_action_handlers(logger: logging.Logger) -> None:
+        for handler in list(logger.handlers):
+            logger.removeHandler(handler)
+            handler.close()
+
+    def _attach_action_file_handler(self, logger: logging.Logger, path: Path) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        # delay=True: no file is created until an action is actually logged, so
+        # repointing the log per task leaves no empty stragglers behind.
+        file_handler = logging.FileHandler(path, delay=True)
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(ACTION_LOG_FORMATTER)
+        logger.addHandler(file_handler)
+        self.action_log_path = path
+
+    def start_action_log(self, path: Path | str) -> Path | None:
+        """Point the action log at `path`, closing the previous file.
+
+        Lets a caller give each task its own action log (the orchestrator puts
+        one next to that task's task.log). Returns the new path, or None when
+        action logging is disabled.
+        """
+        if not self.config.log_actions:
+            return None
+        self._clear_action_handlers(self.action_logger)
+        self._attach_action_file_handler(self.action_logger, Path(path))
+        return self.action_log_path
 
     # ------------------------------------------------------------------
     # Home position helpers
@@ -447,26 +462,18 @@ class LoopRobotClient:
                     queue_size: int, delta: float | None):
         """Log a single action sent to the arm to the dedicated action log.
 
-        Every action is written to the action log file; every
-        log_action_every_n-th one is logged at INFO so it also reaches the
-        terminal. `delta` is the max per-joint change from the previous action,
-        or None for the first action of the episode.
+        Every action is written to the action log file and nowhere else.
+        `delta` is the max per-joint change from the previous action, or None
+        for the first action of the episode.
         """
         if not self.config.log_actions:
             return
 
-        every_n = self.config.log_action_every_n
-        at_info = every_n > 0 and self._total_actions % every_n == 0
-
         delta_str = f"{delta:.3f}" if delta is not None else "n/a"
-        message = (
+        self.action_logger.debug(
             f"[action #{self._total_actions}] t={elapsed:.2f}s step={timestep} "
             f"queue={queue_size} dmax={delta_str} | {self._format_action(action)}"
         )
-        if at_info:
-            self.action_logger.info(message)
-        else:
-            self.action_logger.debug(message)
 
     def _ready_to_send_observation(self) -> bool:
         with self.action_queue_lock:
