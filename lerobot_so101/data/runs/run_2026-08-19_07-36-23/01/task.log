@@ -1,0 +1,40 @@
+INFO 2026-08-19 07:39:53 strator.py:1224 Decomposing high-level prompt (round 1): 'put everything on the tray'
+INFO 2026-08-19 07:39:53 strator.py:1003 Saved VLM frame: runs/run_2026-08-19_07-36-23/01/decompose_20260819_073953.png
+  Generated 35 tokens in 3.6s (9.7 tok/s)
+
+Identification output:
+{
+  "visible_objects": [
+    "stuffed animal",
+    "banana",
+    "cylinder",
+    "tray",
+    "table"
+  ]
+}
+INFO 2026-08-19 07:39:57 estrator.py:726 Identified objects (5): ['stuffed animal', 'banana', 'cylinder', 'tray', 'table']
+  Generated 93 tokens in 6.2s (14.9 tok/s)
+INFO 2026-08-19 07:40:03 estrator.py:731 Raw VLM decomposition output (330 chars): '{\n  "visible_objects": ["stuffed animal", "banana", "cylinder", "tray", "table"],\n  "excluded_objects": [],\n  "completed_objects": [],\n  "allowed_objects": ["stuffed animal", "banana", "cylinder"],\n  "subtasks": [\n    "put the stuffed animal on the tray",\n    "put the banana on the tray",\n    "put the cylinder on the tray"\n  ]\n}'
+
+Visible: ['stuffed animal', 'banana', 'cylinder', 'tray', 'table']
+Excluded: []
+Completed: []
+Allowed: ['stuffed animal', 'banana', 'cylinder']
+
+Parsed 3 sub-tasks:
+  1. put the stuffed animal on the tray
+  2. put the banana on the tray
+  3. put the cylinder on the tray
+INFO 2026-08-19 07:40:03 strator.py:1242 Sub-task queue (3):
+INFO 2026-08-19 07:40:03 strator.py:1244   1. put the stuffed animal on the tray
+INFO 2026-08-19 07:40:03 strator.py:1244   2. put the banana on the tray
+INFO 2026-08-19 07:40:03 strator.py:1244   3. put the cylinder on the tray
+INFO 2026-08-19 07:40:03 strator.py:1292 [1] Executing sub-task: 'put the stuffed animal on the tray' (1 retries left)
+INFO 2026-08-19 07:40:03 ent_loop.py:565 Control loop started | task: 'put the stuffed animal on the tray' | duration: 30.0s
+INFO 2026-08-19 07:40:03 ent_loop.py:512 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-08-19 07:40:24 ent_loop.py:753 Episode finished: 20.6s, converged=False, max_displacement=201.0087, actions=537
+WARNING 2026-08-19 07:40:24 strator.py:1215 ABORT requested during sub-task 'put the stuffed animal on the tray' — abandoning high-level task 'put everything on the tray' and returning to the prompt.
+INFO 2026-08-19 07:40:24 ent_loop.py:344 Returning to home position...
+INFO 2026-08-19 07:40:26 ent_loop.py:357 Home position reached.
+INFO 2026-08-19 07:40:26 strator.py:1465   Completed before the abort: []

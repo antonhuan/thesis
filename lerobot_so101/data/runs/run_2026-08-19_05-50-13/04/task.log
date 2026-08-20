@@ -1,0 +1,80 @@
+INFO 2026-08-19 06:11:51 estrator.py:898 Decomposing high-level prompt (round 1): 'put everything on the tray except for the banana'
+INFO 2026-08-19 06:11:51 estrator.py:694 Saved VLM frame: runs/run_2026-08-19_05-50-13/04/decompose_20260819_061151.png
+  Generated 18 tokens in 1.3s (13.8 tok/s)
+
+Identification output:
+{"visible_objects": ["banana", "toy", "tray", "table"]}
+INFO 2026-08-19 06:11:52 estrator.py:507 Identified objects (4): ['banana', 'toy', 'tray', 'table']
+  Generated 51 tokens in 3.4s (15.2 tok/s)
+INFO 2026-08-19 06:11:56 estrator.py:528 Raw VLM decomposition output (166 chars): '{\n  "visible_objects": ["banana", "toy", "tray", "table"],\n  "excluded_objects": ["banana"],\n  "allowed_objects": ["toy"],\n  "subtasks": ["put the toy on the tray"]\n}'
+
+Visible: ['banana', 'toy', 'tray', 'table']
+Excluded: ['banana']
+Allowed: ['toy']
+
+Parsed 1 sub-tasks:
+  1. put the toy on the tray
+INFO 2026-08-19 06:11:56 estrator.py:916 Sub-task queue (1):
+INFO 2026-08-19 06:11:56 estrator.py:918   1. put the toy on the tray
+INFO 2026-08-19 06:11:56 estrator.py:966 [1] Executing sub-task: 'put the toy on the tray' (1 retries left)
+INFO 2026-08-19 06:11:56 ent_loop.py:565 Control loop started | task: 'put the toy on the tray' | duration: 30.0s
+INFO 2026-08-19 06:11:56 ent_loop.py:512 Action receiver thread started
+INFO 2026-08-19 06:12:08 ent_loop.py:753 Episode finished: 12.7s, converged=True, max_displacement=102.6678, actions=312
+INFO 2026-08-19 06:12:08 ent_loop.py:344 Returning to home position...
+INFO 2026-08-19 06:12:10 ent_loop.py:357 Home position reached.
+INFO 2026-08-19 06:12:13 estrator.py:725 Saved VLM eval clip (32 frames) to runs/run_2026-08-19_05-50-13/04
+INFO 2026-08-19 06:12:13 strator.py:1079 Evaluation observation: video clip (32 frames over 12.5s of a 12.7s episode, 2.48 fps)
+  Generated 21 tokens in 1.7s (12.1 tok/s)
+INFO 2026-08-19 06:12:15 estrator.py:561 Raw eval output: {"success": true, "reason": "The toy is now on the tray as instructed."}
+INFO 2026-08-19 06:12:15 strator.py:1129 VLM judgement: success=True | The toy is now on the tray as instructed.
+INFO 2026-08-19 06:12:15 strator.py:1201 Running final evaluation against the original prompt...
+INFO 2026-08-19 06:12:15 estrator.py:694 Saved VLM frame: runs/run_2026-08-19_05-50-13/04/final_eval_20260819_061215.png
+  Generated 256 tokens in 16.6s (15.4 tok/s)
+INFO 2026-08-19 06:12:32 estrator.py:585 Raw final-eval output: {
+  "success": false,
+  "reason": "The banana is still on the table as required, but the brown pouch and the stuffed animal are both on the tray, which is correct. However, the instruction says to leave the banana, which is satisfied. But the instruction also says to put everything on the tray except the banana, and since the banana is left off the tray, and the other two items are on the tray, the instruction is satisfied. Wait, let me re-read: 'put everything on the tray except for the banana'. So everything except the banana should be on the tray. The banana is not on the tray, and the pouch and stuffed animal are on the tray. So the instruction is satisfied. But the image shows the banana is on the table, the pouch is on the tray, and the stuffed animal is on the tray. So all objects except the banana are on the tray. Therefore, the instruction is accomplished. I made a mistake in my reasoning. Let me correct: The banana is not on the tray (it's on the table), and the pouch and stuffed animal are on the tray. So the instruction 'put everything on the tray except for the banana' is satisfied. Therefore, the task is accomplished."
+}
+INFO 2026-08-19 06:12:32 strator.py:1209 FINAL VLM judgement for 'put everything on the tray except for the banana' (round 1): success=False | The banana is still on the table as required, but the brown pouch and the stuffed animal are both on the tray, which is correct. However, the instruction says to leave the banana, which is satisfied. But the instruction also says to put everything on the tray except the banana, and since the banana is left off the tray, and the other two items are on the tray, the instruction is satisfied. Wait, let me re-read: 'put everything on the tray except for the banana'. So everything except the banana should be on the tray. The banana is not on the tray, and the pouch and stuffed animal are on the tray. So the instruction is satisfied. But the image shows the banana is on the table, the pouch is on the tray, and the stuffed animal is on the tray. So all objects except the banana are on the tray. Therefore, the instruction is accomplished. I made a mistake in my reasoning. Let me correct: The banana is not on the tray (it's on the table), and the pouch and stuffed animal are on the tray. So the instruction 'put everything on the tray except for the banana' is satisfied. Therefore, the task is accomplished.
+INFO 2026-08-19 06:12:32 strator.py:1222 Round 1 complete for: 'put everything on the tray except for the banana'
+INFO 2026-08-19 06:12:32 strator.py:1223   Completed 1/1 sub-tasks planned this round: ['put the toy on the tray']
+INFO 2026-08-19 06:12:32 estrator.py:865 Carrying 1 completed sub-task(s) into the re-decompose: ['put the toy on the tray']
+INFO 2026-08-19 06:12:32 estrator.py:867 Retry context passed to the planner:
+A previous attempt at this same instruction was judged INCOMPLETE by the evaluator, for this reason:
+The banana is still on the table as required, but the brown pouch and the stuffed animal are both on the tray, which is correct. However, the instruction says to leave the banana, which is satisfied. But the instruction also says to put everything on the tray except the banana, and since the banana is left off the tray, and the other two items are on the tray, the instruction is satisfied. Wait, let me re-read: 'put everything on the tray except for the banana'. So everything except the banana should be on the tray. The banana is not on the tray, and the pouch and stuffed animal are on the tray. So the instruction is satisfied. But the image shows the banana is on the table, the pouch is on the tray, and the stuffed animal is on the tray. So all objects except the banana are on the tray. Therefore, the instruction is accomplished. I made a mistake in my reasoning. Let me correct: The banana is not on the tray (it's on the table), and the pouch and stuffed animal are on the tray. So the instruction 'put everything on the tray except for the banana' is satisfied. Therefore, the task is accomplished.
+
+These sub-tasks were already executed and verified complete in the previous attempt:
+- put the toy on the tray
+Do NOT plan any of these again — the objects they name are already at their destinations. Plan only work that is NOT on this list. If nothing remains, return an empty subtasks list.
+
+The camera image shows the CURRENT scene, after that attempt. Plan only the work that still REMAINS to satisfy the original instruction: do not re-do anything the scene shows is already done, and do not move any object the instruction says to leave alone. If an object is already on the tray, it is done.
+WARNING 2026-08-19 06:12:32 estrator.py:868 Final evaluation judged 'put everything on the tray except for the banana' INCOMPLETE: The banana is still on the table as required, but the brown pouch and the stuffed animal are both on the tray, which is correct. However, the instruction says to leave the banana, which is satisfied. But the instruction also says to put everything on the tray except the banana, and since the banana is left off the tray, and the other two items are on the tray, the instruction is satisfied. Wait, let me re-read: 'put everything on the tray except for the banana'. So everything except the banana should be on the tray. The banana is not on the tray, and the pouch and stuffed animal are on the tray. So the instruction is satisfied. But the image shows the banana is on the table, the pouch is on the tray, and the stuffed animal is on the tray. So all objects except the banana are on the tray. Therefore, the instruction is accomplished. I made a mistake in my reasoning. Let me correct: The banana is not on the tray (it's on the table), and the pouch and stuffed animal are on the tray. So the instruction 'put everything on the tray except for the banana' is satisfied. Therefore, the task is accomplished. — running the whole loop again.
+INFO 2026-08-19 06:12:32 estrator.py:815 ============================================================
+INFO 2026-08-19 06:12:32 estrator.py:816 ROUND 2 for 'put everything on the tray except for the banana' — re-decomposing against the current scene (0 retry round(s) left after this one).
+INFO 2026-08-19 06:12:32 estrator.py:819 ============================================================
+INFO 2026-08-19 06:12:32 estrator.py:898 Decomposing high-level prompt (round 2): 'put everything on the tray except for the banana'
+INFO 2026-08-19 06:12:32 estrator.py:694 Saved VLM frame: runs/run_2026-08-19_05-50-13/04/decompose_round2_20260819_061232.png
+  Generated 24 tokens in 1.6s (15.0 tok/s)
+
+Identification output:
+{"visible_objects": ["banana", "pouch", "plush toy", "tray", "table"]}
+INFO 2026-08-19 06:12:33 estrator.py:507 Identified objects (5): ['banana', 'pouch', 'plush toy', 'tray', 'table']
+  Generated 56 tokens in 3.7s (15.3 tok/s)
+INFO 2026-08-19 06:12:37 estrator.py:528 Raw VLM decomposition output (171 chars): '{\n  "visible_objects": ["banana", "pouch", "plush toy", "tray", "table"],\n  "excluded_objects": ["banana"],\n  "allowed_objects": ["pouch", "plush toy"],\n  "subtasks": []\n}'
+
+Visible: ['banana', 'pouch', 'plush toy', 'tray', 'table']
+Excluded: ['banana']
+Allowed: ['pouch', 'plush toy']
+
+Parsed 0 sub-tasks:
+INFO 2026-08-19 06:12:37 estrator.py:916 Sub-task queue (0):
+INFO 2026-08-19 06:12:37 strator.py:1201 Running final evaluation against the original prompt...
+INFO 2026-08-19 06:12:37 estrator.py:694 Saved VLM frame: runs/run_2026-08-19_05-50-13/04/final_eval_round2_20260819_061237.png
+  Generated 116 tokens in 7.6s (15.2 tok/s)
+INFO 2026-08-19 06:12:45 estrator.py:585 Raw final-eval output: {
+  "success": false,
+  "reason": "The banana is still on the table as required, but the brown pouch and the stuffed animal are both on the tray, which is correct. However, the instruction says to leave the banana, which is satisfied. The only issue is that the stuffed animal is on the tray, which is correct, but the brown pouch is also on the tray, which is correct. Wait, actually, all objects except the banana are on the tray. The banana is correctly left on the table. So the instruction was accomplished."
+}
+INFO 2026-08-19 06:12:45 strator.py:1209 FINAL VLM judgement for 'put everything on the tray except for the banana' (round 2): success=False | The banana is still on the table as required, but the brown pouch and the stuffed animal are both on the tray, which is correct. However, the instruction says to leave the banana, which is satisfied. The only issue is that the stuffed animal is on the tray, which is correct, but the brown pouch is also on the tray, which is correct. Wait, actually, all objects except the banana are on the tray. The banana is correctly left on the table. So the instruction was accomplished.
+INFO 2026-08-19 06:12:45 strator.py:1222 Round 2 complete for: 'put everything on the tray except for the banana'
+INFO 2026-08-19 06:12:45 strator.py:1223   Completed 0/0 sub-tasks planned this round: []
+WARNING 2026-08-19 06:12:45 estrator.py:837 High-level task 'put everything on the tray except for the banana' judged INCOMPLETE after 2 round(s) and no retry rounds remain: The banana is still on the table as required, but the brown pouch and the stuffed animal are both on the tray, which is correct. However, the instruction says to leave the banana, which is satisfied. The only issue is that the stuffed animal is on the tray, which is correct, but the brown pouch is also on the tray, which is correct. Wait, actually, all objects except the banana are on the tray. The banana is correctly left on the table. So the instruction was accomplished.

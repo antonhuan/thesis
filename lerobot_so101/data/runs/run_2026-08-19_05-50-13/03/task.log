@@ -1,0 +1,36 @@
+INFO 2026-08-19 06:10:55 estrator.py:898 Decomposing high-level prompt (round 1): 'put everything on the tray except for the banana'
+INFO 2026-08-19 06:10:55 estrator.py:694 Saved VLM frame: runs/run_2026-08-19_05-50-13/03/decompose_20260819_061055.png
+  Generated 18 tokens in 1.7s (10.7 tok/s)
+
+Identification output:
+{"visible_objects": ["banana", "toy", "tray", "table"]}
+INFO 2026-08-19 06:10:57 estrator.py:507 Identified objects (4): ['banana', 'toy', 'tray', 'table']
+  Generated 51 tokens in 4.3s (11.7 tok/s)
+INFO 2026-08-19 06:11:02 estrator.py:528 Raw VLM decomposition output (166 chars): '{\n  "visible_objects": ["banana", "toy", "tray", "table"],\n  "excluded_objects": ["banana"],\n  "allowed_objects": ["toy"],\n  "subtasks": ["put the toy on the tray"]\n}'
+
+Visible: ['banana', 'toy', 'tray', 'table']
+Excluded: ['banana']
+Allowed: ['toy']
+
+Parsed 1 sub-tasks:
+  1. put the toy on the tray
+INFO 2026-08-19 06:11:02 estrator.py:916 Sub-task queue (1):
+INFO 2026-08-19 06:11:02 estrator.py:918   1. put the toy on the tray
+INFO 2026-08-19 06:11:02 estrator.py:966 [1] Executing sub-task: 'put the toy on the tray' (1 retries left)
+INFO 2026-08-19 06:11:02 ent_loop.py:565 Control loop started | task: 'put the toy on the tray' | duration: 30.0s
+INFO 2026-08-19 06:11:02 ent_loop.py:512 Action receiver thread started
+[INTERJECT] SKIP requested — stopping current action...
+INFO 2026-08-19 06:11:26 ent_loop.py:753 Episode finished: 24.7s, converged=False, max_displacement=186.8885, actions=691
+INFO 2026-08-19 06:11:26 estrator.py:979 User skipped sub-task: 'put the toy on the tray' (1 attempt(s) left)
+INFO 2026-08-19 06:11:26 ent_loop.py:344 Returning to home position...
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-08-19 06:11:28 ent_loop.py:357 Home position reached.
+INFO 2026-08-19 06:11:28 estrator.py:966 [1] Executing sub-task: 'put the toy on the tray' (0 retries left)
+INFO 2026-08-19 06:11:28 ent_loop.py:565 Control loop started | task: 'put the toy on the tray' | duration: 30.0s
+INFO 2026-08-19 06:11:28 ent_loop.py:512 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-08-19 06:11:31 ent_loop.py:753 Episode finished: 2.2s, converged=False, max_displacement=8.6924, actions=17
+WARNING 2026-08-19 06:11:31 estrator.py:889 ABORT requested during sub-task 'put the toy on the tray' — abandoning high-level task 'put everything on the tray except for the banana' and returning to the prompt.
+INFO 2026-08-19 06:11:31 ent_loop.py:344 Returning to home position...
+INFO 2026-08-19 06:11:33 ent_loop.py:357 Home position reached.
+INFO 2026-08-19 06:11:33 strator.py:1139   Completed before the abort: []

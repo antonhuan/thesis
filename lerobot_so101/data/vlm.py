@@ -132,7 +132,7 @@ You MUST respond in the following JSON format exactly:
 
 Rules:
 - List ALL objects and surfaces on the table, including containers and destinations (trays, bowls, boxes, plates, placemats).
-- The orange robot arm/kumquat is part of the robot, NOT an object. Do not include it.
+- The orange robotic gripper arm is part of the robot, NOT an object — do not include it regardless of its color or shape.
 - Use simple, concrete names for what you see (e.g. "cup", "banana", "tray").
 - Do not describe the object, use the simplest accurate label. Do not use adjectives such as color, size, texture to describe an object.
 - Do NOT plan, decompose, or reason about any instruction. Only identify what is visible.
@@ -260,7 +260,7 @@ You MUST respond in the following JSON format exactly:
 }
 
 Rules:
-- The orange robot arm/kumquat is not an object. Do not include it in visible_objects.
+- The orange robotic gripper arm is not an object — do not include it in visible_objects regardless of its color or shape.
 - excluded_objects: any object the instruction says to leave, skip, ignore, or not touch. If none, use [].
 - allowed_objects: every object in visible_objects that is NOT in excluded_objects.
 - subtasks: one sub-task per allowed object ONLY. Each sub-task is a single pick-and-place action.

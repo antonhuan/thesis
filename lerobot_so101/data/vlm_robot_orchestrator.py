@@ -152,10 +152,11 @@ class OrchestratorConfig(LoopClientConfig):
     # mid-execution (Enter/'s' to skip, 'r'+Enter to replan). On by default so
     # skip works out of the box; pass --enable_interjection=false to disable.
     enable_interjection: bool = False
-    # Max joint displacement (L2) below which a converged episode counts as
-    # "no movement" — i.e. the VLA did not understand the instruction.
-    # Tunable: start at 0.02 and adjust based on your arm's joint scale.
-    no_movement_threshold: float = 0.02
+    # If the peak L2 displacement from the first action stays below this
+    # threshold in a converged episode, the robot effectively did not move
+    # — i.e. the VLA did not understand the instruction.
+    # Real movement produces peak displacements of ~150-220; non-movement ~1-3.
+    no_movement_threshold: float = 10.0
     # --- Vocabulary refinement (closed-loop failure classification) ---
     enable_vocab_refinement: bool = True
     training_labels: list[str] = field(
@@ -213,27 +214,17 @@ Judge overall success as ALL of the following:
 If any of these is not met, the task failed.
 
 Output format:
-Return ONLY a JSON object with these fields, IN THIS ORDER — observe first, judge last:
+Return ONLY a JSON object:
 
-{
-  "object_status": [
-    {"object": "<name>", "location": "<where it actually is now>", "required": "<where the instruction requires it>", "ok": true or false}
-  ],
-  "reason": "<one sentence>",
-  "success": true or false
-}
+{"reason": "<one or two sentences>", "success": true or false}
 
 Rules:
-- Fill in object_status FIRST, before deciding anything. One row per movable object in the scene. Do not include the tray or the table; they are destinations, not objects.
-- "location": where the object actually is in this image — read it off the image, do not assume the robot succeeded.
-- "required": where the instruction requires that object to end up. For an object the instruction says to leave, skip, or not touch, the required location is its original place on the table.
-- "ok": true only when location matches required.
-- "success": true if and only if EVERY row has "ok": true. Count the rows and check.
-- "reason": ONE sentence. If any row is not ok, name those objects and where they actually are. State a conclusion only — do NOT deliberate, reconsider, re-read the instruction, or revise yourself inside this field. Never write "wait", "actually", or "I made a mistake".
+- "reason": if success is false, name the specific object(s) that are not where the instruction requires, and where they actually are. State a conclusion only — do NOT deliberate, reconsider, re-read the instruction, or revise yourself inside this field. Never write "wait", "actually", or "I made a mistake".
+- "success": true only if every object in the scene satisfies the instruction.
 
 Examples:
-{"object_status": [{"object": "apple", "location": "tray", "required": "tray", "ok": true}, {"object": "banana", "location": "table", "required": "table", "ok": true}], "reason": "The apple is on the tray and the banana was correctly left on the table.", "success": true}
-{"object_status": [{"object": "pouch", "location": "table", "required": "tray", "ok": false}, {"object": "plush toy", "location": "tray", "required": "tray", "ok": true}, {"object": "banana", "location": "table", "required": "table", "ok": true}], "reason": "The pouch is still on the table instead of on the tray.", "success": false}
+{"reason": "The apple is on the tray and the banana was correctly left on the table.", "success": true}
+{"reason": "The pouch is still on the table instead of on the tray.", "success": false}
 """
 
 
@@ -247,7 +238,7 @@ Examples:
 # "required" — it no longer gets to write "location".
 FINAL_JUDGE_SYSTEM_PROMPT = """You are a robot task evaluator. A robot arm has finished attempting a high-level instruction on a tabletop workspace. You receive the original instruction, plus the findings of a separate perception module that inspected the final scene and reported where each object now rests.
 
-The perception findings are GROUND TRUTH about where the objects are. You did not see the scene and you cannot revise the findings — copy each object's reported support into your "location" field verbatim. Your job is only to decide where the instruction REQUIRED each object to end up, and whether the two match.
+The perception findings are GROUND TRUTH about where the objects are. You did not see the scene and cannot revise the findings — judge only against what they report.
 
 Scene context:
 - The tray is the destination. It may be any colour (pink, black, etc.). "the tray" and "away" in the instruction always mean this tray.
@@ -261,34 +252,23 @@ Judge overall success as ALL of the following:
 If any of these is not met, the task failed.
 
 Output format:
-Return ONLY a JSON object with these fields, IN THIS ORDER:
+Return ONLY a JSON object:
 
-{
-  "object_status": [
-    {"object": "<name>", "location": "<the support the findings report>", "required": "<where the instruction requires it>", "ok": true or false}
-  ],
-  "reason": "<one sentence>",
-  "success": true or false
-}
+{"reason": "<one or two sentences>", "success": true or false}
 
 Rules:
-- One row per object in the findings, using the same names. Do not add objects the findings do not mention.
-- Do NOT give the tray or the table a row of their own, even if the findings mention one. They are destinations, not objects to move. Drop those rows; keep every other one.
-- "location": copy the object's reported support exactly. NEVER change it to what the instruction wanted, and never write a location the findings did not report.
-- "required": where the instruction requires that object to end up. For an object the instruction says to leave, skip, or not touch, the required location is the table.
-- "ok": true only when location matches required.
-- "success": true if and only if EVERY row has "ok": true. Count the rows and check.
-- "reason": ONE sentence. If any row is not ok, name those objects and where they actually are. State a conclusion only — do NOT deliberate, reconsider, re-read the instruction, or revise yourself inside this field. Never write "wait", "actually", or "I made a mistake".
+- "reason": if success is false, name the specific object(s) from the findings that are not where the instruction requires, and where the findings say they actually are. State a conclusion only — do NOT deliberate, reconsider, re-read the instruction, or revise yourself inside this field. Never write "wait", "actually", or "I made a mistake".
+- "success": true only if every object in the findings satisfies the instruction.
 
 Examples:
 
 Instruction: "put everything on the tray except for the banana"
 Findings: [{"object": "apple", "support": "tray"}, {"object": "banana", "support": "table"}]
-{"object_status": [{"object": "apple", "location": "tray", "required": "tray", "ok": true}, {"object": "banana", "location": "table", "required": "table", "ok": true}], "reason": "The apple is on the tray and the banana was correctly left on the table.", "success": true}
+{"reason": "The apple is on the tray and the banana was correctly left on the table.", "success": true}
 
 Instruction: "put everything on the tray except for the banana"
 Findings: [{"object": "pouch", "support": "table"}, {"object": "plush toy", "support": "tray"}, {"object": "banana", "support": "table"}]
-{"object_status": [{"object": "pouch", "location": "table", "required": "tray", "ok": false}, {"object": "plush toy", "location": "tray", "required": "tray", "ok": true}, {"object": "banana", "location": "table", "required": "table", "ok": true}], "reason": "The pouch is still on the table instead of on the tray.", "success": false}
+{"reason": "The pouch is still on the table instead of on the tray.", "success": false}
 """
 
 
@@ -562,68 +542,8 @@ def uncovered_allowed_objects(tasks: list[str], parsed: dict) -> list[str]:
     return [str(o) for o in allowed if str(o).lower() not in joined]
 
 
-# Words too generic to identify an object by. Dropped before matching a ledger
-# row's object name against sub-task prose, so that "brown cylindrical object"
-# is matched on "brown"/"cylindrical" and never on the bare word "object".
-_GENERIC_OBJECT_WORDS = frozenset({
-    "the", "a", "an", "of", "and", "object", "objects", "item", "items",
-    "thing", "things", "shaped", "coloured", "colored",
-})
-
-# A ledger location containing one of these means the object never left the
-# table — i.e. it is where it started, which needs no sub-task to explain.
-_UNMOVED_SUPPORTS = ("table", "desk", "worktop", "workspace", "floor")
-
-
-def _object_tokens(name: str) -> set[str]:
-    """Content words of an object name, for matching it against sub-task prose."""
-    words = re.findall(r"[a-z0-9]+", str(name).lower())
-    return {w for w in words if w not in _GENERIC_OBJECT_WORDS}
-
-
-def implausible_ledger_rows(rows: "list[dict] | None",
-                            completed_subtasks: list[str]) -> list[str]:
-    """Ledger rows claiming an object moved when nothing ever moved it.
-
-    The robot only ever changes the scene by executing a sub-task, so an object
-    reported somewhere other than the table must have been the subject of a
-    sub-task that completed. When it was not, the evaluator has asserted a move
-    that never happened — the exact failure where it fills a row's location in
-    from where the instruction wanted the object rather than from the image.
-
-    Matching is on content-word overlap rather than the substring test
-    `uncovered_allowed_objects` uses, because the evaluator names objects
-    independently of the planner: the row "plush toy" has to match the sub-task
-    "put the toy on the tray", while "brown cylindrical object" must not.
-
-    Returns the offending object names, in ledger order.
-    """
-    if not isinstance(rows, list):
-        return []
-    task_words = _object_tokens(" ".join(str(t) for t in completed_subtasks))
-    flagged = []
-    for row in rows:
-        if not isinstance(row, dict):
-            continue
-        location = str(row.get("location", "")).lower()
-        if not location or any(s in location for s in _UNMOVED_SUPPORTS):
-            continue  # still where it started; no sub-task needed to explain it
-        tokens = _object_tokens(row.get("object", ""))
-        if tokens & _object_tokens(location):
-            continue  # a surface described as resting on itself, not an object
-        if tokens and not (tokens & task_words):
-            flagged.append(str(row.get("object")))
-    return flagged
-
-
 def parse_evaluation(output: str) -> dict:
-    """Extract a {'success': bool, 'reason': str} object from model output.
-
-    The final evaluator also returns an `object_status` ledger (one row per
-    object, with where it is and where it should be). When that is present the
-    verdict is DERIVED from the rows rather than trusted from the model's own
-    `success` field, which it emits after — but has been observed to contradict.
-    """
+    """Extract a {'success': bool, 'reason': str} object from model output."""
     text = _strip_code_fences(output)
 
     candidates = [text]
@@ -635,58 +555,11 @@ def parse_evaluation(output: str) -> dict:
         try:
             parsed = json.loads(candidate)
             if isinstance(parsed, dict) and "success" in parsed:
-                return _reconcile_with_ledger(parsed)
+                return parsed
         except json.JSONDecodeError:
             continue
 
     raise ValueError(f"Could not parse evaluation from VLM output:\n{output}")
-
-
-def _reconcile_with_ledger(parsed: dict) -> dict:
-    """Derive `success` from an `object_status` ledger, if the model gave one.
-
-    A ledger row is satisfied when its "ok" is true; the whole task succeeded
-    only when every row is. Disagreement between that and the model's own
-    `success` field means the model narrated one verdict and emitted another, so
-    log it loudly and keep the ledger's answer.
-    """
-    rows = parsed.get("object_status")
-    if not isinstance(rows, list) or not rows:
-        return parsed
-
-    derived = all(bool(r.get("ok")) for r in rows if isinstance(r, dict))
-    stated = bool(parsed.get("success"))
-    if derived != stated:
-        bad = [str(r.get("object")) for r in rows
-               if isinstance(r, dict) and not r.get("ok")]
-        logging.warning(
-            f"Final evaluator contradicted itself: stated success={stated} but "
-            f"its object ledger implies success={derived} "
-            f"(not-ok objects: {bad or 'none'}). Trusting the ledger."
-        )
-        parsed["success"] = derived
-    return parsed
-
-
-def format_status_ledger(rows: list[dict] | None) -> str:
-    """Render the not-ok rows of an object_status ledger as planner-facing facts.
-
-    Returns "" when there is no usable ledger, so callers can fall back to the
-    evaluator's prose reason.
-    """
-    if not isinstance(rows, list) or not rows:
-        return ""
-    bad = [r for r in rows if isinstance(r, dict) and not r.get("ok")]
-    if not bad:
-        return ""
-    lines = "\n".join(
-        f"- {r.get('object')}: currently {r.get('location')}, "
-        f"should be {r.get('required')}"
-        for r in bad
-    )
-    return ("These objects are not yet where the instruction requires them:\n"
-            f"{lines}")
-
 
 
 # ---------------------------------------------------------------------------
@@ -857,7 +730,7 @@ class VLMPlanner:
             if surveyed:
                 # Row count is logged because a thin survey is the one failure
                 # this design cannot catch: an object the survey never mentions
-                # gets no ledger row, and a missing row can never be `ok: false`.
+                # is invisible to the judge, which only sees these rows.
                 logging.info(f"Final-eval surveyed {len(surveyed)} object(s):")
                 for row in surveyed:
                     logging.info(f"  {row.get('object')} -> {row.get('support')} "
@@ -887,8 +760,8 @@ class VLMPlanner:
 
         Text-only: the perception rows stand in for the image, so the judge can
         compare against the instruction without being able to restate where
-        anything is. Emits the same contract as the single-call path, so
-        `parse_evaluation` / `_reconcile_with_ledger` are unchanged.
+        anything is. Emits the same {success, reason} contract as the
+        single-call path, so `parse_evaluation` is unchanged.
         """
         findings = [
             {"object": str(r.get("object")), "support": str(r.get("support"))}
@@ -1124,11 +997,6 @@ class RoundResult:
     stopped: bool = False
     final_success: bool | None = None
     final_reason: str = ""
-    # The final evaluator's per-object ledger (object / location / required /
-    # ok), when it produced one. Preferred over `final_reason` for building the
-    # retry context: the rows are facts the planner can act on, where the prose
-    # has been observed to assert the opposite of the verdict.
-    final_status: list[dict] | None = None
     planned: int = 0  # sub-tasks this round's decomposition produced
     # Sub-tasks this round finished — i.e. what it believes it accomplished, in
     # execution order. Carried out of the round so a retry re-decompose can tell
@@ -1208,7 +1076,6 @@ def run_high_level_task(
             result = _run_high_level_task_body(
                 client, planner, frames, cfg, prompt, interjection, logger,
                 round_num=round_num, retry_context=retry_context,
-                completed_before=completed_all,
             )
 
             if result.stopped:
@@ -1246,12 +1113,7 @@ def run_high_level_task(
                     completed_all.append(st)
 
             retries_left -= 1
-            # Prefer the structured ledger over the evaluator's prose: the prose
-            # can contradict its own verdict, and that text goes straight into
-            # the planner's user message.
-            reason = (format_status_ledger(result.final_status)
-                      or result.final_reason
-                      or "(no reason given)")
+            reason = result.final_reason or "(no reason given)"
             retry_context = RETRY_DECOMPOSE_CONTEXT.format(
                 reason=reason,
                 completed=_format_completed_context(completed_all),
@@ -1317,7 +1179,6 @@ def _run_high_level_task_body(
     logger,
     round_num: int = 1,
     retry_context: str = "",
-    completed_before: list[str] | None = None,
 ) -> RoundResult:
     def abort(where: str):
         """Park the arm and report that the operator abandoned the task."""
@@ -1481,22 +1342,14 @@ def _run_high_level_task_body(
                            and ep_result.max_displacement < cfg.no_movement_threshold)
 
             if no_movement:
-                reason = (
-                    f"The robot did not move (max_displacement="
-                    f"{ep_result.max_displacement:.4f}). It likely did not "
-                    f"understand the object name in the instruction."
+                logger.warning(
+                    f"No movement detected (max_displacement="
+                    f"{ep_result.max_displacement:.4f}). The object name "
+                    f"'{extract_object_name(current_instruction)}' is likely "
+                    f"not in the robot's vocabulary."
                 )
-                logger.warning(reason)
-                if cfg.enable_vocab_refinement:
-                    failure_type = "VOCAB"
-                    # fall through to vocab refinement below
-                else:
-                    break  # original behavior: skip to replan
 
-            if no_movement and cfg.enable_vocab_refinement:
-                success = False
-                # failure_type and reason already set above
-            elif not cfg.evaluate_subtasks:
+            if not cfg.evaluate_subtasks:
                 succeeded = True
                 break
             else:
@@ -1555,6 +1408,8 @@ def _run_high_level_task_body(
                 success = bool(eval_result.get("success"))
                 reason = eval_result.get("reason", "")
                 failure_type = eval_result.get("failure_type", "RETRY")
+                if no_movement and not success:
+                    failure_type = "VOCAB"
                 logger.info(f"VLM judgement: success={success} | "
                             f"failure_type={failure_type} | {reason}")
 
@@ -1689,48 +1544,10 @@ def _run_high_level_task_body(
         )
         try:
             final = planner.evaluate_final(prompt, final_frame)
-            status = final.get("object_status")
-            status = status if isinstance(status, list) else None
-
-            # Motion guard: the scene only changes when a sub-task runs, so a row
-            # claiming an object left the table must be backed by a completed
-            # sub-task naming it. Rows that are not are the evaluator reporting a
-            # move that never happened; force them false so the round is judged
-            # incomplete and the retry machinery gets to replan the object. This
-            # only ever downgrades a verdict — it never turns a failure into a
-            # success.
-            all_completed = list(completed_before or []) + list(completed)
-            fabricated = implausible_ledger_rows(status, all_completed)
-            if fabricated:
-                logger.warning(
-                    f"Final evaluator reported {len(fabricated)} object(s) away "
-                    f"from the table that no completed sub-task ever moved: "
-                    f"{fabricated}. Nothing in this task could have moved them, "
-                    f"so the claim is rejected and the round is judged incomplete."
-                )
-                for row in status or []:
-                    if isinstance(row, dict) and str(row.get("object")) in fabricated:
-                        row["ok"] = False
-                final["success"] = False
-                named = ", ".join(fabricated)
-                final["reason"] = (
-                    f"{named} reported away from the table, but no sub-task ever "
-                    f"moved {'them' if len(fabricated) > 1 else 'it'} — treating "
-                    f"{'them' if len(fabricated) > 1 else 'it'} as still on the "
-                    f"table and the task as incomplete."
-                )
-
             result.final_success = bool(final.get("success"))
             result.final_reason = final.get("reason", "")
-            result.final_status = status
             logger.info(f"FINAL VLM judgement for '{prompt}' (round {round_num}): "
                         f"success={result.final_success} | {result.final_reason}")
-            for row in result.final_status or []:
-                if isinstance(row, dict):
-                    mark = "ok " if row.get("ok") else "BAD"
-                    logger.info(f"  [{mark}] {row.get('object')}: "
-                                f"{row.get('location')} (required: "
-                                f"{row.get('required')})")
         except ValueError as e:
             logger.warning(f"Could not parse final evaluation ({e}); no overall verdict.")
         except Exception as e:

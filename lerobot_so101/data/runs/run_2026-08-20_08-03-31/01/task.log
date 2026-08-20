@@ -1,0 +1,65 @@
+INFO 2026-08-20 08:04:08 strator.py:1194 Decomposing high-level prompt (round 1): 'put everything on the tray'
+INFO 2026-08-20 08:04:08 estrator.py:945 Saved VLM frame: runs/run_2026-08-20_08-03-31/01/decompose_20260820_080408.png
+  Generated 35 tokens in 3.6s (9.8 tok/s)
+
+Identification output:
+{
+  "visible_objects": [
+    "stuffed animal",
+    "banana",
+    "cylinder",
+    "tray",
+    "table"
+  ]
+}
+INFO 2026-08-20 08:04:11 estrator.py:615 Identified objects (5): ['stuffed animal', 'banana', 'cylinder', 'tray', 'table']
+  Generated 93 tokens in 6.0s (15.4 tok/s)
+INFO 2026-08-20 08:04:17 estrator.py:620 Raw VLM decomposition output (330 chars): '{\n  "visible_objects": ["stuffed animal", "banana", "cylinder", "tray", "table"],\n  "excluded_objects": [],\n  "completed_objects": [],\n  "allowed_objects": ["stuffed animal", "banana", "cylinder"],\n  "subtasks": [\n    "put the stuffed animal on the tray",\n    "put the banana on the tray",\n    "put the cylinder on the tray"\n  ]\n}'
+
+Visible: ['stuffed animal', 'banana', 'cylinder', 'tray', 'table']
+Excluded: []
+Completed: []
+Allowed: ['stuffed animal', 'banana', 'cylinder']
+
+Parsed 3 sub-tasks:
+  1. put the stuffed animal on the tray
+  2. put the banana on the tray
+  3. put the cylinder on the tray
+INFO 2026-08-20 08:04:17 strator.py:1212 Sub-task queue (3):
+INFO 2026-08-20 08:04:17 strator.py:1214   1. put the stuffed animal on the tray
+INFO 2026-08-20 08:04:17 strator.py:1214   2. put the banana on the tray
+INFO 2026-08-20 08:04:17 strator.py:1214   3. put the cylinder on the tray
+INFO 2026-08-20 08:04:17 strator.py:1265 [1] Executing sub-task: 'put the stuffed animal on the tray' (1 retries left)
+INFO 2026-08-20 08:04:17 ent_loop.py:567 Control loop started | task: 'put the stuffed animal on the tray' | duration: 30.0s
+INFO 2026-08-20 08:04:17 ent_loop.py:514 Action receiver thread started
+INFO 2026-08-20 08:04:42 ent_loop.py:755 Episode finished: 24.1s, converged=True, max_displacement=172.9186, actions=579
+INFO 2026-08-20 08:04:42 ent_loop.py:346 Returning to home position...
+INFO 2026-08-20 08:04:44 ent_loop.py:359 Home position reached.
+INFO 2026-08-20 08:04:46 estrator.py:976 Saved VLM eval clip (32 frames) to runs/run_2026-08-20_08-03-31/01
+INFO 2026-08-20 08:04:46 strator.py:1371 Evaluation observation: video clip (32 frames over 22.0s of a 24.1s episode, 1.41 fps)
+  Generated 22 tokens in 1.8s (12.5 tok/s)
+INFO 2026-08-20 08:04:48 estrator.py:701 Raw eval output: {"success": true, "reason": "The stuffed animal is now on the tray as instructed."}
+INFO 2026-08-20 08:04:48 strator.py:1413 VLM judgement: success=True | failure_type=RETRY | The stuffed animal is now on the tray as instructed.
+INFO 2026-08-20 08:04:48 strator.py:1265 [2] Executing sub-task: 'put the banana on the tray' (1 retries left)
+INFO 2026-08-20 08:04:48 ent_loop.py:567 Control loop started | task: 'put the banana on the tray' | duration: 30.0s
+INFO 2026-08-20 08:04:48 ent_loop.py:514 Action receiver thread started
+INFO 2026-08-20 08:05:18 ent_loop.py:584 Episode timeout (30.0s)
+INFO 2026-08-20 08:05:19 ent_loop.py:755 Episode finished: 30.4s, converged=False, max_displacement=236.5576, actions=833
+INFO 2026-08-20 08:05:19 ent_loop.py:346 Returning to home position...
+INFO 2026-08-20 08:05:21 ent_loop.py:359 Home position reached.
+INFO 2026-08-20 08:05:23 estrator.py:976 Saved VLM eval clip (32 frames) to runs/run_2026-08-20_08-03-31/01
+INFO 2026-08-20 08:05:23 strator.py:1371 Evaluation observation: video clip (32 frames over 29.9s of a 30.4s episode, 1.04 fps)
+  Generated 41 tokens in 3.0s (13.5 tok/s)
+INFO 2026-08-20 08:05:27 estrator.py:701 Raw eval output: {"success": false, "failure_type": "RETRY", "reason": "The robot arm extended toward the banana but did not grasp it, and the banana remained in its original position."}
+INFO 2026-08-20 08:05:27 strator.py:1413 VLM judgement: success=False | failure_type=RETRY | The robot arm extended toward the banana but did not grasp it, and the banana remained in its original position.
+INFO 2026-08-20 08:05:27 strator.py:1158 ATTEMPT attempt=1 original='put the banana on the tray' current='put the banana on the tray' success=False failure_type=RETRY reason='The robot arm extended toward the banana but did not grasp it, and the banana remained in its original position.' refinement=False
+INFO 2026-08-20 08:05:27 strator.py:1475 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-08-20 08:05:27 strator.py:1265 [2] Executing sub-task: 'put the banana on the tray' (0 retries left)
+INFO 2026-08-20 08:05:27 ent_loop.py:567 Control loop started | task: 'put the banana on the tray' | duration: 30.0s
+INFO 2026-08-20 08:05:27 ent_loop.py:514 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-08-20 08:05:37 ent_loop.py:755 Episode finished: 10.6s, converged=False, max_displacement=216.9573, actions=250
+WARNING 2026-08-20 08:05:37 strator.py:1185 ABORT requested during sub-task 'put the banana on the tray' — abandoning high-level task 'put everything on the tray' and returning to the prompt.
+INFO 2026-08-20 08:05:37 ent_loop.py:346 Returning to home position...
+INFO 2026-08-20 08:05:39 ent_loop.py:359 Home position reached.
+INFO 2026-08-20 08:05:39 strator.py:1479   Completed before the abort: ['put the stuffed animal on the tray']

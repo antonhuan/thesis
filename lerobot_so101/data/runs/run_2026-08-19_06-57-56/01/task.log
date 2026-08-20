@@ -1,0 +1,35 @@
+INFO 2026-08-19 07:01:28 strator.py:1231 Decomposing high-level prompt (round 1): 'put everything on the tray except for the banana'
+INFO 2026-08-19 07:01:28 strator.py:1010 Saved VLM frame: runs/run_2026-08-19_06-57-56/01/decompose_20260819_070128.png
+  Generated 30 tokens in 4.0s (7.5 tok/s)
+
+Identification output:
+{
+  "visible_objects": [
+    "banana",
+    "stuffed animal",
+    "tray",
+    "table"
+  ]
+}
+INFO 2026-08-19 07:01:33 estrator.py:726 Identified objects (4): ['banana', 'stuffed animal', 'tray', 'table']
+  Generated 62 tokens in 4.9s (12.6 tok/s)
+INFO 2026-08-19 07:01:38 estrator.py:731 Raw VLM decomposition output (226 chars): '{\n  "visible_objects": ["banana", "stuffed animal", "tray", "table"],\n  "excluded_objects": ["banana"],\n  "completed_objects": [],\n  "allowed_objects": ["stuffed animal"],\n  "subtasks": ["put the stuffed animal on the tray"]\n}'
+
+Visible: ['banana', 'stuffed animal', 'tray', 'table']
+Excluded: ['banana']
+Completed: []
+Allowed: ['stuffed animal']
+
+Parsed 1 sub-tasks:
+  1. put the stuffed animal on the tray
+INFO 2026-08-19 07:01:38 strator.py:1249 Sub-task queue (1):
+INFO 2026-08-19 07:01:38 strator.py:1251   1. put the stuffed animal on the tray
+INFO 2026-08-19 07:01:38 strator.py:1299 [1] Executing sub-task: 'put the stuffed animal on the tray' (1 retries left)
+INFO 2026-08-19 07:01:38 ent_loop.py:565 Control loop started | task: 'put the stuffed animal on the tray' | duration: 30.0s
+INFO 2026-08-19 07:01:38 ent_loop.py:512 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-08-19 07:02:07 ent_loop.py:753 Episode finished: 29.6s, converged=False, max_displacement=170.3656, actions=794
+WARNING 2026-08-19 07:02:07 strator.py:1222 ABORT requested during sub-task 'put the stuffed animal on the tray' — abandoning high-level task 'put everything on the tray except for the banana' and returning to the prompt.
+INFO 2026-08-19 07:02:07 ent_loop.py:344 Returning to home position...
+INFO 2026-08-19 07:02:09 ent_loop.py:357 Home position reached.
+INFO 2026-08-19 07:02:09 strator.py:1472   Completed before the abort: []

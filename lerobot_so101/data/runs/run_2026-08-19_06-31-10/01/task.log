@@ -1,0 +1,71 @@
+INFO 2026-08-19 06:35:58 strator.py:1053 Decomposing high-level prompt (round 1): 'put everything on the tray except for the banana'
+INFO 2026-08-19 06:35:58 estrator.py:834 Saved VLM frame: runs/run_2026-08-19_06-31-10/01/decompose_20260819_063558.png
+  Generated 28 tokens in 3.2s (8.9 tok/s)
+
+Identification output:
+{
+  "visible_objects": [
+    "banana",
+    "toy",
+    "tray",
+    "table"
+  ]
+}
+INFO 2026-08-19 06:36:02 estrator.py:615 Identified objects (4): ['banana', 'toy', 'tray', 'table']
+  Generated 57 tokens in 3.8s (15.0 tok/s)
+INFO 2026-08-19 06:36:06 estrator.py:620 Raw VLM decomposition output (193 chars): '{\n  "visible_objects": ["banana", "toy", "tray", "table"],\n  "excluded_objects": ["banana"],\n  "completed_objects": [],\n  "allowed_objects": ["toy"],\n  "subtasks": ["put the toy on the tray"]\n}'
+
+Visible: ['banana', 'toy', 'tray', 'table']
+Excluded: ['banana']
+Completed: []
+Allowed: ['toy']
+
+Parsed 1 sub-tasks:
+  1. put the toy on the tray
+INFO 2026-08-19 06:36:06 strator.py:1071 Sub-task queue (1):
+INFO 2026-08-19 06:36:06 strator.py:1073   1. put the toy on the tray
+INFO 2026-08-19 06:36:06 strator.py:1121 [1] Executing sub-task: 'put the toy on the tray' (1 retries left)
+INFO 2026-08-19 06:36:06 ent_loop.py:565 Control loop started | task: 'put the toy on the tray' | duration: 30.0s
+INFO 2026-08-19 06:36:06 ent_loop.py:512 Action receiver thread started
+INFO 2026-08-19 06:36:23 ent_loop.py:753 Episode finished: 17.7s, converged=True, max_displacement=170.9847, actions=440
+INFO 2026-08-19 06:36:23 ent_loop.py:344 Returning to home position...
+INFO 2026-08-19 06:36:25 ent_loop.py:357 Home position reached.
+INFO 2026-08-19 06:36:28 estrator.py:865 Saved VLM eval clip (32 frames) to runs/run_2026-08-19_06-31-10/01
+INFO 2026-08-19 06:36:28 strator.py:1234 Evaluation observation: video clip (32 frames over 17.2s of a 17.7s episode, 1.81 fps)
+  Generated 21 tokens in 1.7s (12.1 tok/s)
+INFO 2026-08-19 06:36:30 estrator.py:701 Raw eval output: {"success": true, "reason": "The toy is now on the tray as instructed."}
+INFO 2026-08-19 06:36:30 strator.py:1284 VLM judgement: success=True | The toy is now on the tray as instructed.
+INFO 2026-08-19 06:36:30 strator.py:1356 Running final evaluation against the original prompt...
+INFO 2026-08-19 06:36:30 estrator.py:834 Saved VLM frame: runs/run_2026-08-19_06-31-10/01/final_eval_20260819_063630.png
+  Generated 147 tokens in 9.8s (14.9 tok/s)
+INFO 2026-08-19 06:36:40 estrator.py:725 Raw final-eval output: {
+  "object_status": [
+    {
+      "object": "brown cylindrical object",
+      "location": "tray",
+      "required": "tray",
+      "ok": true
+    },
+    {
+      "object": "plush toy",
+      "location": "tray",
+      "required": "tray",
+      "ok": true
+    },
+    {
+      "object": "banana",
+      "location": "table",
+      "required": "table",
+      "ok": true
+    }
+  ],
+  "reason": "The brown cylindrical object and plush toy are on the tray as required, and the banana is correctly left on the table.",
+  "success": true
+}
+INFO 2026-08-19 06:36:40 strator.py:1366 FINAL VLM judgement for 'put everything on the tray except for the banana' (round 1): success=True | The brown cylindrical object and plush toy are on the tray as required, and the banana is correctly left on the table.
+INFO 2026-08-19 06:36:40 strator.py:1371   [ok ] brown cylindrical object: tray (required: tray)
+INFO 2026-08-19 06:36:40 strator.py:1371   [ok ] plush toy: tray (required: tray)
+INFO 2026-08-19 06:36:40 strator.py:1371   [ok ] banana: table (required: table)
+INFO 2026-08-19 06:36:40 strator.py:1385 Round 1 complete for: 'put everything on the tray except for the banana'
+INFO 2026-08-19 06:36:40 strator.py:1386   Completed 1/1 sub-tasks planned this round: ['put the toy on the tray']
+INFO 2026-08-19 06:36:40 estrator.py:982 High-level task 'put everything on the tray except for the banana' judged COMPLETE after 1 round(s).

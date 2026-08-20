@@ -1,0 +1,53 @@
+INFO 2026-08-20 08:12:51 strator.py:1194 Decomposing high-level prompt (round 1): 'put everything on the tray'
+INFO 2026-08-20 08:12:51 estrator.py:945 Saved VLM frame: runs/run_2026-08-20_08-03-31/04/decompose_20260820_081251.png
+  Generated 35 tokens in 2.5s (14.1 tok/s)
+
+Identification output:
+{
+  "visible_objects": [
+    "stuffed animal",
+    "banana",
+    "pouch",
+    "tray",
+    "table"
+  ]
+}
+INFO 2026-08-20 08:12:53 estrator.py:615 Identified objects (5): ['stuffed animal', 'banana', 'pouch', 'tray', 'table']
+  Generated 93 tokens in 6.1s (15.2 tok/s)
+INFO 2026-08-20 08:13:00 estrator.py:620 Raw VLM decomposition output (321 chars): '{\n  "visible_objects": ["stuffed animal", "banana", "pouch", "tray", "table"],\n  "excluded_objects": [],\n  "completed_objects": [],\n  "allowed_objects": ["stuffed animal", "banana", "pouch"],\n  "subtasks": [\n    "put the stuffed animal on the tray",\n    "put the banana on the tray",\n    "put the pouch on the tray"\n  ]\n}'
+
+Visible: ['stuffed animal', 'banana', 'pouch', 'tray', 'table']
+Excluded: []
+Completed: []
+Allowed: ['stuffed animal', 'banana', 'pouch']
+
+Parsed 3 sub-tasks:
+  1. put the stuffed animal on the tray
+  2. put the banana on the tray
+  3. put the pouch on the tray
+INFO 2026-08-20 08:13:00 strator.py:1212 Sub-task queue (3):
+INFO 2026-08-20 08:13:00 strator.py:1214   1. put the stuffed animal on the tray
+INFO 2026-08-20 08:13:00 strator.py:1214   2. put the banana on the tray
+INFO 2026-08-20 08:13:00 strator.py:1214   3. put the pouch on the tray
+INFO 2026-08-20 08:13:00 strator.py:1265 [1] Executing sub-task: 'put the stuffed animal on the tray' (1 retries left)
+INFO 2026-08-20 08:13:00 ent_loop.py:567 Control loop started | task: 'put the stuffed animal on the tray' | duration: 30.0s
+INFO 2026-08-20 08:13:00 ent_loop.py:514 Action receiver thread started
+INFO 2026-08-20 08:13:26 ent_loop.py:755 Episode finished: 26.8s, converged=True, max_displacement=194.0705, actions=700
+INFO 2026-08-20 08:13:26 ent_loop.py:346 Returning to home position...
+INFO 2026-08-20 08:13:28 ent_loop.py:359 Home position reached.
+INFO 2026-08-20 08:13:31 estrator.py:976 Saved VLM eval clip (32 frames) to runs/run_2026-08-20_08-03-31/04
+INFO 2026-08-20 08:13:31 strator.py:1371 Evaluation observation: video clip (32 frames over 26.5s of a 26.8s episode, 1.17 fps)
+  Generated 51 tokens in 3.7s (13.8 tok/s)
+INFO 2026-08-20 08:13:35 estrator.py:701 Raw eval output: {"success": false, "failure_type": "RETRY", "reason": "The robot arm moved toward the stuffed animal but did not successfully grasp or place it on the tray; it remained hovering near the stuffed animal without completing the action."}
+INFO 2026-08-20 08:13:35 strator.py:1413 VLM judgement: success=False | failure_type=RETRY | The robot arm moved toward the stuffed animal but did not successfully grasp or place it on the tray; it remained hovering near the stuffed animal without completing the action.
+INFO 2026-08-20 08:13:35 strator.py:1158 ATTEMPT attempt=1 original='put the stuffed animal on the tray' current='put the stuffed animal on the tray' success=False failure_type=RETRY reason='The robot arm moved toward the stuffed animal but did not successfully grasp or place it on the tray; it remained hovering near the stuffed animal without completing the action.' refinement=False
+INFO 2026-08-20 08:13:35 strator.py:1475 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-08-20 08:13:35 strator.py:1265 [1] Executing sub-task: 'put the stuffed animal on the tray' (0 retries left)
+INFO 2026-08-20 08:13:35 ent_loop.py:567 Control loop started | task: 'put the stuffed animal on the tray' | duration: 30.0s
+INFO 2026-08-20 08:13:35 ent_loop.py:514 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-08-20 08:13:43 ent_loop.py:755 Episode finished: 7.8s, converged=False, max_displacement=59.6308, actions=164
+WARNING 2026-08-20 08:13:43 strator.py:1185 ABORT requested during sub-task 'put the stuffed animal on the tray' — abandoning high-level task 'put everything on the tray' and returning to the prompt.
+INFO 2026-08-20 08:13:43 ent_loop.py:346 Returning to home position...
+INFO 2026-08-20 08:13:45 ent_loop.py:359 Home position reached.
+INFO 2026-08-20 08:13:45 strator.py:1479   Completed before the abort: []

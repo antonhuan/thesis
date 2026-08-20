@@ -1,0 +1,16 @@
+INFO 2026-08-19 07:58:17 strator.py:1224 Decomposing high-level prompt (round 1): 'exiy'
+INFO 2026-08-19 07:58:17 strator.py:1003 Saved VLM frame: runs/run_2026-08-19_07-36-23/03/decompose_20260819_075817.png
+  Generated 39 tokens in 2.8s (14.1 tok/s)
+
+Identification output:
+{
+  "visible_objects": [
+    "table",
+    "kumquat",
+    "pouch",
+    "tray",
+    "banana",
+    "toy"
+  ]
+}
+INFO 2026-08-19 07:58:20 estrator.py:726 Identified objects (6): ['table', 'kumquat', 'pouch', 'tray', 'banana', 'toy']

@@ -1,0 +1,214 @@
+INFO 2026-08-20 06:26:35 strator.py:1333 Decomposing high-level prompt (round 1): 'put everything on the tray except for the banana'
+INFO 2026-08-20 06:26:35 strator.py:1072 Saved VLM frame: runs/run_2026-08-20_06-23-01/02/decompose_20260820_062635.png
+  Generated 28 tokens in 2.0s (14.2 tok/s)
+
+Identification output:
+{
+  "visible_objects": [
+    "banana",
+    "toy",
+    "tray",
+    "table"
+  ]
+}
+INFO 2026-08-20 06:26:37 estrator.py:742 Identified objects (4): ['banana', 'toy', 'tray', 'table']
+  Generated 57 tokens in 3.7s (15.4 tok/s)
+INFO 2026-08-20 06:26:41 estrator.py:747 Raw VLM decomposition output (193 chars): '{\n  "visible_objects": ["banana", "toy", "tray", "table"],\n  "excluded_objects": ["banana"],\n  "completed_objects": [],\n  "allowed_objects": ["toy"],\n  "subtasks": ["put the toy on the tray"]\n}'
+
+Visible: ['banana', 'toy', 'tray', 'table']
+Excluded: ['banana']
+Completed: []
+Allowed: ['toy']
+
+Parsed 1 sub-tasks:
+  1. put the toy on the tray
+INFO 2026-08-20 06:26:41 strator.py:1351 Sub-task queue (1):
+INFO 2026-08-20 06:26:41 strator.py:1353   1. put the toy on the tray
+INFO 2026-08-20 06:26:41 strator.py:1404 [1] Executing sub-task: 'put the toy on the tray' (1 retries left)
+INFO 2026-08-20 06:26:41 ent_loop.py:567 Control loop started | task: 'put the toy on the tray' | duration: 30.0s
+INFO 2026-08-20 06:26:41 ent_loop.py:514 Action receiver thread started
+INFO 2026-08-20 06:27:03 ent_loop.py:755 Episode finished: 22.2s, converged=True, max_displacement=193.5858, actions=611
+INFO 2026-08-20 06:27:03 ent_loop.py:346 Returning to home position...
+INFO 2026-08-20 06:27:05 ent_loop.py:359 Home position reached.
+INFO 2026-08-20 06:27:07 strator.py:1103 Saved VLM eval clip (32 frames) to runs/run_2026-08-20_06-23-01/02
+INFO 2026-08-20 06:27:07 strator.py:1518 Evaluation observation: video clip (32 frames over 21.3s of a 22.2s episode, 1.45 fps)
+  Generated 21 tokens in 1.8s (11.4 tok/s)
+INFO 2026-08-20 06:27:10 estrator.py:828 Raw eval output: {"success": true, "reason": "The toy is now on the tray as instructed."}
+INFO 2026-08-20 06:27:10 strator.py:1558 VLM judgement: success=True | failure_type=RETRY | The toy is now on the tray as instructed.
+INFO 2026-08-20 06:27:10 strator.py:1686 Running final evaluation against the original prompt...
+INFO 2026-08-20 06:27:10 strator.py:1072 Saved VLM frame: runs/run_2026-08-20_06-23-01/02/final_eval_20260820_062710.png
+  Generated 139 tokens in 10.8s (12.9 tok/s)
+
+Scene survey output:
+{
+  "object_locations": [
+    {
+      "object": "banana",
+      "evidence": "lying on the bare table to the left of the orange robot arm, not touching the tray",
+      "support": "table"
+    },
+    {
+      "object": "pouch",
+      "evidence": "lying on the bare table to the left of the plush toy, not touching the tray",
+      "support": "table"
+    },
+    {
+      "object": "plush toy",
+      "evidence": "lying inside the tray's rim, on the right side of the tray",
+      "support": "tray"
+    }
+  ]
+}
+INFO 2026-08-20 06:27:21 estrator.py:861 Final-eval surveyed 3 object(s):
+INFO 2026-08-20 06:27:21 estrator.py:863   banana -> table (lying on the bare table to the left of the orange robot arm, not touching the tray)
+INFO 2026-08-20 06:27:21 estrator.py:863   pouch -> table (lying on the bare table to the left of the plush toy, not touching the tray)
+INFO 2026-08-20 06:27:21 estrator.py:863   plush toy -> tray (lying inside the tray's rim, on the right side of the tray)
+  Generated 142 tokens in 9.0s (15.8 tok/s)
+INFO 2026-08-20 06:27:30 estrator.py:910 Raw final-judge output: {
+  "object_status": [
+    {
+      "object": "banana",
+      "location": "table",
+      "required": "table",
+      "ok": true
+    },
+    {
+      "object": "pouch",
+      "location": "table",
+      "required": "tray",
+      "ok": false
+    },
+    {
+      "object": "plush toy",
+      "location": "tray",
+      "required": "tray",
+      "ok": true
+    }
+  ],
+  "reason": "The pouch is still on the table instead of on the tray, so the instruction was not fully accomplished.",
+  "success": false
+}
+INFO 2026-08-20 06:27:30 strator.py:1726 FINAL VLM judgement for 'put everything on the tray except for the banana' (round 1): success=False | The pouch is still on the table instead of on the tray, so the instruction was not fully accomplished.
+INFO 2026-08-20 06:27:30 strator.py:1731   [ok ] banana: table (required: table)
+INFO 2026-08-20 06:27:30 strator.py:1731   [BAD] pouch: table (required: tray)
+INFO 2026-08-20 06:27:30 strator.py:1731   [ok ] plush toy: tray (required: tray)
+INFO 2026-08-20 06:27:30 strator.py:1745 Round 1 complete for: 'put everything on the tray except for the banana'
+INFO 2026-08-20 06:27:30 strator.py:1746   Completed 1/1 sub-tasks planned this round: ['put the toy on the tray']
+INFO 2026-08-20 06:27:30 strator.py:1259 Carrying 1 completed sub-task(s) into the re-decompose: ['put the toy on the tray']
+INFO 2026-08-20 06:27:30 strator.py:1261 Retry context passed to the planner:
+A previous attempt at this same instruction was judged INCOMPLETE by the evaluator, who reported:
+These objects are not yet where the instruction requires them:
+- pouch: currently table, should be tray
+
+These sub-tasks were already executed and verified complete in the previous attempt:
+- put the toy on the tray
+The objects they name are already at their destinations. Put those objects in completed_objects, NOT in allowed_objects, and do not plan any sub-task for them.
+
+The camera image shows the CURRENT scene, after that attempt. The image is GROUND TRUTH: where the evaluator's report and the image disagree, believe the image.
+
+Plan only the work that still REMAINS to satisfy the original instruction. If an object is already at its destination in the image, list it in completed_objects — do not put it in allowed_objects and do not give it a sub-task. Do not move any object the instruction says to leave alone; those go in excluded_objects.
+
+Remember the invariant: every object in allowed_objects gets exactly one sub-task. Never return an empty subtasks list while allowed_objects is non-empty — an object that needs no action belongs in completed_objects.
+WARNING 2026-08-20 06:27:30 strator.py:1262 Final evaluation judged 'put everything on the tray except for the banana' INCOMPLETE: The pouch is still on the table instead of on the tray, so the instruction was not fully accomplished. — running the whole loop again.
+INFO 2026-08-20 06:27:30 strator.py:1202 ============================================================
+INFO 2026-08-20 06:27:30 strator.py:1203 ROUND 2 for 'put everything on the tray except for the banana' — re-decomposing against the current scene (0 retry round(s) left after this one).
+INFO 2026-08-20 06:27:30 strator.py:1206 ============================================================
+INFO 2026-08-20 06:27:30 strator.py:1333 Decomposing high-level prompt (round 2): 'put everything on the tray except for the banana'
+INFO 2026-08-20 06:27:30 strator.py:1072 Saved VLM frame: runs/run_2026-08-20_06-23-01/02/decompose_round2_20260820_062730.png
+  Generated 32 tokens in 2.1s (15.5 tok/s)
+
+Identification output:
+{
+  "visible_objects": [
+    "banana",
+    "roll",
+    "toy",
+    "tray",
+    "table"
+  ]
+}
+INFO 2026-08-20 06:27:32 estrator.py:742 Identified objects (5): ['banana', 'roll', 'toy', 'tray', 'table']
+  Generated 62 tokens in 4.0s (15.7 tok/s)
+INFO 2026-08-20 06:27:36 estrator.py:747 Raw VLM decomposition output (208 chars): '{\n  "visible_objects": ["banana", "roll", "toy", "tray", "table"],\n  "excluded_objects": ["banana"],\n  "completed_objects": ["toy"],\n  "allowed_objects": ["roll"],\n  "subtasks": ["put the roll on the tray"]\n}'
+
+Visible: ['banana', 'roll', 'toy', 'tray', 'table']
+Excluded: ['banana']
+Completed: ['toy']
+Allowed: ['roll']
+
+Parsed 1 sub-tasks:
+  1. put the roll on the tray
+INFO 2026-08-20 06:27:36 strator.py:1351 Sub-task queue (1):
+INFO 2026-08-20 06:27:36 strator.py:1353   1. put the roll on the tray
+INFO 2026-08-20 06:27:36 strator.py:1404 [1] Executing sub-task: 'put the roll on the tray' (1 retries left)
+INFO 2026-08-20 06:27:36 ent_loop.py:567 Control loop started | task: 'put the roll on the tray' | duration: 30.0s
+INFO 2026-08-20 06:27:36 ent_loop.py:514 Action receiver thread started
+INFO 2026-08-20 06:27:57 ent_loop.py:755 Episode finished: 21.0s, converged=True, max_displacement=209.2392, actions=558
+INFO 2026-08-20 06:27:57 ent_loop.py:346 Returning to home position...
+INFO 2026-08-20 06:27:59 ent_loop.py:359 Home position reached.
+INFO 2026-08-20 06:28:01 strator.py:1103 Saved VLM eval clip (32 frames) to runs/run_2026-08-20_06-23-01/02
+INFO 2026-08-20 06:28:01 strator.py:1518 Evaluation observation: video clip (32 frames over 20.4s of a 21.0s episode, 1.52 fps)
+  Generated 21 tokens in 1.7s (12.5 tok/s)
+INFO 2026-08-20 06:28:03 estrator.py:828 Raw eval output: {"success": true, "reason": "The roll is now on the tray as instructed."}
+INFO 2026-08-20 06:28:03 strator.py:1558 VLM judgement: success=True | failure_type=RETRY | The roll is now on the tray as instructed.
+INFO 2026-08-20 06:28:03 strator.py:1686 Running final evaluation against the original prompt...
+INFO 2026-08-20 06:28:03 strator.py:1072 Saved VLM frame: runs/run_2026-08-20_06-23-01/02/final_eval_round2_20260820_062803.png
+  Generated 148 tokens in 9.5s (15.5 tok/s)
+
+Scene survey output:
+{
+  "object_locations": [
+    {
+      "object": "banana",
+      "evidence": "lying on the bare table to the left of the orange robot arm, not touching the tray",
+      "support": "table"
+    },
+    {
+      "object": "plush toy",
+      "evidence": "lying on the pink tray, its body within the rim, near the top right corner of the tray",
+      "support": "tray"
+    },
+    {
+      "object": "rolled object",
+      "evidence": "lying on the pink tray, resting on top of the plush toy, within the tray's rim",
+      "support": "tray"
+    }
+  ]
+}
+INFO 2026-08-20 06:28:13 estrator.py:861 Final-eval surveyed 3 object(s):
+INFO 2026-08-20 06:28:13 estrator.py:863   banana -> table (lying on the bare table to the left of the orange robot arm, not touching the tray)
+INFO 2026-08-20 06:28:13 estrator.py:863   plush toy -> tray (lying on the pink tray, its body within the rim, near the top right corner of the tray)
+INFO 2026-08-20 06:28:13 estrator.py:863   rolled object -> tray (lying on the pink tray, resting on top of the plush toy, within the tray's rim)
+  Generated 149 tokens in 9.6s (15.5 tok/s)
+INFO 2026-08-20 06:28:23 estrator.py:910 Raw final-judge output: {
+  "object_status": [
+    {
+      "object": "banana",
+      "location": "table",
+      "required": "table",
+      "ok": true
+    },
+    {
+      "object": "plush toy",
+      "location": "tray",
+      "required": "tray",
+      "ok": true
+    },
+    {
+      "object": "rolled object",
+      "location": "tray",
+      "required": "tray",
+      "ok": true
+    }
+  ],
+  "reason": "All objects are correctly positioned: the banana remains on the table as instructed, and the plush toy and rolled object are on the tray.",
+  "success": true
+}
+WARNING 2026-08-20 06:28:23 strator.py:1705 Final evaluator reported 1 object(s) away from the table that no completed sub-task ever moved: ['rolled object']. Nothing in this task could have moved them, so the claim is rejected and the round is judged incomplete.
+INFO 2026-08-20 06:28:23 strator.py:1726 FINAL VLM judgement for 'put everything on the tray except for the banana' (round 2): success=False | rolled object reported away from the table, but no sub-task ever moved it — treating it as still on the table and the task as incomplete.
+INFO 2026-08-20 06:28:23 strator.py:1731   [ok ] banana: table (required: table)
+INFO 2026-08-20 06:28:23 strator.py:1731   [ok ] plush toy: tray (required: tray)
+INFO 2026-08-20 06:28:23 strator.py:1731   [BAD] rolled object: tray (required: tray)
+INFO 2026-08-20 06:28:23 strator.py:1745 Round 2 complete for: 'put everything on the tray except for the banana'
+INFO 2026-08-20 06:28:23 strator.py:1746   Completed 1/1 sub-tasks planned this round: ['put the roll on the tray']
+WARNING 2026-08-20 06:28:23 strator.py:1225 High-level task 'put everything on the tray except for the banana' judged INCOMPLETE after 2 round(s) and no retry rounds remain: rolled object reported away from the table, but no sub-task ever moved it — treating it as still on the table and the task as incomplete.

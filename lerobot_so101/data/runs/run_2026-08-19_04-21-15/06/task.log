@@ -1,0 +1,94 @@
+INFO 2026-08-19 04:36:52 estrator.py:858 Decomposing high-level prompt (round 1): 'put everything on the tray except for the banana'
+INFO 2026-08-19 04:36:52 estrator.py:694 Saved VLM frame: runs/run_2026-08-19_04-21-15/06/decompose_20260819_043652.png
+  Generated 24 tokens in 2.0s (12.2 tok/s)
+
+Identification output:
+{"visible_objects": ["banana", "stuffed animal", "purse", "tray", "table"]}
+INFO 2026-08-19 04:36:54 estrator.py:507 Identified objects (5): ['banana', 'stuffed animal', 'purse', 'tray', 'table']
+  Generated 77 tokens in 5.6s (13.7 tok/s)
+INFO 2026-08-19 04:36:59 estrator.py:528 Raw VLM decomposition output (258 chars): '{\n  "visible_objects": ["banana", "stuffed animal", "purse", "tray", "table"],\n  "excluded_objects": ["banana"],\n  "allowed_objects": ["stuffed animal", "purse"],\n  "subtasks": [\n    "put the stuffed animal on the tray",\n    "put the purse on the tray"\n  ]\n}'
+
+Visible: ['banana', 'stuffed animal', 'purse', 'tray', 'table']
+Excluded: ['banana']
+Allowed: ['stuffed animal', 'purse']
+
+Parsed 2 sub-tasks:
+  1. put the stuffed animal on the tray
+  2. put the purse on the tray
+INFO 2026-08-19 04:36:59 estrator.py:876 Sub-task queue (2):
+INFO 2026-08-19 04:36:59 estrator.py:878   1. put the stuffed animal on the tray
+INFO 2026-08-19 04:36:59 estrator.py:878   2. put the purse on the tray
+INFO 2026-08-19 04:36:59 estrator.py:926 [1] Executing sub-task: 'put the stuffed animal on the tray' (1 retries left)
+INFO 2026-08-19 04:36:59 ent_loop.py:565 Control loop started | task: 'put the stuffed animal on the tray' | duration: 30.0s
+INFO 2026-08-19 04:36:59 ent_loop.py:512 Action receiver thread started
+INFO 2026-08-19 04:37:14 ent_loop.py:753 Episode finished: 14.4s, converged=True, max_displacement=117.8092, actions=359
+INFO 2026-08-19 04:37:14 ent_loop.py:344 Returning to home position...
+INFO 2026-08-19 04:37:16 ent_loop.py:357 Home position reached.
+INFO 2026-08-19 04:37:18 estrator.py:725 Saved VLM eval clip (32 frames) to runs/run_2026-08-19_04-21-15/06
+INFO 2026-08-19 04:37:18 strator.py:1039 Evaluation observation: video clip (32 frames over 14.2s of a 14.4s episode, 2.18 fps)
+  Generated 22 tokens in 2.0s (11.2 tok/s)
+INFO 2026-08-19 04:37:21 estrator.py:561 Raw eval output: {"success": true, "reason": "The stuffed animal is now on the tray as instructed."}
+INFO 2026-08-19 04:37:21 strator.py:1088 VLM judgement: success=True | The stuffed animal is now on the tray as instructed.
+INFO 2026-08-19 04:37:21 estrator.py:926 [2] Executing sub-task: 'put the purse on the tray' (1 retries left)
+INFO 2026-08-19 04:37:21 ent_loop.py:565 Control loop started | task: 'put the purse on the tray' | duration: 30.0s
+INFO 2026-08-19 04:37:21 ent_loop.py:512 Action receiver thread started
+INFO 2026-08-19 04:37:39 ent_loop.py:753 Episode finished: 17.7s, converged=True, max_displacement=157.7869, actions=468
+INFO 2026-08-19 04:37:39 ent_loop.py:344 Returning to home position...
+INFO 2026-08-19 04:37:41 ent_loop.py:357 Home position reached.
+INFO 2026-08-19 04:37:43 estrator.py:725 Saved VLM eval clip (32 frames) to runs/run_2026-08-19_04-21-15/06
+INFO 2026-08-19 04:37:43 strator.py:1039 Evaluation observation: video clip (32 frames over 17.6s of a 17.7s episode, 1.76 fps)
+  Generated 26 tokens in 2.3s (11.5 tok/s)
+INFO 2026-08-19 04:37:46 estrator.py:561 Raw eval output: {"success": false, "reason": "The purse remains on the table and has not been moved onto the tray."}
+INFO 2026-08-19 04:37:46 strator.py:1088 VLM judgement: success=False | The purse remains on the table and has not been moved onto the tray.
+INFO 2026-08-19 04:37:46 strator.py:1095 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-08-19 04:37:46 estrator.py:926 [2] Executing sub-task: 'put the purse on the tray' (0 retries left)
+INFO 2026-08-19 04:37:46 ent_loop.py:565 Control loop started | task: 'put the purse on the tray' | duration: 30.0s
+INFO 2026-08-19 04:37:46 ent_loop.py:512 Action receiver thread started
+INFO 2026-08-19 04:37:53 ent_loop.py:753 Episode finished: 6.5s, converged=True, max_displacement=7.1240, actions=134
+INFO 2026-08-19 04:37:53 ent_loop.py:344 Returning to home position...
+INFO 2026-08-19 04:37:55 ent_loop.py:357 Home position reached.
+INFO 2026-08-19 04:37:57 estrator.py:725 Saved VLM eval clip (30 frames) to runs/run_2026-08-19_04-21-15/06
+INFO 2026-08-19 04:37:57 strator.py:1039 Evaluation observation: video clip (30 frames over 6.0s of a 6.5s episode, 4.87 fps)
+  Generated 25 tokens in 2.1s (12.0 tok/s)
+INFO 2026-08-19 04:37:59 estrator.py:561 Raw eval output: {"success": false, "reason": "The purse is not on the tray; it remains on the table."}
+INFO 2026-08-19 04:37:59 strator.py:1088 VLM judgement: success=False | The purse is not on the tray; it remains on the table.
+WARNING 2026-08-19 04:37:59 strator.py:1117 Sub-task 'put the purse on the tray' failed after all retries.
+INFO 2026-08-19 04:37:59 strator.py:1126 Triggering replan (0 replan(s) left after this)...
+INFO 2026-08-19 04:37:59 strator.py:1127   Completed so far: ['put the stuffed animal on the tray']
+INFO 2026-08-19 04:37:59 strator.py:1128   Failed: 'put the purse on the tray' — The purse is not on the tray; it remains on the table.
+INFO 2026-08-19 04:37:59 strator.py:1129   Remaining (discarded): []
+
+[REPLAN] Sub-task 'put the purse on the tray' failed after all retries: The purse is not on the tray; it remains on the table.
+[REPLAN] Additional context for the planner (Enter for none, 'q' to abort): INFO 2026-08-19 04:38:09 estrator.py:694 Saved VLM frame: runs/run_2026-08-19_04-21-15/06/replan_20260819_043809.png
+  Generated 51 tokens in 3.8s (13.3 tok/s)
+INFO 2026-08-19 04:38:13 estrator.py:634 Raw VLM replan output (173 chars): '{\n  "visible_objects": ["banana", "purse", "stuffed animal"],\n  "excluded_objects": ["banana"],\n  "allowed_objects": ["purse"],\n  "subtasks": ["put the purse on the tray"]\n}'
+
+Visible: ['banana', 'purse', 'stuffed animal']
+Excluded: ['banana']
+Allowed: ['purse']
+
+Parsed 1 sub-tasks:
+  1. put the purse on the tray
+INFO 2026-08-19 04:38:13 estrator.py:903 Replanned queue (1):
+INFO 2026-08-19 04:38:13 estrator.py:905   1. put the purse on the tray
+INFO 2026-08-19 04:38:13 estrator.py:926 [2] Executing sub-task: 'put the purse on the tray' (1 retries left)
+INFO 2026-08-19 04:38:13 ent_loop.py:565 Control loop started | task: 'put the purse on the tray' | duration: 30.0s
+INFO 2026-08-19 04:38:13 ent_loop.py:512 Action receiver thread started
+INFO 2026-08-19 04:38:21 ent_loop.py:753 Episode finished: 7.8s, converged=True, max_displacement=5.7258, actions=172
+INFO 2026-08-19 04:38:21 ent_loop.py:344 Returning to home position...
+INFO 2026-08-19 04:38:23 ent_loop.py:357 Home position reached.
+INFO 2026-08-19 04:38:25 estrator.py:725 Saved VLM eval clip (31 frames) to runs/run_2026-08-19_04-21-15/06
+INFO 2026-08-19 04:38:25 strator.py:1039 Evaluation observation: video clip (31 frames over 7.4s of a 7.8s episode, 4.08 fps)
+  Generated 32 tokens in 2.6s (12.2 tok/s)
+INFO 2026-08-19 04:38:28 estrator.py:561 Raw eval output: {"success": false, "reason": "The purse is not on the tray; it remains on the table next to the banana and chocolate bar."}
+INFO 2026-08-19 04:38:28 strator.py:1088 VLM judgement: success=False | The purse is not on the tray; it remains on the table next to the banana and chocolate bar.
+INFO 2026-08-19 04:38:28 strator.py:1095 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-08-19 04:38:28 estrator.py:926 [2] Executing sub-task: 'put the purse on the tray' (0 retries left)
+INFO 2026-08-19 04:38:28 ent_loop.py:565 Control loop started | task: 'put the purse on the tray' | duration: 30.0s
+INFO 2026-08-19 04:38:28 ent_loop.py:512 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-08-19 04:38:41 ent_loop.py:753 Episode finished: 13.1s, converged=False, max_displacement=27.4650, actions=319
+WARNING 2026-08-19 04:38:41 estrator.py:850 ABORT requested during sub-task 'put the purse on the tray' — abandoning high-level task 'put everything on the tray except for the banana' and returning to the prompt.
+INFO 2026-08-19 04:38:41 ent_loop.py:344 Returning to home position...
+INFO 2026-08-19 04:38:43 ent_loop.py:357 Home position reached.
+INFO 2026-08-19 04:38:43 strator.py:1098   Completed before the abort: ['put the stuffed animal on the tray']
