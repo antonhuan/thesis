@@ -222,7 +222,7 @@ def main():
         description="Denoising consistency test for VLA vocabulary sensitivity"
     )
     parser.add_argument("--checkpoint", required=True,
-                        help="Path or HF repo id for the finetuned PI05 checkpoint")
+                        help="Path or HF repo id for the finetuned PI05 checkpoint", default="ant0nh/pi05_500_30k")
     parser.add_argument("--image_path", default=None,
                         help="Path to a saved scene image (PNG/JPG). "
                              "If omitted, captures from RealSense.")
