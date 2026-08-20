@@ -95,8 +95,13 @@ lerobot-train \
 Start the policy server:
 
 ```bash
-python -m lerobot.async_inference.policy_server --host=127.0.0.1 --port=8080
+python fast_policy_server.py --host=127.0.0.1 --port=8080
 ```
+
+This is lerobot's own `policy_server` (same flags) with one patch: it skips the
+random weight init that pi05 otherwise runs over 4.14B parameters before reading
+the checkpoint, cutting model load from ~185s to ~15s. Upstream still works if
+you need it: `python -m lerobot.async_inference.policy_server --host=127.0.0.1 --port=8080`.
 
 Then run the robot client loop:
 
