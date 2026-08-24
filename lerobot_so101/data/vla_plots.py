@@ -172,6 +172,33 @@ def _resolve_arm_joint_names(urdf_path):
     return resolved
 
 
+def _urdf_without_meshes(urdf_path):
+    """Return a path to a copy of ``urdf_path`` with every ``<mesh>`` replaced by
+    an inert box primitive, so placo/pinocchio loads no external STL files.
+
+    Forward kinematics needs only the kinematic tree (link/joint origins + axes);
+    visual/collision geometry is irrelevant. This lets FK run from a bare URDF
+    whose mesh assets weren't copied alongside it. Falls back to the original path
+    if the rewrite fails."""
+    import re
+    import tempfile
+
+    try:
+        text = Path(urdf_path).read_text()
+        # <mesh .../> and <mesh ...>...</mesh> -> tiny box (geometry is ignored by FK)
+        text = re.sub(r"<mesh\b[^>]*/>", '<box size="0.001 0.001 0.001"/>', text)
+        text = re.sub(r"<mesh\b[^>]*>.*?</mesh>",
+                      '<box size="0.001 0.001 0.001"/>', text, flags=re.DOTALL)
+        tmp = tempfile.NamedTemporaryFile("w", suffix=".urdf", delete=False)
+        tmp.write(text)
+        tmp.close()
+        return tmp.name
+    except Exception as e:  # noqa: BLE001 - fall back to the original URDF
+        log.warning("Could not strip meshes from %s (%s); using it as-is.",
+                    urdf_path, e)
+        return str(urdf_path)
+
+
 def build_kinematics(urdf_path=None, target_frame_name="gripper_frame_link"):
     """Build a lerobot ``RobotKinematics`` for the SO-101, or return None (with a
     helpful warning) if placo or a URDF is unavailable — never fatal.
@@ -207,13 +234,16 @@ def build_kinematics(urdf_path=None, target_frame_name="gripper_frame_link"):
     arm_joints = _resolve_arm_joint_names(urdf)
     if arm_joints is None:
         return None
+    # Strip mesh geometry so placo needn't resolve external STL assets (FK only
+    # needs the kinematic tree, which is left untouched).
+    fk_urdf = _urdf_without_meshes(urdf)
     # Try the requested tip frame first, then known alternatives; validate each
     # with a smoke-test FK call (bad frame/joint names only raise on use).
     candidates = list(dict.fromkeys([target_frame_name] + EE_FRAME_CANDIDATES))
     last_err = None
     for frame in candidates:
         try:
-            kin = RobotKinematics(str(urdf), target_frame_name=frame,
+            kin = RobotKinematics(fk_urdf, target_frame_name=frame,
                                   joint_names=arm_joints)
             kin.forward_kinematics(np.zeros(len(arm_joints)))
             log.info("Kinematics ready (urdf=%s, tip=%s, joints=%s).",
