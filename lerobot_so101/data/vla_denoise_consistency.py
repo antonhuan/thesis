@@ -23,6 +23,11 @@ Usage:
         --image_path scene.png \
         --n_seeds 20 --num_steps 10
 
+The VLA is conditioned on an initial joint pose (folded into the training
+Task/State/Action prompt); it defaults to the home pose, override with
+--initial_pose PAN LIFT ELBOW WFLEX WROLL GRIP, or --no_state for the old
+stateless prompt.
+
 Plots (per-joint dispersion + end-effector) are written to --plot_dir by
 default; pass --no_plots to skip, and --urdf to point at so101_new_calib.urdf
 for the end-effector figure (auto-detected if omitted).
@@ -35,7 +40,13 @@ from collections import OrderedDict
 
 import torch
 
-from vla_embedding_utils import load_policy, load_scene_image, prepare_inputs
+from vla_embedding_utils import (
+    build_preprocessor,
+    load_policy,
+    load_scene_image,
+    prepare_inputs,
+    prepare_inputs_stateful,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -69,6 +80,14 @@ PROMPTS = OrderedDict([
 ])
 
 TRAINING_LABELS = {"banana", "toy", "pouch"}
+
+# Default initial joint pose the VLA is conditioned on (motor order:
+# shoulder_pan, shoulder_lift, elbow_flex, wrist_flex, wrist_roll, gripper).
+# Values are the rest/home pose from robot_client_loop.py (arm in degrees,
+# gripper 0-100 %); copied rather than imported to avoid pulling in the gRPC /
+# hardware dependencies of that module.
+HOME_POSE = [-4.571428571428571, -101.49450549450549, 91.91208791208791,
+             74.28571428571429, -0.7472527472527473, 1.3013698630136987]
 
 
 # --------------------------------------------------------------------------- #
@@ -148,18 +167,28 @@ def denoise_with_cached_kv(model, prefix_pad_masks, past_key_values,
 # --------------------------------------------------------------------------- #
 
 def measure_consistency(policy, image, instruction, n_seeds=10,
-                        num_steps=10, device="cuda"):
+                        num_steps=10, device="cuda",
+                        preprocessor=None, initial_pose=None):
     """
     Run *n_seeds* denoising passes for one instruction on one image.
     Returns a dict of variance metrics and the raw stacked actions.
+
+    When a ``preprocessor`` is given the policy is conditioned on ``initial_pose``
+    via the training-faithful Task/State/Action prompt; otherwise it falls back
+    to the bare, stateless prompt.
     """
     model = policy.model
     config = policy.config
     action_dim = config.output_features["action"].shape[0]  # 6 for SO-101
 
-    images, img_masks, tokens, masks = prepare_inputs(
-        policy, image, instruction, device
-    )
+    if preprocessor is not None:
+        images, img_masks, tokens, masks = prepare_inputs_stateful(
+            policy, preprocessor, image, instruction, initial_pose, device
+        )
+    else:
+        images, img_masks, tokens, masks = prepare_inputs(
+            policy, image, instruction, device
+        )
 
     # Encode prefix once
     prefix_pad_masks, past_key_values = encode_prefix(
@@ -266,11 +295,31 @@ def main():
     parser.add_argument("--urdf", default=None,
                         help="Path to so101_new_calib.urdf for the end-effector "
                              "plot (auto-detected if omitted)")
+    parser.add_argument("--initial_pose", type=float, nargs=6, default=None,
+                        metavar=("PAN", "LIFT", "ELBOW", "WFLEX", "WROLL", "GRIP"),
+                        help="Initial joint pose (6 values, motor order, arm in "
+                             "degrees / gripper 0-100) the VLA is conditioned on. "
+                             "Defaults to the home pose.")
+    parser.add_argument("--no_state", action="store_true",
+                        help="Disable state conditioning (bare stateless prompt, "
+                             "the old behaviour).")
     args = parser.parse_args()
 
     log.info("Loading policy from %s (dtype=%s) ...", args.checkpoint, args.dtype)
     policy = load_policy(args.checkpoint, args.device, args.dtype)
     log.info("Policy loaded.")
+
+    # State conditioning: route inputs through the checkpoint's real preprocessor
+    # so the VLA sees the Task/State/Action prompt it was trained on.
+    preprocessor = None
+    initial_pose = args.initial_pose if args.initial_pose is not None else HOME_POSE
+    if args.no_state:
+        log.info("State conditioning disabled (--no_state); using bare prompts.")
+    else:
+        preprocessor = build_preprocessor(args.checkpoint, policy.config)
+        if preprocessor is not None:
+            log.info("Conditioning on initial pose: %s",
+                     [round(v, 2) for v in initial_pose])
 
     # --- Acquire scene image ---
     if args.image_path:
@@ -309,6 +358,8 @@ def main():
             n_seeds=args.n_seeds,
             num_steps=args.num_steps,
             device=args.device,
+            preprocessor=preprocessor,
+            initial_pose=initial_pose,
         )
 
         elapsed = time.time() - t0

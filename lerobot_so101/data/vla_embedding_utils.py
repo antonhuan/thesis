@@ -7,12 +7,15 @@ comparison tool (vla_embedding_comp.py) and the denoising consistency
 test (vla_denoise_consistency.py).
 """
 
+import logging
 from pathlib import Path
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 from PIL import Image
+
+log = logging.getLogger(__name__)
 
 
 # --------------------------------------------------------------------------- #
@@ -101,6 +104,74 @@ def prepare_inputs(policy, image: Image.Image, instruction: str, device: str = "
     tokens = encoded["input_ids"]
     masks = encoded["attention_mask"].bool()
 
+    return images, img_masks, tokens, masks
+
+
+# --------------------------------------------------------------------------- #
+# State-conditioned input preparation (routes through the real preprocessor)
+# --------------------------------------------------------------------------- #
+
+def build_preprocessor(checkpoint, config):
+    """Load the checkpoint's PI05 *input* pipeline (normalize -> discretize state
+    -> "Task: .. , State: .. ; Action: " template -> tokenizer -> device), so the
+    prompt the model sees matches training exactly. Returns the preprocessor
+    pipeline, or None if it can't be loaded (caller falls back to the bare,
+    stateless ``prepare_inputs``)."""
+    try:
+        from lerobot.policies.factory import make_pre_post_processors
+
+        pre, _ = make_pre_post_processors(config, pretrained_path=str(checkpoint))
+        log.info("Loaded checkpoint preprocessor (state-conditioned prompts).")
+        return pre
+    except Exception as e:  # noqa: BLE001
+        log.warning("Could not load checkpoint preprocessor (%s); falling back "
+                    "to stateless prompts.", e)
+        return None
+
+
+def prepare_inputs_stateful(policy, preprocessor, image, instruction,
+                            initial_pose, device="cuda"):
+    """Build (images, img_masks, tokens, masks) for ``embed_prefix`` by routing a
+    proper observation — scene image + initial joint pose + task — through the
+    checkpoint's real preprocessor. This reproduces the training-time
+    ``Task: {instruction}, State: {discretized_pose}; Action:`` prompt (the pose
+    is QUANTILES-normalized then binned into 256 levels) and the [0,1]->[-1,1]
+    image handling, neither of which the bare ``prepare_inputs`` does.
+
+    ``initial_pose`` is a length-6 real-unit joint vector in motor order
+    [shoulder_pan, shoulder_lift, elbow_flex, wrist_flex, wrist_roll, gripper].
+    """
+    from lerobot.utils.constants import (
+        OBS_LANGUAGE_ATTENTION_MASK,
+        OBS_LANGUAGE_TOKENS,
+        OBS_STATE,
+    )
+
+    config = policy.config
+    img_keys = list(config.image_features)
+    if not img_keys:
+        raise ValueError("policy config exposes no image_features")
+    cam_key = img_keys[0]
+
+    # Scene image as (C, H, W) float in [0, 1]; the pipeline adds the batch dim
+    # and the model's _preprocess_images resizes + maps to [-1, 1].
+    img = image.convert("RGB")
+    img_t = torch.tensor(np.array(img), dtype=torch.float32) / 255.0  # (H,W,C)
+    img_t = img_t.permute(2, 0, 1).contiguous()                       # (C,H,W)
+
+    # Initial pose in real units; the NormalizerProcessorStep normalizes it.
+    state = torch.as_tensor(initial_pose, dtype=torch.float32).flatten()
+
+    obs = {
+        cam_key: img_t,
+        OBS_STATE: state,
+        "task": instruction,
+    }
+    processed = preprocessor(obs)
+
+    images, img_masks = policy.model._preprocess_images(processed)
+    tokens = processed[OBS_LANGUAGE_TOKENS]
+    masks = processed[OBS_LANGUAGE_ATTENTION_MASK].bool()
     return images, img_masks, tokens, masks
 
 
