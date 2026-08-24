@@ -94,6 +94,8 @@ RUN pip install lerobot[training] --break-system-packages
 
 RUN pip install vllm qwen-vl-utils pillow --break-system-packages
 
+RUN pip install placo --break-system-packages
+
 # ── Working directory for user scripts / calibration data ────
 WORKDIR /workspace
 
