@@ -1,20 +1,28 @@
 """
 Plotting for the PI0.5 denoising-consistency test.
 
-Two visualisations are produced from the per-prompt stacked action samples
-(shape (n_seeds, chunk_size, action_dim)) that ``measure_consistency`` returns:
+Visualisations are produced from the per-prompt stacked action samples
+(shape (n_seeds, chunk_size, action_dim)) that ``measure_consistency`` returns.
+Prompts are grouped by the physical *item* they refer to (a training label plus
+its synonym / variant prompts; see ``ITEM_GROUPS`` in the driver), and every plot
+emits **one figure per item** so a training label sits alongside its variants:
 
-  1. plot_joint_distributions
-        One figure, six panels (one per SO-101 joint). Each panel shows a violin
-        per prompt of the *per-seed deviation from the mean trajectory* — i.e. how
-        much the sampled joint value scatters across noise seeds at each timestep.
-        A prompt the VLA recognises produces a tight attractor -> narrow violin;
-        an unrecognised prompt scatters -> wide violin.
+  1. plot_joint_variance_over_time
+        One figure per item, six panels (one per SO-101 joint). Each panel plots
+        one line per prompt in the item group: the variance across noise seeds at
+        each timestep of the action chunk. A prompt the VLA recognises produces a
+        tight attractor -> low/flat line; an unrecognised prompt scatters -> rising.
 
-  2. plot_end_effector
+  2. plot_action_traces
+        One figure per item, six panels. For each prompt in the group, every seed's
+        action trajectory (faint) plus the across-seed mean (bold), coloured per
+        prompt so variants overlay for direct comparison.
+
+  3. plot_end_effector
         Forward-kinematics of each sampled joint chunk into 3D gripper positions,
-        drawn as one small-multiple 3D panel per prompt (seed trajectories + end
-        points, shared axes). Recognised prompts land in a tight bundle.
+        drawn as one 3D figure per item with every prompt in the group overlaid on a
+        single axis (seed trajectories + end points, shared axes across items).
+        Recognised prompts land in a tight bundle.
 
 Actions leave the policy in quantile-normalized space. Where the checkpoint's
 postprocessor can be loaded we unnormalize to real units (arm joints in degrees,
@@ -280,72 +288,46 @@ def _safe_name(label):
     return "".join(c if c.isalnum() or c in "-_" else "_" for c in label)
 
 
-def plot_joint_variance_over_time(results, prompts, training_labels, save_path,
+def _present_groups(item_groups, results):
+    """Filter each item group to the prompt labels actually present in ``results``
+    (a ``--prompts`` subset may drop some), preserving order and skipping empty
+    groups. Returns an OrderedDict(item -> [labels])."""
+    from collections import OrderedDict
+    out = OrderedDict()
+    for item, labels in item_groups.items():
+        present = [l for l in labels if l in results]
+        if present:
+            out[item] = present
+    return out
+
+
+def _group_colors(labels, training_labels):
+    """Assign a distinct colour to each prompt in a group: the training label gets
+    a fixed strong blue, variants are drawn from a categorical palette."""
+    import matplotlib.pyplot as plt
+    palette = list(plt.get_cmap("tab10").colors) + list(plt.get_cmap("tab20").colors)
+    colors, i = {}, 0
+    for label in labels:
+        if label in training_labels:
+            colors[label] = "#2a7fff"
+        else:
+            colors[label] = palette[i % len(palette)]
+            i += 1
+    return colors
+
+
+def plot_joint_variance_over_time(results, item_groups, training_labels, save_dir,
                                   unnorm=None):
     """Per joint, the variance across noise seeds at each timestep of the action
     chunk. Keeping the time axis (rather than collapsing it) shows *where* in the
     chunk seeds agree or diverge — and, unlike a single pooled number, does not
-    let temporal profile differences hide. One line per prompt; recognised
-    prompts stay low/flat, unrecognised ones rise."""
+    let temporal profile differences hide. One figure per item; within it, one
+    line per prompt in the group, coloured per prompt. Recognised prompts (incl.
+    the training label) stay low/flat, unrecognised ones rise."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-
-    labels = list(results.keys())
-    units = "real units" if unnorm is not None else "normalized"
-    ncols = 3
-    nrows = _grid(len(JOINT_NAMES), ncols)
-    fig, axes = plt.subplots(nrows, ncols, figsize=(6 * ncols, 4 * nrows))
-    axes = np.atleast_1d(axes).flatten()
-
-    for j, name in enumerate(JOINT_NAMES):
-        ax = axes[j]
-        for label in labels:
-            stacked = results[label]["stacked_actions"]          # (S, T, A)
-            if unnorm is not None:
-                stacked = unnorm(stacked)
-            arr = np.asarray(stacked[..., j], dtype=float)        # (S, T)
-            var_t = arr.var(axis=0)                               # (T,)
-            is_train = label in training_labels
-            ax.plot(np.arange(var_t.shape[0]), var_t,
-                    color="#2a7fff" if is_train else "#d1495b",
-                    lw=1.4 if is_train else 0.9,
-                    alpha=0.85 if is_train else 0.45)
-        ax.set_title(name, fontsize=11)
-        ax.set_xlabel("timestep in chunk", fontsize=8)
-        ax.set_ylabel(f"variance across seeds ({units})", fontsize=8)
-        ax.grid(True, alpha=0.25)
-
-    for extra in range(len(JOINT_NAMES), len(axes)):
-        axes[extra].axis("off")
-
     from matplotlib.lines import Line2D
-    legend = [
-        Line2D([0], [0], color="#2a7fff", lw=1.4, label="training label"),
-        Line2D([0], [0], color="#d1495b", lw=0.9, label="synonym / out-of-domain"),
-    ]
-    fig.legend(handles=legend, loc="upper right", fontsize=9)
-    fig.suptitle("Per-joint variance across seeds over the action chunk "
-                 "(low/flat = recognised / strong attractor)", fontsize=13)
-    fig.tight_layout(rect=[0, 0, 1, 0.97])
-    fig.savefig(save_path, dpi=150, bbox_inches="tight")
-    plt.close(fig)
-    print(f"  Saved: {save_path}")
-
-
-# --------------------------------------------------------------------------- #
-# Plot 1b: action-chunk traces (per prompt)
-# --------------------------------------------------------------------------- #
-
-def plot_action_traces(results, prompts, training_labels, save_dir,
-                       unnorm=None, classify=None):
-    """One figure per prompt: for each joint, every seed's action trajectory over
-    the chunk (thin) plus the across-seed mean (bold). This is the actual motion
-    the VLA plans — a tight bundle means a strong attractor, a frayed one means
-    the prompt isn't pinning the trajectory down."""
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
 
     save_dir = Path(save_dir)
     save_dir.mkdir(parents=True, exist_ok=True)
@@ -353,23 +335,90 @@ def plot_action_traces(results, prompts, training_labels, save_dir,
     ncols = 3
     nrows = _grid(len(JOINT_NAMES), ncols)
 
-    for label in results:
-        stacked = results[label]["stacked_actions"]              # (S, T, A)
-        if unnorm is not None:
-            stacked = unnorm(stacked)
-        arr = np.asarray(stacked, dtype=float)
-        s_n, t_n, _ = arr.shape
-        is_train = label in training_labels
-        mean_color = "#2a7fff" if is_train else "#d1495b"
-
+    for item, labels in _present_groups(item_groups, results).items():
+        colors = _group_colors(labels, training_labels)
         fig, axes = plt.subplots(nrows, ncols, figsize=(6 * ncols, 4 * nrows))
         axes = np.atleast_1d(axes).flatten()
-        steps = np.arange(t_n)
+
         for j, name in enumerate(JOINT_NAMES):
             ax = axes[j]
-            for s in range(s_n):
-                ax.plot(steps, arr[s, :, j], color="gray", lw=0.6, alpha=0.35)
-            ax.plot(steps, arr[:, :, j].mean(axis=0), color=mean_color, lw=1.8)
+            for label in labels:
+                stacked = results[label]["stacked_actions"]      # (S, T, A)
+                if unnorm is not None:
+                    stacked = unnorm(stacked)
+                arr = np.asarray(stacked[..., j], dtype=float)    # (S, T)
+                var_t = arr.var(axis=0)                           # (T,)
+                is_train = label in training_labels
+                ax.plot(np.arange(var_t.shape[0]), var_t,
+                        color=colors[label],
+                        lw=1.8 if is_train else 1.1,
+                        alpha=0.9 if is_train else 0.7)
+            ax.set_title(name, fontsize=11)
+            ax.set_xlabel("timestep in chunk", fontsize=8)
+            ax.set_ylabel(f"variance across seeds ({units})", fontsize=8)
+            ax.grid(True, alpha=0.25)
+
+        for extra in range(len(JOINT_NAMES), len(axes)):
+            axes[extra].axis("off")
+
+        legend = [
+            Line2D([0], [0], color=colors[label],
+                   lw=1.8 if label in training_labels else 1.1,
+                   label=label + (" (training)" if label in training_labels else ""))
+            for label in labels
+        ]
+        fig.legend(handles=legend, loc="upper right", fontsize=9)
+        fig.suptitle(f"'{item}' — per-joint variance across seeds over the action "
+                     f"chunk (low/flat = recognised / strong attractor)", fontsize=13)
+        fig.tight_layout(rect=[0, 0, 1, 0.97])
+        out = save_dir / f"joint_variance_{_safe_name(item)}.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+        print(f"  Saved: {out}")
+
+
+# --------------------------------------------------------------------------- #
+# Plot 1b: action-chunk traces (per prompt)
+# --------------------------------------------------------------------------- #
+
+def plot_action_traces(results, item_groups, training_labels, save_dir,
+                       unnorm=None, classify=None):
+    """One figure per item: for each joint, every seed's action trajectory over the
+    chunk (faint) plus the across-seed mean (bold), for each prompt in the item
+    group, coloured per prompt so variants overlay. This is the actual motion the
+    VLA plans — a tight bundle means a strong attractor, a frayed one means the
+    prompt isn't pinning the trajectory down."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
+
+    save_dir = Path(save_dir)
+    save_dir.mkdir(parents=True, exist_ok=True)
+    units = "real units" if unnorm is not None else "normalized"
+    ncols = 3
+    nrows = _grid(len(JOINT_NAMES), ncols)
+
+    for item, labels in _present_groups(item_groups, results).items():
+        colors = _group_colors(labels, training_labels)
+        fig, axes = plt.subplots(nrows, ncols, figsize=(6 * ncols, 4 * nrows))
+        axes = np.atleast_1d(axes).flatten()
+
+        for j, name in enumerate(JOINT_NAMES):
+            ax = axes[j]
+            for label in labels:
+                stacked = results[label]["stacked_actions"]      # (S, T, A)
+                if unnorm is not None:
+                    stacked = unnorm(stacked)
+                arr = np.asarray(stacked, dtype=float)
+                s_n, t_n, _ = arr.shape
+                steps = np.arange(t_n)
+                for s in range(s_n):
+                    ax.plot(steps, arr[s, :, j], color=colors[label],
+                            lw=0.5, alpha=0.20)
+                ax.plot(steps, arr[:, :, j].mean(axis=0),
+                        color=colors[label],
+                        lw=2.0 if label in training_labels else 1.4)
             ax.set_title(name, fontsize=11)
             ax.set_xlabel("timestep in chunk", fontsize=8)
             ax.set_ylabel(f"action ({units})", fontsize=8)
@@ -377,14 +426,19 @@ def plot_action_traces(results, prompts, training_labels, save_dir,
         for extra in range(len(JOINT_NAMES), len(axes)):
             axes[extra].axis("off")
 
-        verdict = ""
-        if classify is not None:
-            d = results[label]
-            verdict = " · " + classify(d["mean_std"], d["action_magnitude"])
-        fig.suptitle(f"Action-chunk traces — '{label}'{verdict} "
-                     f"({s_n} seeds)", fontsize=13)
+        legend = []
+        for label in labels:
+            lbl = label + (" (training)" if label in training_labels else "")
+            if classify is not None:
+                d = results[label]
+                lbl += " · " + classify(d["mean_std"], d["action_magnitude"])
+            legend.append(Line2D([0], [0], color=colors[label],
+                                 lw=2.0 if label in training_labels else 1.4,
+                                 label=lbl))
+        fig.legend(handles=legend, loc="upper right", fontsize=9)
+        fig.suptitle(f"Action-chunk traces — '{item}'", fontsize=13)
         fig.tight_layout(rect=[0, 0, 1, 0.97])
-        out = save_dir / f"{_safe_name(label)}.png"
+        out = save_dir / f"traces_{_safe_name(item)}.png"
         fig.savefig(out, dpi=150, bbox_inches="tight")
         plt.close(fig)
         print(f"  Saved: {out}")
@@ -394,11 +448,13 @@ def plot_action_traces(results, prompts, training_labels, save_dir,
 # Plot 2: end-effector 3D clouds
 # --------------------------------------------------------------------------- #
 
-def plot_end_effector(results, prompts, training_labels, kin, unnorm, save_path,
+def plot_end_effector(results, item_groups, training_labels, kin, unnorm, save_dir,
                       classify=None):
-    """One 3D panel per prompt: each seed's gripper trajectory (faint line) plus
-    its end point (marker), shared axis limits so tightness is comparable.
-    Requires a real-units unnormalizer (FK needs degrees)."""
+    """One 3D figure per item: every prompt in the group overlaid on a single axis,
+    each seed's gripper trajectory (faint line) plus its end point (marker),
+    coloured per prompt. Axis limits are shared across all items so tightness is
+    comparable between figures. Requires a real-units unnormalizer (FK needs
+    degrees)."""
     if unnorm is None:
         log.warning("Skipping end-effector plot: needs real (unnormalized) "
                     "joint angles, which could not be loaded.")
@@ -407,48 +463,58 @@ def plot_end_effector(results, prompts, training_labels, kin, unnorm, save_path,
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
     from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 - registers 3d proj
 
-    labels = list(results.keys())
+    save_dir = Path(save_dir)
+    save_dir.mkdir(parents=True, exist_ok=True)
+    groups = _present_groups(item_groups, results)
+
+    # FK every present prompt once, then derive shared (global) axis limits so
+    # bundle tightness is comparable across the per-item figures.
     clouds = {}
-    for label in labels:
-        real = unnorm(results[label]["stacked_actions"])
-        clouds[label] = _ee_cloud(real, kin)
+    for labels in groups.values():
+        for label in labels:
+            real = unnorm(results[label]["stacked_actions"])
+            clouds[label] = _ee_cloud(real, kin)
 
     allpts = np.concatenate([c.reshape(-1, 3) for c in clouds.values()], axis=0)
     mins, maxs = allpts.min(axis=0), allpts.max(axis=0)
     pad = 0.05 * np.maximum(maxs - mins, 1e-6)
     lims = list(zip(mins - pad, maxs + pad))
 
-    ncols = 4
-    nrows = _grid(len(labels), ncols)
-    fig = plt.figure(figsize=(4 * ncols, 3.6 * nrows))
+    for item, labels in groups.items():
+        colors = _group_colors(labels, training_labels)
+        fig = plt.figure(figsize=(8, 7))
+        ax = fig.add_subplot(111, projection="3d")
 
-    for i, label in enumerate(labels):
-        ax = fig.add_subplot(nrows, ncols, i + 1, projection="3d")
-        c = clouds[label]
-        is_train = label in training_labels
-        color = "#2a7fff" if is_train else "#d1495b"
-        for s in range(c.shape[0]):
-            ax.plot(c[s, :, 0], c[s, :, 1], c[s, :, 2],
-                    color=color, lw=0.6, alpha=0.45)
-        ax.scatter(c[:, -1, 0], c[:, -1, 1], c[:, -1, 2],
-                   color=color, s=10, depthshade=True)
-        # end-point dispersion: std of final gripper position across seeds
-        ee_spread = float(np.linalg.norm(c[:, -1, :].std(axis=0)))
-        verdict = ""
-        if classify is not None:
-            d = results[label]
-            verdict = " · " + classify(d["mean_std"], d["action_magnitude"])
-        ax.set_title(f"{label}{verdict}\nEE spread={ee_spread:.3f} m", fontsize=8)
+        legend = []
+        for label in labels:
+            c = clouds[label]
+            color = colors[label]
+            for s in range(c.shape[0]):
+                ax.plot(c[s, :, 0], c[s, :, 1], c[s, :, 2],
+                        color=color, lw=0.6, alpha=0.45)
+            ax.scatter(c[:, -1, 0], c[:, -1, 1], c[:, -1, 2],
+                       color=color, s=12, depthshade=True)
+            # end-point dispersion: std of final gripper position across seeds
+            ee_spread = float(np.linalg.norm(c[:, -1, :].std(axis=0)))
+            lbl = label + (" (training)" if label in training_labels else "")
+            if classify is not None:
+                d = results[label]
+                lbl += " · " + classify(d["mean_std"], d["action_magnitude"])
+            lbl += f" · spread={ee_spread:.3f} m"
+            legend.append(Line2D([0], [0], color=color, lw=2, label=lbl))
+
         ax.set_xlim(lims[0]); ax.set_ylim(lims[1]); ax.set_zlim(lims[2])
-        ax.tick_params(labelsize=5)
-        ax.set_xlabel("x", fontsize=6); ax.set_ylabel("y", fontsize=6)
-        ax.set_zlabel("z", fontsize=6)
-
-    fig.suptitle("End-effector trajectories per prompt (FK of sampled joint "
-                 "chunks) — tight bundle = recognised", fontsize=13)
-    fig.tight_layout(rect=[0, 0, 1, 0.96])
-    fig.savefig(save_path, dpi=150, bbox_inches="tight")
-    plt.close(fig)
-    print(f"  Saved: {save_path}")
+        ax.tick_params(labelsize=6)
+        ax.set_xlabel("x", fontsize=8); ax.set_ylabel("y", fontsize=8)
+        ax.set_zlabel("z", fontsize=8)
+        fig.legend(handles=legend, loc="upper right", fontsize=8)
+        fig.suptitle(f"End-effector trajectories — '{item}' (FK of sampled joint "
+                     f"chunks) — tight bundle = recognised", fontsize=12)
+        fig.tight_layout(rect=[0, 0, 1, 0.96])
+        out = save_dir / f"end_effector_{_safe_name(item)}.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+        print(f"  Saved: {out}")

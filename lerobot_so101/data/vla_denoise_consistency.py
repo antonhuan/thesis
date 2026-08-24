@@ -80,6 +80,17 @@ PROMPTS = OrderedDict([
 
 TRAINING_LABELS = {"banana", "toy", "pouch"}
 
+# Prompts grouped by the physical item they refer to. Each group is one training
+# label plus its synonym / variant prompts; the out-of-domain group holds prompts
+# for objects not in the training set. Plots are produced one figure per item so a
+# training label sits alongside its variants (see vla_plots.py).
+ITEM_GROUPS = OrderedDict([
+    ("banana", ["banana", "fruit", "yellow banana"]),
+    ("toy",    ["toy", "plush toy", "stuffed animal"]),
+    ("pouch",  ["pouch", "purse", "bag", "drawstring pouch", "brown cylinder"]),
+    ("out-of-domain", ["mug", "laptop", "shoe"]),
+])
+
 # Initial joint pose the VLA is conditioned on (motor order: shoulder_pan,
 # shoulder_lift, elbow_flex, wrist_flex, wrist_roll, gripper; arm in degrees,
 # gripper 0-100 %). Edit this constant to change the pose. Values are the
@@ -386,12 +397,12 @@ def main():
         unnorm = build_action_unnormalizer(args.checkpoint, policy.config)
 
         plot_joint_variance_over_time(
-            results, PROMPTS, TRAINING_LABELS,
-            plot_dir / "joint_variance_over_time.png",
+            results, ITEM_GROUPS, TRAINING_LABELS,
+            plot_dir / "joint_variance",
             unnorm=unnorm,
         )
         plot_action_traces(
-            results, PROMPTS, TRAINING_LABELS,
+            results, ITEM_GROUPS, TRAINING_LABELS,
             plot_dir / "traces",
             unnorm=unnorm, classify=classify,
         )
@@ -400,8 +411,8 @@ def main():
             kin = build_kinematics(args.urdf)
             if kin is not None:
                 plot_end_effector(
-                    results, PROMPTS, TRAINING_LABELS, kin, unnorm,
-                    plot_dir / "end_effector_3d.png",
+                    results, ITEM_GROUPS, TRAINING_LABELS, kin, unnorm,
+                    plot_dir / "end_effector",
                     classify=classify,
                 )
         else:
