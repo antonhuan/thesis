@@ -71,6 +71,22 @@ TRAINING_LABELS = {"banana", "toy", "pouch"}
 # Core: cached prefix + denoising loop
 # --------------------------------------------------------------------------- #
 
+def _to_4d_additive_mask(att_2d_masks, dtype):
+    """Boolean 2D [B,N,N] mask -> additive float 4D [B,1,N,N] mask.
+
+    Mirrors PI05Pytorch._prepare_attention_masks_4d without depending on it,
+    so the script runs against any lerobot version (some don't expose the
+    private helper).
+    """
+    m = att_2d_masks[:, None, :, :]
+    neg = torch.finfo(dtype).min
+    return torch.where(
+        m,
+        torch.zeros((), dtype=dtype, device=m.device),
+        torch.full((), neg, dtype=dtype, device=m.device),
+    )
+
+
 @torch.no_grad()
 def encode_prefix(model, images, img_masks, tokens, masks):
     """
@@ -84,7 +100,8 @@ def encode_prefix(model, images, img_masks, tokens, masks):
     )
     prefix_att_2d_masks = make_att_2d_masks(prefix_pad_masks, prefix_att_masks)
     prefix_position_ids = torch.cumsum(prefix_pad_masks, dim=1) - 1
-    prefix_att_2d_masks_4d = model._prepare_attention_masks_4d(prefix_att_2d_masks)
+    model_dtype = next(model.paligemma_with_expert.parameters()).dtype
+    prefix_att_2d_masks_4d = _to_4d_additive_mask(prefix_att_2d_masks, model_dtype)
 
     model.paligemma_with_expert.paligemma.model.language_model.config._attn_implementation = "eager"
 
