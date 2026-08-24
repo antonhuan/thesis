@@ -24,9 +24,8 @@ Usage:
         --n_seeds 20 --num_steps 10
 
 The VLA is conditioned on an initial joint pose (folded into the training
-Task/State/Action prompt); it defaults to the home pose, override with
---initial_pose PAN LIFT ELBOW WFLEX WROLL GRIP, or --no_state for the old
-stateless prompt.
+Task/State/Action prompt), set by the INITIAL_POSE constant near the top of this
+file; pass --no_state for the old stateless prompt.
 
 Plots (per-joint dispersion + end-effector) are written to --plot_dir by
 default; pass --no_plots to skip, and --urdf to point at so101_new_calib.urdf
@@ -81,13 +80,13 @@ PROMPTS = OrderedDict([
 
 TRAINING_LABELS = {"banana", "toy", "pouch"}
 
-# Default initial joint pose the VLA is conditioned on (motor order:
-# shoulder_pan, shoulder_lift, elbow_flex, wrist_flex, wrist_roll, gripper).
-# Values are the rest/home pose from robot_client_loop.py (arm in degrees,
-# gripper 0-100 %); copied rather than imported to avoid pulling in the gRPC /
-# hardware dependencies of that module.
-HOME_POSE = [-4.571428571428571, -101.49450549450549, 91.91208791208791,
-             74.28571428571429, -0.7472527472527473, 1.3013698630136987]
+# Initial joint pose the VLA is conditioned on (motor order: shoulder_pan,
+# shoulder_lift, elbow_flex, wrist_flex, wrist_roll, gripper; arm in degrees,
+# gripper 0-100 %). Edit this constant to change the pose. Values are the
+# rest/home pose from robot_client_loop.py, copied rather than imported to avoid
+# pulling in the gRPC / hardware dependencies of that module.
+INITIAL_POSE = [-4.571428571428571, -101.49450549450549, 91.91208791208791,
+                74.28571428571429, -0.7472527472527473, 1.3013698630136987]
 
 
 # --------------------------------------------------------------------------- #
@@ -282,7 +281,7 @@ def main():
     parser.add_argument("--num_steps", type=int, default=10,
                         help="Flow-matching denoising steps (default: 10)")
     parser.add_argument("--device", default="cuda")
-    parser.add_argument("--dtype", default="float32",
+    parser.add_argument("--dtype", default="bfloat16",
                         choices=["float32", "bfloat16"],
                         help="Model precision (default: float32). 'bfloat16' "
                              "roughly halves load time / GPU memory.")
@@ -295,11 +294,6 @@ def main():
     parser.add_argument("--urdf", default=None,
                         help="Path to so101_new_calib.urdf for the end-effector "
                              "plot (auto-detected if omitted)")
-    parser.add_argument("--initial_pose", type=float, nargs=6, default=None,
-                        metavar=("PAN", "LIFT", "ELBOW", "WFLEX", "WROLL", "GRIP"),
-                        help="Initial joint pose (6 values, motor order, arm in "
-                             "degrees / gripper 0-100) the VLA is conditioned on. "
-                             "Defaults to the home pose.")
     parser.add_argument("--no_state", action="store_true",
                         help="Disable state conditioning (bare stateless prompt, "
                              "the old behaviour).")
@@ -312,14 +306,13 @@ def main():
     # State conditioning: route inputs through the checkpoint's real preprocessor
     # so the VLA sees the Task/State/Action prompt it was trained on.
     preprocessor = None
-    initial_pose = args.initial_pose if args.initial_pose is not None else HOME_POSE
     if args.no_state:
         log.info("State conditioning disabled (--no_state); using bare prompts.")
     else:
         preprocessor = build_preprocessor(args.checkpoint, policy.config)
         if preprocessor is not None:
             log.info("Conditioning on initial pose: %s",
-                     [round(v, 2) for v in initial_pose])
+                     [round(v, 2) for v in INITIAL_POSE])
 
     # --- Acquire scene image ---
     if args.image_path:
@@ -359,7 +352,7 @@ def main():
             num_steps=args.num_steps,
             device=args.device,
             preprocessor=preprocessor,
-            initial_pose=initial_pose,
+            initial_pose=INITIAL_POSE,
         )
 
         elapsed = time.time() - t0
