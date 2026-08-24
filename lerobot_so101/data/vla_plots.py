@@ -226,34 +226,24 @@ def _ee_cloud(stacked_real, kin):
 
 
 # --------------------------------------------------------------------------- #
-# Plot 1: per-joint distributions
+# Plot 1: per-joint variance across seeds, over the action-chunk timesteps
 # --------------------------------------------------------------------------- #
 
 def _grid(n, ncols):
     return (n + ncols - 1) // ncols
 
 
-def _violin_data_per_joint(results, labels, joint_idx, unnorm):
-    """For one joint, the per-prompt list of centered per-seed deviations
-    (flattened over seeds x timesteps). Centering per timestep isolates the
-    seed-to-seed scatter — the consistency signal — from legitimate trajectory
-    motion shared by all seeds."""
-    data = []
-    for label in labels:
-        stacked = results[label]["stacked_actions"]          # (S, T, A), norm
-        if unnorm is not None:
-            stacked = unnorm(stacked)
-        arr = np.asarray(stacked[..., joint_idx], dtype=float)  # (S, T)
-        resid = arr - arr.mean(axis=0, keepdims=True)           # center per t
-        flat = resid.reshape(-1)
-        if flat.std() == 0.0:  # degenerate (e.g. 1 seed) -> nudge so kde works
-            flat = flat + np.random.normal(0.0, 1e-9, flat.shape)
-        data.append(flat)
-    return data
+def _safe_name(label):
+    return "".join(c if c.isalnum() or c in "-_" else "_" for c in label)
 
 
-def plot_joint_distributions(results, prompts, training_labels, save_path,
-                             unnorm=None, classify=None):
+def plot_joint_variance_over_time(results, prompts, training_labels, save_path,
+                                  unnorm=None):
+    """Per joint, the variance across noise seeds at each timestep of the action
+    chunk. Keeping the time axis (rather than collapsing it) shows *where* in the
+    chunk seeds agree or diverge — and, unlike a single pooled number, does not
+    let temporal profile differences hide. One line per prompt; recognised
+    prompts stay low/flat, unrecognised ones rise."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -267,38 +257,94 @@ def plot_joint_distributions(results, prompts, training_labels, save_path,
 
     for j, name in enumerate(JOINT_NAMES):
         ax = axes[j]
-        data = _violin_data_per_joint(results, labels, j, unnorm)
-        positions = np.arange(1, len(labels) + 1)
-        parts = ax.violinplot(data, positions=positions, showextrema=False,
-                              widths=0.85)
-        for k, body in enumerate(parts["bodies"]):
-            is_train = labels[k] in training_labels
-            body.set_facecolor("#2a7fff" if is_train else "#d1495b")
-            body.set_alpha(0.6)
-            body.set_edgecolor("black")
-            body.set_linewidth(0.4)
-        ax.axhline(0.0, color="gray", lw=0.7, ls="--", alpha=0.6)
+        for label in labels:
+            stacked = results[label]["stacked_actions"]          # (S, T, A)
+            if unnorm is not None:
+                stacked = unnorm(stacked)
+            arr = np.asarray(stacked[..., j], dtype=float)        # (S, T)
+            var_t = arr.var(axis=0)                               # (T,)
+            is_train = label in training_labels
+            ax.plot(np.arange(var_t.shape[0]), var_t,
+                    color="#2a7fff" if is_train else "#d1495b",
+                    lw=1.4 if is_train else 0.9,
+                    alpha=0.85 if is_train else 0.45)
         ax.set_title(name, fontsize=11)
-        ax.set_xticks(positions)
-        ax.set_xticklabels(labels, rotation=45, ha="right", fontsize=7)
-        ax.set_ylabel(f"seed deviation ({units})", fontsize=8)
-        ax.grid(True, axis="y", alpha=0.25)
+        ax.set_xlabel("timestep in chunk", fontsize=8)
+        ax.set_ylabel(f"variance across seeds ({units})", fontsize=8)
+        ax.grid(True, alpha=0.25)
 
     for extra in range(len(JOINT_NAMES), len(axes)):
         axes[extra].axis("off")
 
-    from matplotlib.patches import Patch
+    from matplotlib.lines import Line2D
     legend = [
-        Patch(facecolor="#2a7fff", alpha=0.6, label="training label"),
-        Patch(facecolor="#d1495b", alpha=0.6, label="synonym / out-of-domain"),
+        Line2D([0], [0], color="#2a7fff", lw=1.4, label="training label"),
+        Line2D([0], [0], color="#d1495b", lw=0.9, label="synonym / out-of-domain"),
     ]
     fig.legend(handles=legend, loc="upper right", fontsize=9)
-    fig.suptitle("Per-joint action dispersion across noise seeds "
-                 "(narrow = recognised / strong attractor)", fontsize=13)
+    fig.suptitle("Per-joint variance across seeds over the action chunk "
+                 "(low/flat = recognised / strong attractor)", fontsize=13)
     fig.tight_layout(rect=[0, 0, 1, 0.97])
     fig.savefig(save_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"  Saved: {save_path}")
+
+
+# --------------------------------------------------------------------------- #
+# Plot 1b: action-chunk traces (per prompt)
+# --------------------------------------------------------------------------- #
+
+def plot_action_traces(results, prompts, training_labels, save_dir,
+                       unnorm=None, classify=None):
+    """One figure per prompt: for each joint, every seed's action trajectory over
+    the chunk (thin) plus the across-seed mean (bold). This is the actual motion
+    the VLA plans — a tight bundle means a strong attractor, a frayed one means
+    the prompt isn't pinning the trajectory down."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    save_dir = Path(save_dir)
+    save_dir.mkdir(parents=True, exist_ok=True)
+    units = "real units" if unnorm is not None else "normalized"
+    ncols = 3
+    nrows = _grid(len(JOINT_NAMES), ncols)
+
+    for label in results:
+        stacked = results[label]["stacked_actions"]              # (S, T, A)
+        if unnorm is not None:
+            stacked = unnorm(stacked)
+        arr = np.asarray(stacked, dtype=float)
+        s_n, t_n, _ = arr.shape
+        is_train = label in training_labels
+        mean_color = "#2a7fff" if is_train else "#d1495b"
+
+        fig, axes = plt.subplots(nrows, ncols, figsize=(6 * ncols, 4 * nrows))
+        axes = np.atleast_1d(axes).flatten()
+        steps = np.arange(t_n)
+        for j, name in enumerate(JOINT_NAMES):
+            ax = axes[j]
+            for s in range(s_n):
+                ax.plot(steps, arr[s, :, j], color="gray", lw=0.6, alpha=0.35)
+            ax.plot(steps, arr[:, :, j].mean(axis=0), color=mean_color, lw=1.8)
+            ax.set_title(name, fontsize=11)
+            ax.set_xlabel("timestep in chunk", fontsize=8)
+            ax.set_ylabel(f"action ({units})", fontsize=8)
+            ax.grid(True, alpha=0.25)
+        for extra in range(len(JOINT_NAMES), len(axes)):
+            axes[extra].axis("off")
+
+        verdict = ""
+        if classify is not None:
+            d = results[label]
+            verdict = " · " + classify(d["mean_std"], d["action_magnitude"])
+        fig.suptitle(f"Action-chunk traces — '{label}'{verdict} "
+                     f"({s_n} seeds)", fontsize=13)
+        fig.tight_layout(rect=[0, 0, 1, 0.97])
+        out = save_dir / f"{_safe_name(label)}.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+        print(f"  Saved: {out}")
 
 
 # --------------------------------------------------------------------------- #

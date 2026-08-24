@@ -372,8 +372,9 @@ def main():
         from vla_plots import (
             build_action_unnormalizer,
             build_kinematics,
+            plot_action_traces,
             plot_end_effector,
-            plot_joint_distributions,
+            plot_joint_variance_over_time,
         )
 
         plot_dir = Path(args.plot_dir)
@@ -384,9 +385,14 @@ def main():
         # plots stay in normalized space and the end-effector plot is skipped.
         unnorm = build_action_unnormalizer(args.checkpoint, policy.config)
 
-        plot_joint_distributions(
+        plot_joint_variance_over_time(
             results, PROMPTS, TRAINING_LABELS,
-            plot_dir / "joint_distributions.png",
+            plot_dir / "joint_variance_over_time.png",
+            unnorm=unnorm,
+        )
+        plot_action_traces(
+            results, PROMPTS, TRAINING_LABELS,
+            plot_dir / "traces",
             unnorm=unnorm, classify=classify,
         )
 
