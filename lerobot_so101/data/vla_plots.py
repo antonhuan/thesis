@@ -368,8 +368,7 @@ def plot_joint_variance_over_time(results, item_groups, training_labels, save_di
             for label in labels
         ]
         fig.legend(handles=legend, loc="upper right", fontsize=9)
-        fig.suptitle(f"'{item}' — per-joint variance across seeds over the action "
-                     f"chunk (low/flat = recognised / strong attractor)", fontsize=13)
+        fig.suptitle(f"'{item}' — per-joint variance across seeds over the action ", fontsize=13)
         fig.tight_layout(rect=[0, 0, 1, 0.97])
         out = save_dir / f"joint_variance_{_safe_name(item)}.png"
         fig.savefig(out, dpi=150, bbox_inches="tight")

@@ -287,8 +287,8 @@ def main():
     parser.add_argument("--image_path", default=None,
                         help="Path to a saved scene image (PNG/JPG). "
                              "If omitted, captures from RealSense.")
-    parser.add_argument("--n_seeds", type=int, default=10,
-                        help="Number of noise seeds per prompt (default: 10)")
+    parser.add_argument("--n_seeds", type=int, default=1000,
+                        help="Number of noise seeds per prompt (default: 1000)")
     parser.add_argument("--num_steps", type=int, default=10,
                         help="Flow-matching denoising steps (default: 10)")
     parser.add_argument("--device", default="cuda")
@@ -302,7 +302,7 @@ def main():
                         help="Directory for output plots (default: denoise_plots)")
     parser.add_argument("--no_plots", action="store_true",
                         help="Skip generating plots")
-    parser.add_argument("--urdf", default=None,
+    parser.add_argument("--urdf", default="so101_new_calib.urdf",
                         help="Path to so101_new_calib.urdf for the end-effector "
                              "plot (auto-detected if omitted)")
     parser.add_argument("--no_state", action="store_true",
