@@ -19,12 +19,23 @@ from PIL import Image
 # Model loading
 # --------------------------------------------------------------------------- #
 
-def load_policy(checkpoint_path: str, device: str = "cuda"):
-    """Load a PI05Policy from a pretrained checkpoint."""
+def load_policy(checkpoint_path: str, device: str = "cuda", dtype: str = "float32"):
+    """Load a PI05Policy from a pretrained checkpoint.
+
+    Sets ``device`` and ``dtype`` on the config *before* loading so weights are
+    constructed and mapped directly onto the target device/precision — avoiding
+    a redundant second ``.to(device)`` copy. ``dtype="bfloat16"`` roughly halves
+    the disk read and host->GPU transfer versus the float32 default.
+    """
+    from lerobot.configs.policies import PreTrainedConfig
     from lerobot.policies.pi05 import PI05Policy
 
-    policy = PI05Policy.from_pretrained(checkpoint_path)
-    policy = policy.to(device).eval()
+    config = PreTrainedConfig.from_pretrained(checkpoint_path)
+    config.device = device
+    config.dtype = dtype
+
+    policy = PI05Policy.from_pretrained(checkpoint_path, config=config)
+    policy = policy.eval()
     return policy
 
 
@@ -42,13 +53,28 @@ def load_scene_image(path: str) -> Image.Image:
 # Input preparation
 # --------------------------------------------------------------------------- #
 
+_TOKENIZER_CACHE = {}
+
+
+def _get_tokenizer(name: str = "google/paligemma-3b-pt-224"):
+    """Load (and cache) the PaliGemma tokenizer.
+
+    ``prepare_inputs`` is called once per prompt; without caching the tokenizer
+    would be re-downloaded/parsed on every call.
+    """
+    if name not in _TOKENIZER_CACHE:
+        from transformers import AutoTokenizer
+
+        _TOKENIZER_CACHE[name] = AutoTokenizer.from_pretrained(name)
+    return _TOKENIZER_CACHE[name]
+
+
 def prepare_inputs(policy, image: Image.Image, instruction: str, device: str = "cuda"):
     """
     Convert a PIL frame + instruction string into the tensors that
     PI05Pytorch.embed_prefix() expects: (images, img_masks, tokens, masks).
     """
     from lerobot.policies.pi05.modeling_pi05 import resize_with_pad_torch
-    from transformers import AutoTokenizer
 
     config = policy.config
 
@@ -63,7 +89,7 @@ def prepare_inputs(policy, image: Image.Image, instruction: str, device: str = "
     img_masks = [torch.ones(1, dtype=torch.bool, device=device)]
 
     # --- Language tokens ---
-    tokenizer = AutoTokenizer.from_pretrained("google/paligemma-3b-pt-224")
+    tokenizer = _get_tokenizer()
     encoded = tokenizer(
         instruction,
         return_tensors="pt",

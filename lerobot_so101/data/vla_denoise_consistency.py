@@ -22,6 +22,10 @@ Usage:
         --checkpoint /path/to/finetuned/checkpoint \
         --image_path scene.png \
         --n_seeds 20 --num_steps 10
+
+Plots (per-joint dispersion + end-effector) are written to --plot_dir by
+default; pass --no_plots to skip, and --urdf to point at so101_new_calib.urdf
+for the end-effector figure (auto-detected if omitted).
 """
 
 import argparse
@@ -249,12 +253,23 @@ def main():
     parser.add_argument("--num_steps", type=int, default=10,
                         help="Flow-matching denoising steps (default: 10)")
     parser.add_argument("--device", default="cuda")
+    parser.add_argument("--dtype", default="float32",
+                        choices=["float32", "bfloat16"],
+                        help="Model precision (default: float32). 'bfloat16' "
+                             "roughly halves load time / GPU memory.")
     parser.add_argument("--prompts", nargs="*", default=None,
                         help="Subset of prompt labels to test (default: all)")
+    parser.add_argument("--plot_dir", default="denoise_plots",
+                        help="Directory for output plots (default: denoise_plots)")
+    parser.add_argument("--no_plots", action="store_true",
+                        help="Skip generating plots")
+    parser.add_argument("--urdf", default=None,
+                        help="Path to so101_new_calib.urdf for the end-effector "
+                             "plot (auto-detected if omitted)")
     args = parser.parse_args()
 
-    log.info("Loading policy from %s ...", args.checkpoint)
-    policy = load_policy(args.checkpoint, args.device)
+    log.info("Loading policy from %s (dtype=%s) ...", args.checkpoint, args.dtype)
+    policy = load_policy(args.checkpoint, args.device, args.dtype)
     log.info("Policy loaded.")
 
     # --- Acquire scene image ---
@@ -305,6 +320,43 @@ def main():
         results[label] = metrics
 
     print_results(results)
+
+    # --- Plots ---
+    if not args.no_plots:
+        from pathlib import Path
+
+        from vla_plots import (
+            build_action_unnormalizer,
+            build_kinematics,
+            plot_end_effector,
+            plot_joint_distributions,
+        )
+
+        plot_dir = Path(args.plot_dir)
+        plot_dir.mkdir(parents=True, exist_ok=True)
+        log.info("Writing plots to %s/ ...", plot_dir)
+
+        # Real (degree/percent) units where the checkpoint stats load; else the
+        # plots stay in normalized space and the end-effector plot is skipped.
+        unnorm = build_action_unnormalizer(args.checkpoint, policy.config)
+
+        plot_joint_distributions(
+            results, PROMPTS, TRAINING_LABELS,
+            plot_dir / "joint_distributions.png",
+            unnorm=unnorm, classify=classify,
+        )
+
+        if unnorm is not None:
+            kin = build_kinematics(args.urdf)
+            if kin is not None:
+                plot_end_effector(
+                    results, PROMPTS, TRAINING_LABELS, kin, unnorm,
+                    plot_dir / "end_effector_3d.png",
+                    classify=classify,
+                )
+        else:
+            log.warning("End-effector plot skipped (need unnormalized joint "
+                        "angles).")
 
 
 if __name__ == "__main__":
