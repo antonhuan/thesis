@@ -169,7 +169,7 @@ def prepare_inputs_stateful(policy, preprocessor, image, instruction,
     }
     processed = preprocessor(obs)
 
-    images, img_masks = policy.model._preprocess_images(processed)
+    images, img_masks = policy._preprocess_images(processed)
     tokens = processed[OBS_LANGUAGE_TOKENS]
     masks = processed[OBS_LANGUAGE_ATTENTION_MASK].bool()
     return images, img_masks, tokens, masks
