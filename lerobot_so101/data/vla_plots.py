@@ -187,6 +187,17 @@ def build_kinematics(urdf_path=None, target_frame_name="gripper_frame_link"):
                     "end-effector plot. Try `pip install placo`.", e)
         return None
 
+    # placo is an optional lerobot extra; RobotKinematics only raises about it
+    # deep inside __init__, so check up front for a clear, actionable message.
+    try:
+        from lerobot.utils.import_utils import _placo_available
+    except Exception:  # noqa: BLE001 - older lerobot without the flag
+        _placo_available = True
+    if not _placo_available:
+        log.warning("placo not installed; skipping end-effector plot. "
+                    "Install it with `pip install placo`.")
+        return None
+
     urdf = _resolve_urdf(urdf_path)
     if urdf is None:
         log.warning("No SO-101 URDF found; skipping end-effector plot. Pass "
@@ -199,6 +210,7 @@ def build_kinematics(urdf_path=None, target_frame_name="gripper_frame_link"):
     # Try the requested tip frame first, then known alternatives; validate each
     # with a smoke-test FK call (bad frame/joint names only raise on use).
     candidates = list(dict.fromkeys([target_frame_name] + EE_FRAME_CANDIDATES))
+    last_err = None
     for frame in candidates:
         try:
             kin = RobotKinematics(str(urdf), target_frame_name=frame,
@@ -207,10 +219,11 @@ def build_kinematics(urdf_path=None, target_frame_name="gripper_frame_link"):
             log.info("Kinematics ready (urdf=%s, tip=%s, joints=%s).",
                      Path(urdf).name, frame, arm_joints)
             return kin
-        except Exception:  # noqa: BLE001 - try next frame candidate
+        except Exception as e:  # noqa: BLE001 - try next frame candidate
+            last_err = e
             continue
-    log.warning("Could not build kinematics from %s (no working tip frame in "
-                "%s); skipping EE plot.", urdf, candidates)
+    log.warning("Could not build kinematics from %s (tried tips %s; last error: "
+                "%s); skipping EE plot.", urdf, candidates, last_err)
     return None
 
 
