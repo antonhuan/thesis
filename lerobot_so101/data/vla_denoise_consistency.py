@@ -57,6 +57,7 @@ PROMPTS = OrderedDict([
     ("fruit",            "put the fruit on the tray"),
     ("yellow banana",    "put the yellow banana on the tray"),
     ("drawstring pouch", "put the drawstring pouch on the tray"),
+    ("brown cylinder",     "put the brown cylinder on the tray"),
     # Out-of-domain (should be unrecognised)
     ("mug",              "put the mug on the tray"),
     ("laptop",           "put the laptop on the tray"),
@@ -221,7 +222,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Denoising consistency test for VLA vocabulary sensitivity"
     )
-    parser.add_argument("--checkpoint", required=True,
+    parser.add_argument("--checkpoint",
                         help="Path or HF repo id for the finetuned PI05 checkpoint", default="ant0nh/pi05_500_30k")
     parser.add_argument("--image_path", default=None,
                         help="Path to a saved scene image (PNG/JPG). "
