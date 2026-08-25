@@ -533,12 +533,18 @@ def plot_action_traces(results, item_groups, training_labels, save_dir,
 # Plot 2: end-effector 3D clouds
 # --------------------------------------------------------------------------- #
 
-def plot_end_effector(results, item_groups, training_labels, kin, unnorm, save_dir):
+def plot_end_effector(results, item_groups, training_labels, kin, unnorm, save_dir,
+                      clouds=None):
     """One 3D figure per item: every prompt in the group overlaid on a single axis,
     each seed's gripper trajectory (faint line) plus its end point (marker),
     coloured per prompt. Axis limits are shared across all items so tightness is
     comparable between figures. Requires a real-units unnormalizer (FK needs
-    degrees)."""
+    degrees).
+
+    ``clouds`` optionally supplies precomputed FK end-effector clouds
+    (label -> (S, T, 3) array); any label missing from it is FK'd here. Passing the
+    clouds the caller already computed (e.g. for the EE-consistency metric) avoids a
+    second, expensive forward-kinematics pass."""
     if unnorm is None:
         log.warning("Skipping end-effector plot: needs real (unnormalized) "
                     "joint angles, which could not be loaded.")
@@ -554,13 +560,15 @@ def plot_end_effector(results, item_groups, training_labels, kin, unnorm, save_d
     save_dir.mkdir(parents=True, exist_ok=True)
     groups = _present_groups(item_groups, results)
 
-    # FK every present prompt once, then derive shared (global) axis limits so
-    # bundle tightness is comparable across the per-item figures.
-    clouds = {}
+    # FK every present prompt once (reusing any caller-supplied clouds), then
+    # derive shared (global) axis limits so bundle tightness is comparable across
+    # the per-item figures.
+    clouds = dict(clouds) if clouds else {}
     for labels in groups.values():
         for label in labels:
-            real = unnorm(results[label]["stacked_actions"])
-            clouds[label] = _ee_cloud(real, kin)
+            if clouds.get(label) is None:
+                real = unnorm(results[label]["stacked_actions"])
+                clouds[label] = _ee_cloud(real, kin)
 
     allpts = np.concatenate([c.reshape(-1, 3) for c in clouds.values()], axis=0)
     mins, maxs = allpts.min(axis=0), allpts.max(axis=0)

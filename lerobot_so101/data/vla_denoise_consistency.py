@@ -34,9 +34,11 @@ for the end-effector figure (auto-detected if omitted).
 
 import argparse
 import logging
+import math
 import time
 from collections import OrderedDict
 
+import numpy as np
 import torch
 
 from vla_embedding_utils import (
@@ -107,6 +109,13 @@ INITIAL_POSE = [-4.571428571428571, -101.49450549450549, 91.91208791208791,
 # near-zero motion -- such a collapsed prompt then reads as a *high* CV (correctly
 # "not a tight attractor") instead of a spurious low absolute std.
 CV_EPS = 1e-3
+
+# Peak L2 displacement (from a chunk's first action, in real/unnormalized action
+# units) below which a seed's planned motion counts as "no movement" -- i.e. the
+# VLA did not understand the prompt. Mirrors the orchestrator's threshold
+# (vlm_robot_orchestrator.py:159, no_movement_threshold); real movement produces
+# peak displacements of ~150-220, non-movement ~1-3.
+NO_MOVEMENT_THRESHOLD = 10.0
 
 
 # --------------------------------------------------------------------------- #
@@ -258,15 +267,65 @@ def measure_consistency(policy, image, instruction, n_seeds=10,
     }
 
 
+def compute_motion_metrics(stacked, unnorm, kin, threshold):
+    """Peak-displacement / no-movement and end-effector-consistency metrics for one
+    prompt's stacked seed chunks ``stacked`` (S, T, A).
+
+    - Peak displacement (real action units): per seed, the max over the chunk of the
+      L2 distance from that seed's first action -- matches the orchestrator's
+      convention (robot_client_loop.py:646).
+    - ``no_move_frac``: fraction of seeds whose peak displacement is below
+      ``threshold`` (the VLA planned essentially no motion for them).
+    - ``ee_consistency``: whole-trajectory spread of the gripper position across
+      seeds -- the mean over timesteps of the across-seed xyz-std L2 norm, in metres.
+
+    Metrics that need the (possibly missing) unnormalizer / kinematics come back as
+    NaN. Also returns the FK end-effector cloud (S, T, 3), or ``None``, so callers
+    can reuse it instead of recomputing FK.
+    """
+    from vla_plots import _ee_cloud
+
+    nan = float("nan")
+    if unnorm is None:
+        return {"ee_consistency": nan, "peak_disp_mean": nan,
+                "no_move_frac": nan, "ee_cloud": None}
+
+    real = np.asarray(unnorm(stacked), dtype=float)           # (S, T, A)
+    disp = np.linalg.norm(real - real[:, :1, :], axis=-1)     # (S, T)
+    peak = disp.max(axis=1)                                    # (S,)
+    peak_disp_mean = float(peak.mean())
+    no_move_frac = float((peak < threshold).mean())
+
+    ee_consistency, ee_cloud = nan, None
+    if kin is not None:
+        ee_cloud = _ee_cloud(real, kin)                       # (S, T, 3)
+        ee_consistency = float(
+            np.linalg.norm(ee_cloud.std(axis=0), axis=-1).mean()
+        )
+
+    return {"ee_consistency": ee_consistency,
+            "peak_disp_mean": peak_disp_mean,
+            "no_move_frac": no_move_frac,
+            "ee_cloud": ee_cloud}
+
+
 # --------------------------------------------------------------------------- #
 # Pretty-print results table
 # --------------------------------------------------------------------------- #
+
+def _num(value, width, prec=6):
+    """Right-align a float in ``width`` columns, or ``N/A`` when it is NaN/missing."""
+    if value is None or (isinstance(value, float) and math.isnan(value)):
+        return f"{'N/A':>{width}}"
+    return f"{value:>{width}.{prec}f}"
+
 
 def format_results_table(results, title=None):
     """Build the per-prompt stats table for one image as a string."""
     header = (f"{'Label':<25} {'Prompt':<40} "
               f"{'Mean Std':>10} {'Max Std':>10} {'Mean CV':>10} {'Max CV':>10} "
-              f"{'Action Mag':>12}")
+              f"{'Action Mag':>12} {'EE Consist':>12} {'Peak Disp':>10} "
+              f"{'No-Move %':>10}")
     lines = []
     if title:
         lines.append(f"# {title}")
@@ -277,11 +336,18 @@ def format_results_table(results, title=None):
     for label, data in results.items():
         prompt = PROMPTS[label]
         marker = "*" if label in TRAINING_LABELS else " "
+        no_move = data.get("no_move_frac", float("nan"))
+        no_move_pct = (no_move * 100.0 if not (isinstance(no_move, float)
+                                               and math.isnan(no_move))
+                       else float("nan"))
         lines.append(
             f"{marker}{label:<24} {prompt:<40} "
             f"{data['mean_std']:>10.6f} {data['max_std']:>10.6f} "
             f"{data['mean_cv']:>10.6f} {data['max_cv']:>10.6f} "
-            f"{data['action_magnitude']:>12.6f}"
+            f"{data['action_magnitude']:>12.6f} "
+            f"{_num(data.get('ee_consistency'), 12)} "
+            f"{_num(data.get('peak_disp_mean'), 10, 4)} "
+            f"{_num(no_move_pct, 10, 1)}"
         )
 
     lines.append("=" * len(header))
@@ -293,30 +359,32 @@ def aggregate_results(all_results):
     """Aggregate per-image metrics across images, per prompt.
 
     ``all_results`` maps image_name -> {label: metrics}. Returns an OrderedDict
-    label -> {<metric>_mean, <metric>_sd, n_images} for mean_std / max_std /
-    action_magnitude, computed as the mean and (sample) std across the images in
-    which that prompt was measured.
+    label -> {<metric>_mean, <metric>_sd, n_images}, computed as the mean and
+    (sample) std across the images in which that prompt was measured. NaN values
+    (metrics that need an unavailable unnormalizer / kinematics) are dropped before
+    aggregating, so a metric aggregates to NaN only when it was NaN everywhere.
     """
     import statistics
+
+    metric_names = ("mean_std", "max_std", "mean_cv", "max_cv",
+                    "action_magnitude", "ee_consistency", "peak_disp_mean",
+                    "no_move_frac")
 
     # Collect the per-image value of each metric, per label (preserve prompt order).
     per_label = OrderedDict()
     for results in all_results.values():
         for label, data in results.items():
-            per_label.setdefault(label, {"mean_std": [], "max_std": [],
-                                         "mean_cv": [], "max_cv": [],
-                                         "action_magnitude": []})
-            for m in ("mean_std", "max_std", "mean_cv", "max_cv",
-                      "action_magnitude"):
-                per_label[label][m].append(data[m])
+            per_label.setdefault(label, {m: [] for m in metric_names})
+            for m in metric_names:
+                per_label[label][m].append(data.get(m, float("nan")))
 
     agg = OrderedDict()
     for label, metrics in per_label.items():
         entry = {"n_images": len(metrics["mean_std"])}
-        for m in ("mean_std", "max_std", "mean_cv", "max_cv",
-                  "action_magnitude"):
-            vals = metrics[m]
-            entry[f"{m}_mean"] = statistics.fmean(vals) if vals else 0.0
+        for m in metric_names:
+            vals = [v for v in metrics[m]
+                    if not (isinstance(v, float) and math.isnan(v))]
+            entry[f"{m}_mean"] = statistics.fmean(vals) if vals else float("nan")
             entry[f"{m}_sd"] = statistics.stdev(vals) if len(vals) > 1 else 0.0
         agg[label] = entry
     return agg
@@ -324,13 +392,16 @@ def aggregate_results(all_results):
 
 def format_aggregate_table(agg, title=None):
     """Build the across-images aggregate table (mean +/- std per metric)."""
-    def cell(m, s):
-        return f"{m:.6f}+-{s:.6f}"
+    def cell(m, s, prec=6):
+        if isinstance(m, float) and math.isnan(m):
+            return "N/A"
+        return f"{m:.{prec}f}+-{s:.{prec}f}"
 
     header = (f"{'Label':<25} {'Prompt':<40} "
               f"{'Mean Std (mean+-sd)':>22} {'Max Std (mean+-sd)':>22} "
               f"{'Mean CV (mean+-sd)':>22} {'Max CV (mean+-sd)':>22} "
-              f"{'Action Mag (mean+-sd)':>24}")
+              f"{'Action Mag (mean+-sd)':>24} {'EE Consist (mean+-sd)':>24} "
+              f"{'Peak Disp (mean+-sd)':>22} {'No-Move % (mean+-sd)':>22}")
     lines = []
     if title:
         lines.append(f"# {title}")
@@ -341,13 +412,20 @@ def format_aggregate_table(agg, title=None):
     for label, d in agg.items():
         prompt = PROMPTS[label]
         marker = "*" if label in TRAINING_LABELS else " "
+        no_move_m = d["no_move_frac_mean"]
+        no_move_pct_m = (no_move_m * 100.0 if not (isinstance(no_move_m, float)
+                                                   and math.isnan(no_move_m))
+                         else float("nan"))
         lines.append(
             f"{marker}{label:<24} {prompt:<40} "
             f"{cell(d['mean_std_mean'], d['mean_std_sd']):>22} "
             f"{cell(d['max_std_mean'], d['max_std_sd']):>22} "
             f"{cell(d['mean_cv_mean'], d['mean_cv_sd']):>22} "
             f"{cell(d['max_cv_mean'], d['max_cv_sd']):>22} "
-            f"{cell(d['action_magnitude_mean'], d['action_magnitude_sd']):>24}"
+            f"{cell(d['action_magnitude_mean'], d['action_magnitude_sd']):>24} "
+            f"{cell(d['ee_consistency_mean'], d['ee_consistency_sd']):>24} "
+            f"{cell(d['peak_disp_mean_mean'], d['peak_disp_mean_sd'], 4):>22} "
+            f"{cell(no_move_pct_m, d['no_move_frac_sd'] * 100.0, 1):>22}"
         )
 
     lines.append("=" * len(header))
@@ -397,6 +475,12 @@ def main():
     parser.add_argument("--no_state", action="store_true",
                         help="Disable state conditioning (bare stateless prompt, "
                              "the old behaviour).")
+    parser.add_argument("--no_movement_threshold", type=float,
+                        default=NO_MOVEMENT_THRESHOLD,
+                        help="Peak L2 displacement (real action units) below which "
+                             "a seed's chunk counts as no movement "
+                             f"(default: {NO_MOVEMENT_THRESHOLD}, mirrors the "
+                             "orchestrator).")
     args = parser.parse_args()
 
     log.info("Loading policy from %s (dtype=%s) ...", args.checkpoint, args.dtype)
@@ -462,14 +546,18 @@ def main():
     # file) land in their own path instead of overwriting the previous run.
     run_stamp = time.strftime("%Y-%m-%d_%H-%M-%S")
 
-    # --- Set up plotting (unnormalizer + kinematics built once, reused per image) ---
-    unnorm = kin = None
+    # --- Unnormalizer + kinematics (built once, reused per image). Needed for
+    # the peak-displacement / no-movement and end-effector-consistency metrics as
+    # well as the plots, so they are built regardless of --no_plots. Real
+    # (degree/percent) units where the checkpoint stats load; otherwise unnorm is
+    # None and those metrics / the EE plot fall back to N/A / normalized space. ---
+    from vla_plots import build_action_unnormalizer, build_kinematics
+    unnorm = build_action_unnormalizer(args.checkpoint, policy.config)
+    kin = build_kinematics(args.urdf) if unnorm is not None else None
+
     plot_dir = None
     if not args.no_plots:
         from vla_plots import (
-            _safe_name,
-            build_action_unnormalizer,
-            build_kinematics,
             plot_action_traces,
             plot_end_effector,
             plot_joint_variance_over_time,
@@ -478,11 +566,6 @@ def main():
         plot_dir = Path(args.plot_dir) / run_stamp
         plot_dir.mkdir(parents=True, exist_ok=True)
         log.info("Plots for this run go to %s/", plot_dir)
-        # Real (degree/percent) units where the checkpoint stats load; else the
-        # plots stay in normalized space and the end-effector plot is skipped.
-        unnorm = build_action_unnormalizer(args.checkpoint, policy.config)
-        if unnorm is not None:
-            kin = build_kinematics(args.urdf)
 
     # --- Run consistency measurements, per image ---
     all_results = OrderedDict()
@@ -506,11 +589,20 @@ def main():
                 initial_pose=INITIAL_POSE,
             )
 
+            motion = compute_motion_metrics(
+                metrics["stacked_actions"], unnorm, kin,
+                args.no_movement_threshold,
+            )
+            metrics.update(motion)
+
             elapsed = time.time() - t0
             log.info(
-                "  mean_std=%.6f  max_std=%.6f  action_mag=%.6f  (%.1fs)",
+                "  mean_std=%.6f  max_std=%.6f  action_mag=%.6f  "
+                "ee_consist=%.6f  peak_disp=%.4f  no_move=%.0f%%  (%.1fs)",
                 metrics["mean_std"], metrics["max_std"],
-                metrics["action_magnitude"], elapsed,
+                metrics["action_magnitude"], metrics["ee_consistency"],
+                metrics["peak_disp_mean"], 100.0 * metrics["no_move_frac"],
+                elapsed,
             )
             results[label] = metrics
 
@@ -521,10 +613,27 @@ def main():
         print(table)
         print()
 
+        # This image's output directory (holds its table, plots, and the raw
+        # per-seed action chunks). Built from --plot_dir even with --no_plots so
+        # the chunks are always saved somewhere predictable.
+        from vla_plots import _safe_name as _safe
+        img_plot_dir = (
+            plot_dir if plot_dir is not None
+            else Path(args.plot_dir) / run_stamp
+        ) / _safe(image_name)
+        img_plot_dir.mkdir(parents=True, exist_ok=True)
+
+        # --- Save every seed's raw action chunk (n_seeds x chunk x action_dim)
+        # per prompt, one .npy file each. ---
+        chunk_dir = img_plot_dir / "action_chunks"
+        chunk_dir.mkdir(parents=True, exist_ok=True)
+        for label, data in results.items():
+            np.save(chunk_dir / f"{_safe(label)}.npy",
+                    data["stacked_actions"].cpu().numpy())
+        log.info("Saved per-seed action chunks to %s/", chunk_dir)
+
         # --- Plots + table (per image, into plot_dir/<image_name>/) ---
         if not args.no_plots:
-            img_plot_dir = plot_dir / _safe_name(image_name)
-            img_plot_dir.mkdir(parents=True, exist_ok=True)
             table_path = img_plot_dir / args.results_file
             table_path.write_text(f"## {image_name}\n\n```\n{table}\n```\n")
             log.info("Wrote results table to %s", table_path)
@@ -540,13 +649,22 @@ def main():
                 unnorm=unnorm,
             )
             if unnorm is not None and kin is not None:
+                # Reuse the FK clouds already computed for the EE-consistency
+                # metric so plotting doesn't re-run forward kinematics.
+                clouds = {label: data.get("ee_cloud")
+                          for label, data in results.items()}
                 plot_end_effector(
                     results, ITEM_GROUPS, TRAINING_LABELS, kin, unnorm,
-                    img_plot_dir / "end_effector",
+                    img_plot_dir / "end_effector", clouds=clouds,
                 )
             elif unnorm is None:
                 log.warning("End-effector plot skipped (need unnormalized joint "
                             "angles).")
+
+        # Drop the cached FK clouds now that this image's EE plot is done, so they
+        # don't accumulate across images (the metric values are already stored).
+        for data in results.values():
+            data.pop("ee_cloud", None)
 
     # --- Aggregate across images and write the combined results file ---
     agg = aggregate_results(all_results)
@@ -554,6 +672,35 @@ def main():
     print()
     print(agg_table)
     print()
+
+    # --- Aggregated plots (into plot_dir/aggregated/) ---
+    # Pool every image's seed samples per prompt so the figures reflect
+    # consistency across the whole test rather than a single scene. Redundant
+    # with the per-image plots when there is only one image, so skip then.
+    if not args.no_plots and n_images > 1:
+        pooled = OrderedDict()
+        for results in all_results.values():
+            for label, data in results.items():
+                pooled.setdefault(label, []).append(data["stacked_actions"])
+        agg_results = OrderedDict(
+            (label, {"stacked_actions": torch.cat(chunks, dim=0)})
+            for label, chunks in pooled.items()
+        )
+        agg_plot_dir = plot_dir / "aggregated"
+        log.info("Writing aggregated plots to %s/ ...", agg_plot_dir)
+        plot_joint_variance_over_time(
+            agg_results, ITEM_GROUPS, TRAINING_LABELS,
+            agg_plot_dir / "joint_variance", unnorm=unnorm,
+        )
+        plot_action_traces(
+            agg_results, ITEM_GROUPS, TRAINING_LABELS,
+            agg_plot_dir / "traces", unnorm=unnorm,
+        )
+        if unnorm is not None and kin is not None:
+            plot_end_effector(
+                agg_results, ITEM_GROUPS, TRAINING_LABELS, kin, unnorm,
+                agg_plot_dir / "end_effector",
+            )
 
     sections = []
     # Per-image tables live alongside that image's plots (see loop above); only
@@ -566,17 +713,20 @@ def main():
     sections.append(f"## Aggregated ({n_images} images)\n\n```\n"
                     f"{format_aggregate_table(agg)}\n```")
 
-    # With plots on, the combined file lives inside this run's directory
-    # (plot_dir already carries the run stamp). Without plots there is no run
-    # directory, so stamp the filename instead (e.g.
-    # denoise_results_2026-08-25_14-32-05.md).
+    # The aggregated table sits with the aggregated plots when those exist;
+    # otherwise it lives at the top of this run's directory (plot_dir already
+    # carries the run stamp). Without plots there is no run directory, so stamp
+    # the filename instead (e.g. denoise_results_2026-08-25_14-32-05.md).
     results_arg = Path(args.results_file)
-    if plot_dir is not None:
+    if not args.no_plots and n_images > 1:
+        results_path = plot_dir / "aggregated" / results_arg.name
+    elif plot_dir is not None:
         results_path = plot_dir / results_arg.name
     else:
         results_path = results_arg.with_name(
             f"{results_arg.stem}_{run_stamp}{results_arg.suffix}"
         )
+    results_path.parent.mkdir(parents=True, exist_ok=True)
     results_path.write_text("\n\n".join(sections) + "\n")
     log.info("Wrote results tables to %s", results_path)
 
