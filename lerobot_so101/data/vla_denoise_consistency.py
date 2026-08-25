@@ -251,27 +251,89 @@ def classify(mean_std, action_magnitude, std_threshold=0.10, mag_threshold=0.05)
         return "AMBIGUOUS"
 
 
-def print_results(results):
+def format_results_table(results, title=None):
+    """Build the per-prompt stats table for one image as a string."""
     header = (f"{'Label':<25} {'Prompt':<40} "
-              f"{'Mean Std':>10} {'Max Std':>10} {'Action Mag':>12} {'Verdict':<15}")
-    print()
-    print("=" * len(header))
-    print(header)
-    print("-" * len(header))
+              f"{'Mean Std':>10} {'Max Std':>10} {'Action Mag':>12}")
+    lines = []
+    if title:
+        lines.append(f"# {title}")
+    lines.append("=" * len(header))
+    lines.append(header)
+    lines.append("-" * len(header))
 
     for label, data in results.items():
         prompt = PROMPTS[label]
-        verdict = classify(data["mean_std"], data["action_magnitude"])
         marker = "*" if label in TRAINING_LABELS else " "
-        print(
+        lines.append(
             f"{marker}{label:<24} {prompt:<40} "
             f"{data['mean_std']:>10.6f} {data['max_std']:>10.6f} "
-            f"{data['action_magnitude']:>12.6f} {verdict:<15}"
+            f"{data['action_magnitude']:>12.6f}"
         )
 
-    print("=" * len(header))
-    print("  * = training label")
-    print()
+    lines.append("=" * len(header))
+    lines.append("  * = training label")
+    return "\n".join(lines)
+
+
+def aggregate_results(all_results):
+    """Aggregate per-image metrics across images, per prompt.
+
+    ``all_results`` maps image_name -> {label: metrics}. Returns an OrderedDict
+    label -> {<metric>_mean, <metric>_sd, n_images} for mean_std / max_std /
+    action_magnitude, computed as the mean and (sample) std across the images in
+    which that prompt was measured.
+    """
+    import statistics
+
+    # Collect the per-image value of each metric, per label (preserve prompt order).
+    per_label = OrderedDict()
+    for results in all_results.values():
+        for label, data in results.items():
+            per_label.setdefault(label, {"mean_std": [], "max_std": [],
+                                         "action_magnitude": []})
+            for m in ("mean_std", "max_std", "action_magnitude"):
+                per_label[label][m].append(data[m])
+
+    agg = OrderedDict()
+    for label, metrics in per_label.items():
+        entry = {"n_images": len(metrics["mean_std"])}
+        for m in ("mean_std", "max_std", "action_magnitude"):
+            vals = metrics[m]
+            entry[f"{m}_mean"] = statistics.fmean(vals) if vals else 0.0
+            entry[f"{m}_sd"] = statistics.stdev(vals) if len(vals) > 1 else 0.0
+        agg[label] = entry
+    return agg
+
+
+def format_aggregate_table(agg, title=None):
+    """Build the across-images aggregate table (mean +/- std per metric)."""
+    def cell(m, s):
+        return f"{m:.6f}+-{s:.6f}"
+
+    header = (f"{'Label':<25} {'Prompt':<40} "
+              f"{'Mean Std (mean+-sd)':>22} {'Max Std (mean+-sd)':>22} "
+              f"{'Action Mag (mean+-sd)':>24}")
+    lines = []
+    if title:
+        lines.append(f"# {title}")
+    lines.append("=" * len(header))
+    lines.append(header)
+    lines.append("-" * len(header))
+
+    for label, d in agg.items():
+        prompt = PROMPTS[label]
+        marker = "*" if label in TRAINING_LABELS else " "
+        lines.append(
+            f"{marker}{label:<24} {prompt:<40} "
+            f"{cell(d['mean_std_mean'], d['mean_std_sd']):>22} "
+            f"{cell(d['max_std_mean'], d['max_std_sd']):>22} "
+            f"{cell(d['action_magnitude_mean'], d['action_magnitude_sd']):>24}"
+        )
+
+    lines.append("=" * len(header))
+    lines.append("  * = training label")
+    return "\n".join(lines)
 
 
 # --------------------------------------------------------------------------- #
@@ -285,8 +347,16 @@ def main():
     parser.add_argument("--checkpoint",
                         help="Path or HF repo id for the finetuned PI05 checkpoint", default="ant0nh/pi05_500_30k")
     parser.add_argument("--image_path", default=None,
-                        help="Path to a saved scene image (PNG/JPG). "
-                             "If omitted, captures from RealSense.")
+                        help="Path to a single saved scene image (PNG/JPG). "
+                             "If omitted (and no --image_dir), captures from "
+                             "RealSense.")
+    parser.add_argument("--image_dir", default=None,
+                        help="Directory of scene images to run over (PNG/JPG). "
+                             "Each image gets its own table + plots, plus an "
+                             "aggregated table across all images.")
+    parser.add_argument("--results_file", default="denoise_results.md",
+                        help="File to write the per-image and aggregated stats "
+                             "tables to (default: denoise_results.md)")
     parser.add_argument("--n_seeds", type=int, default=1000,
                         help="Number of noise seeds per prompt (default: 1000)")
     parser.add_argument("--num_steps", type=int, default=10,
@@ -325,15 +395,35 @@ def main():
             log.info("Conditioning on initial pose: %s",
                      [round(v, 2) for v in INITIAL_POSE])
 
-    # --- Acquire scene image ---
-    if args.image_path:
+    # --- Acquire scene image(s) ---
+    # images: ordered list of (name, PIL.Image). A directory yields one entry per
+    # image file; a single --image_path yields one entry; otherwise a live capture.
+    from pathlib import Path
+
+    images = []
+    if args.image_dir:
+        img_dir = Path(args.image_dir).expanduser()
+        if not img_dir.is_dir():
+            log.error("--image_dir %s is not a directory", img_dir)
+            return
+        exts = {".png", ".jpg", ".jpeg"}
+        paths = sorted(p for p in img_dir.iterdir()
+                       if p.suffix.lower() in exts)
+        if not paths:
+            log.error("No PNG/JPG images found in %s", img_dir)
+            return
+        for p in paths:
+            log.info("Loading image from %s", p)
+            images.append((p.stem, load_scene_image(str(p))))
+    elif args.image_path:
         log.info("Loading image from %s", args.image_path)
-        image = load_scene_image(args.image_path)
+        images.append((Path(args.image_path).stem,
+                       load_scene_image(args.image_path)))
     else:
         log.info("Capturing live frame from RealSense ...")
         from vlm import RealSenseCamera, capture_scene
         cam = RealSenseCamera()
-        image = capture_scene(cam)
+        images.append(("live", capture_scene(cam)))
         cam.stop()
         log.info("Frame captured.")
 
@@ -349,38 +439,12 @@ def main():
     else:
         selected = PROMPTS
 
-    # --- Run consistency measurements ---
-    results = OrderedDict()
-    total = len(selected)
-
-    for i, (label, prompt) in enumerate(selected.items(), 1):
-        log.info("[%d/%d] Measuring: '%s'  (%s)", i, total, prompt, label)
-        t0 = time.time()
-
-        metrics = measure_consistency(
-            policy, image, prompt,
-            n_seeds=args.n_seeds,
-            num_steps=args.num_steps,
-            device=args.device,
-            preprocessor=preprocessor,
-            initial_pose=INITIAL_POSE,
-        )
-
-        elapsed = time.time() - t0
-        log.info(
-            "  mean_std=%.6f  max_std=%.6f  action_mag=%.6f  (%.1fs)",
-            metrics["mean_std"], metrics["max_std"],
-            metrics["action_magnitude"], elapsed,
-        )
-        results[label] = metrics
-
-    print_results(results)
-
-    # --- Plots ---
+    # --- Set up plotting (unnormalizer + kinematics built once, reused per image) ---
+    unnorm = kin = None
+    plot_dir = None
     if not args.no_plots:
-        from pathlib import Path
-
         from vla_plots import (
+            _safe_name,
             build_action_unnormalizer,
             build_kinematics,
             plot_action_traces,
@@ -390,34 +454,90 @@ def main():
 
         plot_dir = Path(args.plot_dir)
         plot_dir.mkdir(parents=True, exist_ok=True)
-        log.info("Writing plots to %s/ ...", plot_dir)
-
         # Real (degree/percent) units where the checkpoint stats load; else the
         # plots stay in normalized space and the end-effector plot is skipped.
         unnorm = build_action_unnormalizer(args.checkpoint, policy.config)
-
-        plot_joint_variance_over_time(
-            results, ITEM_GROUPS, TRAINING_LABELS,
-            plot_dir / "joint_variance",
-            unnorm=unnorm,
-        )
-        plot_action_traces(
-            results, ITEM_GROUPS, TRAINING_LABELS,
-            plot_dir / "traces",
-            unnorm=unnorm, classify=classify,
-        )
-
         if unnorm is not None:
             kin = build_kinematics(args.urdf)
-            if kin is not None:
+
+    # --- Run consistency measurements, per image ---
+    all_results = OrderedDict()
+    total = len(selected)
+    n_images = len(images)
+
+    for img_i, (image_name, image) in enumerate(images, 1):
+        log.info("=== Image [%d/%d]: %s ===", img_i, n_images, image_name)
+        results = OrderedDict()
+
+        for i, (label, prompt) in enumerate(selected.items(), 1):
+            log.info("[%d/%d] Measuring: '%s'  (%s)", i, total, prompt, label)
+            t0 = time.time()
+
+            metrics = measure_consistency(
+                policy, image, prompt,
+                n_seeds=args.n_seeds,
+                num_steps=args.num_steps,
+                device=args.device,
+                preprocessor=preprocessor,
+                initial_pose=INITIAL_POSE,
+            )
+
+            elapsed = time.time() - t0
+            log.info(
+                "  mean_std=%.6f  max_std=%.6f  action_mag=%.6f  (%.1fs)",
+                metrics["mean_std"], metrics["max_std"],
+                metrics["action_magnitude"], elapsed,
+            )
+            results[label] = metrics
+
+        all_results[image_name] = results
+
+        table = format_results_table(results, title=image_name)
+        print()
+        print(table)
+        print()
+
+        # --- Plots (per image, into plot_dir/<image_name>/) ---
+        if not args.no_plots:
+            img_plot_dir = plot_dir / _safe_name(image_name)
+            log.info("Writing plots to %s/ ...", img_plot_dir)
+            plot_joint_variance_over_time(
+                results, ITEM_GROUPS, TRAINING_LABELS,
+                img_plot_dir / "joint_variance",
+                unnorm=unnorm,
+            )
+            plot_action_traces(
+                results, ITEM_GROUPS, TRAINING_LABELS,
+                img_plot_dir / "traces",
+                unnorm=unnorm, classify=classify,
+            )
+            if unnorm is not None and kin is not None:
                 plot_end_effector(
                     results, ITEM_GROUPS, TRAINING_LABELS, kin, unnorm,
-                    plot_dir / "end_effector",
+                    img_plot_dir / "end_effector",
                     classify=classify,
                 )
-        else:
-            log.warning("End-effector plot skipped (need unnormalized joint "
-                        "angles).")
+            elif unnorm is None:
+                log.warning("End-effector plot skipped (need unnormalized joint "
+                            "angles).")
+
+    # --- Aggregate across images and write the combined results file ---
+    agg = aggregate_results(all_results)
+    agg_table = format_aggregate_table(agg, title=f"Aggregated ({n_images} images)")
+    print()
+    print(agg_table)
+    print()
+
+    sections = []
+    for image_name, results in all_results.items():
+        sections.append(f"## {image_name}\n\n```\n"
+                        f"{format_results_table(results)}\n```")
+    sections.append(f"## Aggregated ({n_images} images)\n\n```\n"
+                    f"{format_aggregate_table(agg)}\n```")
+
+    results_path = Path(args.results_file)
+    results_path.write_text("\n\n".join(sections) + "\n")
+    log.info("Wrote results tables to %s", results_path)
 
 
 if __name__ == "__main__":
