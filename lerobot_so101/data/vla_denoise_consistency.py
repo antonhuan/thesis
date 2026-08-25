@@ -455,6 +455,10 @@ def main():
     else:
         selected = PROMPTS
 
+    # Stamp each run with the local date/time so reruns (plots and the results
+    # file) land in their own path instead of overwriting the previous run.
+    run_stamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+
     # --- Set up plotting (unnormalizer + kinematics built once, reused per image) ---
     unnorm = kin = None
     plot_dir = None
@@ -468,9 +472,6 @@ def main():
             plot_joint_variance_over_time,
         )
 
-        # Stamp each run with the local date/time so reruns land in their own
-        # subdirectory instead of overwriting the previous run's plots.
-        run_stamp = time.strftime("%Y-%m-%d_%H-%M-%S")
         plot_dir = Path(args.plot_dir) / run_stamp
         plot_dir.mkdir(parents=True, exist_ok=True)
         log.info("Plots for this run go to %s/", plot_dir)
@@ -554,7 +555,12 @@ def main():
     sections.append(f"## Aggregated ({n_images} images)\n\n```\n"
                     f"{format_aggregate_table(agg)}\n```")
 
-    results_path = Path(args.results_file)
+    # Insert the run stamp before the file suffix so each run writes its own
+    # results file (e.g. denoise_results_2026-08-25_14-32-05.md).
+    results_arg = Path(args.results_file)
+    results_path = results_arg.with_name(
+        f"{results_arg.stem}_{run_stamp}{results_arg.suffix}"
+    )
     results_path.write_text("\n\n".join(sections) + "\n")
     log.info("Wrote results tables to %s", results_path)
 
