@@ -99,6 +99,12 @@ ITEM_GROUPS = OrderedDict([
 INITIAL_POSE = [-4.571428571428571, -101.49450549450549, 91.91208791208791,
                 74.28571428571429, -0.7472527472527473, 1.3013698630136987]
 
+# Floor on the CV denominator (mean absolute action per joint, in normalized action
+# units). Prevents the coefficient of variation from blowing up when a prompt drives
+# near-zero motion -- such a collapsed prompt then reads as a *high* CV (correctly
+# "not a tight attractor") instead of a spurious low absolute std.
+CV_EPS = 1e-3
+
 
 # --------------------------------------------------------------------------- #
 # Core: cached prefix + denoising loop
@@ -229,9 +235,20 @@ def measure_consistency(policy, image, instruction, n_seeds=10,
     mean_actions = stacked.mean(dim=0)                    # (chunk_size, action_dim)
     action_magnitude = mean_actions[:10].norm(dim=-1).mean().item()
 
+    # Coefficient of variation: seed-std normalized by the per-joint action scale.
+    # Scale-free measure of attractor tightness, so prompts that command
+    # different-magnitude motions are directly comparable (unlike absolute std, which
+    # grows with motion size). Denominator floored by CV_EPS -- see the constant.
+    per_joint_scale = mean_actions.abs().mean(dim=0)      # (action_dim,)
+    cv_per_joint = per_joint_std / per_joint_scale.clamp_min(CV_EPS)
+    mean_cv = cv_per_joint.mean().item()
+    max_cv = cv_per_joint.max().item()
+
     return {
         "mean_std": mean_std,
         "max_std": max_std,
+        "mean_cv": mean_cv,
+        "max_cv": max_cv,
         "action_magnitude": action_magnitude,
         "per_joint_std": per_joint_std.tolist(),
         "stacked_actions": stacked,
@@ -242,19 +259,10 @@ def measure_consistency(policy, image, instruction, n_seeds=10,
 # Pretty-print results table
 # --------------------------------------------------------------------------- #
 
-def classify(mean_std, action_magnitude, std_threshold=0.10, mag_threshold=0.05):
-    if mean_std < std_threshold and action_magnitude > mag_threshold:
-        return "RECOGNISED"
-    elif mean_std > std_threshold * 2:
-        return "UNRECOGNISED"
-    else:
-        return "AMBIGUOUS"
-
-
 def format_results_table(results, title=None):
     """Build the per-prompt stats table for one image as a string."""
     header = (f"{'Label':<25} {'Prompt':<40} "
-              f"{'Mean Std':>10} {'Max Std':>10} {'Action Mag':>12}")
+              f"{'Mean Std':>10} {'Max Std':>10} {'Mean CV':>10} {'Action Mag':>12}")
     lines = []
     if title:
         lines.append(f"# {title}")
@@ -268,7 +276,7 @@ def format_results_table(results, title=None):
         lines.append(
             f"{marker}{label:<24} {prompt:<40} "
             f"{data['mean_std']:>10.6f} {data['max_std']:>10.6f} "
-            f"{data['action_magnitude']:>12.6f}"
+            f"{data['mean_cv']:>10.6f} {data['action_magnitude']:>12.6f}"
         )
 
     lines.append("=" * len(header))
@@ -291,14 +299,17 @@ def aggregate_results(all_results):
     for results in all_results.values():
         for label, data in results.items():
             per_label.setdefault(label, {"mean_std": [], "max_std": [],
+                                         "mean_cv": [], "max_cv": [],
                                          "action_magnitude": []})
-            for m in ("mean_std", "max_std", "action_magnitude"):
+            for m in ("mean_std", "max_std", "mean_cv", "max_cv",
+                      "action_magnitude"):
                 per_label[label][m].append(data[m])
 
     agg = OrderedDict()
     for label, metrics in per_label.items():
         entry = {"n_images": len(metrics["mean_std"])}
-        for m in ("mean_std", "max_std", "action_magnitude"):
+        for m in ("mean_std", "max_std", "mean_cv", "max_cv",
+                  "action_magnitude"):
             vals = metrics[m]
             entry[f"{m}_mean"] = statistics.fmean(vals) if vals else 0.0
             entry[f"{m}_sd"] = statistics.stdev(vals) if len(vals) > 1 else 0.0
@@ -313,7 +324,7 @@ def format_aggregate_table(agg, title=None):
 
     header = (f"{'Label':<25} {'Prompt':<40} "
               f"{'Mean Std (mean+-sd)':>22} {'Max Std (mean+-sd)':>22} "
-              f"{'Action Mag (mean+-sd)':>24}")
+              f"{'Mean CV (mean+-sd)':>22} {'Action Mag (mean+-sd)':>24}")
     lines = []
     if title:
         lines.append(f"# {title}")
@@ -328,6 +339,7 @@ def format_aggregate_table(agg, title=None):
             f"{marker}{label:<24} {prompt:<40} "
             f"{cell(d['mean_std_mean'], d['mean_std_sd']):>22} "
             f"{cell(d['max_std_mean'], d['max_std_sd']):>22} "
+            f"{cell(d['mean_cv_mean'], d['mean_cv_sd']):>22} "
             f"{cell(d['action_magnitude_mean'], d['action_magnitude_sd']):>24}"
         )
 
@@ -509,13 +521,12 @@ def main():
             plot_action_traces(
                 results, ITEM_GROUPS, TRAINING_LABELS,
                 img_plot_dir / "traces",
-                unnorm=unnorm, classify=classify,
+                unnorm=unnorm,
             )
             if unnorm is not None and kin is not None:
                 plot_end_effector(
                     results, ITEM_GROUPS, TRAINING_LABELS, kin, unnorm,
                     img_plot_dir / "end_effector",
-                    classify=classify,
                 )
             elif unnorm is None:
                 log.warning("End-effector plot skipped (need unnormalized joint "
