@@ -59,19 +59,22 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------------- #
 
 PROMPTS = OrderedDict([
-    # Training labels (should be recognised)
+    # Grouped by object: each training label (should be recognised) followed by
+    # its synonyms / variants (may or may not be recognised).
+    # banana
     ("banana",           "put the banana on the tray"),
-    ("toy",              "put the toy on the tray"),
-    ("pouch",            "put the pouch on the tray"),
-    # Synonyms (may or may not be recognised)
-    ("purse",            "put the purse on the tray"),
-    ("bag",              "put the bag on the tray"),
-    ("plush toy",        "put the plush toy on the tray"),
-    ("stuffed animal",   "put the stuffed animal on the tray"),
     ("fruit",            "put the fruit on the tray"),
     ("yellow banana",    "put the yellow banana on the tray"),
+    # toy
+    ("toy",              "put the toy on the tray"),
+    ("plush toy",        "put the plush toy on the tray"),
+    ("stuffed animal",   "put the stuffed animal on the tray"),
+    # pouch
+    ("pouch",            "put the pouch on the tray"),
+    ("purse",            "put the purse on the tray"),
+    ("bag",              "put the bag on the tray"),
     ("drawstring pouch", "put the drawstring pouch on the tray"),
-    ("brown cylinder",     "put the brown cylinder on the tray"),
+    ("brown cylinder",   "put the brown cylinder on the tray"),
     # Out-of-domain (should be unrecognised)
     ("mug",              "put the mug on the tray"),
     ("laptop",           "put the laptop on the tray"),
@@ -518,9 +521,13 @@ def main():
         print(table)
         print()
 
-        # --- Plots (per image, into plot_dir/<image_name>/) ---
+        # --- Plots + table (per image, into plot_dir/<image_name>/) ---
         if not args.no_plots:
             img_plot_dir = plot_dir / _safe_name(image_name)
+            img_plot_dir.mkdir(parents=True, exist_ok=True)
+            table_path = img_plot_dir / args.results_file
+            table_path.write_text(f"## {image_name}\n\n```\n{table}\n```\n")
+            log.info("Wrote results table to %s", table_path)
             log.info("Writing plots to %s/ ...", img_plot_dir)
             plot_joint_variance_over_time(
                 results, ITEM_GROUPS, TRAINING_LABELS,
@@ -549,18 +556,27 @@ def main():
     print()
 
     sections = []
-    for image_name, results in all_results.items():
-        sections.append(f"## {image_name}\n\n```\n"
-                        f"{format_results_table(results)}\n```")
+    # Per-image tables live alongside that image's plots (see loop above); only
+    # fold them into the combined file when plots are disabled and they have no
+    # other home.
+    if args.no_plots:
+        for image_name, results in all_results.items():
+            sections.append(f"## {image_name}\n\n```\n"
+                            f"{format_results_table(results)}\n```")
     sections.append(f"## Aggregated ({n_images} images)\n\n```\n"
                     f"{format_aggregate_table(agg)}\n```")
 
-    # Insert the run stamp before the file suffix so each run writes its own
-    # results file (e.g. denoise_results_2026-08-25_14-32-05.md).
+    # With plots on, the combined file lives inside this run's directory
+    # (plot_dir already carries the run stamp). Without plots there is no run
+    # directory, so stamp the filename instead (e.g.
+    # denoise_results_2026-08-25_14-32-05.md).
     results_arg = Path(args.results_file)
-    results_path = results_arg.with_name(
-        f"{results_arg.stem}_{run_stamp}{results_arg.suffix}"
-    )
+    if plot_dir is not None:
+        results_path = plot_dir / results_arg.name
+    else:
+        results_path = results_arg.with_name(
+            f"{results_arg.stem}_{run_stamp}{results_arg.suffix}"
+        )
     results_path.write_text("\n\n".join(sections) + "\n")
     log.info("Wrote results tables to %s", results_path)
 
