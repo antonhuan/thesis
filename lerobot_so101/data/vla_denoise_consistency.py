@@ -262,7 +262,8 @@ def measure_consistency(policy, image, instruction, n_seeds=10,
 def format_results_table(results, title=None):
     """Build the per-prompt stats table for one image as a string."""
     header = (f"{'Label':<25} {'Prompt':<40} "
-              f"{'Mean Std':>10} {'Max Std':>10} {'Mean CV':>10} {'Action Mag':>12}")
+              f"{'Mean Std':>10} {'Max Std':>10} {'Mean CV':>10} {'Max CV':>10} "
+              f"{'Action Mag':>12}")
     lines = []
     if title:
         lines.append(f"# {title}")
@@ -276,7 +277,8 @@ def format_results_table(results, title=None):
         lines.append(
             f"{marker}{label:<24} {prompt:<40} "
             f"{data['mean_std']:>10.6f} {data['max_std']:>10.6f} "
-            f"{data['mean_cv']:>10.6f} {data['action_magnitude']:>12.6f}"
+            f"{data['mean_cv']:>10.6f} {data['max_cv']:>10.6f} "
+            f"{data['action_magnitude']:>12.6f}"
         )
 
     lines.append("=" * len(header))
@@ -324,7 +326,8 @@ def format_aggregate_table(agg, title=None):
 
     header = (f"{'Label':<25} {'Prompt':<40} "
               f"{'Mean Std (mean+-sd)':>22} {'Max Std (mean+-sd)':>22} "
-              f"{'Mean CV (mean+-sd)':>22} {'Action Mag (mean+-sd)':>24}")
+              f"{'Mean CV (mean+-sd)':>22} {'Max CV (mean+-sd)':>22} "
+              f"{'Action Mag (mean+-sd)':>24}")
     lines = []
     if title:
         lines.append(f"# {title}")
@@ -340,6 +343,7 @@ def format_aggregate_table(agg, title=None):
             f"{cell(d['mean_std_mean'], d['mean_std_sd']):>22} "
             f"{cell(d['max_std_mean'], d['max_std_sd']):>22} "
             f"{cell(d['mean_cv_mean'], d['mean_cv_sd']):>22} "
+            f"{cell(d['max_cv_mean'], d['max_cv_sd']):>22} "
             f"{cell(d['action_magnitude_mean'], d['action_magnitude_sd']):>24}"
         )
 
