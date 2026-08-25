@@ -139,6 +139,13 @@ class LoopClientConfig(RobotClientConfig):
     # Also log each action chunk as it arrives from the policy server (size and
     # timestep range) to the action log.
     log_action_chunks: bool = True
+    # Capture the VLA forward-pass inputs (scene image + joint state + task) for
+    # the observations that force a policy inference (must_go sends), so they can
+    # be replayed through the denoising consistency test. Off by default.
+    log_vla_inputs: bool = False
+    # Directory for the saved VLA-input PNGs and their metadata.jsonl sidecar. The
+    # PNG directory can be fed straight to vla_denoise_consistency.py --image_dir.
+    vla_input_dir: str = "vla_inputs"
 
 
 @dataclass
@@ -226,6 +233,15 @@ class LoopRobotClient:
         self._clip_stride = 1
         self._clip_seen = 0
         self._clip_lock = threading.Lock()
+
+        # VLA-input capture: save the scene image + joint state + task for each
+        # must_go (forward-pass) observation, for replay through the denoise test.
+        # The counter is monotonic across episodes so PNGs accumulate in one dir.
+        self._vla_input_dir = Path(config.vla_input_dir)
+        self._vla_input_count = 0
+        if config.log_vla_inputs:
+            self._vla_input_dir.mkdir(parents=True, exist_ok=True)
+            self.logger.info(f"Logging VLA inputs to {self._vla_input_dir}/")
 
         # Convergence tracking (initialised properly in _reset_episode_state)
         self._action_history = []
@@ -712,6 +728,12 @@ class LoopRobotClient:
                     self.send_observation(observation)
                     if observation.must_go:
                         self.must_go.clear()
+                        # must_go observations force a policy forward pass; capture
+                        # the VLA inputs (scene image + joint state + task).
+                        self._log_vla_input(
+                            raw_observation, task,
+                            observation.get_timestep(), elapsed,
+                        )
                 except Exception as e:
                     self.logger.error(f"Error in observation sender: {e}")
 
@@ -816,6 +838,59 @@ class LoopRobotClient:
                 # episode-start frame) and match the incoming rate to it.
                 self._episode_clip = self._episode_clip[::2]
                 self._clip_stride *= 2
+
+    def _log_vla_input(self, obs: dict, task: str, timestep: int, elapsed: float) -> None:
+        """Save one VLA forward-pass input (scene image + joint state + task).
+
+        Called for must_go observations (those that force a policy inference), so
+        the saved PNGs + metadata.jsonl reproduce exactly what the VLA saw and can
+        be replayed through vla_denoise_consistency.py (--image_dir points at the
+        PNG directory; the sidecar records the per-frame pose/task).
+        """
+        if not self.config.log_vla_inputs:
+            return
+
+        frame = self._select_camera_frame(obs, self._clip_camera_key)
+        if frame is None:
+            return
+
+        # Joint state in motor order (matches the denoise test's INITIAL_POSE),
+        # mirroring _capture_current_position's key handling.
+        state = []
+        for key in self.robot.action_features:
+            obs_key = f"{key}.pos" if f"{key}.pos" in obs else key
+            state.append(float(obs[obs_key]) if obs_key in obs else 0.0)
+
+        safe_task = "".join(c if c.isalnum() else "_" for c in task).strip("_")[:40]
+        fname = f"{self._vla_input_count:05d}_{safe_task}.png"
+
+        try:
+            from PIL import Image
+
+            Image.fromarray(np.asarray(frame, dtype=np.uint8)).save(
+                self._vla_input_dir / fname
+            )
+        except Exception as e:  # noqa: BLE001 - never let logging break an episode
+            self.logger.error(f"Failed to save VLA input image {fname}: {e}")
+            return
+
+        record = {
+            "image": fname,
+            "task": task,
+            "state": state,
+            "timestep": int(timestep),
+            "elapsed": round(float(elapsed), 3),
+            "unix_ts": time.time(),
+        }
+        try:
+            import json
+
+            with open(self._vla_input_dir / "metadata.jsonl", "a") as f:
+                f.write(json.dumps(record) + "\n")
+        except Exception as e:  # noqa: BLE001
+            self.logger.error(f"Failed to append VLA input metadata: {e}")
+
+        self._vla_input_count += 1
 
     def get_episode_clip(self, num_frames: int) -> tuple[list, float]:
         """Return up to num_frames frames sampled evenly *in time* across the episode
