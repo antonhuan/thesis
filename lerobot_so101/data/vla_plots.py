@@ -301,19 +301,106 @@ def _present_groups(item_groups, results):
     return out
 
 
+# --------------------------------------------------------------------------- #
+# House style (publication-quality matplotlib defaults + palette)
+# --------------------------------------------------------------------------- #
+
+# Deep blue reserved for the training label so it reads as the reference in every
+# figure; variants are drawn from a muted Tableau-style categorical palette that
+# deliberately excludes blue so nothing competes with the training line.
+_TRAINING_COLOR = "#2f5c9e"
+_PALETTE = [
+    "#e15759",  # red
+    "#59a14f",  # green
+    "#f28e2b",  # orange
+    "#76b7b2",  # teal
+    "#b07aa1",  # purple
+    "#edc948",  # gold
+    "#9c755f",  # brown
+    "#ff9da7",  # pink
+]
+
+_INK = "#222222"      # primary text
+_MUTED = "#6b6b6b"    # secondary text / ticks
+_STYLED = False
+
+
+def _set_style():
+    """Apply the house matplotlib style once per process (idempotent)."""
+    global _STYLED
+    if _STYLED:
+        return
+    import matplotlib.pyplot as plt
+    plt.rcParams.update({
+        "figure.facecolor": "white",
+        "figure.dpi": 120,
+        "savefig.dpi": 220,
+        "savefig.bbox": "tight",
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Helvetica Neue", "Helvetica", "Arial",
+                            "DejaVu Sans"],
+        "font.size": 11,
+        "text.color": _INK,
+        "axes.facecolor": "white",
+        "axes.edgecolor": "#c8c8c8",
+        "axes.linewidth": 0.8,
+        "axes.titlesize": 12,
+        "axes.titleweight": "semibold",
+        "axes.titlecolor": _INK,
+        "axes.titlepad": 8,
+        "axes.labelsize": 10,
+        "axes.labelcolor": _MUTED,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "axes.axisbelow": True,
+        "axes.grid": True,
+        "axes.grid.axis": "y",
+        "grid.color": "#e8e8e8",
+        "grid.linewidth": 0.8,
+        "xtick.color": _MUTED,
+        "ytick.color": _MUTED,
+        "xtick.labelsize": 9,
+        "ytick.labelsize": 9,
+        "xtick.major.width": 0.8,
+        "ytick.major.width": 0.8,
+        "legend.fontsize": 9,
+        "legend.frameon": False,
+        "figure.titlesize": 15,
+        "figure.titleweight": "bold",
+    })
+    _STYLED = True
+
+
 def _group_colors(labels, training_labels):
     """Assign a distinct colour to each prompt in a group: the training label gets
-    a fixed strong blue, variants are drawn from a categorical palette."""
-    import matplotlib.pyplot as plt
-    palette = list(plt.get_cmap("tab10").colors) + list(plt.get_cmap("tab20").colors)
+    the reserved reference blue, variants are drawn from the categorical palette."""
     colors, i = {}, 0
     for label in labels:
         if label in training_labels:
-            colors[label] = "#2a7fff"
+            colors[label] = _TRAINING_COLOR
         else:
-            colors[label] = palette[i % len(palette)]
+            colors[label] = _PALETTE[i % len(_PALETTE)]
             i += 1
     return colors
+
+
+def _prompt_legend(fig, labels, colors, training_labels, extra=None):
+    """Draw a single horizontal figure legend along the bottom.
+
+    ``extra`` optionally maps label -> suffix string (e.g. an end-point spread) to
+    append after the prompt name."""
+    from matplotlib.lines import Line2D
+    handles = []
+    for label in labels:
+        is_train = label in training_labels
+        text = label + ("  (training)" if is_train else "")
+        if extra and label in extra:
+            text += extra[label]
+        handles.append(Line2D([0], [0], color=colors[label],
+                              lw=2.6 if is_train else 1.7, label=text))
+    fig.legend(handles=handles, loc="lower center",
+               ncol=min(len(handles), 4), bbox_to_anchor=(0.5, 0.0),
+               handlelength=1.7, columnspacing=1.8, borderaxespad=0.0)
 
 
 def plot_joint_variance_over_time(results, item_groups, training_labels, save_dir,
@@ -327,8 +414,8 @@ def plot_joint_variance_over_time(results, item_groups, training_labels, save_di
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from matplotlib.lines import Line2D
 
+    _set_style()
     save_dir = Path(save_dir)
     save_dir.mkdir(parents=True, exist_ok=True)
     units = "real units" if unnorm is not None else "normalized"
@@ -337,7 +424,8 @@ def plot_joint_variance_over_time(results, item_groups, training_labels, save_di
 
     for item, labels in _present_groups(item_groups, results).items():
         colors = _group_colors(labels, training_labels)
-        fig, axes = plt.subplots(nrows, ncols, figsize=(6 * ncols, 4 * nrows))
+        fig, axes = plt.subplots(nrows, ncols,
+                                 figsize=(5.2 * ncols, 3.4 * nrows))
         axes = np.atleast_1d(axes).flatten()
 
         for j, name in enumerate(JOINT_NAMES):
@@ -351,27 +439,27 @@ def plot_joint_variance_over_time(results, item_groups, training_labels, save_di
                 is_train = label in training_labels
                 ax.plot(np.arange(var_t.shape[0]), var_t,
                         color=colors[label],
-                        lw=1.8 if is_train else 1.1,
-                        alpha=0.9 if is_train else 0.7)
-            ax.set_title(name, fontsize=11)
-            ax.set_xlabel("timestep in chunk", fontsize=8)
-            ax.set_ylabel(f"variance across seeds ({units})", fontsize=8)
-            ax.grid(True, alpha=0.25)
+                        lw=2.2 if is_train else 1.3,
+                        alpha=1.0 if is_train else 0.85,
+                        zorder=3 if is_train else 2,
+                        solid_capstyle="round")
+            ax.set_title(name)
+            ax.set_xlabel("timestep in chunk")
+            ax.margins(x=0.02)
+            ax.set_ylim(bottom=0)
+
+        # Shared y-label on the left column only, to reduce clutter.
+        for row in range(nrows):
+            axes[row * ncols].set_ylabel(f"seed variance ({units})")
 
         for extra in range(len(JOINT_NAMES), len(axes)):
             axes[extra].axis("off")
 
-        legend = [
-            Line2D([0], [0], color=colors[label],
-                   lw=1.8 if label in training_labels else 1.1,
-                   label=label + (" (training)" if label in training_labels else ""))
-            for label in labels
-        ]
-        fig.legend(handles=legend, loc="upper right", fontsize=9)
-        fig.suptitle(f"'{item}' — per-joint variance across seeds over the action ", fontsize=13)
-        fig.tight_layout(rect=[0, 0, 1, 0.97])
+        fig.suptitle(f"Per-joint seed variance across the action chunk — {item}")
+        _prompt_legend(fig, labels, colors, training_labels)
+        fig.tight_layout(rect=[0, 0.05, 1, 0.96])
         out = save_dir / f"joint_variance_{_safe_name(item)}.png"
-        fig.savefig(out, dpi=150, bbox_inches="tight")
+        fig.savefig(out)
         plt.close(fig)
         print(f"  Saved: {out}")
 
@@ -381,7 +469,7 @@ def plot_joint_variance_over_time(results, item_groups, training_labels, save_di
 # --------------------------------------------------------------------------- #
 
 def plot_action_traces(results, item_groups, training_labels, save_dir,
-                       unnorm=None, classify=None):
+                       unnorm=None):
     """One figure per item: for each joint, every seed's action trajectory over the
     chunk (faint) plus the across-seed mean (bold), for each prompt in the item
     group, coloured per prompt so variants overlay. This is the actual motion the
@@ -390,8 +478,8 @@ def plot_action_traces(results, item_groups, training_labels, save_dir,
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from matplotlib.lines import Line2D
 
+    _set_style()
     save_dir = Path(save_dir)
     save_dir.mkdir(parents=True, exist_ok=True)
     units = "real units" if unnorm is not None else "normalized"
@@ -400,7 +488,8 @@ def plot_action_traces(results, item_groups, training_labels, save_dir,
 
     for item, labels in _present_groups(item_groups, results).items():
         colors = _group_colors(labels, training_labels)
-        fig, axes = plt.subplots(nrows, ncols, figsize=(6 * ncols, 4 * nrows))
+        fig, axes = plt.subplots(nrows, ncols,
+                                 figsize=(5.2 * ncols, 3.4 * nrows))
         axes = np.atleast_1d(axes).flatten()
 
         for j, name in enumerate(JOINT_NAMES):
@@ -412,33 +501,30 @@ def plot_action_traces(results, item_groups, training_labels, save_dir,
                 arr = np.asarray(stacked, dtype=float)
                 s_n, t_n, _ = arr.shape
                 steps = np.arange(t_n)
+                is_train = label in training_labels
+                # Faint per-seed spread behind the bold across-seed mean.
                 for s in range(s_n):
                     ax.plot(steps, arr[s, :, j], color=colors[label],
-                            lw=0.5, alpha=0.20)
+                            lw=0.5, alpha=0.10, zorder=1)
                 ax.plot(steps, arr[:, :, j].mean(axis=0),
                         color=colors[label],
-                        lw=2.0 if label in training_labels else 1.4)
-            ax.set_title(name, fontsize=11)
-            ax.set_xlabel("timestep in chunk", fontsize=8)
-            ax.set_ylabel(f"action ({units})", fontsize=8)
-            ax.grid(True, alpha=0.25)
+                        lw=2.4 if is_train else 1.6,
+                        zorder=4 if is_train else 3,
+                        solid_capstyle="round")
+            ax.set_title(name)
+            ax.set_xlabel("timestep in chunk")
+            ax.margins(x=0.02)
         for extra in range(len(JOINT_NAMES), len(axes)):
             axes[extra].axis("off")
 
-        legend = []
-        for label in labels:
-            lbl = label + (" (training)" if label in training_labels else "")
-            if classify is not None:
-                d = results[label]
-                lbl += " · " + classify(d["mean_std"], d["action_magnitude"])
-            legend.append(Line2D([0], [0], color=colors[label],
-                                 lw=2.0 if label in training_labels else 1.4,
-                                 label=lbl))
-        fig.legend(handles=legend, loc="upper right", fontsize=9)
-        fig.suptitle(f"Action-chunk traces — '{item}'", fontsize=13)
-        fig.tight_layout(rect=[0, 0, 1, 0.97])
+        for row in range(nrows):
+            axes[row * ncols].set_ylabel(f"action ({units})")
+
+        fig.suptitle(f"Action-chunk trajectories — {item}")
+        _prompt_legend(fig, labels, colors, training_labels)
+        fig.tight_layout(rect=[0, 0.05, 1, 0.96])
         out = save_dir / f"traces_{_safe_name(item)}.png"
-        fig.savefig(out, dpi=150, bbox_inches="tight")
+        fig.savefig(out)
         plt.close(fig)
         print(f"  Saved: {out}")
 
@@ -447,8 +533,7 @@ def plot_action_traces(results, item_groups, training_labels, save_dir,
 # Plot 2: end-effector 3D clouds
 # --------------------------------------------------------------------------- #
 
-def plot_end_effector(results, item_groups, training_labels, kin, unnorm, save_dir,
-                      classify=None):
+def plot_end_effector(results, item_groups, training_labels, kin, unnorm, save_dir):
     """One 3D figure per item: every prompt in the group overlaid on a single axis,
     each seed's gripper trajectory (faint line) plus its end point (marker),
     coloured per prompt. Axis limits are shared across all items so tightness is
@@ -462,9 +547,9 @@ def plot_end_effector(results, item_groups, training_labels, kin, unnorm, save_d
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from matplotlib.lines import Line2D
     from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 - registers 3d proj
 
+    _set_style()
     save_dir = Path(save_dir)
     save_dir.mkdir(parents=True, exist_ok=True)
     groups = _present_groups(item_groups, results)
@@ -484,36 +569,45 @@ def plot_end_effector(results, item_groups, training_labels, kin, unnorm, save_d
 
     for item, labels in groups.items():
         colors = _group_colors(labels, training_labels)
-        fig = plt.figure(figsize=(8, 7))
+        fig = plt.figure(figsize=(8, 7.2))
         ax = fig.add_subplot(111, projection="3d")
 
-        legend = []
+        spreads = {}
         for label in labels:
             c = clouds[label]
             color = colors[label]
+            is_train = label in training_labels
             for s in range(c.shape[0]):
                 ax.plot(c[s, :, 0], c[s, :, 1], c[s, :, 2],
-                        color=color, lw=0.6, alpha=0.45)
+                        color=color, lw=0.6, alpha=0.30 if is_train else 0.22)
             ax.scatter(c[:, -1, 0], c[:, -1, 1], c[:, -1, 2],
-                       color=color, s=12, depthshade=True)
+                       color=color, s=18 if is_train else 12,
+                       edgecolors="white", linewidths=0.3, depthshade=True)
             # end-point dispersion: std of final gripper position across seeds
-            ee_spread = float(np.linalg.norm(c[:, -1, :].std(axis=0)))
-            lbl = label + (" (training)" if label in training_labels else "")
-            if classify is not None:
-                d = results[label]
-                lbl += " · " + classify(d["mean_std"], d["action_magnitude"])
-            lbl += f" · spread={ee_spread:.3f} m"
-            legend.append(Line2D([0], [0], color=color, lw=2, label=lbl))
+            spreads[label] = f"  ·  {np.linalg.norm(c[:, -1, :].std(axis=0)):.3f} m"
 
         ax.set_xlim(lims[0]); ax.set_ylim(lims[1]); ax.set_zlim(lims[2])
-        ax.tick_params(labelsize=6)
-        ax.set_xlabel("x", fontsize=8); ax.set_ylabel("y", fontsize=8)
-        ax.set_zlabel("z", fontsize=8)
-        fig.legend(handles=legend, loc="upper right", fontsize=8)
-        fig.suptitle(f"End-effector trajectories — '{item}' (FK of sampled joint "
-                     f"chunks) — tight bundle = recognised", fontsize=12)
-        fig.tight_layout(rect=[0, 0, 1, 0.96])
+        ax.set_xlabel("x (m)", labelpad=6); ax.set_ylabel("y (m)", labelpad=6)
+        ax.set_zlabel("z (m)", labelpad=6)
+        ax.tick_params(labelsize=7)
+        ax.view_init(elev=22, azim=-58)
+        # Subtle, light 3D panes for a cleaner look. mplot3d internals shift
+        # between matplotlib versions, so never let styling break the figure.
+        for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
+            try:
+                axis.set_pane_color((1.0, 1.0, 1.0, 1.0))
+                axis.pane.set_edgecolor("#dddddd")
+                axis._axinfo["grid"].update(color="#ececec", linewidth=0.7)
+            except Exception:  # noqa: BLE001 - cosmetic only
+                pass
+
+        fig.suptitle(f"End-effector spread — {item}", y=0.97)
+        ax.set_title("forward kinematics of sampled joint chunks · "
+                     "legend shows end-point std",
+                     fontsize=9, color=_MUTED, pad=2)
+        _prompt_legend(fig, labels, colors, training_labels, extra=spreads)
+        fig.tight_layout(rect=[0, 0.05, 1, 0.95])
         out = save_dir / f"end_effector_{_safe_name(item)}.png"
-        fig.savefig(out, dpi=150, bbox_inches="tight")
+        fig.savefig(out)
         plt.close(fig)
         print(f"  Saved: {out}")
