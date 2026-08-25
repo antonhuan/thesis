@@ -468,8 +468,12 @@ def main():
             plot_joint_variance_over_time,
         )
 
-        plot_dir = Path(args.plot_dir)
+        # Stamp each run with the local date/time so reruns land in their own
+        # subdirectory instead of overwriting the previous run's plots.
+        run_stamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+        plot_dir = Path(args.plot_dir) / run_stamp
         plot_dir.mkdir(parents=True, exist_ok=True)
+        log.info("Plots for this run go to %s/", plot_dir)
         # Real (degree/percent) units where the checkpoint stats load; else the
         # plots stay in normalized space and the end-effector plot is skipped.
         unnorm = build_action_unnormalizer(args.checkpoint, policy.config)
