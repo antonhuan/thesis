@@ -11,4 +11,5 @@ __pycache__/
 lerobot_so101/data/logs/
 lerobot_so101/data/frames/
 lerobot_so101/data/denoise_plots/
-lerobot_so101/data/denoise_image/
+lerobot_so101/data/denoise_image/*
+!lerobot_so101/data/denoise_plots/2026-08-26_05-22-36/
