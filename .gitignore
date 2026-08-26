@@ -10,3 +10,5 @@ __pycache__/
 .vscode/
 lerobot_so101/data/logs/
 lerobot_so101/data/frames/
+lerobot_so101/data/denoise_plots/
+lerobot_so101/data/denoise_image/
