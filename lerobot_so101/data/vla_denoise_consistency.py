@@ -33,10 +33,12 @@ for the end-effector figure (auto-detected if omitted).
 """
 
 import argparse
+import json
 import logging
 import math
 import time
 from collections import OrderedDict
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -47,6 +49,7 @@ from vla_embedding_utils import (
     load_scene_image,
     prepare_inputs,
     prepare_inputs_stateful,
+    prepare_inputs_stateful_multi,
 )
 
 logging.basicConfig(
@@ -90,7 +93,7 @@ TRAINING_LABELS = {"banana", "toy", "pouch"}
 ITEM_GROUPS = OrderedDict([
     ("banana", ["banana", "fruit", "yellow banana"]),
     ("toy",    ["toy", "plush toy", "stuffed animal"]),
-    ("pouch",  ["pouch", "brown pouch", "purse", "bag", "drawstring pouch", "brown cylinder", "roll", "box"]),
+    ("pouch",  ["pouch", "brown pouch", "purse", "bag", "brown cylinder", "roll", "box"]),
 ])
 
 # Initial joint pose the VLA is conditioned on (motor order: shoulder_pan,
@@ -201,19 +204,39 @@ def measure_consistency(policy, image, instruction, n_seeds=10,
     When a ``preprocessor`` is given the policy is conditioned on ``initial_pose``
     via the training-faithful Task/State/Action prompt; otherwise it falls back
     to the bare, stateless prompt.
+
+    ``image`` is normally a single PIL.Image; episode-replay mode instead
+    passes a dict ({camera_name: PIL.Image}), which routes through
+    ``prepare_inputs_stateful_multi`` to feed every camera the checkpoint's
+    image_features declares (see vla_embedding_utils.py).
     """
     model = policy.model
     config = policy.config
     action_dim = config.output_features["action"].shape[0]  # 6 for SO-101
 
     if preprocessor is not None:
-        images, img_masks, tokens, masks = prepare_inputs_stateful(
-            policy, preprocessor, image, instruction, initial_pose, device
-        )
+        if isinstance(image, dict):
+            images, img_masks, tokens, masks = prepare_inputs_stateful_multi(
+                policy, preprocessor, image, instruction, initial_pose, device
+            )
+        else:
+            images, img_masks, tokens, masks = prepare_inputs_stateful(
+                policy, preprocessor, image, instruction, initial_pose, device
+            )
     else:
-        images, img_masks, tokens, masks = prepare_inputs(
-            policy, image, instruction, device
-        )
+        if isinstance(image, dict):
+            # Stateless path has no multi-camera equivalent; degrade to a
+            # single image rather than failing outright.
+            fallback = image.get("front") or next(iter(image.values()))
+            log.warning("--no_state doesn't support multi-camera input; "
+                        "using a single image only.")
+            images, img_masks, tokens, masks = prepare_inputs(
+                policy, fallback, instruction, device
+            )
+        else:
+            images, img_masks, tokens, masks = prepare_inputs(
+                policy, image, instruction, device
+            )
 
     # Encode prefix once
     prefix_pad_masks, past_key_values = encode_prefix(
@@ -306,6 +329,41 @@ def compute_motion_metrics(stacked, unnorm, kin, threshold):
             "ee_cloud": ee_cloud}
 
 
+def compute_ground_truth_metrics(stacked, unnorm, gt_real):
+    """Compare a prompt's denoised seed cluster against the real recorded
+    action chunk for that same forward-pass observation (episode-replay mode
+    only; ``gt_real`` is the actual sequence of joint targets sent to the arm).
+
+    ``stacked``: (S, T, A) normalized seed cluster for the ground-truth label.
+    ``gt_real``: (T', 6) REAL-unit recorded action chunk. Compared over the
+    overlapping prefix ``min(T, T')`` only, since an episode can end before a
+    full chunk plays out.
+
+    Returns a NaN-filled dict when ``unnorm`` is unavailable, mirroring
+    ``compute_motion_metrics``'s convention so it composes with the same
+    aggregation machinery.
+    """
+    nan = float("nan")
+    if unnorm is None:
+        return {"gt_dist_mean": nan, "gt_dist_median": nan,
+                "gt_per_joint_mae": None}
+
+    real = np.asarray(unnorm(stacked), dtype=float)      # (S, T, A)
+    mean_real = real.mean(axis=0)                         # (T, A)
+    gt_real = np.asarray(gt_real, dtype=float)             # (T', A)
+    t = min(mean_real.shape[0], gt_real.shape[0])
+    diff = mean_real[:t] - gt_real[:t]                     # (t, A)
+
+    # Same mixed-units (degrees + gripper %) L2-per-timestep convention
+    # compute_motion_metrics already uses for peak displacement.
+    dist_per_t = np.linalg.norm(diff, axis=-1)             # (t,)
+    return {
+        "gt_dist_mean": float(dist_per_t.mean()),
+        "gt_dist_median": float(np.median(dist_per_t)),
+        "gt_per_joint_mae": np.abs(diff).mean(axis=0).tolist(),
+    }
+
+
 # --------------------------------------------------------------------------- #
 # Pretty-print results table
 # --------------------------------------------------------------------------- #
@@ -317,12 +375,15 @@ def _num(value, width, prec=6):
     return f"{value:>{width}.{prec}f}"
 
 
-def format_results_table(results, title=None):
-    """Build the per-prompt stats table for one image as a string."""
+def format_results_table(results, prompts=PROMPTS, title=None):
+    """Build the per-prompt stats table for one image (or, in episode-replay
+    mode, one record) as a string. ``prompts`` defaults to the module-level
+    vocabulary; episode-replay mode passes its own group-scoped (and possibly
+    ground-truth-patched) prompt dict instead."""
     header = (f"{'Label':<25} {'Prompt':<40} "
               f"{'Mean Std':>10} {'Max Std':>10} {'Mean CV':>10} {'Max CV':>10} "
               f"{'Action Mag':>12} {'EE Consist':>12} {'Peak Disp':>10} "
-              f"{'No-Move %':>10}")
+              f"{'No-Move %':>10} {'GT Dist':>10}")
     lines = []
     if title:
         lines.append(f"# {title}")
@@ -331,7 +392,7 @@ def format_results_table(results, title=None):
     lines.append("-" * len(header))
 
     for label, data in results.items():
-        prompt = PROMPTS[label]
+        prompt = prompts[label]
         marker = "*" if label in TRAINING_LABELS else " "
         no_move = data.get("no_move_frac", float("nan"))
         no_move_pct = (no_move * 100.0 if not (isinstance(no_move, float)
@@ -344,7 +405,8 @@ def format_results_table(results, title=None):
             f"{data['action_magnitude']:>12.6f} "
             f"{_num(data.get('ee_consistency'), 12)} "
             f"{_num(data.get('peak_disp_mean'), 10, 4)} "
-            f"{_num(no_move_pct, 10, 1)}"
+            f"{_num(no_move_pct, 10, 1)} "
+            f"{_num(data.get('gt_dist_mean'), 10, 4)}"
         )
 
     lines.append("=" * len(header))
@@ -365,7 +427,7 @@ def aggregate_results(all_results):
 
     metric_names = ("mean_std", "max_std", "mean_cv", "max_cv",
                     "action_magnitude", "ee_consistency", "peak_disp_mean",
-                    "no_move_frac")
+                    "no_move_frac", "gt_dist_mean")
 
     # Collect the per-image value of each metric, per label (preserve prompt order).
     per_label = OrderedDict()
@@ -387,8 +449,11 @@ def aggregate_results(all_results):
     return agg
 
 
-def format_aggregate_table(agg, title=None):
-    """Build the across-images aggregate table (mean +/- std per metric)."""
+def format_aggregate_table(agg, prompts=PROMPTS, title=None):
+    """Build the across-images (or, in episode-replay mode, across-records)
+    aggregate table (mean +/- std per metric). ``prompts`` defaults to the
+    module-level vocabulary; episode-replay mode passes its own group-scoped
+    prompt dict instead."""
     def cell(m, s, prec=6):
         if isinstance(m, float) and math.isnan(m):
             return "N/A"
@@ -398,7 +463,8 @@ def format_aggregate_table(agg, title=None):
               f"{'Mean Std (mean+-sd)':>22} {'Max Std (mean+-sd)':>22} "
               f"{'Mean CV (mean+-sd)':>22} {'Max CV (mean+-sd)':>22} "
               f"{'Action Mag (mean+-sd)':>24} {'EE Consist (mean+-sd)':>24} "
-              f"{'Peak Disp (mean+-sd)':>22} {'No-Move % (mean+-sd)':>22}")
+              f"{'Peak Disp (mean+-sd)':>22} {'No-Move % (mean+-sd)':>22} "
+              f"{'GT Dist (mean+-sd)':>22}")
     lines = []
     if title:
         lines.append(f"# {title}")
@@ -407,7 +473,7 @@ def format_aggregate_table(agg, title=None):
     lines.append("-" * len(header))
 
     for label, d in agg.items():
-        prompt = PROMPTS[label]
+        prompt = prompts[label]
         marker = "*" if label in TRAINING_LABELS else " "
         no_move_m = d["no_move_frac_mean"]
         no_move_pct_m = (no_move_m * 100.0 if not (isinstance(no_move_m, float)
@@ -422,12 +488,397 @@ def format_aggregate_table(agg, title=None):
             f"{cell(d['action_magnitude_mean'], d['action_magnitude_sd']):>24} "
             f"{cell(d['ee_consistency_mean'], d['ee_consistency_sd']):>24} "
             f"{cell(d['peak_disp_mean_mean'], d['peak_disp_mean_sd'], 4):>22} "
-            f"{cell(no_move_pct_m, d['no_move_frac_sd'] * 100.0, 1):>22}"
+            f"{cell(no_move_pct_m, d['no_move_frac_sd'] * 100.0, 1):>22} "
+            f"{cell(d['gt_dist_mean_mean'], d['gt_dist_mean_sd'], 4):>22}"
         )
 
     lines.append("=" * len(header))
     lines.append("  * = training label")
     return "\n".join(lines)
+
+
+# --------------------------------------------------------------------------- #
+# Episode replay: ground-truth every recorded input/output pair from
+# robot_client_loop.py's vla_inputs/<NNN>_<object>/ episode directories.
+# --------------------------------------------------------------------------- #
+
+def iter_metadata_records(episode_dir):
+    """Yield parsed dicts from episode_dir/metadata.jsonl, in file order."""
+    path = Path(episode_dir) / "metadata.jsonl"
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                yield json.loads(line)
+
+
+def load_record_images(episode_dir, rec):
+    """Load every PNG named in rec['images'] as {camera_name: PIL.Image}, or
+    None (+ a logged warning) if any referenced file is missing/unreadable."""
+    images = {}
+    for name, fname in rec.get("images", {}).items():
+        p = Path(episode_dir) / fname
+        if not p.is_file():
+            log.warning("Record missing image file %s (camera '%s'); skipping.",
+                        p, name)
+            return None
+        images[name] = load_scene_image(str(p))
+    return images
+
+
+def action_chunk_to_array(action_chunk):
+    """(list of per-timestep {'<joint>.pos': value} dicts) -> np.ndarray (T, 6),
+    axis order == vla_plots.JOINT_NAMES -- the same order unnorm(stacked)
+    produces, and the same order/units as INITIAL_POSE / a metadata record's
+    own 'state' field."""
+    from vla_plots import JOINT_NAMES
+    return np.array(
+        [[step[f"{j}.pos"] for j in JOINT_NAMES] for step in action_chunk],
+        dtype=float,
+    )
+
+
+def episode_object_tag(ep_dir):
+    """The object an episode directory is about, parsed from its <NNN>_<object>
+    name (see robot_client_loop.py's _extract_object). Used both to resolve the
+    episode's prompt group and to key the per-object aggregate, so the two can
+    never disagree about which object an episode belongs to."""
+    return Path(ep_dir).name.split("_", 1)[-1].lower()
+
+
+def resolve_episode_group(ep_dir, task, prompts=PROMPTS, item_groups=ITEM_GROUPS,
+                          label="actual"):
+    """Scope the vocabulary sweep for one episode to just its own object group
+    (e.g. a "put the pouch on the tray" episode only sweeps pouch variants, not
+    banana/toy too), and resolve the ground-truth label within it.
+
+    Returns (group_prompts, group_item_groups, actual_label):
+      - group_prompts: an OrderedDict of just the resolved group's labels
+        (patched with the literal recorded `task` if its exact wording isn't
+        already one of them).
+      - group_item_groups: an OrderedDict with a single entry (the resolved
+        group), for the plotting functions' _present_groups filtering.
+      - actual_label: the label to use as ground truth for every record in
+        this episode.
+
+    Resolution order:
+      1. Parse the object tag straight from the episode folder name
+         (<NNN>_<object>, see robot_client_loop.py's _extract_object) and
+         match it case-insensitively against item_groups' keys.
+      2. If that doesn't match any known group (a genuinely new object, or
+         the folder-naming heuristic grabbed an adjective instead of a noun),
+         fall back to a standalone one-member group containing just the
+         literal recorded task, so the episode still gets tested.
+
+    Never mutates the module-level PROMPTS/ITEM_GROUPS.
+    """
+    object_tag = episode_object_tag(ep_dir)
+    group_key = next(
+        (g for g in item_groups if g.lower() == object_tag), None
+    )
+
+    if group_key is not None:
+        group_labels = [l for l in item_groups[group_key] if l in prompts]
+        missing = [l for l in item_groups[group_key] if l not in prompts]
+        if missing:
+            log.warning("ITEM_GROUPS[%r] lists label(s) %s with no matching "
+                        "PROMPTS entry; skipping them.", group_key, missing)
+        group_prompts = OrderedDict((l, prompts[l]) for l in group_labels)
+        match = next((l for l in group_labels if prompts[l] == task), None)
+        if match is not None:
+            return group_prompts, OrderedDict([(group_key, group_labels)]), match
+
+        key = label
+        n = 2
+        while key in group_prompts:
+            key = f"{label}_{n}"
+            n += 1
+        group_prompts[key] = task
+        group_labels = group_labels + [key]
+        return group_prompts, OrderedDict([(group_key, group_labels)]), key
+
+    log.warning("Episode %s: object tag '%s' doesn't match any known "
+                "ITEM_GROUPS key; testing the recorded task alone, without "
+                "sibling-variant context.", Path(ep_dir).name, object_tag)
+    return (OrderedDict([(label, task)]),
+            OrderedDict([(label, [label])]),
+            label)
+
+
+def run_episode(ep_dir, policy, preprocessor, unnorm, kin, args, run_stamp):
+    """Replay every metadata.jsonl record in one episode directory: sweep the
+    episode's own object-group vocabulary (see resolve_episode_group) against
+    that record's real image(s)/state, and compare the denoised cluster for
+    the ground-truth label against the real recorded action_chunk.
+
+    Returns None when nothing was processed, else a dict describing this
+    episode (object tag, per-record results, resolved prompts/item groups) so
+    the caller can roll every episode of one object up into a per-object
+    aggregate -- see write_object_aggregate.
+    """
+    from vla_plots import (
+        plot_action_traces,
+        plot_end_effector,
+        plot_joint_variance_over_time,
+        _safe_name as _safe,
+    )
+
+    ep_dir = Path(ep_dir)
+    episode_name = ep_dir.name
+    log.info("=== Episode: %s ===", episode_name)
+
+    records = list(iter_metadata_records(ep_dir))
+    if not records:
+        log.warning("Episode %s: no records to process.", episode_name)
+        return None
+
+    # The task (and therefore the object group) is fixed for the whole
+    # episode, so this is resolved once and reused for every record.
+    base_group_prompts, base_item_groups, base_actual_label = resolve_episode_group(
+        ep_dir, records[0]["task"], label=args.episode_actual_label,
+    )
+    if args.prompts:
+        base_group_prompts = OrderedDict(
+            (k, v) for k, v in base_group_prompts.items()
+            if k in args.prompts or k == base_actual_label
+        )
+
+    n_no_chunk = n_missing_img = n_missing_cam = 0
+    all_results = OrderedDict()
+    # record_id -> {label: (T, A) per-joint seed variance}. Kept alongside the
+    # metrics because the caller averages these across a whole object's
+    # episodes for the per-object figure (see write_object_aggregate); they are
+    # ~500x smaller than the seed tensors they are derived from, so unlike
+    # stacked_actions they are cheap to hold for every record of every episode.
+    var_curves = OrderedDict()
+
+    for i, rec in enumerate(records):
+        if rec.get("action_chunk") is None or rec.get("action_timesteps") is None:
+            n_no_chunk += 1
+            continue
+
+        images = load_record_images(ep_dir, rec)
+        if images is None:
+            n_missing_img += 1
+            continue
+
+        record_id = f"{rec.get('timestep', i):05d}"
+        prompts, item_groups, actual_label = resolve_episode_group(
+            ep_dir, rec["task"], label=args.episode_actual_label,
+        )
+        if args.prompts:
+            prompts = OrderedDict(
+                (k, v) for k, v in prompts.items()
+                if k in args.prompts or k == actual_label
+            )
+        gt_real = action_chunk_to_array(rec["action_chunk"])
+
+        results = OrderedDict()
+        record_curves = OrderedDict()
+        try:
+            for label, prompt in prompts.items():
+                log.info("[%s] Measuring: '%s'  (%s)", record_id, prompt, label)
+                t0 = time.time()
+                metrics = measure_consistency(
+                    policy, images, prompt,
+                    n_seeds=args.n_seeds,
+                    num_steps=args.num_steps,
+                    device=args.device,
+                    preprocessor=preprocessor,
+                    initial_pose=rec["state"],
+                )
+                motion = compute_motion_metrics(
+                    metrics["stacked_actions"], unnorm, kin,
+                    args.no_movement_threshold,
+                )
+                metrics.update(motion)
+                # Compared against the one real recorded action_chunk for
+                # every label, not just actual_label: the ground-truth
+                # label should score low (model reconstructs real behavior)
+                # while the other candidate prompts scoring higher is itself
+                # a useful vocabulary-discrimination signal. Cheap -- pure
+                # array math on the already-generated stacked_actions.
+                metrics.update(compute_ground_truth_metrics(
+                    metrics["stacked_actions"], unnorm, gt_real
+                ))
+                # Per-joint seed variance over the chunk, in the same units the
+                # plot would use, so the per-object aggregate can average these
+                # instead of re-pooling raw seed chunks across scenes.
+                st = metrics["stacked_actions"]
+                real = unnorm(st) if unnorm is not None else st
+                record_curves[label] = np.asarray(real, dtype=float).var(axis=0)
+
+                elapsed = time.time() - t0
+                log.info("  mean_std=%.6f  action_mag=%.6f  (%.1fs)",
+                         metrics["mean_std"], metrics["action_magnitude"], elapsed)
+                results[label] = metrics
+        except ValueError as e:
+            log.warning("Record %s: %s; skipping (missing camera).", record_id, e)
+            n_missing_cam += 1
+            continue
+
+        all_results[record_id] = results
+        var_curves[record_id] = record_curves
+
+        table = format_results_table(results, prompts=prompts, title=record_id)
+        print()
+        print(table)
+        print()
+
+        rec_dir = Path(args.plot_dir) / run_stamp / episode_name / record_id
+        rec_dir.mkdir(parents=True, exist_ok=True)
+        if not args.no_plots:
+            (rec_dir / args.results_file).write_text(
+                f"## {record_id}\n\n```\n{table}\n```\n"
+            )
+
+        chunk_dir = rec_dir / "action_chunks"
+        chunk_dir.mkdir(parents=True, exist_ok=True)
+        for label, data in results.items():
+            np.save(chunk_dir / f"{_safe(label)}.npy",
+                    data["stacked_actions"].cpu().numpy())
+
+        gt_dir = rec_dir / "ground_truth"
+        gt_dir.mkdir(parents=True, exist_ok=True)
+        np.save(gt_dir / f"{_safe(actual_label)}_gt_chunk.npy", gt_real)
+        (gt_dir / f"{_safe(actual_label)}_gt_metrics.json").write_text(json.dumps({
+            k: results[actual_label].get(k) for k in
+            ("gt_dist_mean", "gt_dist_median", "gt_per_joint_mae")
+        }, indent=2))
+
+        if not args.no_plots:
+            gt_overlay = {actual_label: gt_real} if unnorm is not None else None
+            plot_joint_variance_over_time(
+                results, item_groups, TRAINING_LABELS,
+                rec_dir / "joint_variance", unnorm=unnorm,
+            )
+            plot_action_traces(
+                results, item_groups, TRAINING_LABELS,
+                rec_dir / "traces", unnorm=unnorm, ground_truth=gt_overlay,
+            )
+            if unnorm is not None and kin is not None:
+                clouds = {label: data.get("ee_cloud")
+                          for label, data in results.items()}
+                plot_end_effector(
+                    results, item_groups, TRAINING_LABELS, kin, unnorm,
+                    rec_dir / "end_effector", clouds=clouds,
+                    ground_truth=gt_overlay,
+                )
+
+        for data in results.values():
+            data.pop("ee_cloud", None)
+
+    log.info(
+        "Episode %s: %d processed, %d skipped (no action_chunk), "
+        "%d skipped (missing image), %d skipped (missing camera)",
+        episode_name, len(all_results), n_no_chunk, n_missing_img, n_missing_cam,
+    )
+
+    if not all_results:
+        return None
+
+    # --- Episode-level aggregate. Pooling the ground-truth label's seed
+    # samples is only valid *within* this one episode (same recorded task
+    # throughout) -- never pooled across episodes by any caller of this
+    # function, see main()'s --episode_root loop. ---
+    agg = aggregate_results(all_results)
+    agg_dir = Path(args.plot_dir) / run_stamp / episode_name / "aggregated"
+    agg_dir.mkdir(parents=True, exist_ok=True)
+    agg_table = format_aggregate_table(
+        agg, prompts=base_group_prompts,
+        title=f"{episode_name} aggregated ({len(all_results)} records)",
+    )
+    print()
+    print(agg_table)
+    print()
+    if not args.no_plots:
+        (agg_dir / args.results_file).write_text(f"```\n{agg_table}\n```\n")
+
+        pooled = OrderedDict()
+        for results in all_results.values():
+            for label, data in results.items():
+                pooled.setdefault(label, []).append(data["stacked_actions"])
+        agg_results = OrderedDict(
+            (label, {"stacked_actions": torch.cat(chunks, dim=0)})
+            for label, chunks in pooled.items()
+        )
+        plot_joint_variance_over_time(
+            agg_results, base_item_groups, TRAINING_LABELS,
+            agg_dir / "joint_variance", unnorm=unnorm,
+        )
+        plot_action_traces(
+            agg_results, base_item_groups, TRAINING_LABELS,
+            agg_dir / "traces", unnorm=unnorm,
+        )
+        if unnorm is not None and kin is not None:
+            plot_end_effector(
+                agg_results, base_item_groups, TRAINING_LABELS, kin, unnorm,
+                agg_dir / "end_effector",
+            )
+
+    # The seed tensors have served every plot that needs them; drop them before
+    # handing results back, so the caller can hold one object's worth of
+    # episodes without carrying hundreds of MB of chunks it will never use.
+    for res in all_results.values():
+        for metrics in res.values():
+            metrics.pop("stacked_actions", None)
+
+    return {
+        "episode": episode_name,
+        "object": episode_object_tag(ep_dir),
+        "results": all_results,          # record_id -> {label: scalar metrics}
+        "variance": var_curves,          # record_id -> {label: (T, A) array}
+        "prompts": base_group_prompts,
+        "item_groups": base_item_groups,
+    }
+
+
+def write_object_aggregate(object_tag, entry, unnorm, kin, args, run_stamp):
+    """Roll every record of every episode for one object into a single table
+    plus one joint-variance figure (e.g. all five banana episodes together).
+
+    Valid to pool because one object's episodes all share the same recorded
+    task, and so resolve to the same prompt labels -- unlike pooling across
+    objects, where one label would span unrelated trajectories. Traces and
+    end-effector clouds are deliberately not aggregated here: those show where
+    the arm actually went, which is a different scene in every episode.
+    """
+    from vla_plots import plot_joint_variance_over_time, _safe_name
+
+    results_by_record = entry["results"]
+    if not results_by_record:
+        return
+
+    agg = aggregate_results(results_by_record)
+    out_dir = Path(args.plot_dir) / run_stamp / "by_object" / _safe_name(object_tag)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    agg_table = format_aggregate_table(
+        agg, prompts=entry["prompts"],
+        title=f"{object_tag} — all episodes "
+              f"({entry['n_episodes']} episodes, {len(results_by_record)} records)",
+    )
+    print()
+    print(agg_table)
+    print()
+    (out_dir / args.results_file).write_text(f"```\n{agg_table}\n```\n")
+    log.info("Wrote per-object aggregate for '%s' to %s/", object_tag, out_dir)
+
+    if args.no_plots or not entry["variance"]:
+        return
+
+    # Mean of the per-record variance curves: "at timestep t of a chunk, how
+    # much do seeds typically disagree for this object".
+    mean_curves = OrderedDict(
+        (label, np.mean(np.stack(curves, axis=0), axis=0))
+        for label, curves in entry["variance"].items()
+    )
+    plot_joint_variance_over_time(
+        {label: {} for label in mean_curves},
+        entry["item_groups"], TRAINING_LABELS,
+        out_dir / "joint_variance", unnorm=unnorm,
+        variance_curves=mean_curves,
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -478,11 +929,37 @@ def main():
                              "a seed's chunk counts as no movement "
                              f"(default: {NO_MOVEMENT_THRESHOLD}, mirrors the "
                              "orchestrator).")
+    parser.add_argument("--episode_dir", default=None,
+                        help="Path to one robot_client_loop.py episode directory "
+                             "(vla_inputs/<NNN>_<object>/, containing "
+                             "metadata.jsonl + PNGs). Replays every must_go "
+                             "record: sweeps the episode's own object-group "
+                             "vocabulary (see ITEM_GROUPS), with the record's "
+                             "own recorded task guaranteed to be included as a "
+                             "ground-truth label, and compares the denoised "
+                             "cluster against the real recorded action_chunk. "
+                             "Mutually exclusive with --episode_root, "
+                             "--image_dir, --image_path, and live capture. "
+                             "--n_seeds's default (1000) is very expensive "
+                             "per-record; lower it for replay runs.")
+    parser.add_argument("--episode_root", default=None,
+                        help="Path to a vla_inputs/ directory; replays every "
+                             "subdirectory containing a metadata.jsonl as its "
+                             "own episode (see --episode_dir). Mutually "
+                             "exclusive with --episode_dir, --image_dir, "
+                             "--image_path.")
+    parser.add_argument("--episode_actual_label", default="actual",
+                        help="Label key to use when the recorded task doesn't "
+                             "match any existing PROMPTS entry within its "
+                             "resolved object group, or when the episode's "
+                             "object tag doesn't match any known group at all "
+                             "(default: 'actual'; auto-suffixed on collision).")
     args = parser.parse_args()
 
     log.info("Loading policy from %s (dtype=%s) ...", args.checkpoint, args.dtype)
     policy = load_policy(args.checkpoint, args.device, args.dtype)
     log.info("Policy loaded.")
+    log.info("Checkpoint image_features: %s", list(policy.config.image_features))
 
     # State conditioning: route inputs through the checkpoint's real preprocessor
     # so the VLA sees the Task/State/Action prompt it was trained on.
@@ -495,11 +972,78 @@ def main():
             log.info("Conditioning on initial pose: %s",
                      [round(v, 2) for v in INITIAL_POSE])
 
+    # Stamp each run with the local date/time so reruns (plots and the results
+    # file) land in their own path instead of overwriting the previous run.
+    run_stamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+
+    # --- Unnormalizer + kinematics (built once, reused per image/episode).
+    # Needed for the peak-displacement / no-movement and end-effector-consistency
+    # metrics as well as the plots, so they are built regardless of --no_plots.
+    # Real (degree/percent) units where the checkpoint stats load; otherwise
+    # unnorm is None and those metrics / the EE plot fall back to N/A /
+    # normalized space. Moved up here (was built after image acquisition) so
+    # episode-replay mode below can use them too. ---
+    from vla_plots import build_action_unnormalizer, build_kinematics
+    unnorm = build_action_unnormalizer(args.checkpoint, policy.config)
+    kin = build_kinematics(args.urdf) if unnorm is not None else None
+
+    # --- Episode-replay mode: run every metadata.jsonl record from one or more
+    # robot_client_loop.py episode directories, ground-truthed against the real
+    # action_chunk each record recorded (see run_episode). ---
+    if args.episode_dir or args.episode_root:
+        # Recursive (rglob) rather than one level deep: robot_client_loop.py
+        # nests episodes under an <object>/ subdirectory
+        # (vla_inputs/<object>/<NNN>_<object>/), so --episode_root can point
+        # at the whole vla_inputs/ root (sweeps every object) or at one
+        # object's subdirectory (sweeps just that object) and either way
+        # finds every episode regardless of nesting depth. Also picks up any
+        # leftover flat-layout episode dirs from before that nesting existed.
+        episode_dirs = (
+            [Path(args.episode_dir)] if args.episode_dir
+            else sorted(p.parent for p in Path(args.episode_root).rglob("metadata.jsonl"))
+        )
+        if not episode_dirs:
+            log.error("No episode directories with metadata.jsonl found.")
+            return
+
+        # Accumulate every episode's records under its object, so all banana
+        # episodes report together, all pouch together, etc (see
+        # write_object_aggregate).
+        per_object = OrderedDict()
+        for ep_dir in episode_dirs:
+            out = run_episode(ep_dir, policy, preprocessor, unnorm, kin, args,
+                              run_stamp)
+            if out is None:
+                continue
+            entry = per_object.setdefault(out["object"], {
+                "results": OrderedDict(), "variance": OrderedDict(),
+                "prompts": OrderedDict(), "item_groups": OrderedDict(),
+                "n_episodes": 0,
+            })
+            entry["n_episodes"] += 1
+            # Merge rather than overwrite: an episode whose exact task wording
+            # wasn't already a label patched in its own, and dropping the
+            # others would lose labels the sibling episodes did test.
+            entry["prompts"].update(out["prompts"])
+            for group, labels in out["item_groups"].items():
+                known = entry["item_groups"].setdefault(group, [])
+                known.extend(l for l in labels if l not in known)
+            # Namespace by episode -- record ids restart at 00000 in every
+            # episode and would otherwise silently overwrite each other.
+            for record_id, res in out["results"].items():
+                entry["results"][f"{out['episode']}/{record_id}"] = res
+            for curves in out["variance"].values():
+                for label, curve in curves.items():
+                    entry["variance"].setdefault(label, []).append(curve)
+
+        for object_tag, entry in per_object.items():
+            write_object_aggregate(object_tag, entry, unnorm, kin, args,
+                                   run_stamp)
+        return
+
     # --- Acquire scene image(s) ---
     # images: ordered list of (name, PIL.Image). A directory yields one entry per
     # image file; a single --image_path yields one entry; otherwise a live capture.
-    from pathlib import Path
-
     images = []
     if args.image_dir:
         img_dir = Path(args.image_dir).expanduser()
@@ -538,19 +1082,6 @@ def main():
             return
     else:
         selected = PROMPTS
-
-    # Stamp each run with the local date/time so reruns (plots and the results
-    # file) land in their own path instead of overwriting the previous run.
-    run_stamp = time.strftime("%Y-%m-%d_%H-%M-%S")
-
-    # --- Unnormalizer + kinematics (built once, reused per image). Needed for
-    # the peak-displacement / no-movement and end-effector-consistency metrics as
-    # well as the plots, so they are built regardless of --no_plots. Real
-    # (degree/percent) units where the checkpoint stats load; otherwise unnorm is
-    # None and those metrics / the EE plot fall back to N/A / normalized space. ---
-    from vla_plots import build_action_unnormalizer, build_kinematics
-    unnorm = build_action_unnormalizer(args.checkpoint, policy.config)
-    kin = build_kinematics(args.urdf) if unnorm is not None else None
 
     plot_dir = None
     if not args.no_plots:

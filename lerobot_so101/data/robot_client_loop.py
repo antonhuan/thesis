@@ -28,8 +28,10 @@
 # At the prompt, type a task instruction and press Enter to execute.
 # Type 'quit' or 'exit' to shut down cleanly.
 
+import json
 import logging
 import pickle  # nosec
+import re
 import threading
 import time
 from collections.abc import Callable
@@ -141,11 +143,17 @@ class LoopClientConfig(RobotClientConfig):
     log_action_chunks: bool = True
     # Capture the VLA forward-pass inputs (scene image + joint state + task) for
     # the observations that force a policy inference (must_go sends), so they can
-    # be replayed through the denoising consistency test. Off by default.
-    log_vla_inputs: bool = False
-    # Directory for the saved VLA-input PNGs and their metadata.jsonl sidecar. The
-    # PNG directory can be fed straight to vla_denoise_consistency.py --image_dir.
+    # be replayed through the denoising consistency test.
+    log_vla_inputs: bool = True
+    # Root directory for VLA-input logging. Each episode gets its own
+    # <index>_<task>/ subdirectory here, holding that episode's PNGs and its own
+    # metadata.jsonl sidecar — the subdirectory can be fed straight to
+    # vla_denoise_consistency.py --image_dir.
     vla_input_dir: str = "vla_inputs"
+    # Camera key used for both the VLA-input snapshot and the episode clip buffer
+    # (see _select_camera_frame). Must match the scene camera the policy is
+    # trained on (front-facing), not an arm-mounted camera like wrist.
+    vlm_camera_key: str = "front"
 
 
 @dataclass
@@ -224,9 +232,7 @@ class LoopRobotClient:
         # (see _buffer_clip_frame) so it spans the whole episode at even density
         # rather than retaining only its tail; the clip's real time span still
         # determines its frame rate.
-        # The camera key lives on the orchestrator's config subclass
-        # (vlm_camera_key); base configs have none.
-        self._clip_camera_key = getattr(config, "vlm_camera_key", None)
+        self._clip_camera_key = config.vlm_camera_key
         self._episode_clip: list = []
         # Keep every _clip_stride-th candidate frame; doubles each time the buffer
         # fills so retained frames stay evenly spaced across the whole episode.
@@ -236,12 +242,29 @@ class LoopRobotClient:
 
         # VLA-input capture: save the scene image + joint state + task for each
         # must_go (forward-pass) observation, for replay through the denoise test.
-        # The counter is monotonic across episodes so PNGs accumulate in one dir.
-        self._vla_input_dir = Path(config.vla_input_dir)
+        # Each episode gets its own subdirectory (see _start_vla_episode_dir) with
+        # its own image sequence + metadata.jsonl, so a single episode's inputs can
+        # be pointed at directly with vla_denoise_consistency.py --image_dir.
+        self._vla_input_root = Path(config.vla_input_dir)
+        self._vla_input_dir = self._vla_input_root
         self._vla_input_count = 0
+        self._vla_episode_index = 0
+        # Input records are stashed here until the action chunk that answers
+        # them arrives in _receive_actions_thread, so metadata.jsonl holds
+        # input/output pairs instead of inputs alone.
+        self._pending_vla_record: dict | None = None
+        self._vla_pending_lock = threading.Lock()
         if config.log_vla_inputs:
-            self._vla_input_dir.mkdir(parents=True, exist_ok=True)
-            self.logger.info(f"Logging VLA inputs to {self._vla_input_dir}/")
+            self._vla_input_root.mkdir(parents=True, exist_ok=True)
+            # Resume the episode index from whatever's already on disk. It would
+            # otherwise restart at 0 on every process launch, and the first
+            # episode of a new run would silently reuse (and overwrite into) the
+            # first episode's directory from a *previous* run.
+            self._vla_episode_index = self._next_vla_episode_index()
+            self.logger.info(
+                f"Logging VLA inputs under {self._vla_input_root}/, one subdirectory "
+                f"per episode (starting at index {self._vla_episode_index})"
+            )
 
         # Convergence tracking (initialised properly in _reset_episode_state)
         self._action_history = []
@@ -498,8 +521,14 @@ class LoopRobotClient:
     # ------------------------------------------------------------------
     # Episode state management
     # ------------------------------------------------------------------
-    def _reset_episode_state(self):
+    def _reset_episode_state(self, task: str):
         """Reset all per-episode state before a new episode."""
+        if self.config.log_vla_inputs:
+            # Defensive: a previous episode should have already flushed this in
+            # run_episode, but never carry a stale pending record into the new
+            # episode's directory.
+            self._flush_pending_vla_record()
+            self._start_vla_episode_dir(task)
         self.episode_done.clear()
         self.must_go.set()
         self.latest_action = -1
@@ -554,6 +583,9 @@ class LoopRobotClient:
                         f"first: {self._format_action(first)} | "
                         f"last: {self._format_action(last)}"
                     )
+
+                if self.config.log_vla_inputs:
+                    self._attach_action_chunk_to_pending(timed_actions)
 
                 self.action_chunk_size = max(self.action_chunk_size, len(timed_actions))
                 self._aggregate_action_queues(timed_actions, self.config.aggregate_fn)
@@ -747,7 +779,7 @@ class LoopRobotClient:
     # ------------------------------------------------------------------
     def run_episode(self, task: str, enable_abort_listener: bool = True) -> EpisodeResult:
         """Execute one episode: run the policy for the given task until timeout or convergence."""
-        self._reset_episode_state()
+        self._reset_episode_state(task)
 
         if not enable_abort_listener:
             # When an external manager handles stdin, skip the abort thread
@@ -767,6 +799,11 @@ class LoopRobotClient:
         receiver.join(timeout=5.0)
         if abort is not None:
             abort.join(timeout=1.0)
+
+        # Receiver thread has stopped, so no chunk will ever answer a record
+        # still pending here; write it out rather than losing it silently.
+        if self.config.log_vla_inputs:
+            self._flush_pending_vla_record()
 
         result = EpisodeResult(
             duration=time.perf_counter() - self._episode_start_perf,
@@ -814,6 +851,19 @@ class LoopRobotClient:
                 return v
         return None
 
+    @staticmethod
+    def _select_all_camera_frames(obs: dict) -> dict:
+        """Return every HxWx3 uint8-able array in obs, keyed by its observation key.
+
+        Used for VLA-input logging: the policy is fed every camera view (see
+        pi05_client.py, which sends both images/front and images/wrist), so the
+        saved record should capture all of them, not just one.
+        """
+        return {
+            key: value for key, value in obs.items()
+            if isinstance(value, np.ndarray) and value.ndim == 3 and value.shape[-1] == 3
+        }
+
     def _buffer_clip_frame(self, obs: dict) -> None:
         """Append a timestamped copy of the selected camera frame to the clip buffer.
 
@@ -839,19 +889,86 @@ class LoopRobotClient:
                 self._episode_clip = self._episode_clip[::2]
                 self._clip_stride *= 2
 
-    def _log_vla_input(self, obs: dict, task: str, timestep: int, elapsed: float) -> None:
-        """Save one VLA forward-pass input (scene image + joint state + task).
+    @staticmethod
+    def _slugify_task(task: str) -> str:
+        """Filesystem-safe, length-capped rendering of a task string."""
+        return "".join(c if c.isalnum() else "_" for c in task).strip("_")[:40]
 
-        Called for must_go observations (those that force a policy inference), so
-        the saved PNGs + metadata.jsonl reproduce exactly what the VLA saw and can
-        be replayed through vla_denoise_consistency.py (--image_dir points at the
-        PNG directory; the sidecar records the per-frame pose/task).
+    @staticmethod
+    def _extract_object(task: str) -> str:
+        """Best-effort object tag for episode-directory naming: the first word
+        following "the" in the task string (e.g. "put the banana on the tray"
+        -> "banana"). Falls back to the full slugified task if "the" doesn't
+        appear, so every episode still gets a usable, unique directory name.
+        Deliberately simple/generic rather than matched against a fixed
+        vocabulary, so it degrades gracefully on tasks outside that vocabulary
+        too (see vla_denoise_consistency.py's replay-mode group resolution,
+        which has its own fallback for when this heuristic misses).
+        """
+        match = re.search(r"\bthe\s+(\w+)", task, re.IGNORECASE)
+        return match.group(1).lower() if match else LoopRobotClient._slugify_task(task)
+
+    def _next_vla_episode_index(self) -> int:
+        """Pick the next episode index by scanning vla_input_root for existing
+        <index>_<object>/ directories (at any depth, since episodes are nested
+        under an <object>/ subdirectory -- see _start_vla_episode_dir), so a
+        fresh process resumes numbering after whatever a previous run already
+        wrote instead of restarting at 0 and colliding with (and overwriting
+        into) that run's first episode dir. Recursive rather than one level
+        deep so it also picks up any leftover flat-layout episode dirs from
+        before object-subdirectory nesting was added.
+        """
+        max_idx = -1
+        for entry in self._vla_input_root.rglob("*"):
+            if not entry.is_dir():
+                continue
+            prefix = entry.name.split("_", 1)[0]
+            if prefix.isdigit():
+                max_idx = max(max_idx, int(prefix))
+        return max_idx + 1
+
+    def _start_vla_episode_dir(self, task: str) -> None:
+        """Point VLA-input logging at a fresh subdirectory for this episode.
+
+        Each episode gets its own <object>/<index>_<object>/ directory under
+        the configured vla_input_dir -- grouped by object so a downstream
+        script can sweep every episode for one object in one pass -- with its
+        own image sequence starting back at 00000 and its own metadata.jsonl.
+        This keeps one episode's forward-pass inputs self-contained, so
+        vla_denoise_consistency.py --episode_dir can point straight at a
+        single episode without filtering a shared file by task or timestamp,
+        and --episode_root can point at either one object's subdirectory or
+        the whole vla_input_dir. The directory name uses just the object tag
+        (not the full task text) so it can be parsed back out directly.
+        """
+        object_tag = self._extract_object(task)
+        ep_dir = (
+            self._vla_input_root / object_tag
+            / f"{self._vla_episode_index:03d}_{object_tag}"
+        )
+        ep_dir.mkdir(parents=True, exist_ok=True)
+        self._vla_input_dir = ep_dir
+        self._vla_input_count = 0
+        self._vla_episode_index += 1
+        self.logger.info(f"VLA inputs for this episode -> {ep_dir}/")
+
+    def _log_vla_input(self, obs: dict, task: str, timestep: int, elapsed: float) -> None:
+        """Save one VLA forward-pass input (every camera view + joint state + task).
+
+        Called for must_go observations (those that force a policy inference). The
+        record is stashed rather than written immediately: must_go is only set
+        again once _receive_actions_thread gets the chunk answering this exact
+        forced observation, so there is at most one record pending at a time.
+        _attach_action_chunk_to_pending fills in that chunk and writes the full
+        input/output pair to metadata.jsonl; the saved PNGs + that sidecar can be
+        replayed through vla_denoise_consistency.py (--image_dir points at this
+        episode's directory, see _start_vla_episode_dir).
         """
         if not self.config.log_vla_inputs:
             return
 
-        frame = self._select_camera_frame(obs, self._clip_camera_key)
-        if frame is None:
+        frames = self._select_all_camera_frames(obs)
+        if not frames:
             return
 
         # Joint state in motor order (matches the denoise test's INITIAL_POSE),
@@ -861,36 +978,80 @@ class LoopRobotClient:
             obs_key = f"{key}.pos" if f"{key}.pos" in obs else key
             state.append(float(obs[obs_key]) if obs_key in obs else 0.0)
 
-        safe_task = "".join(c if c.isalnum() else "_" for c in task).strip("_")[:40]
-        fname = f"{self._vla_input_count:05d}_{safe_task}.png"
+        safe_task = self._slugify_task(task)
+        images = {}
+        for cam_key, frame in frames.items():
+            fname = f"{self._vla_input_count:05d}_{cam_key}_{safe_task}.png"
+            try:
+                from PIL import Image
 
-        try:
-            from PIL import Image
+                Image.fromarray(np.asarray(frame, dtype=np.uint8)).save(
+                    self._vla_input_dir / fname
+                )
+            except Exception as e:  # noqa: BLE001 - never let logging break an episode
+                self.logger.error(f"Failed to save VLA input image {fname}: {e}")
+                continue
+            images[cam_key] = fname
 
-            Image.fromarray(np.asarray(frame, dtype=np.uint8)).save(
-                self._vla_input_dir / fname
-            )
-        except Exception as e:  # noqa: BLE001 - never let logging break an episode
-            self.logger.error(f"Failed to save VLA input image {fname}: {e}")
+        if not images:
             return
 
         record = {
-            "image": fname,
+            "images": images,
             "task": task,
             "state": state,
             "timestep": int(timestep),
             "elapsed": round(float(elapsed), 3),
             "unix_ts": time.time(),
         }
-        try:
-            import json
+        with self._vla_pending_lock:
+            # Overwritten only if a previous record was never resolved (flushed
+            # unresolved by _flush_pending_vla_record before this could happen).
+            self._pending_vla_record = record
 
+        self._vla_input_count += 1
+
+    def _attach_action_chunk_to_pending(self, timed_actions: list) -> None:
+        """Fill in the action-chunk output for the pending VLA input record.
+
+        Called from _receive_actions_thread for every chunk received; pairs it
+        with the most recent forced (must_go) input via the single pending slot
+        (see _log_vla_input) and writes the completed input/output pair.
+        """
+        with self._vla_pending_lock:
+            record = self._pending_vla_record
+            self._pending_vla_record = None
+        if record is None:
+            return
+
+        record["action_chunk"] = [
+            self._action_tensor_to_action_dict(ta.get_action()) for ta in timed_actions
+        ]
+        record["action_timesteps"] = [ta.get_timestep() for ta in timed_actions]
+        self._write_vla_record(record)
+
+    def _flush_pending_vla_record(self) -> None:
+        """Write out any pending VLA input that never got a matching action chunk.
+
+        Called when an episode ends (receiver thread stopped, so nothing more can
+        arrive) so a forced input is never silently dropped from metadata.jsonl.
+        """
+        with self._vla_pending_lock:
+            record = self._pending_vla_record
+            self._pending_vla_record = None
+        if record is None:
+            return
+
+        record["action_chunk"] = None
+        record["action_timesteps"] = None
+        self._write_vla_record(record)
+
+    def _write_vla_record(self, record: dict) -> None:
+        try:
             with open(self._vla_input_dir / "metadata.jsonl", "a") as f:
                 f.write(json.dumps(record) + "\n")
         except Exception as e:  # noqa: BLE001
-            self.logger.error(f"Failed to append VLA input metadata: {e}")
-
-        self._vla_input_count += 1
+            self.logger.error(f"Failed to append VLA input/output metadata: {e}")
 
     def get_episode_clip(self, num_frames: int) -> tuple[list, float]:
         """Return up to num_frames frames sampled evenly *in time* across the episode

@@ -384,11 +384,14 @@ def _group_colors(labels, training_labels):
     return colors
 
 
-def _prompt_legend(fig, labels, colors, training_labels, extra=None):
+def _prompt_legend(fig, labels, colors, training_labels, extra=None,
+                   show_ground_truth=False):
     """Draw a single horizontal figure legend along the bottom.
 
     ``extra`` optionally maps label -> suffix string (e.g. an end-point spread) to
-    append after the prompt name."""
+    append after the prompt name. ``show_ground_truth`` adds one extra black-dashed
+    handle for the recorded ground-truth trajectory overlay (episode-replay mode
+    only; see plot_action_traces/plot_end_effector's ``ground_truth`` param)."""
     from matplotlib.lines import Line2D
     handles = []
     for label in labels:
@@ -398,19 +401,31 @@ def _prompt_legend(fig, labels, colors, training_labels, extra=None):
             text += extra[label]
         handles.append(Line2D([0], [0], color=colors[label],
                               lw=2.6 if is_train else 1.7, label=text))
+    if show_ground_truth:
+        handles.append(Line2D([0], [0], color="black", ls="--", lw=1.8,
+                              label="recorded (ground truth)"))
     fig.legend(handles=handles, loc="lower center",
                ncol=min(len(handles), 4), bbox_to_anchor=(0.5, 0.0),
                handlelength=1.7, columnspacing=1.8, borderaxespad=0.0)
 
 
 def plot_joint_variance_over_time(results, item_groups, training_labels, save_dir,
-                                  unnorm=None):
+                                  unnorm=None, variance_curves=None):
     """Per joint, the variance across noise seeds at each timestep of the action
     chunk. Keeping the time axis (rather than collapsing it) shows *where* in the
     chunk seeds agree or diverge — and, unlike a single pooled number, does not
     let temporal profile differences hide. One figure per item; within it, one
     line per prompt in the group, coloured per prompt. Recognised prompts (incl.
-    the training label) stay low/flat, unrecognised ones rise."""
+    the training label) stay low/flat, unrecognised ones rise.
+
+    ``variance_curves`` optionally supplies already-computed per-joint variance
+    (label -> (T, A) array), used verbatim instead of deriving it from
+    ``results[label]["stacked_actions"]``. The per-object aggregate passes the
+    mean of many records' curves, which measures seed disagreement alone --
+    pooling those records' raw seed chunks and taking one variance would
+    instead be dominated by the arm sitting somewhere different in each record.
+    Callers using this may pass ``{label: {}}`` as ``results``, since only the
+    label keys are consulted."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -431,11 +446,15 @@ def plot_joint_variance_over_time(results, item_groups, training_labels, save_di
         for j, name in enumerate(JOINT_NAMES):
             ax = axes[j]
             for label in labels:
-                stacked = results[label]["stacked_actions"]      # (S, T, A)
-                if unnorm is not None:
-                    stacked = unnorm(stacked)
-                arr = np.asarray(stacked[..., j], dtype=float)    # (S, T)
-                var_t = arr.var(axis=0)                           # (T,)
+                if variance_curves is not None:
+                    var_t = np.asarray(variance_curves[label],
+                                       dtype=float)[:, j]         # (T,)
+                else:
+                    stacked = results[label]["stacked_actions"]   # (S, T, A)
+                    if unnorm is not None:
+                        stacked = unnorm(stacked)
+                    arr = np.asarray(stacked[..., j], dtype=float)  # (S, T)
+                    var_t = arr.var(axis=0)                       # (T,)
                 is_train = label in training_labels
                 ax.plot(np.arange(var_t.shape[0]), var_t,
                         color=colors[label],
@@ -469,12 +488,19 @@ def plot_joint_variance_over_time(results, item_groups, training_labels, save_di
 # --------------------------------------------------------------------------- #
 
 def plot_action_traces(results, item_groups, training_labels, save_dir,
-                       unnorm=None):
+                       unnorm=None, ground_truth=None):
     """One figure per item: for each joint, every seed's action trajectory over the
     chunk (faint) plus the across-seed mean (bold), for each prompt in the item
     group, coloured per prompt so variants overlay. This is the actual motion the
     VLA plans — a tight bundle means a strong attractor, a frayed one means the
-    prompt isn't pinning the trajectory down."""
+    prompt isn't pinning the trajectory down.
+
+    ``ground_truth`` (episode-replay mode only) optionally maps a label to the
+    real recorded action chunk for that record, as a (T, 6) REAL-unit array.
+    When present (and ``unnorm`` is available, since ``ground_truth`` is
+    always real-unit while the rest of the figure may be normalized), it is
+    drawn as a black dashed reference line so the seed cluster can be compared
+    against what the robot actually did."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -511,6 +537,10 @@ def plot_action_traces(results, item_groups, training_labels, save_dir,
                         lw=2.4 if is_train else 1.6,
                         zorder=4 if is_train else 3,
                         solid_capstyle="round")
+                if ground_truth is not None and label in ground_truth and unnorm is not None:
+                    gt = np.asarray(ground_truth[label], dtype=float)
+                    ax.plot(np.arange(gt.shape[0]), gt[:, j], color="black",
+                            ls="--", lw=1.8, zorder=5, solid_capstyle="round")
             ax.set_title(name)
             ax.set_xlabel("timestep in chunk")
             ax.margins(x=0.02)
@@ -521,7 +551,8 @@ def plot_action_traces(results, item_groups, training_labels, save_dir,
             axes[row * ncols].set_ylabel(f"action ({units})")
 
         fig.suptitle(f"Action-chunk trajectories — {item}")
-        _prompt_legend(fig, labels, colors, training_labels)
+        show_gt = bool(ground_truth) and unnorm is not None and any(l in ground_truth for l in labels)
+        _prompt_legend(fig, labels, colors, training_labels, show_ground_truth=show_gt)
         fig.tight_layout(rect=[0, 0.05, 1, 0.96])
         out = save_dir / f"traces_{_safe_name(item)}.png"
         fig.savefig(out)
@@ -534,7 +565,7 @@ def plot_action_traces(results, item_groups, training_labels, save_dir,
 # --------------------------------------------------------------------------- #
 
 def plot_end_effector(results, item_groups, training_labels, kin, unnorm, save_dir,
-                      clouds=None):
+                      clouds=None, ground_truth=None):
     """One 3D figure per item: every prompt in the group overlaid on a single axis,
     each seed's gripper trajectory (faint line) plus its end point (marker),
     coloured per prompt. Axis limits are shared across all items so tightness is
@@ -544,7 +575,12 @@ def plot_end_effector(results, item_groups, training_labels, kin, unnorm, save_d
     ``clouds`` optionally supplies precomputed FK end-effector clouds
     (label -> (S, T, 3) array); any label missing from it is FK'd here. Passing the
     clouds the caller already computed (e.g. for the EE-consistency metric) avoids a
-    second, expensive forward-kinematics pass."""
+    second, expensive forward-kinematics pass.
+
+    ``ground_truth`` (episode-replay mode only) optionally maps a label to the
+    real recorded action chunk for that record, as a (T, 6) REAL-unit array.
+    When present it is FK'd and drawn as a black dashed 3D line + distinct
+    end-marker, and folded into the shared axis limits so it isn't clipped."""
     if unnorm is None:
         log.warning("Skipping end-effector plot: needs real (unnormalized) "
                     "joint angles, which could not be loaded.")
@@ -570,7 +606,19 @@ def plot_end_effector(results, item_groups, training_labels, kin, unnorm, save_d
                 real = unnorm(results[label]["stacked_actions"])
                 clouds[label] = _ee_cloud(real, kin)
 
-    allpts = np.concatenate([c.reshape(-1, 3) for c in clouds.values()], axis=0)
+    # FK the ground-truth trajectory too (one "seed") so it can share the same
+    # axis limits and per-item overlay loop as the sampled clouds.
+    gt_clouds = {}
+    if ground_truth:
+        for label, gt in ground_truth.items():
+            gt_arr = np.asarray(gt, dtype=float)[None, :, :N_ARM]  # (1, T, N_ARM)
+            gt_clouds[label] = _ee_cloud(gt_arr, kin)[0]                # (T, 3)
+
+    allpts = np.concatenate(
+        [c.reshape(-1, 3) for c in clouds.values()]
+        + [c.reshape(-1, 3) for c in gt_clouds.values()],
+        axis=0,
+    )
     mins, maxs = allpts.min(axis=0), allpts.max(axis=0)
     pad = 0.05 * np.maximum(maxs - mins, 1e-6)
     lims = list(zip(mins - pad, maxs + pad))
@@ -594,6 +642,13 @@ def plot_end_effector(results, item_groups, training_labels, kin, unnorm, save_d
             # end-point dispersion: std of final gripper position across seeds
             spreads[label] = f"  ·  {np.linalg.norm(c[:, -1, :].std(axis=0)):.3f} m"
 
+            if label in gt_clouds:
+                g = gt_clouds[label]
+                ax.plot(g[:, 0], g[:, 1], g[:, 2], color="black", lw=2.2,
+                        ls="--", zorder=6)
+                ax.scatter(g[-1:, 0], g[-1:, 1], g[-1:, 2], color="black",
+                          s=30, marker="X", zorder=7)
+
         ax.set_xlim(lims[0]); ax.set_ylim(lims[1]); ax.set_zlim(lims[2])
         ax.set_xlabel("x (m)", labelpad=6); ax.set_ylabel("y (m)", labelpad=6)
         ax.set_zlabel("z (m)", labelpad=6)
@@ -613,7 +668,9 @@ def plot_end_effector(results, item_groups, training_labels, kin, unnorm, save_d
         ax.set_title("forward kinematics of sampled joint chunks · "
                      "legend shows end-point std",
                      fontsize=9, color=_MUTED, pad=2)
-        _prompt_legend(fig, labels, colors, training_labels, extra=spreads)
+        show_gt = any(l in gt_clouds for l in labels)
+        _prompt_legend(fig, labels, colors, training_labels, extra=spreads,
+                       show_ground_truth=show_gt)
         fig.tight_layout(rect=[0, 0.05, 1, 0.95])
         out = save_dir / f"end_effector_{_safe_name(item)}.png"
         fig.savefig(out)

@@ -96,6 +96,25 @@ RUN pip install vllm qwen-vl-utils pillow --break-system-packages
 
 RUN pip install placo --break-system-packages
 
+# ── Non-root runtime user ─────────────────────────────────────
+# ./data is bind-mounted (not a named volume), so whatever UID/GID writes
+# inside the container is exactly what ends up owning the files on the host.
+# Without this the default root user leaves root-owned logs/outputs/etc.
+# behind in the repo. Defaults match the host dev user; override at build
+# time (--build-arg USER_UID=... USER_GID=...) if yours differs.
+# dialout/video/plugdev are added so the arm's serial port and cameras under
+# /dev (root:dialout / root:video, mode 660) stay reachable without root.
+ARG USER_UID=1002
+ARG USER_GID=1002
+RUN groupadd -f -g 20 dialout && \
+    groupadd -f -g 44 video && \
+    groupadd -f -g 46 plugdev && \
+    groupadd -g ${USER_GID} appuser && \
+    useradd -m -u ${USER_UID} -g ${USER_GID} -s /bin/bash appuser && \
+    usermod -aG dialout,video,plugdev appuser
+
+USER appuser
+
 # ── Working directory for user scripts / calibration data ────
 WORKDIR /workspace
 

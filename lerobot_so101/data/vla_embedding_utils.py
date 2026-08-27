@@ -175,6 +175,84 @@ def prepare_inputs_stateful(policy, preprocessor, image, instruction,
     return images, img_masks, tokens, masks
 
 
+_LOGGED_CAMERA_MAPPINGS = set()
+
+
+def _match_camera_key(cam_key: str, available_names) -> "str | None":
+    """Match a policy image_features key to one of the saved image names
+    ('front'/'wrist') by case-insensitive substring containment. Returns
+    None if no name matches."""
+    cam_key_l = cam_key.lower()
+    for name in available_names:
+        if name.lower() in cam_key_l:
+            return name
+    return None
+
+
+def prepare_inputs_stateful_multi(policy, preprocessor, images_by_name, instruction,
+                                  initial_pose, device="cuda"):
+    """Like ``prepare_inputs_stateful``, but builds one image entry per key in
+    ``policy.config.image_features``, matched BY NAME to ``images_by_name``
+    (e.g. ``{'front': PIL.Image, 'wrist': PIL.Image}``) instead of always
+    using a single hardcoded camera (``img_keys[0]``).
+
+    Fallback / error behavior:
+      - If the checkpoint declares exactly one image feature, whichever image
+        matches by name is used (or the first available one if no name
+        matches) -- this makes single-camera checkpoints behave identically
+        to ``prepare_inputs_stateful``'s unconditional ``img_keys[0]``
+        behavior.
+      - If it declares 2+ features and a camera can't be matched, raises
+        ``ValueError`` rather than silently dropping/duplicating a camera.
+    """
+    from lerobot.utils.constants import (
+        OBS_LANGUAGE_ATTENTION_MASK,
+        OBS_LANGUAGE_TOKENS,
+        OBS_STATE,
+    )
+
+    config = policy.config
+    img_keys = list(config.image_features)
+    if not img_keys:
+        raise ValueError("policy config exposes no image_features")
+
+    state = torch.as_tensor(initial_pose, dtype=torch.float32).flatten()
+    obs = {OBS_STATE: state, "task": instruction}
+
+    mapping = {}
+    for cam_key in img_keys:
+        name = _match_camera_key(cam_key, images_by_name)
+        if name is None:
+            if len(img_keys) == 1:
+                name = next(iter(images_by_name))
+            else:
+                raise ValueError(
+                    f"Could not match policy image feature '{cam_key}' to any "
+                    f"of the available images {list(images_by_name)}; "
+                    f"checkpoint expects {img_keys}"
+                )
+        mapping[cam_key] = name
+        img = images_by_name[name].convert("RGB")
+        img_t = torch.tensor(np.array(img), dtype=torch.float32) / 255.0  # (H,W,C)
+        obs[cam_key] = img_t.permute(2, 0, 1).contiguous()                # (C,H,W)
+
+    # Log the resolved cam_key -> image-name mapping once per distinct mapping
+    # (deterministic for a given checkpoint + set of available images, so this
+    # fires once in practice) -- makes it visible whether both cameras are
+    # actually being fed to the model or just one.
+    mapping_key = tuple(sorted(mapping.items()))
+    if mapping_key not in _LOGGED_CAMERA_MAPPINGS:
+        _LOGGED_CAMERA_MAPPINGS.add(mapping_key)
+        log.info("Multi-camera input mapping: %s (available: %s)",
+                 mapping, list(images_by_name))
+
+    processed = preprocessor(obs)
+    images, img_masks = policy._preprocess_images(processed)
+    tokens = processed[OBS_LANGUAGE_TOKENS]
+    masks = processed[OBS_LANGUAGE_ATTENTION_MASK].bool()
+    return images, img_masks, tokens, masks
+
+
 # --------------------------------------------------------------------------- #
 # VLM hidden-state extraction
 # --------------------------------------------------------------------------- #
