@@ -73,9 +73,9 @@ PROMPTS = OrderedDict([
     ("stuffed animal",   "put the stuffed animal on the tray"),
     # pouch
     ("pouch",            "put the pouch on the tray"),
+    ("brown pouch",      "put the brown pouch on the tray"),
     ("purse",            "put the purse on the tray"),
     ("bag",              "put the bag on the tray"),
-    ("drawstring pouch", "put the drawstring pouch on the tray"),
     ("brown cylinder",   "put the brown cylinder on the tray"),
     ("roll", "put the roll on the tray"),
     ("box", "put the box on the tray"),
@@ -90,7 +90,7 @@ TRAINING_LABELS = {"banana", "toy", "pouch"}
 ITEM_GROUPS = OrderedDict([
     ("banana", ["banana", "fruit", "yellow banana"]),
     ("toy",    ["toy", "plush toy", "stuffed animal"]),
-    ("pouch",  ["pouch", "purse", "bag", "drawstring pouch", "brown cylinder", "roll", "box"]),
+    ("pouch",  ["pouch", "brown pouch", "purse", "bag", "drawstring pouch", "brown cylinder", "roll", "box"]),
 ])
 
 # Initial joint pose the VLA is conditioned on (motor order: shoulder_pan,
