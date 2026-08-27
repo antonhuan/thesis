@@ -1,0 +1,118 @@
+object,label,training_label,prompt,metric,mean,sd
+banana,banana,yes,put the banana on the tray,Mean Std,0.02765,0.011399
+banana,banana,yes,put the banana on the tray,Max Std,0.062229,0.028073
+banana,banana,yes,put the banana on the tray,Mean CV,0.139646,0.083716
+banana,banana,yes,put the banana on the tray,Max CV,0.464736,0.424765
+banana,banana,yes,put the banana on the tray,Action Mag,1.69525,0.285867
+banana,banana,yes,put the banana on the tray,EE Consist,0.005509,0.002238
+banana,banana,yes,put the banana on the tray,Peak Disp,38.1121,39.289
+banana,banana,yes,put the banana on the tray,No-Move %,22.5,38.9
+banana,banana,yes,put the banana on the tray,GT Dist,3.8579,3.9449
+banana,fruit,no,put the fruit on the tray,Mean Std,0.038619,0.03092
+banana,fruit,no,put the fruit on the tray,Max Std,0.100026,0.114946
+banana,fruit,no,put the fruit on the tray,Mean CV,0.23383,0.217108
+banana,fruit,no,put the fruit on the tray,Max CV,0.837174,0.953158
+banana,fruit,no,put the fruit on the tray,Action Mag,1.683692,0.310317
+banana,fruit,no,put the fruit on the tray,EE Consist,0.00651,0.002141
+banana,fruit,no,put the fruit on the tray,Peak Disp,39.6699,39.1272
+banana,fruit,no,put the fruit on the tray,No-Move %,15.2,34.6
+banana,fruit,no,put the fruit on the tray,GT Dist,7.7959,5.315
+banana,yellow banana,no,put the yellow banana on the tray,Mean Std,0.027765,0.011399
+banana,yellow banana,no,put the yellow banana on the tray,Max Std,0.06257,0.027176
+banana,yellow banana,no,put the yellow banana on the tray,Mean CV,0.154131,0.119841
+banana,yellow banana,no,put the yellow banana on the tray,Max CV,0.526495,0.53976
+banana,yellow banana,no,put the yellow banana on the tray,Action Mag,1.696657,0.2867
+banana,yellow banana,no,put the yellow banana on the tray,EE Consist,0.005523,0.002234
+banana,yellow banana,no,put the yellow banana on the tray,Peak Disp,38.1059,40.5865
+banana,yellow banana,no,put the yellow banana on the tray,No-Move %,25.7,39.7
+banana,yellow banana,no,put the yellow banana on the tray,GT Dist,3.6782,3.6555
+pouch,pouch,yes,put the pouch on the tray,Mean Std,0.029937,0.014279
+pouch,pouch,yes,put the pouch on the tray,Max Std,0.070182,0.040033
+pouch,pouch,yes,put the pouch on the tray,Mean CV,0.1099,0.046339
+pouch,pouch,yes,put the pouch on the tray,Max CV,0.313349,0.194998
+pouch,pouch,yes,put the pouch on the tray,Action Mag,1.589224,0.337457
+pouch,pouch,yes,put the pouch on the tray,EE Consist,0.005244,0.002235
+pouch,pouch,yes,put the pouch on the tray,Peak Disp,40.4443,29.5222
+pouch,pouch,yes,put the pouch on the tray,No-Move %,19.4,40.1
+pouch,pouch,yes,put the pouch on the tray,GT Dist,5.1173,10.2935
+pouch,brown pouch,no,put the brown pouch on the tray,Mean Std,0.030716,0.014011
+pouch,brown pouch,no,put the brown pouch on the tray,Max Std,0.072359,0.038163
+pouch,brown pouch,no,put the brown pouch on the tray,Mean CV,0.121818,0.057205
+pouch,brown pouch,no,put the brown pouch on the tray,Max CV,0.37194,0.322582
+pouch,brown pouch,no,put the brown pouch on the tray,Action Mag,1.588459,0.33702
+pouch,brown pouch,no,put the brown pouch on the tray,EE Consist,0.005334,0.002219
+pouch,brown pouch,no,put the brown pouch on the tray,Peak Disp,40.2482,30.0144
+pouch,brown pouch,no,put the brown pouch on the tray,No-Move %,19.8,40.0
+pouch,brown pouch,no,put the brown pouch on the tray,GT Dist,5.6057,10.1881
+pouch,purse,no,put the purse on the tray,Mean Std,0.033829,0.012821
+pouch,purse,no,put the purse on the tray,Max Std,0.081189,0.033922
+pouch,purse,no,put the purse on the tray,Mean CV,0.132723,0.067714
+pouch,purse,no,put the purse on the tray,Max CV,0.377181,0.277064
+pouch,purse,no,put the purse on the tray,Action Mag,1.578639,0.338266
+pouch,purse,no,put the purse on the tray,EE Consist,0.005816,0.001824
+pouch,purse,no,put the purse on the tray,Peak Disp,40.9255,27.0202
+pouch,purse,no,put the purse on the tray,No-Move %,15.2,33.7
+pouch,purse,no,put the purse on the tray,GT Dist,7.2574,10.0827
+pouch,bag,no,put the bag on the tray,Mean Std,0.03111,0.013709
+pouch,bag,no,put the bag on the tray,Max Std,0.072934,0.036773
+pouch,bag,no,put the bag on the tray,Mean CV,0.123655,0.053155
+pouch,bag,no,put the bag on the tray,Max CV,0.37715,0.255057
+pouch,bag,no,put the bag on the tray,Action Mag,1.57981,0.343527
+pouch,bag,no,put the bag on the tray,EE Consist,0.005472,0.002089
+pouch,bag,no,put the bag on the tray,Peak Disp,38.8997,29.7969
+pouch,bag,no,put the bag on the tray,No-Move %,19.6,39.1
+pouch,bag,no,put the bag on the tray,GT Dist,7.6521,11.4403
+pouch,brown cylinder,no,put the brown cylinder on the tray,Mean Std,0.033254,0.014404
+pouch,brown cylinder,no,put the brown cylinder on the tray,Max Std,0.074837,0.034918
+pouch,brown cylinder,no,put the brown cylinder on the tray,Mean CV,0.162404,0.112323
+pouch,brown cylinder,no,put the brown cylinder on the tray,Max CV,0.580829,0.693677
+pouch,brown cylinder,no,put the brown cylinder on the tray,Action Mag,1.575976,0.330959
+pouch,brown cylinder,no,put the brown cylinder on the tray,EE Consist,0.005816,0.00217
+pouch,brown cylinder,no,put the brown cylinder on the tray,Peak Disp,38.8215,29.27
+pouch,brown cylinder,no,put the brown cylinder on the tray,No-Move %,19.4,38.7
+pouch,brown cylinder,no,put the brown cylinder on the tray,GT Dist,7.3824,10.0602
+pouch,roll,no,put the roll on the tray,Mean Std,0.031346,0.01545
+pouch,roll,no,put the roll on the tray,Max Std,0.075115,0.043945
+pouch,roll,no,put the roll on the tray,Mean CV,0.145696,0.09398
+pouch,roll,no,put the roll on the tray,Max CV,0.496683,0.56001
+pouch,roll,no,put the roll on the tray,Action Mag,1.579389,0.336044
+pouch,roll,no,put the roll on the tray,EE Consist,0.005414,0.002241
+pouch,roll,no,put the roll on the tray,Peak Disp,39.1234,29.289
+pouch,roll,no,put the roll on the tray,No-Move %,19.8,39.9
+pouch,roll,no,put the roll on the tray,GT Dist,6.4479,10.3118
+pouch,box,no,put the box on the tray,Mean Std,0.0303,0.01467
+pouch,box,no,put the box on the tray,Max Std,0.070874,0.039652
+pouch,box,no,put the box on the tray,Mean CV,0.116635,0.049048
+pouch,box,no,put the box on the tray,Max CV,0.334706,0.190308
+pouch,box,no,put the box on the tray,Action Mag,1.582173,0.335628
+pouch,box,no,put the box on the tray,EE Consist,0.005362,0.002308
+pouch,box,no,put the box on the tray,Peak Disp,39.9481,29.4785
+pouch,box,no,put the box on the tray,No-Move %,21.5,40.5
+pouch,box,no,put the box on the tray,GT Dist,6.3098,10.4726
+toy,toy,yes,put the toy on the tray,Mean Std,0.031792,0.011128
+toy,toy,yes,put the toy on the tray,Max Std,0.069919,0.02591
+toy,toy,yes,put the toy on the tray,Mean CV,0.16407,0.097208
+toy,toy,yes,put the toy on the tray,Max CV,0.502365,0.425652
+toy,toy,yes,put the toy on the tray,Action Mag,1.500562,0.326609
+toy,toy,yes,put the toy on the tray,EE Consist,0.005719,0.001696
+toy,toy,yes,put the toy on the tray,Peak Disp,43.3598,30.462
+toy,toy,yes,put the toy on the tray,No-Move %,9.1,27.3
+toy,toy,yes,put the toy on the tray,GT Dist,3.509,3.244
+toy,plush toy,no,put the plush toy on the tray,Mean Std,0.032616,0.010881
+toy,plush toy,no,put the plush toy on the tray,Max Std,0.071646,0.025149
+toy,plush toy,no,put the plush toy on the tray,Mean CV,0.164761,0.096345
+toy,plush toy,no,put the plush toy on the tray,Max CV,0.506512,0.413588
+toy,plush toy,no,put the plush toy on the tray,Action Mag,1.502356,0.333305
+toy,plush toy,no,put the plush toy on the tray,EE Consist,0.005828,0.001642
+toy,plush toy,no,put the plush toy on the tray,Peak Disp,44.186,30.4518
+toy,plush toy,no,put the plush toy on the tray,No-Move %,8.4,25.8
+toy,plush toy,no,put the plush toy on the tray,GT Dist,4.4592,3.1734
+toy,stuffed animal,no,put the stuffed animal on the tray,Mean Std,0.034956,0.008709
+toy,stuffed animal,no,put the stuffed animal on the tray,Max Std,0.080562,0.028288
+toy,stuffed animal,no,put the stuffed animal on the tray,Mean CV,0.15103,0.064364
+toy,stuffed animal,no,put the stuffed animal on the tray,Max CV,0.439925,0.339527
+toy,stuffed animal,no,put the stuffed animal on the tray,Action Mag,1.485917,0.337081
+toy,stuffed animal,no,put the stuffed animal on the tray,EE Consist,0.006324,0.001492
+toy,stuffed animal,no,put the stuffed animal on the tray,Peak Disp,45.8561,29.4814
+toy,stuffed animal,no,put the stuffed animal on the tray,No-Move %,4.4,13.9
+toy,stuffed animal,no,put the stuffed animal on the tray,GT Dist,6.2068,3.0881

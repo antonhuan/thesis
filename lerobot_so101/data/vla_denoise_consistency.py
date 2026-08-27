@@ -117,6 +117,33 @@ CV_EPS = 1e-3
 # peak displacements of ~150-220, non-movement ~1-3.
 NO_MOVEMENT_THRESHOLD = 10.0
 
+# Indices of the four "planning" joints whose seed variance is most sensitive
+# to label mismatch (shoulder_pan, shoulder_lift, elbow_flex, wrist_flex).
+# See vla_plots.JOINT_NAMES for the full order.
+PLANNING_JOINTS = [0, 1, 2, 3]
+
+
+def compute_joint_auc(variance_curve, joints=None, t_start=0):
+    """Area under the seed-variance curve for selected joints.
+
+    ``variance_curve``: (T, A) array -- per-timestep, per-joint variance across
+    seeds (in real units squared when unnormalized).
+
+    ``joints``: list of joint indices to include (default: PLANNING_JOINTS).
+    ``t_start``: first timestep to include (0 = full chunk).
+
+    Returns a scalar: the sum over selected joints of the trapezoidal AUC of
+    the variance curve from ``t_start`` to the end of the chunk.  Units are
+    (real-unit² · timesteps), so the absolute value is only meaningful relative
+    to other labels measured on the same chunk length and joint set.
+    """
+    if joints is None:
+        joints = PLANNING_JOINTS
+    curve = variance_curve[t_start:, joints]      # (T', len(joints))
+    # Trapezoidal rule per joint, then sum across joints.
+    return float(np.trapz(curve, axis=0).sum())
+
+
 
 # --------------------------------------------------------------------------- #
 # Core: cached prefix + denoising loop
@@ -383,7 +410,8 @@ def format_results_table(results, prompts=PROMPTS, title=None):
     header = (f"{'Label':<25} {'Prompt':<40} "
               f"{'Mean Std':>10} {'Max Std':>10} {'Mean CV':>10} {'Max CV':>10} "
               f"{'Action Mag':>12} {'EE Consist':>12} {'Peak Disp':>10} "
-              f"{'No-Move %':>10} {'GT Dist':>10}")
+              f"{'No-Move %':>10} {'GT Dist':>10} "
+              f"{'Jnt AUC':>10} {'Jnt AUC Late':>12} {'Jnt AUC All':>12}")
     lines = []
     if title:
         lines.append(f"# {title}")
@@ -406,7 +434,10 @@ def format_results_table(results, prompts=PROMPTS, title=None):
             f"{_num(data.get('ee_consistency'), 12)} "
             f"{_num(data.get('peak_disp_mean'), 10, 4)} "
             f"{_num(no_move_pct, 10, 1)} "
-            f"{_num(data.get('gt_dist_mean'), 10, 4)}"
+            f"{_num(data.get('gt_dist_mean'), 10, 4)} "
+            f"{_num(data.get('joint_auc'), 10, 2)} "
+            f"{_num(data.get('joint_auc_late'), 12, 2)} "
+            f"{_num(data.get('joint_auc_all'), 12, 2)}"
         )
 
     lines.append("=" * len(header))
@@ -427,7 +458,8 @@ def aggregate_results(all_results):
 
     metric_names = ("mean_std", "max_std", "mean_cv", "max_cv",
                     "action_magnitude", "ee_consistency", "peak_disp_mean",
-                    "no_move_frac", "gt_dist_mean")
+                    "no_move_frac", "gt_dist_mean",
+                    "joint_auc", "joint_auc_late", "joint_auc_all")
 
     # Collect the per-image value of each metric, per label (preserve prompt order).
     per_label = OrderedDict()
@@ -489,7 +521,10 @@ def format_aggregate_table(agg, prompts=PROMPTS, title=None):
             f"{cell(d['ee_consistency_mean'], d['ee_consistency_sd']):>24} "
             f"{cell(d['peak_disp_mean_mean'], d['peak_disp_mean_sd'], 4):>22} "
             f"{cell(no_move_pct_m, d['no_move_frac_sd'] * 100.0, 1):>22} "
-            f"{cell(d['gt_dist_mean_mean'], d['gt_dist_mean_sd'], 4):>22}"
+            f"{cell(d['gt_dist_mean_mean'], d['gt_dist_mean_sd'], 4):>22} "
+            f"{cell(d.get('joint_auc_mean', float('nan')), d.get('joint_auc_sd', 0.0), 2):>22} "
+            f"{cell(d.get('joint_auc_late_mean', float('nan')), d.get('joint_auc_late_sd', 0.0), 2):>26} "
+            f"{cell(d.get('joint_auc_all_mean', float('nan')), d.get('joint_auc_all_sd', 0.0), 2):>26}"
         )
 
     lines.append("=" * len(header))
@@ -707,6 +742,11 @@ def run_episode(ep_dir, policy, preprocessor, unnorm, kin, args, run_stamp):
                 st = metrics["stacked_actions"]
                 real = unnorm(st) if unnorm is not None else st
                 record_curves[label] = np.asarray(real, dtype=float).var(axis=0)
+                metrics["joint_auc"] = compute_joint_auc(record_curves[label])
+                metrics["joint_auc_late"] = compute_joint_auc(
+                    record_curves[label], t_start=record_curves[label].shape[0] // 2)
+                metrics["joint_auc_all"] = compute_joint_auc(
+                    record_curves[label], joints=list(range(record_curves[label].shape[1])))
 
                 elapsed = time.time() - t0
                 log.info("  mean_std=%.6f  action_mag=%.6f  (%.1fs)",
@@ -873,6 +913,14 @@ def write_object_aggregate(object_tag, entry, unnorm, kin, args, run_stamp):
         (label, np.mean(np.stack(curves, axis=0), axis=0))
         for label, curves in entry["variance"].items()
     )
+    # Save raw mean-variance curves so downstream analysis can compute
+    # metrics (AUC, slopes, etc.) without re-running denoising.
+    curves_dir = out_dir / "variance_curves"
+    curves_dir.mkdir(parents=True, exist_ok=True)
+    for label, curve in mean_curves.items():
+        np.save(curves_dir / f"{_safe_name(label)}.npy", curve)
+    log.info("Saved per-joint variance curves to %s/", curves_dir)
+
     plot_joint_variance_over_time(
         {label: {} for label in mean_curves},
         entry["item_groups"], TRAINING_LABELS,
