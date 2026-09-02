@@ -9,9 +9,20 @@ individual episodes, extracts the action trajectories, correlates each episode
 to its high-level context in the sibling ``task.log`` (high-level prompt, round,
 and the VLM's own success judgement), and writes:
 
-  * episode_analysis/manifest.csv       one row per episode, with a blank
-                                        ``manual_success`` column to hand-label.
+  * episode_analysis/manifest.csv       one row per sub-task episode, keyed to its
+                                        high-level episode via ``hl_episode_id``,
+                                        with a blank ``manual_success`` to hand-label.
+  * episode_analysis/episodes.csv       one row per high-level episode (each
+                                        ``runs/<run>/<NN>/``): the high-level prompt,
+                                        round/sub-task counts, and the orchestrator's
+                                        terminal verdict (complete / incomplete /
+                                        aborted / unknown), plus a blank
+                                        ``manual_success`` to hand-label.
   * episode_analysis/actions/<id>.csv   the full T x 6 action trajectory.
+
+Each ``runs/<run>/<NN>/`` is one high-level episode: a single high-level prompt the
+VLM orchestrator decomposes -- possibly re-decomposing over several rounds -- into
+sub-tasks, each of which is one SmolVLA episode in ``actions.log``.
 
 Run it from ``lerobot_so101/data/``:
 
@@ -25,6 +36,7 @@ from __future__ import annotations
 
 import csv
 import re
+from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -50,9 +62,29 @@ RE_ACTION = re.compile(
 )
 
 # task.log patterns
-RE_DECOMPOSE = re.compile(r"Decomposing high-level prompt \(round (?P<round>\d+)\): '(?P<prompt>.*)'")
+# The round suffix "(round N)" is absent in the oldest runs -- keep it optional.
+RE_DECOMPOSE = re.compile(
+    r"Decomposing high-level prompt(?: \(round (?P<round>\d+)\))?: '(?P<prompt>.*)'"
+)
 RE_EXECUTING = re.compile(r"\[\d+\] Executing sub-task: '(?P<task>.*?)' \(")
 RE_JUDGEMENT = re.compile(r"VLM judgement: success=(?P<success>\w+) \| (?P<reason>.*)$")
+
+# Terminal high-level-episode outcome patterns. Every NN dir ends in exactly one of:
+#   complete (old + new phrasings), incomplete (retries exhausted), or operator abort.
+# Guard with LOG_PREFIX so the multi-line retry-context prose the planner is fed
+# (which also contains "judged INCOMPLETE") is not mistaken for a real log line.
+RE_HL_COMPLETE_OLD = re.compile(r"High-level task complete: '(?P<prompt>.*)'\s*$")
+RE_HL_COMPLETE_NEW = re.compile(
+    r"High-level task '(?P<prompt>.*)' judged COMPLETE after (?P<rounds>\d+) round"
+)
+RE_HL_INCOMPLETE = re.compile(
+    r"High-level task '(?P<prompt>.*)' judged INCOMPLETE after (?P<rounds>\d+) "
+    r"round\(s\) and no retry rounds remain: (?P<reason>.*)$"
+)
+RE_HL_ABORT = re.compile(r"abandoning high-level task '(?P<prompt>.*?)'")
+# Not anchored to line-start: an interactive input prompt (e.g. "[REPLAN] ...: ")
+# can be flushed onto the same line just before the real log record.
+LOG_PREFIX = re.compile(r"(?:INFO|WARNING|DEBUG|ERROR) \d{4}-\d\d-\d\d \d\d:\d\d:\d\d [\w.]+:\d+ ")
 
 
 def parse_joints(segment: str) -> dict[str, float]:
@@ -133,7 +165,7 @@ def parse_task_log(path: Path) -> list[dict]:
         m = RE_DECOMPOSE.search(line)
         if m:
             cur_prompt = m.group("prompt")
-            cur_round = m.group("round")
+            cur_round = m.group("round") or "1"  # old runs omit the round suffix
             continue
 
         m = RE_EXECUTING.search(line)
@@ -156,6 +188,71 @@ def parse_task_log(path: Path) -> list[dict]:
             continue
 
     return executions
+
+
+def parse_high_level(path: Path) -> dict:
+    """Roll a task.log up to one high-level-episode record.
+
+    Returns the high-level prompt, the number of decompose rounds, and the
+    orchestrator's terminal verdict for the whole high-level task:
+      * ``complete``   -- judged done (old or new phrasing)      -> hl_success=True
+      * ``incomplete`` -- retries exhausted, still not done      -> hl_success=False
+      * ``aborted``    -- operator interjected an ABORT          -> hl_success=False
+      * ``unknown``    -- log cut off before any verdict         -> hl_success=""
+    The last terminal line wins (there is only ever one per run in practice).
+    """
+    high_level_prompt = ""
+    max_round = 0
+    outcome = "unknown"
+    hl_success = ""
+    hl_reason = ""
+    terminal_rounds = ""
+
+    for line in path.read_text().splitlines():
+        pref = LOG_PREFIX.search(line)
+        if not pref:
+            continue  # skip planner prose / VLM output blocks that lack a log prefix
+        body = line[pref.end():]
+
+        m = RE_DECOMPOSE.search(body)
+        if m:
+            high_level_prompt = m.group("prompt")
+            max_round = max(max_round, int(m.group("round") or "1"))
+            continue
+
+        m = RE_HL_COMPLETE_OLD.search(body)
+        if m:
+            high_level_prompt = high_level_prompt or m.group("prompt")
+            outcome, hl_success = "complete", "True"
+            continue
+
+        m = RE_HL_COMPLETE_NEW.search(body)
+        if m:
+            high_level_prompt = high_level_prompt or m.group("prompt")
+            outcome, hl_success, terminal_rounds = "complete", "True", m.group("rounds")
+            continue
+
+        m = RE_HL_INCOMPLETE.search(body)
+        if m:
+            high_level_prompt = high_level_prompt or m.group("prompt")
+            outcome, hl_success = "incomplete", "False"
+            hl_reason, terminal_rounds = m.group("reason"), m.group("rounds")
+            continue
+
+        m = RE_HL_ABORT.search(body)
+        if m:
+            high_level_prompt = high_level_prompt or m.group("prompt")
+            outcome, hl_success, hl_reason = "aborted", "False", "operator abort"
+            continue
+
+    num_rounds = int(terminal_rounds) if terminal_rounds else max_round
+    return {
+        "high_level_prompt": high_level_prompt,
+        "num_rounds": num_rounds,
+        "hl_outcome": outcome,
+        "hl_success": hl_success,
+        "hl_reason": hl_reason,
+    }
 
 
 def correlate(episodes: list[Episode], executions: list[dict]) -> list[str]:
@@ -187,6 +284,7 @@ def main() -> None:
     (OUT_DIR / "actions").mkdir(exist_ok=True)
 
     manifest_rows: list[dict] = []
+    episode_rows: list[dict] = []  # one row per high-level episode (NN dir)
     all_warnings: list[str] = []
     skipped_no_log = 0
     truncated_ids: list[str] = []
@@ -204,11 +302,15 @@ def main() -> None:
         run = subdir.parent.name
         nn = subdir.name
 
+        hl_episode_id = f"{run}__{nn}"
+
         episodes = parse_actions_log(log_path)
         task_log = subdir / "task.log"
+        high_level: dict = {}
         if task_log.exists():
             executions = parse_task_log(task_log)
             all_warnings += [f"{run}/{nn}: {w}" for w in correlate(episodes, executions)]
+            high_level = parse_high_level(task_log)
 
         for ep in episodes:
             episode_id = f"{run}__{nn}__ep{ep.index}"
@@ -226,6 +328,7 @@ def main() -> None:
             manifest_rows.append(
                 {
                     "episode_id": episode_id,
+                    "hl_episode_id": hl_episode_id,
                     "run": run,
                     "subdir": nn,
                     "episode_index": ep.index,
@@ -242,16 +345,49 @@ def main() -> None:
                 }
             )
 
+        # High-level rollup: one row per NN, summarising its sub-tasks + final verdict.
+        total_duration = sum(float(e.duration_s) for e in episodes if e.duration_s)
+        episode_rows.append(
+            {
+                "hl_episode_id": hl_episode_id,
+                "run": run,
+                "subdir": nn,
+                "high_level_prompt": high_level.get("high_level_prompt", ""),
+                "num_rounds": high_level.get("num_rounds", ""),
+                "num_subtasks": len(episodes),
+                "num_subtasks_success": sum(1 for e in episodes if e.vlm_success == "True"),
+                "total_actions": sum(e.num_actions for e in episodes),
+                "total_duration_s": f"{total_duration:.1f}",
+                "hl_outcome": high_level.get("hl_outcome", "unknown"),
+                "hl_success": high_level.get("hl_success", ""),
+                "hl_reason": high_level.get("hl_reason", ""),
+                "manual_success": "",  # <- hand-label this column
+            }
+        )
+
     manifest_path = OUT_DIR / "manifest.csv"
     with manifest_path.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(manifest_rows[0].keys()))
         w.writeheader()
         w.writerows(manifest_rows)
 
+    episodes_path = OUT_DIR / "episodes.csv"
+    with episodes_path.open("w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(episode_rows[0].keys()))
+        w.writeheader()
+        w.writerows(episode_rows)
+
     # --- summary -------------------------------------------------------------
-    print(f"Parsed {len(manifest_rows)} episodes from {len(actions_logs)} actions.log files.")
+    outcomes = Counter(r["hl_outcome"] for r in episode_rows)
+    print(f"Parsed {len(manifest_rows)} sub-task episodes from {len(actions_logs)} actions.log files.")
+    print(
+        f"Rolled up {len(episode_rows)} high-level episode(s) "
+        f"(complete/incomplete/aborted/unknown = "
+        f"{outcomes['complete']}/{outcomes['incomplete']}/{outcomes['aborted']}/{outcomes['unknown']})."
+    )
     print(f"Skipped {skipped_no_log} run-subdir(s) with no actions.log (pre-logging runs).")
-    print(f"Wrote {manifest_path} and {len(manifest_rows)} per-episode CSVs to {OUT_DIR/'actions'}/.")
+    print(f"Wrote {manifest_path}, {episodes_path}, and {len(manifest_rows)} "
+          f"per-episode CSVs to {OUT_DIR/'actions'}/.")
     if truncated_ids:
         print(f"{len(truncated_ids)} truncated episode(s) (no 'episode end' marker): "
               + ", ".join(truncated_ids))
