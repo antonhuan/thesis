@@ -974,12 +974,44 @@ class VLMFrameSource:
         if self.save_frames:
             self.task_dir.mkdir(parents=True, exist_ok=True)
             ts = time.strftime("%Y%m%d_%H%M%S")
-            for i, img in enumerate(clip):
-                path = self.task_dir / f"{tag}_{ts}_{i:02d}.png"
-                img.save(path)
-            logging.info(f"Saved VLM eval clip ({len(clip)} frames) to {self.task_dir}")
+            path = self.task_dir / f"{tag}_{ts}_recap.png"
+            self._render_clip_recap(clip, span, path)
+            logging.info(f"Saved VLM eval recap ({len(clip)} frames): {path}")
 
         return clip, span
+
+    def _render_clip_recap(self, clip: list[Image.Image], span: float,
+                           path: Path) -> None:
+        """Render the eval clip as a single annotated contact sheet.
+
+        Mirrors robot_client_loop._render_episode_recap: each frame becomes a tile
+        labelled with its elapsed time (derived by evenly spacing across `span`,
+        since the clip is already sampled), and tiles are pasted into a near-square
+        grid on a dark canvas. Wrapped so a recap failure never breaks the run.
+        """
+        try:
+            from PIL import ImageDraw
+
+            n = len(clip)
+            tiles = []
+            for i, frame in enumerate(clip):
+                img = frame.convert("RGB")
+                elapsed = span * i / (n - 1) if n > 1 else 0.0
+                label = f"t={elapsed:4.1f}s #{i}"
+                draw = ImageDraw.Draw(img)
+                draw.rectangle([0, 0, img.width, 15], fill=(0, 0, 0))
+                draw.text((2, 2), label, fill=(255, 255, 255))
+                tiles.append(img)
+
+            cols = max(1, int(np.ceil(np.sqrt(n))))
+            n_rows = int(np.ceil(n / cols))
+            tw, th = tiles[0].size
+            sheet = Image.new("RGB", (cols * tw, n_rows * th), (30, 30, 30))
+            for i, tile in enumerate(tiles):
+                sheet.paste(tile, ((i % cols) * tw, (i // cols) * th))
+            sheet.save(path)
+        except Exception as e:  # noqa: BLE001 - never let recap break a run
+            logging.error(f"Failed to render eval clip recap: {e}")
 
     def stop(self):
         pass  # No separate pipeline to clean up
