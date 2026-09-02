@@ -1,0 +1,47 @@
+INFO 2026-09-02 09:11:53 strator.py:1230 Decomposing high-level prompt (round 1): 'put everything away'
+INFO 2026-09-02 09:11:53 estrator.py:949 Saved VLM frame: runs/run_2026-09-02_09-11-20/01/decompose_20260902_091153.png
+  Generated 30 tokens in 5.9s (5.1 tok/s)
+
+Identification output:
+{
+  "visible_objects": [
+    "stuffed animal",
+    "banana",
+    "tray",
+    "table"
+  ]
+}
+INFO 2026-09-02 09:11:59 estrator.py:619 Identified objects (4): ['stuffed animal', 'banana', 'tray', 'table']
+  Generated 71 tokens in 5.5s (13.0 tok/s)
+INFO 2026-09-02 09:12:04 estrator.py:624 Raw VLM decomposition output (258 chars): '{\n  "visible_objects": ["stuffed animal", "banana", "tray", "table"],\n  "excluded_objects": [],\n  "completed_objects": [],\n  "allowed_objects": ["stuffed animal", "banana"],\n  "subtasks": ["put the stuffed animal in the tray", "put the banana in the tray"]\n}'
+
+Visible: ['stuffed animal', 'banana', 'tray', 'table']
+Excluded: []
+Completed: []
+Allowed: ['stuffed animal', 'banana']
+
+Parsed 2 sub-tasks:
+  1. put the stuffed animal in the tray
+  2. put the banana in the tray
+INFO 2026-09-02 09:12:04 strator.py:1248 Sub-task queue (2):
+INFO 2026-09-02 09:12:04 strator.py:1250   1. put the stuffed animal in the tray
+INFO 2026-09-02 09:12:04 strator.py:1250   2. put the banana in the tray
+INFO 2026-09-02 09:12:04 strator.py:1301 [1] Executing sub-task: 'put the stuffed animal in the tray' (1 retries left)
+INFO 2026-09-02 09:12:04 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/stuffed/022_stuffed/
+INFO 2026-09-02 09:12:04 ent_loop.py:689 Control loop started | task: 'put the stuffed animal in the tray' | duration: 30.0s
+INFO 2026-09-02 09:12:04 ent_loop.py:603 Action receiver thread started
+[INTERJECT] SKIP requested — stopping current action...
+INFO 2026-09-02 09:12:36 ent_loop.py:913 Episode finished: 31.4s, converged=False, max_displacement=183.3627, actions=621
+INFO 2026-09-02 09:12:36 strator.py:1317 User skipped sub-task: 'put the stuffed animal in the tray' (1 attempt(s) left)
+INFO 2026-09-02 09:12:36 ent_loop.py:409 Returning to home position...
+INFO 2026-09-02 09:12:38 ent_loop.py:422 Home position reached.
+INFO 2026-09-02 09:12:38 strator.py:1301 [1] Executing sub-task: 'put the stuffed animal in the tray' (0 retries left)
+INFO 2026-09-02 09:12:38 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/stuffed/023_stuffed/
+INFO 2026-09-02 09:12:38 ent_loop.py:689 Control loop started | task: 'put the stuffed animal in the tray' | duration: 30.0s
+INFO 2026-09-02 09:12:38 ent_loop.py:603 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-09-02 09:13:16 ent_loop.py:913 Episode finished: 37.5s, converged=False, max_displacement=192.1442, actions=772
+WARNING 2026-09-02 09:13:16 strator.py:1221 ABORT requested during sub-task 'put the stuffed animal in the tray' — abandoning high-level task 'put everything away' and returning to the prompt.
+INFO 2026-09-02 09:13:16 ent_loop.py:409 Returning to home position...
+INFO 2026-09-02 09:13:18 ent_loop.py:422 Home position reached.
+INFO 2026-09-02 09:13:18 strator.py:1515   Completed before the abort: []

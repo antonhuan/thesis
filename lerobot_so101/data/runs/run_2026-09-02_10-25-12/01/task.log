@@ -1,0 +1,264 @@
+INFO 2026-09-02 10:25:48 strator.py:1230 Decomposing high-level prompt (round 1): 'put everything on the tray'
+INFO 2026-09-02 10:25:48 estrator.py:949 Saved VLM frame: runs/run_2026-09-02_10-25-12/01/decompose_20260902_102548.png
+  Generated 24 tokens in 4.6s (5.3 tok/s)
+
+Identification output:
+{"visible_objects": ["plush toy", "banana", "brown pouch", "tray", "table"]}
+INFO 2026-09-02 10:25:53 estrator.py:619 Identified objects (5): ['plush toy', 'banana', 'brown pouch', 'tray', 'table']
+  Generated 88 tokens in 7.3s (12.0 tok/s)
+INFO 2026-09-02 10:26:00 estrator.py:624 Raw VLM decomposition output (308 chars): '{\n  "visible_objects": ["plush toy", "banana", "brown pouch", "tray", "table"],\n  "excluded_objects": [],\n  "completed_objects": [],\n  "allowed_objects": ["plush toy", "banana", "brown pouch"],\n  "subtasks": ["put the plush toy on the tray", "put the banana on the tray", "put the brown pouch on the tray"]\n}'
+
+Visible: ['plush toy', 'banana', 'brown pouch', 'tray', 'table']
+Excluded: []
+Completed: []
+Allowed: ['plush toy', 'banana', 'brown pouch']
+
+Parsed 3 sub-tasks:
+  1. put the plush toy on the tray
+  2. put the banana on the tray
+  3. put the brown pouch on the tray
+INFO 2026-09-02 10:26:00 strator.py:1248 Sub-task queue (3):
+INFO 2026-09-02 10:26:00 strator.py:1250   1. put the plush toy on the tray
+INFO 2026-09-02 10:26:00 strator.py:1250   2. put the banana on the tray
+INFO 2026-09-02 10:26:00 strator.py:1250   3. put the brown pouch on the tray
+INFO 2026-09-02 10:26:00 strator.py:1301 [1] Executing sub-task: 'put the plush toy on the tray' (1 retries left)
+INFO 2026-09-02 10:26:00 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/plush/051_plush/
+INFO 2026-09-02 10:26:00 ent_loop.py:689 Control loop started | task: 'put the plush toy on the tray' | duration: 30.0s
+INFO 2026-09-02 10:26:00 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-02 10:26:28 ent_loop.py:913 Episode finished: 28.0s, converged=True, max_displacement=186.9036, actions=538
+INFO 2026-09-02 10:26:28 ent_loop.py:409 Returning to home position...
+INFO 2026-09-02 10:26:31 ent_loop.py:422 Home position reached.
+INFO 2026-09-02 10:26:33 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-02_10-25-12/01/eval_task1_20260902_102631_recap.png
+INFO 2026-09-02 10:26:33 strator.py:1407 Evaluation observation: video clip (32 frames over 21.3s of a 28.0s episode, 1.46 fps)
+  Generated 22 tokens in 2.0s (11.3 tok/s)
+INFO 2026-09-02 10:26:35 estrator.py:705 Raw eval output: {"success": true, "reason": "The plush toy is now on the tray as instructed."}
+INFO 2026-09-02 10:26:35 strator.py:1449 VLM judgement: success=True | failure_type=RETRY | The plush toy is now on the tray as instructed.
+INFO 2026-09-02 10:26:35 strator.py:1301 [2] Executing sub-task: 'put the banana on the tray' (1 retries left)
+INFO 2026-09-02 10:26:35 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/banana/052_banana/
+INFO 2026-09-02 10:26:35 ent_loop.py:689 Control loop started | task: 'put the banana on the tray' | duration: 30.0s
+INFO 2026-09-02 10:26:35 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-02 10:26:59 ent_loop.py:913 Episode finished: 23.8s, converged=True, max_displacement=211.6957, actions=471
+INFO 2026-09-02 10:26:59 ent_loop.py:409 Returning to home position...
+INFO 2026-09-02 10:27:01 ent_loop.py:422 Home position reached.
+INFO 2026-09-02 10:27:03 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-02_10-25-12/01/eval_task2_20260902_102701_recap.png
+INFO 2026-09-02 10:27:03 strator.py:1407 Evaluation observation: video clip (32 frames over 17.5s of a 23.8s episode, 1.77 fps)
+  Generated 21 tokens in 1.9s (11.1 tok/s)
+INFO 2026-09-02 10:27:05 estrator.py:705 Raw eval output: {"success": true, "reason": "The banana is now on the tray as instructed."}
+INFO 2026-09-02 10:27:05 strator.py:1449 VLM judgement: success=True | failure_type=RETRY | The banana is now on the tray as instructed.
+INFO 2026-09-02 10:27:05 strator.py:1301 [3] Executing sub-task: 'put the brown pouch on the tray' (1 retries left)
+INFO 2026-09-02 10:27:05 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/brown/053_brown/
+INFO 2026-09-02 10:27:05 ent_loop.py:689 Control loop started | task: 'put the brown pouch on the tray' | duration: 30.0s
+INFO 2026-09-02 10:27:05 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-02 10:27:16 ent_loop.py:913 Episode finished: 11.0s, converged=True, max_displacement=1.4503, actions=105
+INFO 2026-09-02 10:27:16 ent_loop.py:409 Returning to home position...
+INFO 2026-09-02 10:27:18 ent_loop.py:422 Home position reached.
+WARNING 2026-09-02 10:27:18 strator.py:1381 No movement detected (max_displacement=1.4503). The object name 'brown pouch' is likely not in the robot's vocabulary.
+INFO 2026-09-02 10:27:21 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-02_10-25-12/01/eval_task3_20260902_102718_recap.png
+INFO 2026-09-02 10:27:21 strator.py:1407 Evaluation observation: video clip (32 frames over 6.0s of a 11.0s episode, 5.20 fps)
+  Generated 36 tokens in 2.9s (12.4 tok/s)
+INFO 2026-09-02 10:27:24 estrator.py:705 Raw eval output: {"success": false, "failure_type": "RETRY", "reason": "The arm did not move toward the brown pouch or the tray; it remained stationary."}
+INFO 2026-09-02 10:27:24 strator.py:1449 VLM judgement: success=False | failure_type=VOCAB | The arm did not move toward the brown pouch or the tray; it remained stationary.
+INFO 2026-09-02 10:27:24 strator.py:1194 ATTEMPT attempt=1 original='put the brown pouch on the tray' current='put the brown pouch on the tray' success=False failure_type=VOCAB reason='The arm did not move toward the brown pouch or the tray; it remained stationary.' refinement=False
+INFO 2026-09-02 10:27:24 estrator.py:949 Saved VLM frame: runs/run_2026-09-02_10-25-12/01/refine_task3_20260902_102724.png
+INFO 2026-09-02 10:27:24 strator.py:1475 VOCAB failure — attempting label refinement...
+  Generated 7 tokens in 0.5s (13.8 tok/s)
+INFO 2026-09-02 10:27:24 estrator.py:809 Raw refinement output: pouch
+bag
+case
+INFO 2026-09-02 10:27:24 strator.py:1486 Refined: 'put the brown pouch on the tray' -> 'put the pouch on the tray' (candidates: ['pouch', 'bag', 'case'])
+INFO 2026-09-02 10:27:24 strator.py:1301 [3] Executing sub-task: 'put the pouch on the tray' (0 retries left) [original: 'put the brown pouch on the tray']
+INFO 2026-09-02 10:27:24 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/pouch/054_pouch/
+INFO 2026-09-02 10:27:24 ent_loop.py:689 Control loop started | task: 'put the pouch on the tray' | duration: 30.0s
+INFO 2026-09-02 10:27:24 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-02 10:27:38 ent_loop.py:913 Episode finished: 13.8s, converged=True, max_displacement=2.6126, actions=173
+INFO 2026-09-02 10:27:38 ent_loop.py:409 Returning to home position...
+INFO 2026-09-02 10:27:40 ent_loop.py:422 Home position reached.
+WARNING 2026-09-02 10:27:40 strator.py:1381 No movement detected (max_displacement=2.6126). The object name 'pouch' is likely not in the robot's vocabulary.
+INFO 2026-09-02 10:27:42 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-02_10-25-12/01/eval_task3_20260902_102740_recap.png
+INFO 2026-09-02 10:27:42 strator.py:1407 Evaluation observation: video clip (32 frames over 9.2s of a 13.8s episode, 3.35 fps)
+  Generated 38 tokens in 3.0s (12.9 tok/s)
+INFO 2026-09-02 10:27:46 estrator.py:705 Raw eval output: {"success": false, "failure_type": "RETRY", "reason": "The arm reached the pouch but did not grasp it, and the pouch remains on the table."}
+INFO 2026-09-02 10:27:46 strator.py:1449 VLM judgement: success=False | failure_type=VOCAB | The arm reached the pouch but did not grasp it, and the pouch remains on the table.
+INFO 2026-09-02 10:27:46 strator.py:1194 ATTEMPT attempt=2 original='put the brown pouch on the tray' current='put the pouch on the tray' success=False failure_type=VOCAB reason='The arm reached the pouch but did not grasp it, and the pouch remains on the table.' refinement=True
+WARNING 2026-09-02 10:27:46 strator.py:1535 Sub-task 'put the brown pouch on the tray' failed after all retries.
+INFO 2026-09-02 10:27:46 strator.py:1544 Triggering replan (0 replan(s) left after this)...
+INFO 2026-09-02 10:27:46 strator.py:1545   Completed so far: ['put the plush toy on the tray', 'put the banana on the tray']
+INFO 2026-09-02 10:27:46 strator.py:1546   Failed: 'put the brown pouch on the tray' — The arm reached the pouch but did not grasp it, and the pouch remains on the table.
+INFO 2026-09-02 10:27:46 strator.py:1547   Remaining (discarded): []
+
+[REPLAN] Sub-task 'put the brown pouch on the tray' failed after all retries: The arm reached the pouch but did not grasp it, and the pouch remains on the table.
+[REPLAN] Additional context for the planner (Enter for none, 'q' to abort): INFO 2026-09-02 10:28:56 estrator.py:949 Saved VLM frame: runs/run_2026-09-02_10-25-12/01/replan_20260902_102856.png
+  Generated 50 tokens in 3.5s (14.1 tok/s)
+INFO 2026-09-02 10:29:00 estrator.py:889 Raw VLM replan output (178 chars): '{\n  "visible_objects": ["brown pouch", "banana", "plush toy"],\n  "excluded_objects": [],\n  "allowed_objects": ["brown pouch"],\n  "subtasks": ["put the brown pouch on the tray"]\n}'
+
+Visible: ['brown pouch', 'banana', 'plush toy']
+Excluded: []
+Completed: None
+Allowed: ['brown pouch']
+
+Parsed 1 sub-tasks:
+  1. put the brown pouch on the tray
+INFO 2026-09-02 10:29:00 strator.py:1275 Replanned queue (1):
+INFO 2026-09-02 10:29:00 strator.py:1277   1. put the brown pouch on the tray
+INFO 2026-09-02 10:29:00 strator.py:1301 [3] Executing sub-task: 'put the brown pouch on the tray' (1 retries left)
+INFO 2026-09-02 10:29:00 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/brown/055_brown/
+INFO 2026-09-02 10:29:00 ent_loop.py:689 Control loop started | task: 'put the brown pouch on the tray' | duration: 30.0s
+INFO 2026-09-02 10:29:00 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-02 10:29:11 ent_loop.py:913 Episode finished: 10.9s, converged=True, max_displacement=1.9810, actions=105
+INFO 2026-09-02 10:29:11 ent_loop.py:409 Returning to home position...
+INFO 2026-09-02 10:29:13 ent_loop.py:422 Home position reached.
+WARNING 2026-09-02 10:29:13 strator.py:1381 No movement detected (max_displacement=1.9810). The object name 'brown pouch' is likely not in the robot's vocabulary.
+INFO 2026-09-02 10:29:15 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-02_10-25-12/01/eval_task3_20260902_102913_recap.png
+INFO 2026-09-02 10:29:15 strator.py:1407 Evaluation observation: video clip (32 frames over 6.0s of a 10.9s episode, 5.20 fps)
+  Generated 36 tokens in 2.9s (12.4 tok/s)
+INFO 2026-09-02 10:29:18 estrator.py:705 Raw eval output: {"success": false, "failure_type": "RETRY", "reason": "The arm did not move toward the brown pouch or the tray; it remained stationary."}
+INFO 2026-09-02 10:29:18 strator.py:1449 VLM judgement: success=False | failure_type=VOCAB | The arm did not move toward the brown pouch or the tray; it remained stationary.
+INFO 2026-09-02 10:29:18 strator.py:1194 ATTEMPT attempt=1 original='put the brown pouch on the tray' current='put the brown pouch on the tray' success=False failure_type=VOCAB reason='The arm did not move toward the brown pouch or the tray; it remained stationary.' refinement=False
+INFO 2026-09-02 10:29:18 estrator.py:949 Saved VLM frame: runs/run_2026-09-02_10-25-12/01/refine_task3_20260902_102918.png
+INFO 2026-09-02 10:29:18 strator.py:1475 VOCAB failure — attempting label refinement...
+  Generated 7 tokens in 0.8s (8.9 tok/s)
+INFO 2026-09-02 10:29:19 estrator.py:809 Raw refinement output: pouch
+bag
+case
+INFO 2026-09-02 10:29:19 strator.py:1486 Refined: 'put the brown pouch on the tray' -> 'put the pouch on the tray' (candidates: ['pouch', 'bag', 'case'])
+INFO 2026-09-02 10:29:19 strator.py:1301 [3] Executing sub-task: 'put the pouch on the tray' (0 retries left) [original: 'put the brown pouch on the tray']
+INFO 2026-09-02 10:29:19 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/pouch/056_pouch/
+INFO 2026-09-02 10:29:19 ent_loop.py:689 Control loop started | task: 'put the pouch on the tray' | duration: 30.0s
+INFO 2026-09-02 10:29:19 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-02 10:29:30 ent_loop.py:913 Episode finished: 11.2s, converged=True, max_displacement=3.3099, actions=132
+INFO 2026-09-02 10:29:30 ent_loop.py:409 Returning to home position...
+INFO 2026-09-02 10:29:32 ent_loop.py:422 Home position reached.
+WARNING 2026-09-02 10:29:32 strator.py:1381 No movement detected (max_displacement=3.3099). The object name 'pouch' is likely not in the robot's vocabulary.
+INFO 2026-09-02 10:29:35 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-02_10-25-12/01/eval_task3_20260902_102932_recap.png
+INFO 2026-09-02 10:29:35 strator.py:1407 Evaluation observation: video clip (32 frames over 6.4s of a 11.2s episode, 4.82 fps)
+  Generated 45 tokens in 3.5s (12.7 tok/s)
+INFO 2026-09-02 10:29:38 estrator.py:705 Raw eval output: {"success": false, "failure_type": "RETRY", "reason": "The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray."}
+INFO 2026-09-02 10:29:38 strator.py:1449 VLM judgement: success=False | failure_type=VOCAB | The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray.
+INFO 2026-09-02 10:29:38 strator.py:1194 ATTEMPT attempt=2 original='put the brown pouch on the tray' current='put the pouch on the tray' success=False failure_type=VOCAB reason='The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray.' refinement=True
+WARNING 2026-09-02 10:29:38 strator.py:1535 Sub-task 'put the brown pouch on the tray' failed after all retries.
+WARNING 2026-09-02 10:29:38 strator.py:1538 No replans remaining — skipping failed sub-task and continuing with the rest of the queue.
+INFO 2026-09-02 10:29:38 strator.py:1577 Running final evaluation against the original prompt...
+INFO 2026-09-02 10:29:38 estrator.py:949 Saved VLM frame: runs/run_2026-09-02_10-25-12/01/final_eval_20260902_102938.png
+  Generated 171 tokens in 11.2s (15.3 tok/s)
+
+Scene survey output:
+{
+  "object_locations": [
+    {
+      "object": "banana",
+      "evidence": "lying inside the pink tray, touching its right edge",
+      "support": "tray"
+    },
+    {
+      "object": "plush toy",
+      "evidence": "lying inside the pink tray, touching its right edge, next to the banana",
+      "support": "tray"
+    },
+    {
+      "object": "brown pouch",
+      "evidence": "lying on the bare table, to the left of the tray and the robot arm",
+      "support": "table"
+    },
+    {
+      "object": "orange robot arm",
+      "evidence": "centered in the image, attached to the table with wires",
+      "support": "table"
+    }
+  ]
+}
+INFO 2026-09-02 10:29:50 estrator.py:738 Final-eval surveyed 4 object(s):
+INFO 2026-09-02 10:29:50 estrator.py:740   banana -> tray (lying inside the pink tray, touching its right edge)
+INFO 2026-09-02 10:29:50 estrator.py:740   plush toy -> tray (lying inside the pink tray, touching its right edge, next to the banana)
+INFO 2026-09-02 10:29:50 estrator.py:740   brown pouch -> table (lying on the bare table, to the left of the tray and the robot arm)
+INFO 2026-09-02 10:29:50 estrator.py:740   orange robot arm -> table (centered in the image, attached to the table with wires)
+  Generated 35 tokens in 2.3s (15.1 tok/s)
+INFO 2026-09-02 10:29:52 estrator.py:787 Raw final-judge output: {"reason": "The brown pouch is still on the table and not on the tray, which violates the instruction to put everything on the tray.", "success": false}
+INFO 2026-09-02 10:29:52 strator.py:1585 FINAL VLM judgement for 'put everything on the tray' (round 1): success=False | The brown pouch is still on the table and not on the tray, which violates the instruction to put everything on the tray.
+INFO 2026-09-02 10:29:52 strator.py:1598 Round 1 complete for: 'put everything on the tray'
+INFO 2026-09-02 10:29:52 strator.py:1599   Completed 2/3 sub-tasks planned this round: ['put the plush toy on the tray', 'put the banana on the tray']
+INFO 2026-09-02 10:29:52 strator.py:1157 Carrying 2 completed sub-task(s) into the re-decompose: ['put the plush toy on the tray', 'put the banana on the tray']
+INFO 2026-09-02 10:29:52 strator.py:1159 Retry context passed to the planner:
+A previous attempt at this same instruction was judged INCOMPLETE by the evaluator, who reported:
+The brown pouch is still on the table and not on the tray, which violates the instruction to put everything on the tray.
+
+These sub-tasks were already executed and verified complete in the previous attempt:
+- put the plush toy on the tray
+- put the banana on the tray
+The objects they name are already at their destinations. Put those objects in completed_objects, NOT in allowed_objects, and do not plan any sub-task for them.
+
+The camera image shows the CURRENT scene, after that attempt. The image is GROUND TRUTH: where the evaluator's report and the image disagree, believe the image.
+
+Plan only the work that still REMAINS to satisfy the original instruction. If an object is already at its destination in the image, list it in completed_objects — do not put it in allowed_objects and do not give it a sub-task. Do not move any object the instruction says to leave alone; those go in excluded_objects.
+
+Remember the invariant: every object in allowed_objects gets exactly one sub-task. Never return an empty subtasks list while allowed_objects is non-empty — an object that needs no action belongs in completed_objects.
+WARNING 2026-09-02 10:29:52 strator.py:1160 Final evaluation judged 'put everything on the tray' INCOMPLETE: The brown pouch is still on the table and not on the tray, which violates the instruction to put everything on the tray. — running the whole loop again.
+INFO 2026-09-02 10:29:52 strator.py:1106 ============================================================
+INFO 2026-09-02 10:29:52 strator.py:1107 ROUND 2 for 'put everything on the tray' — re-decomposing against the current scene (0 retry round(s) left after this one).
+INFO 2026-09-02 10:29:52 strator.py:1110 ============================================================
+INFO 2026-09-02 10:29:52 strator.py:1230 Decomposing high-level prompt (round 2): 'put everything on the tray'
+INFO 2026-09-02 10:29:52 estrator.py:949 Saved VLM frame: runs/run_2026-09-02_10-25-12/01/decompose_round2_20260902_102952.png
+  Generated 26 tokens in 1.7s (15.0 tok/s)
+
+Identification output:
+{"visible_objects": ["banana", "toy", "tray", "table", "pouch", "power strip"]}
+INFO 2026-09-02 10:29:54 estrator.py:619 Identified objects (6): ['banana', 'toy', 'tray', 'table', 'pouch', 'power strip']
+  Generated 82 tokens in 5.3s (15.4 tok/s)
+INFO 2026-09-02 10:29:59 estrator.py:624 Raw VLM decomposition output (278 chars): '{\n  "visible_objects": ["banana", "toy", "tray", "table", "pouch", "power strip"],\n  "excluded_objects": [],\n  "completed_objects": ["banana", "toy"],\n  "allowed_objects": ["pouch", "power strip"],\n  "subtasks": ["put the pouch on the tray", "put the power strip on the tray"]\n}'
+
+Visible: ['banana', 'toy', 'tray', 'table', 'pouch', 'power strip']
+Excluded: []
+Completed: ['banana', 'toy']
+Allowed: ['pouch', 'power strip']
+
+Parsed 2 sub-tasks:
+  1. put the pouch on the tray
+  2. put the power strip on the tray
+INFO 2026-09-02 10:29:59 strator.py:1248 Sub-task queue (2):
+INFO 2026-09-02 10:29:59 strator.py:1250   1. put the pouch on the tray
+INFO 2026-09-02 10:29:59 strator.py:1250   2. put the power strip on the tray
+INFO 2026-09-02 10:29:59 strator.py:1301 [1] Executing sub-task: 'put the pouch on the tray' (1 retries left)
+INFO 2026-09-02 10:29:59 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/pouch/057_pouch/
+INFO 2026-09-02 10:29:59 ent_loop.py:689 Control loop started | task: 'put the pouch on the tray' | duration: 30.0s
+INFO 2026-09-02 10:29:59 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-02 10:30:09 ent_loop.py:913 Episode finished: 9.9s, converged=True, max_displacement=3.1259, actions=132
+INFO 2026-09-02 10:30:09 ent_loop.py:409 Returning to home position...
+INFO 2026-09-02 10:30:11 ent_loop.py:422 Home position reached.
+WARNING 2026-09-02 10:30:11 strator.py:1381 No movement detected (max_displacement=3.1259). The object name 'pouch' is likely not in the robot's vocabulary.
+INFO 2026-09-02 10:30:13 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-02_10-25-12/01/eval_task1_20260902_103011_recap.png
+INFO 2026-09-02 10:30:13 strator.py:1407 Evaluation observation: video clip (32 frames over 6.9s of a 9.9s episode, 4.52 fps)
+  Generated 45 tokens in 3.4s (13.2 tok/s)
+INFO 2026-09-02 10:30:17 estrator.py:705 Raw eval output: {"success": false, "failure_type": "RETRY", "reason": "The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray."}
+INFO 2026-09-02 10:30:17 strator.py:1449 VLM judgement: success=False | failure_type=VOCAB | The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray.
+INFO 2026-09-02 10:30:17 strator.py:1194 ATTEMPT attempt=1 original='put the pouch on the tray' current='put the pouch on the tray' success=False failure_type=VOCAB reason='The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray.' refinement=False
+INFO 2026-09-02 10:30:17 estrator.py:949 Saved VLM frame: runs/run_2026-09-02_10-25-12/01/refine_task1_20260902_103017.png
+INFO 2026-09-02 10:30:17 strator.py:1475 VOCAB failure — attempting label refinement...
+  Generated 7 tokens in 0.5s (14.3 tok/s)
+INFO 2026-09-02 10:30:18 estrator.py:809 Raw refinement output: pouch
+bag
+case
+INFO 2026-09-02 10:30:18 strator.py:1486 Refined: 'put the pouch on the tray' -> 'put the pouch on the tray' (candidates: ['pouch', 'bag', 'case'])
+INFO 2026-09-02 10:30:18 strator.py:1301 [1] Executing sub-task: 'put the pouch on the tray' (0 retries left)
+INFO 2026-09-02 10:30:18 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/pouch/058_pouch/
+INFO 2026-09-02 10:30:18 ent_loop.py:689 Control loop started | task: 'put the pouch on the tray' | duration: 30.0s
+INFO 2026-09-02 10:30:18 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-02 10:30:29 ent_loop.py:913 Episode finished: 11.2s, converged=True, max_displacement=1.9497, actions=146
+INFO 2026-09-02 10:30:29 ent_loop.py:409 Returning to home position...
+INFO 2026-09-02 10:30:31 ent_loop.py:422 Home position reached.
+WARNING 2026-09-02 10:30:31 strator.py:1381 No movement detected (max_displacement=1.9497). The object name 'pouch' is likely not in the robot's vocabulary.
+INFO 2026-09-02 10:30:33 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-02_10-25-12/01/eval_task1_20260902_103031_recap.png
+INFO 2026-09-02 10:30:33 strator.py:1407 Evaluation observation: video clip (32 frames over 7.2s of a 11.2s episode, 4.31 fps)
+  Generated 38 tokens in 3.5s (10.7 tok/s)
+INFO 2026-09-02 10:30:37 estrator.py:705 Raw eval output: {"success": false, "failure_type": "RETRY", "reason": "The arm reached the pouch but did not grasp it, and no motion toward the tray occurred."}
+INFO 2026-09-02 10:30:37 strator.py:1449 VLM judgement: success=False | failure_type=VOCAB | The arm reached the pouch but did not grasp it, and no motion toward the tray occurred.
+INFO 2026-09-02 10:30:37 strator.py:1194 ATTEMPT attempt=2 original='put the pouch on the tray' current='put the pouch on the tray' success=False failure_type=VOCAB reason='The arm reached the pouch but did not grasp it, and no motion toward the tray occurred.' refinement=False
+WARNING 2026-09-02 10:30:37 strator.py:1535 Sub-task 'put the pouch on the tray' failed after all retries.
+INFO 2026-09-02 10:30:37 strator.py:1544 Triggering replan (0 replan(s) left after this)...
+INFO 2026-09-02 10:30:37 strator.py:1545   Completed so far: []
+INFO 2026-09-02 10:30:37 strator.py:1546   Failed: 'put the pouch on the tray' — The arm reached the pouch but did not grasp it, and no motion toward the tray occurred.
+INFO 2026-09-02 10:30:37 strator.py:1547   Remaining (discarded): ['put the power strip on the tray']
+
+[REPLAN] Sub-task 'put the pouch on the tray' failed after all retries: The arm reached the pouch but did not grasp it, and no motion toward the tray occurred.
+[REPLAN] Additional context for the planner (Enter for none, 'q' to abort): WARNING 2026-09-02 10:30:39 strator.py:1221 ABORT requested at the replan prompt — abandoning high-level task 'put everything on the tray' and returning to the prompt.
+INFO 2026-09-02 10:30:39 ent_loop.py:409 Returning to home position...
+INFO 2026-09-02 10:30:41 ent_loop.py:422 Home position reached.
+INFO 2026-09-02 10:30:41 strator.py:1558   Completed before the abort: []

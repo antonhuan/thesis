@@ -1,0 +1,50 @@
+INFO 2026-09-02 09:54:35 strator.py:1230 Decomposing high-level prompt (round 1): 'put the pouch on the tray'
+INFO 2026-09-02 09:54:35 estrator.py:949 Saved VLM frame: runs/run_2026-09-02_09-41-46/02/decompose_20260902_095435.png
+  Generated 18 tokens in 1.4s (12.5 tok/s)
+
+Identification output:
+{"visible_objects": ["banana", "toy", "tray", "table"]}
+INFO 2026-09-02 09:54:37 estrator.py:619 Identified objects (4): ['banana', 'toy', 'tray', 'table']
+  Generated 55 tokens in 3.8s (14.6 tok/s)
+INFO 2026-09-02 09:54:41 estrator.py:624 Raw VLM decomposition output (185 chars): '{\n  "visible_objects": ["banana", "toy", "tray", "table"],\n  "excluded_objects": [],\n  "completed_objects": [],\n  "allowed_objects": ["toy"],\n  "subtasks": ["put the toy on the tray"]\n}'
+
+Visible: ['banana', 'toy', 'tray', 'table']
+Excluded: []
+Completed: []
+Allowed: ['toy']
+
+Parsed 1 sub-tasks:
+  1. put the toy on the tray
+INFO 2026-09-02 09:54:41 strator.py:1248 Sub-task queue (1):
+INFO 2026-09-02 09:54:41 strator.py:1250   1. put the toy on the tray
+INFO 2026-09-02 09:54:41 strator.py:1301 [1] Executing sub-task: 'put the toy on the tray' (1 retries left)
+INFO 2026-09-02 09:54:41 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/toy/037_toy/
+INFO 2026-09-02 09:54:41 ent_loop.py:689 Control loop started | task: 'put the toy on the tray' | duration: 30.0s
+INFO 2026-09-02 09:54:41 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-02 09:54:51 ent_loop.py:913 Episode finished: 9.9s, converged=True, max_displacement=2.1195, actions=100
+INFO 2026-09-02 09:54:51 ent_loop.py:409 Returning to home position...
+INFO 2026-09-02 09:54:53 ent_loop.py:422 Home position reached.
+WARNING 2026-09-02 09:54:53 strator.py:1381 No movement detected (max_displacement=2.1195). The object name 'toy' is likely not in the robot's vocabulary.
+INFO 2026-09-02 09:54:55 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-02_09-41-46/02/eval_task1_20260902_095453_recap.png
+INFO 2026-09-02 09:54:55 strator.py:1407 Evaluation observation: video clip (32 frames over 6.0s of a 9.9s episode, 5.21 fps)
+  Generated 42 tokens in 3.4s (12.2 tok/s)
+INFO 2026-09-02 09:54:59 estrator.py:705 Raw eval output: {"success": false, "failure_type": "RETRY", "reason": "The arm did not move toward the toy or the tray; it remained stationary, so the task was not attempted."}
+INFO 2026-09-02 09:54:59 strator.py:1449 VLM judgement: success=False | failure_type=VOCAB | The arm did not move toward the toy or the tray; it remained stationary, so the task was not attempted.
+INFO 2026-09-02 09:54:59 strator.py:1194 ATTEMPT attempt=1 original='put the toy on the tray' current='put the toy on the tray' success=False failure_type=VOCAB reason='The arm did not move toward the toy or the tray; it remained stationary, so the task was not attempted.' refinement=False
+INFO 2026-09-02 09:54:59 estrator.py:949 Saved VLM frame: runs/run_2026-09-02_09-41-46/02/refine_task1_20260902_095459.png
+INFO 2026-09-02 09:54:59 strator.py:1475 VOCAB failure — attempting label refinement...
+  Generated 10 tokens in 0.7s (14.0 tok/s)
+INFO 2026-09-02 09:55:00 estrator.py:809 Raw refinement output: stuffed animal
+toy animal
+plush
+INFO 2026-09-02 09:55:00 strator.py:1486 Refined: 'put the toy on the tray' -> 'put the stuffed animal on the tray' (candidates: ['stuffed animal', 'toy animal', 'plush'])
+INFO 2026-09-02 09:55:00 strator.py:1301 [1] Executing sub-task: 'put the stuffed animal on the tray' (0 retries left) [original: 'put the toy on the tray']
+INFO 2026-09-02 09:55:00 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/stuffed/038_stuffed/
+INFO 2026-09-02 09:55:00 ent_loop.py:689 Control loop started | task: 'put the stuffed animal on the tray' | duration: 30.0s
+INFO 2026-09-02 09:55:00 ent_loop.py:603 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-09-02 09:55:17 ent_loop.py:913 Episode finished: 17.6s, converged=False, max_displacement=141.3570, actions=317
+WARNING 2026-09-02 09:55:17 strator.py:1221 ABORT requested during sub-task 'put the toy on the tray' — abandoning high-level task 'put the pouch on the tray' and returning to the prompt.
+INFO 2026-09-02 09:55:17 ent_loop.py:409 Returning to home position...
+INFO 2026-09-02 09:55:19 ent_loop.py:422 Home position reached.
+INFO 2026-09-02 09:55:19 strator.py:1515   Completed before the abort: []
