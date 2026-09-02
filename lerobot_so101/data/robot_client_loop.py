@@ -687,8 +687,14 @@ class LoopRobotClient:
 
                     # Attribute this executed action to the chunk (hence input)
                     # that supplied its value, for the per-input executed subset.
+                    # action_n is the per-episode action number and must match the
+                    # action log's [action #N], which logs the post-increment value
+                    # (self._total_actions is bumped below), so pass +1 here.
                     if self.config.log_vla_inputs:
-                        self._attribute_executed(timed_action.get_timestep(), action_dict)
+                        self._attribute_executed(
+                            timed_action.get_timestep(), action_dict,
+                            action_n=self._total_actions + 1,
+                        )
 
                     with self.latest_action_lock:
                         self.latest_action = timed_action.get_timestep()
@@ -1061,14 +1067,18 @@ class LoopRobotClient:
             record["returned_len"] = int(returned_len)
             record["executed_actions"] = []
             record["executed_timesteps"] = []
+            record["executed_action_ns"] = []
             self._active_chunks[chunk_id] = record
 
-    def _attribute_executed(self, timestep: int, action_dict: dict) -> None:
+    def _attribute_executed(self, timestep: int, action_dict: dict, action_n: int) -> None:
         """Attribute one executed action to the chunk (hence input) that produced it.
 
         The value at `timestep` in the action queue was written by whichever chunk
         the source map last recorded (_aggregate_action_queues), so the executed
-        action belongs to that chunk's input.
+        action belongs to that chunk's input. `action_n` is the per-episode action
+        number (matches [action #N] in the action log); it is the reference used
+        downstream to locate a moment within an episode, since the server timestep
+        carries over across episodes.
         """
         with self._vla_lock:
             chunk_id = self._timestep_source.get(int(timestep))
@@ -1077,6 +1087,7 @@ class LoopRobotClient:
                 return
             record["executed_actions"].append(dict(action_dict))
             record["executed_timesteps"].append(int(timestep))
+            record["executed_action_ns"].append(int(action_n))
 
     def _flush_executed_chunks(self) -> None:
         """Write each bound chunk's executed subset (+ its input) to actions.csv.
@@ -1137,7 +1148,7 @@ class LoopRobotClient:
         header = (
             ["episode_dir", "task", "chunk_id", "must_go", "input_timestep",
              "input_elapsed", "unix_ts", "front_img", "wrist_img", "recap_img",
-             "returned_len", "exec_index", "exec_timestep"]
+             "returned_len", "exec_index", "exec_timestep", "exec_action_n"]
             + [f"in_{j}" for j in joints]
             + [f"act_{j}" for j in joints]
         )
@@ -1153,14 +1164,15 @@ class LoopRobotClient:
                     imgs = rec.get("images", {})
                     state = rec.get("state", [])
                     in_vals = [state[i] if i < len(state) else "" for i in range(len(joints))]
-                    for idx, (act, ts) in enumerate(
-                        zip(rec["executed_actions"], rec["executed_timesteps"])
+                    for idx, (act, ts, act_n) in enumerate(
+                        zip(rec["executed_actions"], rec["executed_timesteps"],
+                            rec["executed_action_ns"])
                     ):
                         writer.writerow(
                             [episode_dir, rec["task"], rec["chunk_id"],
                              int(rec["must_go"]), rec["timestep"], rec["elapsed"],
                              rec["unix_ts"], imgs.get("front", ""), imgs.get("wrist", ""),
-                             recap_name or "", rec.get("returned_len", ""), idx, ts]
+                             recap_name or "", rec.get("returned_len", ""), idx, ts, act_n]
                             + in_vals
                             + [act.get(j, "") for j in joints]
                         )
@@ -1171,9 +1183,10 @@ class LoopRobotClient:
         """Render an annotated contact sheet of the episode for manual labelling.
 
         Frames are sampled evenly in time from the clip buffer; each tile is
-        labelled with its elapsed time and the input timestep of the inference
-        active then (nearest by elapsed), so a tile lines up with the actions.csv
-        rows. Returns the saved filename, or None if nothing was buffered.
+        labelled with its elapsed time and the per-episode action number of the
+        inference active then (nearest by elapsed), so a tile lines up with the
+        actions.csv rows (exec_action_n) and the action log ([action #N]).
+        Returns the saved filename, or None if nothing was buffered.
         """
         if not self.config.enable_clip_buffer:
             return None
@@ -1208,7 +1221,10 @@ class LoopRobotClient:
                 label = f"t={elapsed:4.1f}s"
                 if records:
                     nearest = min(records, key=lambda r: abs(r["elapsed"] - elapsed))
-                    label += f" ts={nearest['timestep']}"
+                    # Per-episode action number of the inference active then, so a
+                    # tile lines up with exec_action_n in actions.csv and [action
+                    # #N] in the log. (rows here always executed >=1 action.)
+                    label += f" #{nearest['executed_action_ns'][0]}"
                 draw = ImageDraw.Draw(img)
                 draw.rectangle([0, 0, img.width, 15], fill=(0, 0, 0))
                 draw.text((2, 2), label, fill=(255, 255, 255))
