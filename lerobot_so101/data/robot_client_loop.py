@@ -135,8 +135,16 @@ class LoopClientConfig(RobotClientConfig):
     # written to the terminal: tail the action log to watch a run live.
     log_actions: bool = True
     # Directory for the per-run action log; the file is named
-    # <prefix>_actions_<unix_ts>.log to pair with the main client log.
+    # <prefix>_actions_<unix_ts>.log to pair with the main client log. Used only
+    # when action_log_per_episode is False (otherwise each episode's action log
+    # is written into that episode's VLA directory).
     action_log_dir: str = "logs"
+    # Write a fresh actions.log into each episode's VLA directory (alongside its
+    # recap.png and actions.csv) instead of one monolithic per-run log. Requires
+    # log_vla_inputs (the episode directory is created by that path). The
+    # orchestrator overrides this to False so it keeps one actions.log per
+    # high-level task, which parse_episodes.py expects.
+    action_log_per_episode: bool = True
     # Also log each action chunk as it arrives from the policy server (size and
     # timestep range) to the action log.
     log_action_chunks: bool = True
@@ -217,6 +225,7 @@ class LoopRobotClient:
 
         self.latest_action_lock = threading.Lock()
         self.latest_action = -1
+        self._episode_max_sent_timestep = -1
         self.action_chunk_size = -1
         self._chunk_size_threshold = config.chunk_size_threshold
 
@@ -563,6 +572,10 @@ class LoopRobotClient:
         self.episode_done.clear()
         self.must_go.set()
         self.latest_action = -1
+        # Highest observation timestep sent this episode; -1 until the first
+        # observation goes out, so any chunk received before then (necessarily a
+        # leftover from the previous episode) is rejected as stale.
+        self._episode_max_sent_timestep = -1
         self.action_chunk_size = -1
         self.action_queue = Queue()
         self.action_queue_size = []
@@ -596,6 +609,25 @@ class LoopRobotClient:
                     continue
 
                 timed_actions = pickle.loads(actions_chunk.data)  # nosec
+
+                # Drop stale cross-episode chunks. The server stays connected
+                # across episodes and can still emit a chunk for the *previous*
+                # episode's observations after this episode has reset. Such a
+                # chunk's first timestep exceeds anything this episode has sent
+                # (a fresh episode restarts its observation timesteps at 0), and
+                # if executed it hijacks latest_action, offsetting the whole
+                # episode's timeline (and its per-episode action numbering). A
+                # legitimate chunk's first timestep always equals an observation
+                # this episode actually sent, so ts0 <= max-sent-this-episode.
+                if timed_actions:
+                    ts0 = timed_actions[0].get_timestep()
+                    if ts0 > self._episode_max_sent_timestep:
+                        if self.config.log_actions and self.config.log_action_chunks:
+                            self.action_logger.debug(
+                                f"[chunk] dropped stale chunk (ts0={ts0} > "
+                                f"max_sent={self._episode_max_sent_timestep})"
+                            )
+                        continue
 
                 # Move to client device if needed
                 client_device = self.config.client_device
@@ -808,6 +840,14 @@ class LoopRobotClient:
                         timestep=max(latest_action, 0),
                     )
 
+                    # Track the highest observation timestep sent this episode so
+                    # the receiver can reject stale cross-episode chunks (see
+                    # _receive_actions_thread). Set before send_observation so a
+                    # returning chunk can't beat the update. Atomic int write.
+                    self._episode_max_sent_timestep = max(
+                        self._episode_max_sent_timestep, observation.get_timestep()
+                    )
+
                     with self.action_queue_lock:
                         observation.must_go = self.must_go.is_set() and self.action_queue.empty()
                     self.send_observation(observation)
@@ -1007,6 +1047,14 @@ class LoopRobotClient:
         self._vla_input_count = 0
         self._vla_episode_index += 1
         self.logger.info(f"VLA inputs for this episode -> {ep_dir}/")
+
+        # Co-locate this episode's dense action log with its recap.png and
+        # actions.csv (mirrors how the orchestrator co-locates actions.log with
+        # each task's task.log via start_action_log). The orchestrator, which
+        # keeps one actions.log per high-level task for parse_episodes, disables
+        # this via OrchestratorConfig.action_log_per_episode=False.
+        if self.config.action_log_per_episode:
+            self.start_action_log(ep_dir / "actions.log")
 
     def _capture_input(self, obs: dict, task: str, timestep: int, elapsed: float,
                        must_go: bool) -> None:
