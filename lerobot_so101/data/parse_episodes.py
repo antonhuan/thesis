@@ -55,7 +55,10 @@ OUT_DIR = Path("episode_analysis")
 
 # --- line patterns -----------------------------------------------------------
 RE_EP_START = re.compile(r"=== episode start \| task: '(?P<task>.*)' \| duration: (?P<dur>[\d.]+)s ===")
-RE_EP_END = re.compile(r"=== episode end \| (?P<dur>[\d.]+)s \| converged=(?P<conv>\w+) \| actions=(?P<n>\d+) ===")
+RE_EP_END = re.compile(
+    r"=== episode end \| (?P<dur>[\d.]+)s \| converged=(?P<conv>\w+) \| "
+    r"actions=(?P<n>\d+)(?: \| reason=(?P<reason>\w+))? ==="
+)
 RE_ACTION = re.compile(
     r"\[action #(?P<n>\d+)\] t=(?P<t>[\d.]+)s step=(?P<step>\d+) "
     r"queue=(?P<queue>\d+) dmax=(?P<dmax>n/a|[\d.]+) \| (?P<joints>.+)$"
@@ -103,6 +106,7 @@ class Episode:
     task: str
     duration_s: str = ""
     converged: str = ""
+    termination_reason: str = ""  # timeout | convergence | stall | aborted | external
     num_actions: int = 0
     truncated: bool = False
     actions: list[dict] = field(default_factory=list)  # rows: action_n,t,step,queue,dmax,+joints
@@ -129,6 +133,7 @@ def parse_actions_log(path: Path) -> list[Episode]:
         if m and cur is not None:
             cur.duration_s = m.group("dur")
             cur.converged = m.group("conv")
+            cur.termination_reason = m.group("reason") or ""
             cur.num_actions = int(m.group("n"))
             cur = None
             continue
@@ -338,6 +343,7 @@ def main() -> None:
                     "num_actions": ep.num_actions,
                     "duration_s": ep.duration_s,
                     "converged": ep.converged,
+                    "termination_reason": ep.termination_reason,
                     "vlm_success": ep.vlm_success,
                     "vlm_reason": ep.vlm_reason,
                     "actions_csv": str(actions_rel),

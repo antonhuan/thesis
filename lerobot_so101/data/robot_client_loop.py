@@ -174,6 +174,9 @@ class EpisodeResult:
     converged: bool
     max_displacement: float
     total_actions: int
+    # How the episode ended: timeout | convergence | stall | aborted | external.
+    # Distinguishes convergence from stall, which both set converged=True.
+    termination_reason: str = "external"
 
 
 # ---------------------------------------------------------------------------
@@ -585,6 +588,10 @@ class LoopRobotClient:
         self._first_action = None
         self._max_displacement = 0.0
         self._converged = False
+        # How the episode ends; overwritten by whichever detector fires. Stays
+        # "external" when episode_done is set from outside (e.g. an orchestrator
+        # interjection) rather than by a detector here.
+        self._termination_reason = "external"
         self._total_actions = 0
         self._last_action_time = 0.0
         self._last_action_dict = None
@@ -680,6 +687,7 @@ class LoopRobotClient:
                 sys.stdin.readline()
                 if not self.episode_done.is_set():
                     self.logger.info("Episode aborted by user.")
+                    self._termination_reason = "aborted"
                     self.episode_done.set()
                 break
 
@@ -704,6 +712,7 @@ class LoopRobotClient:
             # Check timeout
             if elapsed >= self.config.episode_duration:
                 self.logger.info(f"Episode timeout ({self.config.episode_duration}s)")
+                self._termination_reason = "timeout"
                 self.episode_done.set()
                 break
 
@@ -783,6 +792,7 @@ class LoopRobotClient:
 
                         if max_delta < self.config.convergence_threshold:
                             self._converged = True
+                            self._termination_reason = "convergence"
                             self.logger.debug(
                                 f"Action convergence detected at {elapsed:.1f}s "
                                 f"(max_delta={max_delta:.4f}, "
@@ -813,6 +823,7 @@ class LoopRobotClient:
                     time_since_last = elapsed - self._last_action_time
                     if time_since_last >= self.config.action_stall_timeout:
                         self._converged = True
+                        self._termination_reason = "stall"
                         self.logger.info(
                             f"Action stall detected at {elapsed:.1f}s — no new "
                             f"actions for {time_since_last:.1f}s. "
@@ -909,9 +920,11 @@ class LoopRobotClient:
             converged=self._converged,
             max_displacement=self._max_displacement,
             total_actions=self._total_actions,
+            termination_reason=self._termination_reason,
         )
         self.logger.info(
             f"Episode finished: {result.duration:.1f}s, converged={result.converged}, "
+            f"reason={result.termination_reason}, "
             f"max_displacement={result.max_displacement:.4f}, "
             f"actions={result.total_actions}"
         )
@@ -921,7 +934,8 @@ class LoopRobotClient:
             )
             self.action_logger.debug(
                 f"=== episode end | {result.duration:.1f}s | "
-                f"converged={result.converged} | actions={result.total_actions} ==="
+                f"converged={result.converged} | actions={result.total_actions} | "
+                f"reason={result.termination_reason} ==="
             )
         return result
 
