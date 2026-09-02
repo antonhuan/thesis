@@ -149,6 +149,10 @@ class LoopClientConfig(RobotClientConfig):
     # actions.csv (one row per executed action, paired with its input) and a
     # recap.png contact sheet for manual outcome labelling.
     vla_input_dir: str = "vla_inputs"
+    # Number of frames on the per-episode recap.png contact sheet, sampled evenly
+    # in time across the episode. Capped in practice by how many frames the clip
+    # buffer retained (clip_buffer_maxlen); raise that too if you want more.
+    recap_num_frames: int = 16
     # Camera key used for both the VLA-input snapshot and the episode clip buffer
     # (see _select_camera_frame). Must match the scene camera the policy is
     # trained on (front-facing), not an arm-mounted camera like wrist.
@@ -1112,7 +1116,7 @@ class LoopRobotClient:
             return
         for rec in rows:
             rec["images"] = self._save_input_frames(rec)
-        recap_name = self._render_episode_recap(rows)
+        recap_name = self._render_episode_recap(rows, self.config.recap_num_frames)
         self._write_actions_csv(rows, recap_name)
 
     def _save_input_frames(self, rec: dict) -> dict:
