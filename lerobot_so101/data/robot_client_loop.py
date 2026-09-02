@@ -28,7 +28,6 @@
 # At the prompt, type a task instruction and press Enter to execute.
 # Type 'quit' or 'exit' to shut down cleanly.
 
-import json
 import logging
 import pickle  # nosec
 import re
@@ -141,14 +140,14 @@ class LoopClientConfig(RobotClientConfig):
     # Also log each action chunk as it arrives from the policy server (size and
     # timestep range) to the action log.
     log_action_chunks: bool = True
-    # Capture the VLA forward-pass inputs (scene image + joint state + task) for
-    # the observations that force a policy inference (must_go sends), so they can
-    # be replayed through the denoising consistency test.
+    # Capture each VLA forward-pass input (scene image + joint state + task) paired
+    # with the actions that observation's chunk actually put on the arm (the
+    # executed subset), for prompt/error analysis.
     log_vla_inputs: bool = True
     # Root directory for VLA-input logging. Each episode gets its own
-    # <index>_<task>/ subdirectory here, holding that episode's PNGs and its own
-    # metadata.jsonl sidecar — the subdirectory can be fed straight to
-    # vla_denoise_consistency.py --image_dir.
+    # <index>_<object>/ subdirectory here, holding that episode's input PNGs, an
+    # actions.csv (one row per executed action, paired with its input) and a
+    # recap.png contact sheet for manual outcome labelling.
     vla_input_dir: str = "vla_inputs"
     # Camera key used for both the VLA-input snapshot and the episode clip buffer
     # (see _select_camera_frame). Must match the scene camera the policy is
@@ -241,19 +240,31 @@ class LoopRobotClient:
         self._clip_lock = threading.Lock()
 
         # VLA-input capture: save the scene image + joint state + task for each
-        # must_go (forward-pass) observation, for replay through the denoise test.
-        # Each episode gets its own subdirectory (see _start_vla_episode_dir) with
-        # its own image sequence + metadata.jsonl, so a single episode's inputs can
-        # be pointed at directly with vla_denoise_consistency.py --image_dir.
+        # forward-pass observation, paired with the actions that observation's
+        # chunk actually put on the arm. Each episode gets its own subdirectory
+        # (see _start_vla_episode_dir) with its own image sequence, an actions.csv
+        # (one row per executed action), and a recap.png for manual labelling.
+        #
+        # Inputs are captured for every observation the client sends, keyed by the
+        # client-assigned obs timestep (see _capture_input). The policy server
+        # stamps each chunk's first action with that same obs timestep
+        # (policy_server._time_action_chunk), so a received chunk binds to its
+        # input by matching timestep (_bind_chunk_input) — no mis-pairing, and
+        # stale cross-episode chunks are dropped. Every action actually sent to the
+        # arm is attributed back to the chunk that supplied it via a timestep->
+        # chunk_id source map (_timestep_source), so only the executed subset of
+        # each chunk is written (_flush_executed_chunks).
         self._vla_input_root = Path(config.vla_input_dir)
         self._vla_input_dir = self._vla_input_root
         self._vla_input_count = 0
         self._vla_episode_index = 0
-        # Input records are stashed here until the action chunk that answers
-        # them arrives in _receive_actions_thread, so metadata.jsonl holds
-        # input/output pairs instead of inputs alone.
-        self._pending_vla_record: dict | None = None
-        self._vla_pending_lock = threading.Lock()
+        self._vla_lock = threading.Lock()
+        self._sent_inputs: dict[int, dict] = {}     # obs.timestep -> pending input record
+        self._active_chunks: dict[int, dict] = {}   # chunk_id -> bound input + executed lists
+        self._timestep_source: dict[int, int] = {}  # action timestep -> owning chunk_id
+        self._chunk_counter = 0
+        # Bound memory for inputs whose observation the server never predicts.
+        self._sent_inputs_maxlen = 64
         if config.log_vla_inputs:
             self._vla_input_root.mkdir(parents=True, exist_ok=True)
             # Resume the episode index from whatever's already on disk. It would
@@ -450,6 +461,7 @@ class LoopRobotClient:
         self,
         incoming_actions: list[TimedAction],
         aggregate_fn: Callable[[torch.Tensor, torch.Tensor], torch.Tensor] | None = None,
+        chunk_id: int | None = None,
     ):
         if aggregate_fn is None:
             def aggregate_fn(x1, x2):
@@ -463,28 +475,40 @@ class LoopRobotClient:
             action.get_timestep(): action.get_action() for action in internal_queue
         }
 
+        # The new queue is rebuilt from this chunk's actions, so every timestep it
+        # ends up owning is sourced to chunk_id (latest-wins, matching the default
+        # aggregate_fn) — this is what later attributes each executed action to the
+        # chunk that produced it (see _attribute_executed).
+        queued_timesteps: list[int] = []
         for new_action in incoming_actions:
             with self.latest_action_lock:
                 latest_action = self.latest_action
 
-            if new_action.get_timestep() <= latest_action:
+            ts = new_action.get_timestep()
+            if ts <= latest_action:
                 continue
-            elif new_action.get_timestep() not in current_action_queue:
+            elif ts not in current_action_queue:
                 future_action_queue.put(new_action)
             else:
                 future_action_queue.put(
                     TimedAction(
                         timestamp=new_action.get_timestamp(),
-                        timestep=new_action.get_timestep(),
+                        timestep=ts,
                         action=aggregate_fn(
-                            current_action_queue[new_action.get_timestep()],
+                            current_action_queue[ts],
                             new_action.get_action(),
                         ),
                     )
                 )
+            queued_timesteps.append(ts)
 
         with self.action_queue_lock:
             self.action_queue = future_action_queue
+
+        if chunk_id is not None and queued_timesteps:
+            with self._vla_lock:
+                for ts in queued_timesteps:
+                    self._timestep_source[ts] = chunk_id
 
     def _action_tensor_to_action_dict(self, action_tensor: torch.Tensor) -> dict[str, float]:
         return {
@@ -524,10 +548,13 @@ class LoopRobotClient:
     def _reset_episode_state(self, task: str):
         """Reset all per-episode state before a new episode."""
         if self.config.log_vla_inputs:
-            # Defensive: a previous episode should have already flushed this in
-            # run_episode, but never carry a stale pending record into the new
-            # episode's directory.
-            self._flush_pending_vla_record()
+            # Defensive: run_episode flushes at episode end, but never carry stale
+            # capture state into the new episode's directory.
+            with self._vla_lock:
+                self._sent_inputs = {}
+                self._active_chunks = {}
+                self._timestep_source = {}
+                self._chunk_counter = 0
             self._start_vla_episode_dir(task)
         self.episode_done.clear()
         self.must_go.set()
@@ -584,11 +611,22 @@ class LoopRobotClient:
                         f"last: {self._format_action(last)}"
                     )
 
-                if self.config.log_vla_inputs:
-                    self._attach_action_chunk_to_pending(timed_actions)
+                chunk_id = None
+                if self.config.log_vla_inputs and timed_actions:
+                    with self._vla_lock:
+                        self._chunk_counter += 1
+                        chunk_id = self._chunk_counter
+                    # Bind this chunk to the input that produced it, by matching
+                    # the chunk's first action timestep (== the observation's
+                    # timestep) to a captured input.
+                    self._bind_chunk_input(
+                        chunk_id, timed_actions[0].get_timestep(), len(timed_actions)
+                    )
 
                 self.action_chunk_size = max(self.action_chunk_size, len(timed_actions))
-                self._aggregate_action_queues(timed_actions, self.config.aggregate_fn)
+                self._aggregate_action_queues(
+                    timed_actions, self.config.aggregate_fn, chunk_id=chunk_id
+                )
                 self.must_go.set()
 
             except grpc.RpcError as e:
@@ -646,6 +684,11 @@ class LoopRobotClient:
                     action_tensor = timed_action.get_action()
                     action_dict = self._action_tensor_to_action_dict(action_tensor)
                     self.robot.send_action(action_dict)
+
+                    # Attribute this executed action to the chunk (hence input)
+                    # that supplied its value, for the per-input executed subset.
+                    if self.config.log_vla_inputs:
+                        self._attribute_executed(timed_action.get_timestep(), action_dict)
 
                     with self.latest_action_lock:
                         self.latest_action = timed_action.get_timestep()
@@ -758,14 +801,19 @@ class LoopRobotClient:
                     with self.action_queue_lock:
                         observation.must_go = self.must_go.is_set() and self.action_queue.empty()
                     self.send_observation(observation)
+                    # Capture the VLA input for every observation sent (not only
+                    # must_go): the server predicts any observation that clears its
+                    # gate, so the chunk that binds to this input may come from a
+                    # non-must_go send. The input is held in memory and only
+                    # written if a chunk binds to it and executes (_capture_input /
+                    # _bind_chunk_input / _flush_executed_chunks).
+                    self._capture_input(
+                        raw_observation, task,
+                        observation.get_timestep(), elapsed,
+                        must_go=observation.must_go,
+                    )
                     if observation.must_go:
                         self.must_go.clear()
-                        # must_go observations force a policy forward pass; capture
-                        # the VLA inputs (scene image + joint state + task).
-                        self._log_vla_input(
-                            raw_observation, task,
-                            observation.get_timestep(), elapsed,
-                        )
                 except Exception as e:
                     self.logger.error(f"Error in observation sender: {e}")
 
@@ -800,10 +848,11 @@ class LoopRobotClient:
         if abort is not None:
             abort.join(timeout=1.0)
 
-        # Receiver thread has stopped, so no chunk will ever answer a record
-        # still pending here; write it out rather than losing it silently.
+        # Receiver and control threads have stopped: no more chunks will bind and
+        # no more actions will execute. Write the executed subset of each bound
+        # chunk (paired with its input) to actions.csv and render the recap.
         if self.config.log_vla_inputs:
-            self._flush_pending_vla_record()
+            self._flush_executed_chunks()
 
         result = EpisodeResult(
             duration=time.perf_counter() - self._episode_start_perf,
@@ -933,13 +982,10 @@ class LoopRobotClient:
         Each episode gets its own <object>/<index>_<object>/ directory under
         the configured vla_input_dir -- grouped by object so a downstream
         script can sweep every episode for one object in one pass -- with its
-        own image sequence starting back at 00000 and its own metadata.jsonl.
-        This keeps one episode's forward-pass inputs self-contained, so
-        vla_denoise_consistency.py --episode_dir can point straight at a
-        single episode without filtering a shared file by task or timestamp,
-        and --episode_root can point at either one object's subdirectory or
-        the whole vla_input_dir. The directory name uses just the object tag
-        (not the full task text) so it can be parsed back out directly.
+        own image sequence starting back at 00000, its own actions.csv, and its
+        own recap.png. This keeps one episode's inputs/outputs self-contained.
+        The directory name uses just the object tag (not the full task text) so
+        it can be parsed back out directly.
         """
         object_tag = self._extract_object(task)
         ep_dir = (
@@ -952,17 +998,18 @@ class LoopRobotClient:
         self._vla_episode_index += 1
         self.logger.info(f"VLA inputs for this episode -> {ep_dir}/")
 
-    def _log_vla_input(self, obs: dict, task: str, timestep: int, elapsed: float) -> None:
-        """Save one VLA forward-pass input (every camera view + joint state + task).
+    def _capture_input(self, obs: dict, task: str, timestep: int, elapsed: float,
+                       must_go: bool) -> None:
+        """Stash the VLA forward-pass input for one sent observation.
 
-        Called for must_go observations (those that force a policy inference). The
-        record is stashed rather than written immediately: must_go is only set
-        again once _receive_actions_thread gets the chunk answering this exact
-        forced observation, so there is at most one record pending at a time.
-        _attach_action_chunk_to_pending fills in that chunk and writes the full
-        input/output pair to metadata.jsonl; the saved PNGs + that sidecar can be
-        replayed through vla_denoise_consistency.py (--image_dir points at this
-        episode's directory, see _start_vla_episode_dir).
+        Called for every observation the client sends. The camera frames + joint
+        state are held in memory keyed by the client-assigned obs timestep; a
+        later chunk whose first action timestep matches this key binds to the
+        record (_bind_chunk_input) and only then are the frames written to disk.
+        Observations the server never predicts never bind and are pruned, so
+        nothing is saved for them. On a same-timestep collision the earliest
+        capture is kept (the server predicts the first observation it enqueues for
+        a timestep), except a must_go capture replaces a non-must_go one.
         """
         if not self.config.log_vla_inputs:
             return
@@ -971,20 +1018,101 @@ class LoopRobotClient:
         if not frames:
             return
 
-        # Joint state in motor order (matches the denoise test's INITIAL_POSE),
-        # mirroring _capture_current_position's key handling.
+        # Joint state in motor order, mirroring _capture_current_position's key
+        # handling (the action_features order is also the CSV joint-column order).
         state = []
         for key in self.robot.action_features:
             obs_key = f"{key}.pos" if f"{key}.pos" in obs else key
             state.append(float(obs[obs_key]) if obs_key in obs else 0.0)
 
-        safe_task = self._slugify_task(task)
-        images = {}
-        for cam_key, frame in frames.items():
+        record = {
+            # Copies: the raw obs arrays are reused/overwritten by the camera loop.
+            "frames": {k: np.asarray(v, dtype=np.uint8).copy() for k, v in frames.items()},
+            "task": task,
+            "state": state,
+            "timestep": int(timestep),
+            "elapsed": round(float(elapsed), 3),
+            "unix_ts": time.time(),
+            "must_go": bool(must_go),
+        }
+        with self._vla_lock:
+            existing = self._sent_inputs.get(int(timestep))
+            if existing is None or (must_go and not existing.get("must_go")):
+                self._sent_inputs[int(timestep)] = record
+            # Bound memory: drop oldest pending inputs never bound to a chunk.
+            if len(self._sent_inputs) > self._sent_inputs_maxlen:
+                for old in sorted(self._sent_inputs)[:-self._sent_inputs_maxlen]:
+                    del self._sent_inputs[old]
+
+    def _bind_chunk_input(self, chunk_id: int, ts0: int, returned_len: int) -> None:
+        """Bind a received chunk to the input observation that produced it.
+
+        The policy server stamps the chunk's first action with the observation's
+        own timestep (policy_server._time_action_chunk), so ts0 identifies the
+        exact input the client sent. A chunk whose ts0 matches no pending input (a
+        stale cross-episode chunk still in the server's queue) is left unbound and
+        contributes no rows.
+        """
+        with self._vla_lock:
+            record = self._sent_inputs.pop(int(ts0), None)
+            if record is None:
+                return
+            record["chunk_id"] = chunk_id
+            record["returned_len"] = int(returned_len)
+            record["executed_actions"] = []
+            record["executed_timesteps"] = []
+            self._active_chunks[chunk_id] = record
+
+    def _attribute_executed(self, timestep: int, action_dict: dict) -> None:
+        """Attribute one executed action to the chunk (hence input) that produced it.
+
+        The value at `timestep` in the action queue was written by whichever chunk
+        the source map last recorded (_aggregate_action_queues), so the executed
+        action belongs to that chunk's input.
+        """
+        with self._vla_lock:
+            chunk_id = self._timestep_source.get(int(timestep))
+            record = self._active_chunks.get(chunk_id) if chunk_id is not None else None
+            if record is None:
+                return
+            record["executed_actions"].append(dict(action_dict))
+            record["executed_timesteps"].append(int(timestep))
+
+    def _flush_executed_chunks(self) -> None:
+        """Write each bound chunk's executed subset (+ its input) to actions.csv.
+
+        Called at episode end. Each chunk that put at least one action on the arm
+        contributes its executed actions (in execution order) as CSV rows, paired
+        with the input that produced it; its held frames are saved as PNGs. Chunks
+        that never executed (fully superseded before reaching the arm) and inputs
+        that never bound are dropped. Also renders the per-episode recap image.
+        """
+        if not self.config.log_vla_inputs:
+            return
+        with self._vla_lock:
+            chunks = [self._active_chunks[cid] for cid in sorted(self._active_chunks)]
+            self._active_chunks = {}
+            self._sent_inputs = {}
+            self._timestep_source = {}
+            self._chunk_counter = 0
+
+        rows = [rec for rec in chunks if rec.get("executed_actions")]
+        if not rows:
+            return
+        for rec in rows:
+            rec["images"] = self._save_input_frames(rec)
+        recap_name = self._render_episode_recap(rows)
+        self._write_actions_csv(rows, recap_name)
+
+    def _save_input_frames(self, rec: dict) -> dict:
+        """Persist a bound input's held camera frames as PNGs; return {cam: fname}."""
+        from PIL import Image
+
+        safe_task = self._slugify_task(rec["task"])
+        images: dict[str, str] = {}
+        for cam_key, frame in rec.get("frames", {}).items():
             fname = f"{self._vla_input_count:05d}_{cam_key}_{safe_task}.png"
             try:
-                from PIL import Image
-
                 Image.fromarray(np.asarray(frame, dtype=np.uint8)).save(
                     self._vla_input_dir / fname
                 )
@@ -992,66 +1120,112 @@ class LoopRobotClient:
                 self.logger.error(f"Failed to save VLA input image {fname}: {e}")
                 continue
             images[cam_key] = fname
-
-        if not images:
-            return
-
-        record = {
-            "images": images,
-            "task": task,
-            "state": state,
-            "timestep": int(timestep),
-            "elapsed": round(float(elapsed), 3),
-            "unix_ts": time.time(),
-        }
-        with self._vla_pending_lock:
-            # Overwritten only if a previous record was never resolved (flushed
-            # unresolved by _flush_pending_vla_record before this could happen).
-            self._pending_vla_record = record
-
         self._vla_input_count += 1
+        return images
 
-    def _attach_action_chunk_to_pending(self, timed_actions: list) -> None:
-        """Fill in the action-chunk output for the pending VLA input record.
+    def _write_actions_csv(self, records: list, recap_name: str | None) -> None:
+        """Append the executed actions of each record to the episode's actions.csv.
 
-        Called from _receive_actions_thread for every chunk received; pairs it
-        with the most recent forced (must_go) input via the single pending slot
-        (see _log_vla_input) and writes the completed input/output pair.
+        Long format: one row per action actually sent to the arm, so the nested
+        chunks flatten and the file drops straight into pandas. Rows for one
+        inference share chunk_id / input_timestep / images; sum of rows for the
+        episode equals its executed-action count.
         """
-        with self._vla_pending_lock:
-            record = self._pending_vla_record
-            self._pending_vla_record = None
-        if record is None:
-            return
+        import csv
 
-        record["action_chunk"] = [
-            self._action_tensor_to_action_dict(ta.get_action()) for ta in timed_actions
-        ]
-        record["action_timesteps"] = [ta.get_timestep() for ta in timed_actions]
-        self._write_vla_record(record)
-
-    def _flush_pending_vla_record(self) -> None:
-        """Write out any pending VLA input that never got a matching action chunk.
-
-        Called when an episode ends (receiver thread stopped, so nothing more can
-        arrive) so a forced input is never silently dropped from metadata.jsonl.
-        """
-        with self._vla_pending_lock:
-            record = self._pending_vla_record
-            self._pending_vla_record = None
-        if record is None:
-            return
-
-        record["action_chunk"] = None
-        record["action_timesteps"] = None
-        self._write_vla_record(record)
-
-    def _write_vla_record(self, record: dict) -> None:
+        joints = list(self.robot.action_features)
+        header = (
+            ["episode_dir", "task", "chunk_id", "must_go", "input_timestep",
+             "input_elapsed", "unix_ts", "front_img", "wrist_img", "recap_img",
+             "returned_len", "exec_index", "exec_timestep"]
+            + [f"in_{j}" for j in joints]
+            + [f"act_{j}" for j in joints]
+        )
+        path = self._vla_input_dir / "actions.csv"
+        write_header = not path.exists()
+        episode_dir = self._vla_input_dir.name
         try:
-            with open(self._vla_input_dir / "metadata.jsonl", "a") as f:
-                f.write(json.dumps(record) + "\n")
+            with open(path, "a", newline="") as f:
+                writer = csv.writer(f)
+                if write_header:
+                    writer.writerow(header)
+                for rec in records:
+                    imgs = rec.get("images", {})
+                    state = rec.get("state", [])
+                    in_vals = [state[i] if i < len(state) else "" for i in range(len(joints))]
+                    for idx, (act, ts) in enumerate(
+                        zip(rec["executed_actions"], rec["executed_timesteps"])
+                    ):
+                        writer.writerow(
+                            [episode_dir, rec["task"], rec["chunk_id"],
+                             int(rec["must_go"]), rec["timestep"], rec["elapsed"],
+                             rec["unix_ts"], imgs.get("front", ""), imgs.get("wrist", ""),
+                             recap_name or "", rec.get("returned_len", ""), idx, ts]
+                            + in_vals
+                            + [act.get(j, "") for j in joints]
+                        )
         except Exception as e:  # noqa: BLE001
-            self.logger.error(f"Failed to append VLA input/output metadata: {e}")
+            self.logger.error(f"Failed to write actions.csv: {e}")
+
+    def _render_episode_recap(self, records: list, num_frames: int = 16) -> str | None:
+        """Render an annotated contact sheet of the episode for manual labelling.
+
+        Frames are sampled evenly in time from the clip buffer; each tile is
+        labelled with its elapsed time and the input timestep of the inference
+        active then (nearest by elapsed), so a tile lines up with the actions.csv
+        rows. Returns the saved filename, or None if nothing was buffered.
+        """
+        if not self.config.enable_clip_buffer:
+            return None
+        with self._clip_lock:
+            entries = list(self._episode_clip)
+        if not entries:
+            return None
+
+        t0 = entries[0][0]
+        span = entries[-1][0] - t0 if len(entries) > 1 else 0.0
+        if len(entries) <= num_frames or span <= 0:
+            sampled = entries
+        else:
+            times = [ts for ts, _ in entries]
+            idxs: list[int] = []
+            for k in range(num_frames):
+                target = t0 + span * k / (num_frames - 1)
+                nearest = min(range(len(entries)), key=lambda i: abs(times[i] - target))
+                if nearest not in idxs:
+                    idxs.append(nearest)
+            idxs.sort()
+            sampled = [entries[i] for i in idxs]
+
+        episode_start = getattr(self, "_episode_start_perf", t0)
+        try:
+            from PIL import Image, ImageDraw
+
+            tiles = []
+            for ts, frame in sampled:
+                img = Image.fromarray(np.asarray(frame, dtype=np.uint8)).convert("RGB")
+                elapsed = ts - episode_start
+                label = f"t={elapsed:4.1f}s"
+                if records:
+                    nearest = min(records, key=lambda r: abs(r["elapsed"] - elapsed))
+                    label += f" ts={nearest['timestep']}"
+                draw = ImageDraw.Draw(img)
+                draw.rectangle([0, 0, img.width, 15], fill=(0, 0, 0))
+                draw.text((2, 2), label, fill=(255, 255, 255))
+                tiles.append(img)
+
+            cols = max(1, int(np.ceil(np.sqrt(len(tiles)))))
+            n_rows = int(np.ceil(len(tiles) / cols))
+            tw, th = tiles[0].size
+            sheet = Image.new("RGB", (cols * tw, n_rows * th), (30, 30, 30))
+            for i, tile in enumerate(tiles):
+                sheet.paste(tile, ((i % cols) * tw, (i // cols) * th))
+            name = "recap.png"
+            sheet.save(self._vla_input_dir / name)
+            return name
+        except Exception as e:  # noqa: BLE001 - never let recap break an episode
+            self.logger.error(f"Failed to render episode recap: {e}")
+            return None
 
     def get_episode_clip(self, num_frames: int) -> tuple[list, float]:
         """Return up to num_frames frames sampled evenly *in time* across the episode
