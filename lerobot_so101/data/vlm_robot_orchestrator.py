@@ -110,7 +110,7 @@ class OrchestratorConfig(LoopClientConfig):
     # Keep one actions.log per high-level task (written beside task.log by
     # run_task via start_action_log), which parse_episodes.py splits by episode
     # markers -- rather than one per VLA episode directory.
-    action_log_per_episode: bool = False
+    action_log_per_episode: bool = True
     # HuggingFace model name or local path for the VLM planner
     vlm_model: str = "Qwen/Qwen3-VL-4B-Instruct"
     # Sampling temperature for VLM generation

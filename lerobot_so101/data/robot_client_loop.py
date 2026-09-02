@@ -156,7 +156,7 @@ class LoopClientConfig(RobotClientConfig):
     # <index>_<object>/ subdirectory here, holding that episode's input PNGs, an
     # actions.csv (one row per executed action, paired with its input) and a
     # recap.png contact sheet for manual outcome labelling.
-    vla_input_dir: str = "vla_test"
+    vla_input_dir: str = "vla_failure_test"
     # Number of frames on the per-episode recap.png contact sheet, sampled evenly
     # in time across the episode. Capped in practice by how many frames the clip
     # buffer retained (clip_buffer_maxlen); raise that too if you want more.
