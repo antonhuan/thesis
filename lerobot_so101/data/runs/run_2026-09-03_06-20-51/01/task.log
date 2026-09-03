@@ -1,0 +1,44 @@
+INFO 2026-09-03 06:21:25 strator.py:1230 Decomposing high-level prompt (round 1): 'put everything on the tray'
+INFO 2026-09-03 06:21:25 estrator.py:949 Saved VLM frame: runs/run_2026-09-03_06-20-51/01/decompose_20260903_062125.png
+  Generated 116 tokens in 11.9s (9.7 tok/s)
+INFO 2026-09-03 06:21:37 pace/vlm.py:411 Identification tokens: 61
+INFO 2026-09-03 06:21:37 estrator.py:619 Identified objects (5): ['plush toy', 'banana', 'robot arm', 'tray', 'table']
+  Generated 88 tokens in 7.2s (12.2 tok/s)
+
+Visible: ['plush toy', 'banana', 'robot arm', 'tray', 'table']
+Excluded: []
+Completed: []
+Allowed: ['plush toy', 'banana', 'robot arm']
+
+Parsed 3 sub-tasks:
+  1. put the plush toy on the tray
+  2. put the banana on the tray
+  3. put the robot arm on the tray
+INFO 2026-09-03 06:21:44 strator.py:1248 Sub-task queue (3):
+INFO 2026-09-03 06:21:44 strator.py:1250   1. put the plush toy on the tray
+INFO 2026-09-03 06:21:44 strator.py:1250   2. put the banana on the tray
+INFO 2026-09-03 06:21:44 strator.py:1250   3. put the robot arm on the tray
+INFO 2026-09-03 06:21:44 strator.py:1301 [1] Executing sub-task: 'put the plush toy on the tray' (1 retries left)
+INFO 2026-09-03 06:21:44 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/plush/069_plush/
+INFO 2026-09-03 06:21:44 ent_loop.py:689 Control loop started | task: 'put the plush toy on the tray' | duration: 50.0s
+INFO 2026-09-03 06:21:44 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-03 06:22:34 ent_loop.py:706 Episode timeout (50.0s)
+INFO 2026-09-03 06:22:47 ent_loop.py:913 Episode finished: 62.6s, converged=False, max_displacement=223.7821, actions=1436
+INFO 2026-09-03 06:22:47 ent_loop.py:409 Returning to home position...
+INFO 2026-09-03 06:22:49 ent_loop.py:422 Home position reached.
+INFO 2026-09-03 06:22:52 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-03_06-20-51/01/eval_task1_20260903_062249_recap.png
+INFO 2026-09-03 06:22:52 strator.py:1407 Evaluation observation: video clip (32 frames over 49.8s of a 62.6s episode, 0.62 fps)
+  Generated 38 tokens in 2.9s (13.0 tok/s)
+INFO 2026-09-03 06:22:55 strator.py:1449 VLM judgement: success=False | failure_type=RETRY | The arm reached the plush toy but the gripper closed on air and did not grasp it.
+INFO 2026-09-03 06:22:55 strator.py:1194 ATTEMPT attempt=1 original='put the plush toy on the tray' current='put the plush toy on the tray' success=False failure_type=RETRY reason='The arm reached the plush toy but the gripper closed on air and did not grasp it.' refinement=False
+INFO 2026-09-03 06:22:55 strator.py:1511 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-09-03 06:22:55 strator.py:1301 [1] Executing sub-task: 'put the plush toy on the tray' (0 retries left)
+INFO 2026-09-03 06:22:55 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/plush/070_plush/
+INFO 2026-09-03 06:22:55 ent_loop.py:689 Control loop started | task: 'put the plush toy on the tray' | duration: 50.0s
+INFO 2026-09-03 06:22:55 ent_loop.py:603 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-09-03 06:23:28 ent_loop.py:913 Episode finished: 33.2s, converged=False, max_displacement=233.5323, actions=701
+WARNING 2026-09-03 06:23:28 strator.py:1221 ABORT requested during sub-task 'put the plush toy on the tray' — abandoning high-level task 'put everything on the tray' and returning to the prompt.
+INFO 2026-09-03 06:23:28 ent_loop.py:409 Returning to home position...
+INFO 2026-09-03 06:23:30 ent_loop.py:422 Home position reached.
+INFO 2026-09-03 06:23:30 strator.py:1515   Completed before the abort: []

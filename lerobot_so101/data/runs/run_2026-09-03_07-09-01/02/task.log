@@ -1,0 +1,143 @@
+INFO 2026-09-03 07:20:08 strator.py:1230 Decomposing high-level prompt (round 1): 'put everything on the tray'
+INFO 2026-09-03 07:20:08 estrator.py:949 Saved VLM frame: runs/run_2026-09-03_07-09-01/02/decompose_20260903_072008.png
+  Generated 104 tokens in 7.4s (14.1 tok/s)
+INFO 2026-09-03 07:20:15 pace/vlm.py:411 Identification tokens: 51
+INFO 2026-09-03 07:20:15 estrator.py:619 Identified objects (5): ['toy', 'banana', 'sausage', 'tray', 'table']
+  Generated 82 tokens in 5.8s (14.1 tok/s)
+
+Visible: ['toy', 'banana', 'sausage', 'tray', 'table']
+Excluded: []
+Completed: []
+Allowed: ['toy', 'banana', 'sausage']
+
+Parsed 3 sub-tasks:
+  1. put the toy on the tray
+  2. put the banana on the tray
+  3. put the sausage on the tray
+INFO 2026-09-03 07:20:21 strator.py:1248 Sub-task queue (3):
+INFO 2026-09-03 07:20:21 strator.py:1250   1. put the toy on the tray
+INFO 2026-09-03 07:20:21 strator.py:1250   2. put the banana on the tray
+INFO 2026-09-03 07:20:21 strator.py:1250   3. put the sausage on the tray
+INFO 2026-09-03 07:20:21 strator.py:1301 [1] Executing sub-task: 'put the toy on the tray' (1 retries left)
+INFO 2026-09-03 07:20:21 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/toy/092_toy/
+INFO 2026-09-03 07:20:21 ent_loop.py:689 Control loop started | task: 'put the toy on the tray' | duration: 50.0s
+INFO 2026-09-03 07:20:21 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-03 07:20:31 ent_loop.py:913 Episode finished: 10.1s, converged=True, max_displacement=44.4201, actions=123
+INFO 2026-09-03 07:20:31 ent_loop.py:409 Returning to home position...
+INFO 2026-09-03 07:20:33 ent_loop.py:422 Home position reached.
+INFO 2026-09-03 07:20:36 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-03_07-09-01/02/eval_task1_20260903_072033_recap.png
+INFO 2026-09-03 07:20:36 strator.py:1407 Evaluation observation: video clip (32 frames over 6.3s of a 10.1s episode, 4.95 fps)
+  Generated 38 tokens in 3.2s (11.8 tok/s)
+INFO 2026-09-03 07:20:39 strator.py:1449 VLM judgement: success=False | failure_type=RETRY | The arm reached the toy but did not grasp it, and the toy remains on the table.
+INFO 2026-09-03 07:20:39 strator.py:1194 ATTEMPT attempt=1 original='put the toy on the tray' current='put the toy on the tray' success=False failure_type=RETRY reason='The arm reached the toy but did not grasp it, and the toy remains on the table.' refinement=False
+INFO 2026-09-03 07:20:39 strator.py:1511 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-09-03 07:20:39 strator.py:1301 [1] Executing sub-task: 'put the toy on the tray' (0 retries left)
+INFO 2026-09-03 07:20:39 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/toy/093_toy/
+INFO 2026-09-03 07:20:39 ent_loop.py:689 Control loop started | task: 'put the toy on the tray' | duration: 50.0s
+INFO 2026-09-03 07:20:39 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-03 07:20:50 ent_loop.py:913 Episode finished: 10.6s, converged=True, max_displacement=42.6515, actions=120
+INFO 2026-09-03 07:20:50 ent_loop.py:409 Returning to home position...
+INFO 2026-09-03 07:20:52 ent_loop.py:422 Home position reached.
+INFO 2026-09-03 07:20:55 estrator.py:979 Saved VLM eval recap (30 frames): runs/run_2026-09-03_07-09-01/02/eval_task1_20260903_072052_recap.png
+INFO 2026-09-03 07:20:55 strator.py:1407 Evaluation observation: video clip (30 frames over 7.0s of a 10.6s episode, 4.17 fps)
+  Generated 39 tokens in 3.3s (11.8 tok/s)
+INFO 2026-09-03 07:20:58 strator.py:1449 VLM judgement: success=False | failure_type=RETRY | The arm reached the toy but did not grasp it, and the toy remains in its original position.
+INFO 2026-09-03 07:20:58 strator.py:1194 ATTEMPT attempt=2 original='put the toy on the tray' current='put the toy on the tray' success=False failure_type=RETRY reason='The arm reached the toy but did not grasp it, and the toy remains in its original position.' refinement=False
+WARNING 2026-09-03 07:20:58 strator.py:1535 Sub-task 'put the toy on the tray' failed after all retries.
+INFO 2026-09-03 07:20:58 strator.py:1544 Triggering replan (0 replan(s) left after this)...
+INFO 2026-09-03 07:20:58 strator.py:1545   Completed so far: []
+INFO 2026-09-03 07:20:58 strator.py:1546   Failed: 'put the toy on the tray' — The arm reached the toy but did not grasp it, and the toy remains in its original position.
+INFO 2026-09-03 07:20:58 strator.py:1547   Remaining (discarded): ['put the banana on the tray', 'put the sausage on the tray']
+
+[REPLAN] Sub-task 'put the toy on the tray' failed after all retries: The arm reached the toy but did not grasp it, and the toy remains in its original position.
+[REPLAN] Additional context for the planner (Enter for none, 'q' to abort): INFO 2026-09-03 07:21:18 estrator.py:949 Saved VLM frame: runs/run_2026-09-03_07-09-01/02/replan_20260903_072117.png
+  Generated 73 tokens in 5.4s (13.6 tok/s)
+
+Visible: ['toy', 'banana', 'sausage', 'tray']
+Excluded: []
+Completed: None
+Allowed: ['toy', 'banana', 'sausage']
+
+Parsed 3 sub-tasks:
+  1. put the toy on the tray
+  2. put the banana on the tray
+  3. put the sausage on the tray
+INFO 2026-09-03 07:21:23 strator.py:1275 Replanned queue (3):
+INFO 2026-09-03 07:21:23 strator.py:1277   1. put the toy on the tray
+INFO 2026-09-03 07:21:23 strator.py:1277   2. put the banana on the tray
+INFO 2026-09-03 07:21:23 strator.py:1277   3. put the sausage on the tray
+INFO 2026-09-03 07:21:23 strator.py:1301 [1] Executing sub-task: 'put the toy on the tray' (1 retries left)
+INFO 2026-09-03 07:21:23 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/toy/094_toy/
+INFO 2026-09-03 07:21:23 ent_loop.py:689 Control loop started | task: 'put the toy on the tray' | duration: 50.0s
+INFO 2026-09-03 07:21:23 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-03 07:21:56 ent_loop.py:913 Episode finished: 33.2s, converged=True, max_displacement=217.5244, actions=677
+INFO 2026-09-03 07:21:56 ent_loop.py:409 Returning to home position...
+INFO 2026-09-03 07:21:58 ent_loop.py:422 Home position reached.
+INFO 2026-09-03 07:22:01 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-03_07-09-01/02/eval_task1_20260903_072158_recap.png
+INFO 2026-09-03 07:22:01 strator.py:1407 Evaluation observation: video clip (32 frames over 24.9s of a 33.2s episode, 1.24 fps)
+  Generated 37 tokens in 3.1s (12.0 tok/s)
+INFO 2026-09-03 07:22:04 strator.py:1449 VLM judgement: success=False | failure_type=RETRY | The arm reached the toy but the gripper closed on air and did not grasp it.
+INFO 2026-09-03 07:22:04 strator.py:1194 ATTEMPT attempt=1 original='put the toy on the tray' current='put the toy on the tray' success=False failure_type=RETRY reason='The arm reached the toy but the gripper closed on air and did not grasp it.' refinement=False
+INFO 2026-09-03 07:22:04 strator.py:1511 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-09-03 07:22:04 strator.py:1301 [1] Executing sub-task: 'put the toy on the tray' (0 retries left)
+INFO 2026-09-03 07:22:04 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/toy/095_toy/
+INFO 2026-09-03 07:22:04 ent_loop.py:689 Control loop started | task: 'put the toy on the tray' | duration: 50.0s
+INFO 2026-09-03 07:22:04 ent_loop.py:603 Action receiver thread started
+[INTERJECT] SKIP requested — stopping current action...
+INFO 2026-09-03 07:22:49 ent_loop.py:913 Episode finished: 44.5s, converged=False, max_displacement=223.2776, actions=932
+INFO 2026-09-03 07:22:49 strator.py:1317 User skipped sub-task: 'put the toy on the tray' (0 attempt(s) left)
+INFO 2026-09-03 07:22:49 ent_loop.py:409 Returning to home position...
+INFO 2026-09-03 07:22:51 ent_loop.py:422 Home position reached.
+WARNING 2026-09-03 07:22:51 strator.py:1530 Sub-task 'put the toy on the tray' skipped by user on the final attempt — counting as failed and moving on.
+INFO 2026-09-03 07:22:51 strator.py:1301 [1] Executing sub-task: 'put the banana on the tray' (1 retries left)
+INFO 2026-09-03 07:22:51 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/banana/096_banana/
+INFO 2026-09-03 07:22:51 ent_loop.py:689 Control loop started | task: 'put the banana on the tray' | duration: 50.0s
+INFO 2026-09-03 07:22:51 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-03 07:23:21 ent_loop.py:913 Episode finished: 29.9s, converged=True, max_displacement=228.9829, actions=576
+INFO 2026-09-03 07:23:21 ent_loop.py:409 Returning to home position...
+INFO 2026-09-03 07:23:23 ent_loop.py:422 Home position reached.
+INFO 2026-09-03 07:23:25 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-03_07-09-01/02/eval_task1_20260903_072323_recap.png
+INFO 2026-09-03 07:23:25 strator.py:1407 Evaluation observation: video clip (32 frames over 22.0s of a 29.9s episode, 1.41 fps)
+  Generated 21 tokens in 2.0s (10.5 tok/s)
+INFO 2026-09-03 07:23:28 strator.py:1449 VLM judgement: success=True | failure_type=RETRY | The banana is now on the tray as instructed.
+INFO 2026-09-03 07:23:28 strator.py:1301 [2] Executing sub-task: 'put the sausage on the tray' (1 retries left)
+INFO 2026-09-03 07:23:28 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/sausage/097_sausage/
+INFO 2026-09-03 07:23:28 ent_loop.py:689 Control loop started | task: 'put the sausage on the tray' | duration: 50.0s
+INFO 2026-09-03 07:23:28 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-03 07:24:13 ent_loop.py:913 Episode finished: 45.3s, converged=True, max_displacement=180.3464, actions=930
+INFO 2026-09-03 07:24:13 ent_loop.py:409 Returning to home position...
+INFO 2026-09-03 07:24:15 ent_loop.py:422 Home position reached.
+INFO 2026-09-03 07:24:18 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-03_07-09-01/02/eval_task2_20260903_072415_recap.png
+INFO 2026-09-03 07:24:18 strator.py:1407 Evaluation observation: video clip (32 frames over 33.8s of a 45.3s episode, 0.92 fps)
+  Generated 39 tokens in 3.6s (10.9 tok/s)
+INFO 2026-09-03 07:24:22 strator.py:1449 VLM judgement: success=False | failure_type=RETRY | The arm reached for the sausage but did not grasp it, and the sausage remained on the table.
+INFO 2026-09-03 07:24:22 strator.py:1194 ATTEMPT attempt=1 original='put the sausage on the tray' current='put the sausage on the tray' success=False failure_type=RETRY reason='The arm reached for the sausage but did not grasp it, and the sausage remained on the table.' refinement=False
+INFO 2026-09-03 07:24:22 strator.py:1511 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-09-03 07:24:22 strator.py:1301 [2] Executing sub-task: 'put the sausage on the tray' (0 retries left)
+INFO 2026-09-03 07:24:22 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/sausage/098_sausage/
+INFO 2026-09-03 07:24:22 ent_loop.py:689 Control loop started | task: 'put the sausage on the tray' | duration: 50.0s
+INFO 2026-09-03 07:24:22 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-03 07:24:33 ent_loop.py:913 Episode finished: 11.5s, converged=True, max_displacement=1.0929, actions=102
+INFO 2026-09-03 07:24:33 ent_loop.py:409 Returning to home position...
+INFO 2026-09-03 07:24:35 ent_loop.py:422 Home position reached.
+WARNING 2026-09-03 07:24:35 strator.py:1381 No movement detected (max_displacement=1.0929). The object name 'sausage' is likely not in the robot's vocabulary.
+INFO 2026-09-03 07:24:38 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-03_07-09-01/02/eval_task2_20260903_072435_recap.png
+INFO 2026-09-03 07:24:38 strator.py:1407 Evaluation observation: video clip (32 frames over 5.9s of a 11.5s episode, 5.23 fps)
+  Generated 43 tokens in 3.9s (11.1 tok/s)
+INFO 2026-09-03 07:24:42 strator.py:1449 VLM judgement: success=False | failure_type=VOCAB | The arm did not move toward the sausage or the tray; it remained stationary, indicating no attempt to complete the task.
+INFO 2026-09-03 07:24:42 strator.py:1194 ATTEMPT attempt=2 original='put the sausage on the tray' current='put the sausage on the tray' success=False failure_type=VOCAB reason='The arm did not move toward the sausage or the tray; it remained stationary, indicating no attempt to complete the task.' refinement=False
+WARNING 2026-09-03 07:24:42 strator.py:1535 Sub-task 'put the sausage on the tray' failed after all retries.
+WARNING 2026-09-03 07:24:42 strator.py:1538 No replans remaining — skipping failed sub-task and continuing with the rest of the queue.
+INFO 2026-09-03 07:24:42 strator.py:1577 Running final evaluation against the original prompt...
+INFO 2026-09-03 07:24:42 estrator.py:949 Saved VLM frame: runs/run_2026-09-03_07-09-01/02/final_eval_20260903_072442.png
+  Generated 131 tokens in 9.9s (13.2 tok/s)
+INFO 2026-09-03 07:24:52 pace/vlm.py:470 Scene survey tokens: 63
+INFO 2026-09-03 07:24:52 estrator.py:738 Final-eval surveyed 3 object(s):
+INFO 2026-09-03 07:24:52 estrator.py:740   banana -> tray (lying inside the pink tray, touching its right edge)
+INFO 2026-09-03 07:24:52 estrator.py:740   brown pouch -> tray (lying inside the pink tray, touching the banana and the tray's right edge)
+INFO 2026-09-03 07:24:52 estrator.py:740   plush toy -> tray (lying inside the pink tray, touching the right edge and the brown pouch)
+  Generated 22 tokens in 1.8s (12.6 tok/s)
+INFO 2026-09-03 07:24:54 strator.py:1585 FINAL VLM judgement for 'put everything on the tray' (round 1): success=True | All objects are on the tray as required by the instruction.
+INFO 2026-09-03 07:24:54 strator.py:1598 Round 1 complete for: 'put everything on the tray'
+INFO 2026-09-03 07:24:54 strator.py:1599   Completed 1/3 sub-tasks planned this round: ['put the banana on the tray']
+INFO 2026-09-03 07:24:54 strator.py:1124 High-level task 'put everything on the tray' judged COMPLETE after 1 round(s).
