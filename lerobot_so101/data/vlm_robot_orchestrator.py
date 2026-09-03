@@ -191,7 +191,7 @@ Return ONLY a JSON object:
 - "reason": a brief explanation of your judgement
 
 Failure classification (only when success is false):
-- VOCAB: The arm moved aggressively or erratically toward the wrong object, OR moved with no clear target commitment (wandering, hesitation, small uncertain motions). This suggests the instruction label confused the robot.
+- VOCAB: The arm moved aggressively or erratically toward the wrong object, OR moved with no clear target commitment with oscillatory movement (wandering, hesitation, small uncertain motions). This suggests the instruction label confused the robot.
 - RETRY: The arm reached toward the correct object but the grasp or placement failed (e.g. gripper closed on air, object slipped, placed in wrong spot, dropped during transport). The instruction was understood but execution failed.
 
 Example:
@@ -621,7 +621,7 @@ class VLMPlanner:
                 self.model, self.processor, image_content, prompt, visible,
                 self.temperature, extra_context=extra_context,
             )
-            logging.info(f"Raw VLM decomposition output ({len(output)} chars): {output!r}")
+            logging.debug(f"Raw VLM decomposition output ({len(output)} chars): {output!r}")
             tasks, parsed = parse_decomposition(output)
 
             # The planner is required to give every object in allowed_objects a
@@ -644,7 +644,7 @@ class VLMPlanner:
                     extra_context=(f"{extra_context}\n\n{retry_note}"
                                    if extra_context else retry_note),
                 )
-                logging.info(f"Raw VLM re-decomposition output ({len(output)} chars): {output!r}")
+                logging.debug(f"Raw VLM re-decomposition output ({len(output)} chars): {output!r}")
                 tasks, parsed = parse_decomposition(output)
                 still_missing = uncovered_allowed_objects(tasks, parsed)
                 if still_missing:
@@ -669,7 +669,7 @@ class VLMPlanner:
             output = generate(
                 self.model, self.processor, messages, temperature=self.temperature
             )
-        logging.info(f"Raw VLM decomposition output ({len(output)} chars): {output!r}")
+        logging.debug(f"Raw VLM decomposition output ({len(output)} chars): {output!r}")
         return parse_subtask_list(output)
 
     def evaluate(
@@ -702,7 +702,7 @@ class VLMPlanner:
         output = generate(
             self.model, self.processor, messages, temperature=self.temperature
         )
-        logging.info(f"Raw eval output: {output}")
+        logging.debug(f"Raw eval output: {output}")
         return parse_evaluation(output)
 
     def evaluate_final(
@@ -756,7 +756,7 @@ class VLMPlanner:
         output = generate(
             self.model, self.processor, messages, temperature=self.temperature
         )
-        logging.info(f"Raw final-eval output: {output}")
+        logging.debug(f"Raw final-eval output: {output}")
         return parse_evaluation(output)
 
     def _judge_final(self, original_prompt: str, located: list[dict]) -> dict:
@@ -784,7 +784,7 @@ class VLMPlanner:
         output = generate(
             self.model, self.processor, messages, temperature=self.temperature
         )
-        logging.info(f"Raw final-judge output: {output}")
+        logging.debug(f"Raw final-judge output: {output}")
         return parse_evaluation(output)
 
     def refine_label(
@@ -806,7 +806,7 @@ class VLMPlanner:
         output = generate(
             self.model, self.processor, messages, temperature=self.temperature
         )
-        logging.info(f"Raw refinement output: {output}")
+        logging.debug(f"Raw refinement output: {output}")
         lines = [
             re.sub(r"^[\d.\-\)\s]+", "", line).strip()
             for line in output.strip().splitlines()
@@ -833,7 +833,7 @@ class VLMPlanner:
         output = generate(
             self.model, self.processor, messages, temperature=self.temperature
         )
-        logging.info(f"Raw guided-vocab output: {output}")
+        logging.debug(f"Raw guided-vocab output: {output}")
         answer = output.strip().lower()
         for label in training_labels:
             if label.lower() == answer:
@@ -886,7 +886,7 @@ class VLMPlanner:
         output = generate(
             self.model, self.processor, messages, temperature=self.temperature
         )
-        logging.info(f"Raw VLM replan output ({len(output)} chars): {output!r}")
+        logging.debug(f"Raw VLM replan output ({len(output)} chars): {output!r}")
         return parse_subtask_list(output)
 
 
