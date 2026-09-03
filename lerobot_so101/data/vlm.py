@@ -37,6 +37,7 @@ Usage:
 """
 
 import argparse
+import logging
 import time
 import json
 import numpy as np
@@ -128,23 +129,24 @@ IDENTIFICATION_SYSTEM_PROMPT = """You are a perception module for an orange tabl
 
 You MUST respond in the following JSON format exactly:
 
-{"visible_objects": ["list", "of", "every", "object", "and", "surface"]}
+{"visible_objects": [{"name": "object name", "evidence": "brief description of what you see and where"}, ...]}
 
 Rules:
 - List ALL objects and surfaces on the table, including containers and destinations (trays, bowls, boxes, plates, placemats).
+- Do not skip an object because it looks unimportant, partly hidden, or hard to name. A blocked object still gets an entry — infer what it is from the part you can see.
 - The orange robotic gripper arm is part of the robot, NOT an object — do not include it regardless of its color or shape.
-- Use simple, concrete names for what you see (e.g. "cup", "banana", "tray").
-- Do not describe the object, use the simplest accurate label. Do not use adjectives such as color, size, texture to describe an object.
+- Use simple, concrete names (e.g. "cup", "banana", "tray"). Do not use adjectives in the name.
+- Fill in "evidence" for every object: briefly describe what you see (shape, colour, position relative to other objects). This is separate from the name — the name stays short, the evidence captures what you actually observe.
 - Do NOT plan, decompose, or reason about any instruction. Only identify what is visible.
 - If you are unsure of an object's identity, describe it by its most obvious visual feature (colour, shape).
 - STACKED AND TOUCHING OBJECTS: an object resting ON TOP of another object is a separate object. List it AND the object beneath it as two entries. Never merge a stack into one label.
 - If a shape could plausibly be two touching or overlapping objects rather than one, report it as two. A sudden change in colour, texture, or material across one blob almost always means two objects, not one.
 
 Examples:
-{"visible_objects": ["apple", "banana", "orange", "tray"]}
-{"visible_objects": ["toy", "pouch", "computer", "tray"]}
+{"visible_objects": [{"name": "apple", "evidence": "red round fruit on the left side of the table"}, {"name": "banana", "evidence": "yellow curved fruit near the centre"}, {"name": "orange", "evidence": "orange round fruit to the right of the apple"}, {"name": "tray", "evidence": "pink rectangular tray on the right side of the table"}]}
+{"visible_objects": [{"name": "toy", "evidence": "small brown plush toy in the middle of the table"}, {"name": "pouch", "evidence": "brown cylindrical pouch behind the toy"}, {"name": "computer", "evidence": "laptop at the back edge of the table"}, {"name": "tray", "evidence": "pink tray on the right"}]}
 A pouch lying on top of a plush toy is two objects, not one:
-{"visible_objects": ["banana", "pouch", "toy", "tray", "table"]}
+{"visible_objects": [{"name": "banana", "evidence": "yellow fruit on the far left"}, {"name": "pouch", "evidence": "brown cylindrical pouch resting on top of the plush toy"}, {"name": "toy", "evidence": "brown plush toy under the pouch"}, {"name": "tray", "evidence": "pink tray on the right side"}, {"name": "table", "evidence": "wooden table surface under everything"}]}
 """
 
 # Second pass of the two-call split: the visible-objects list is provided, so the
@@ -355,21 +357,40 @@ def get_image_content(camera=None, image_paths=None, save_dir=None):
 def parse_visible_objects(output: str) -> list[str]:
     """Extract the visible_objects list from an identification-pass output.
 
-    Tolerates either the documented dict schema or a bare JSON array. Returns []
-    if nothing parseable is found (the caller can still proceed to decomposition
-    with an empty list).
+    Handles three formats:
+    - New dict format: {"visible_objects": [{"name": "X", "evidence": "..."}, ...]}
+    - Old flat format: {"visible_objects": ["X", "Y", ...]}
+    - Bare JSON array of either kind.
+    Returns a flat list of object name strings; [] on parse failure.
     """
+    text = output.strip()
     try:
-        result = json.loads(output.strip())
+        result = json.loads(text)
     except json.JSONDecodeError:
-        return []
+        start, end = text.find("{"), text.rfind("}")
+        if start == -1 or end <= start:
+            return []
+        try:
+            result = json.loads(text[start : end + 1])
+        except json.JSONDecodeError:
+            return []
     if isinstance(result, dict):
         objs = result.get("visible_objects", [])
     elif isinstance(result, list):
         objs = result
     else:
         objs = []
-    return [str(o) for o in objs] if isinstance(objs, list) else []
+    if not isinstance(objs, list):
+        return []
+    names = []
+    for o in objs:
+        if isinstance(o, dict):
+            name = o.get("name", "")
+            if name:
+                names.append(str(name))
+        elif o:
+            names.append(str(o))
+    return names
 
 
 def identify_objects(model, processor, image_content, temperature: float = 0.7) -> list[str]:
@@ -387,7 +408,7 @@ def identify_objects(model, processor, image_content, temperature: float = 0.7) 
         {"role": "user", "content": user_content},
     ]
     output = generate(model, processor, messages, temperature=temperature)
-    print(f"\nIdentification output:\n{output}")
+    logging.info(f"Identification tokens: {len(output.split())}")
     objects = parse_visible_objects(output)
     if not objects:
         print("[WARNING] Identification pass produced no objects (parse failed or empty).")
@@ -446,7 +467,7 @@ def survey_scene(model, processor, image_content,
         {"role": "user", "content": user_content},
     ]
     output = generate(model, processor, messages, temperature=temperature)
-    print(f"\nScene survey output:\n{output}")
+    logging.info(f"Scene survey tokens: {len(output.split())}")
     rows = parse_object_locations(output)
     if not rows:
         print("[WARNING] Scene survey produced no rows (parse failed or empty).")
