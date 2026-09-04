@@ -1,0 +1,39 @@
+INFO 2026-09-04 00:25:07 strator.py:1230 Decomposing high-level prompt (round 1): '\put everything on the tray'
+INFO 2026-09-04 00:25:07 estrator.py:949 Saved VLM frame: runs/run_2026-09-04_00-24-27/01/decompose_20260904_002507.png
+  Generated 110 tokens in 10.9s (10.1 tok/s)
+INFO 2026-09-04 00:25:18 pace/vlm.py:411 Identification tokens: 57
+INFO 2026-09-04 00:25:18 estrator.py:619 Identified objects (5): ['banana', 'plush toy', 'pouch', 'tray', 'table']
+  Generated 87 tokens in 6.4s (13.6 tok/s)
+
+Visible: ['banana', 'plush toy', 'pouch', 'tray', 'table']
+Excluded: []
+Completed: []
+Allowed: ['banana', 'plush toy', 'pouch']
+
+Parsed 3 sub-tasks:
+  1. put the banana on the tray
+  2. put the plush toy on the tray
+  3. put the pouch on the tray
+INFO 2026-09-04 00:25:24 strator.py:1248 Sub-task queue (3):
+INFO 2026-09-04 00:25:24 strator.py:1250   1. put the banana on the tray
+INFO 2026-09-04 00:25:24 strator.py:1250   2. put the plush toy on the tray
+INFO 2026-09-04 00:25:24 strator.py:1250   3. put the pouch on the tray
+INFO 2026-09-04 00:25:24 strator.py:1301 [1] Executing sub-task: 'put the banana on the tray' (1 retries left)
+INFO 2026-09-04 00:25:24 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/banana/125_banana/
+INFO 2026-09-04 00:25:24 ent_loop.py:689 Control loop started | task: 'put the banana on the tray' | duration: 50.0s
+INFO 2026-09-04 00:25:24 ent_loop.py:603 Action receiver thread started
+[INTERJECT] SKIP requested — stopping current action...
+INFO 2026-09-04 00:26:06 ent_loop.py:913 Episode finished: 41.9s, converged=False, max_displacement=233.3812, actions=830
+INFO 2026-09-04 00:26:06 strator.py:1317 User skipped sub-task: 'put the banana on the tray' (1 attempt(s) left)
+INFO 2026-09-04 00:26:06 ent_loop.py:409 Returning to home position...
+INFO 2026-09-04 00:26:08 ent_loop.py:422 Home position reached.
+INFO 2026-09-04 00:26:08 strator.py:1301 [1] Executing sub-task: 'put the banana on the tray' (0 retries left)
+INFO 2026-09-04 00:26:08 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/banana/126_banana/
+INFO 2026-09-04 00:26:08 ent_loop.py:689 Control loop started | task: 'put the banana on the tray' | duration: 50.0s
+INFO 2026-09-04 00:26:08 ent_loop.py:603 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-09-04 00:26:55 ent_loop.py:913 Episode finished: 46.9s, converged=False, max_displacement=234.6767, actions=1013
+WARNING 2026-09-04 00:26:55 strator.py:1221 ABORT requested during sub-task 'put the banana on the tray' — abandoning high-level task '\put everything on the tray' and returning to the prompt.
+INFO 2026-09-04 00:26:55 ent_loop.py:409 Returning to home position...
+INFO 2026-09-04 00:26:57 ent_loop.py:422 Home position reached.
+INFO 2026-09-04 00:26:57 strator.py:1515   Completed before the abort: []
