@@ -166,6 +166,9 @@ class OrchestratorConfig(LoopClientConfig):
     training_labels: list[str] = field(
         default_factory=lambda: ["banana", "toy", "pouch"]
     )
+    # --- Continuous VLM monitoring during VLA execution ---
+    enable_vlm_monitor: bool = True
+    vlm_monitor_num_frames: int = 4
 
 
 # ---------------------------------------------------------------------------
@@ -198,6 +201,43 @@ Example:
 {"success": true, "reason": "The apple is now on the tray as instructed."}
 {"success": false, "failure_type": "RETRY", "reason": "The arm reached the banana but the gripper closed on air and did not grasp it."}
 {"success": false, "failure_type": "VOCAB", "reason": "The arm moved aggressively toward the pouch instead of the banana."}
+"""
+
+
+# ---------------------------------------------------------------------------
+# System prompt for continuous mid-episode monitoring
+# ---------------------------------------------------------------------------
+MONITOR_SYSTEM_PROMPT = """You are a real-time robot trajectory monitor. You receive a short video clip of a robot arm mid-execution and the sub-task it is attempting. The clip shows what has happened so far — the episode is STILL RUNNING.
+
+Your job: decide whether the robot should CONTINUE or STOP.
+
+Default to CONTINUE. Only output STOP for clear problems:
+- The arm is moving aggressively toward the WRONG object (not the one named in the sub-task).
+- The arm is oscillating or wandering with no commitment to any object.
+- The arm knocked over, dropped, or pushed away the target object.
+- The arm is making a dangerous or erratic movement that could damage objects or itself.
+
+Output CONTINUE for:
+- The arm is still reaching toward the target (even if slow or indirect).
+- The arm is in the process of grasping.
+- The arm is transporting the object.
+- The arm has not moved much yet (it may still be starting up).
+- You are unsure — always default to CONTINUE.
+
+Scene context:
+- The tray visible in the scene is the destination. "the tray" in the sub-task always means this tray.
+- The orange robot arm is part of the setup.
+- Focus on whether the arm's trajectory is directed at the correct object.
+
+Output format:
+Return ONLY a JSON object:
+{"action": "CONTINUE" or "STOP", "reason": "brief explanation"}
+
+Examples:
+{"action": "CONTINUE", "reason": "The arm is reaching toward the banana as instructed."}
+{"action": "STOP", "reason": "The arm is moving aggressively toward the pouch instead of the banana."}
+{"action": "CONTINUE", "reason": "The arm appears to be grasping the target object."}
+{"action": "STOP", "reason": "The arm is oscillating between objects with no clear commitment."}
 """
 
 
@@ -489,6 +529,109 @@ class InterjectionManager:
 
 
 # ---------------------------------------------------------------------------
+# Continuous VLM monitoring during VLA execution
+# ---------------------------------------------------------------------------
+class VLMMonitor:
+    """Background thread that periodically asks the VLM whether the robot's
+    trajectory looks correct and interrupts the episode if it doesn't.
+
+    Mirrors the InterjectionManager pattern: sets client.episode_done to
+    cleanly stop the control loop.
+    """
+
+    logger = logging.getLogger("vlm_monitor")
+
+    def __init__(self, client: "LoopRobotClient", planner: "VLMPlanner",
+                 cfg: "OrchestratorConfig"):
+        self._client = client
+        self._planner = planner
+        self._cfg = cfg
+        self._active = threading.Event()
+        self._result: dict | None = None
+        self._result_lock = threading.Lock()
+        self._thread: threading.Thread | None = None
+        self._sub_task = ""
+        self._check_count = 0
+
+    def start(self, sub_task: str):
+        """Call before run_episode. Launches the monitoring daemon."""
+        with self._result_lock:
+            self._result = None
+        self._sub_task = sub_task
+        self._check_count = 0
+        self._active.set()
+        self._thread = threading.Thread(target=self._monitor_loop, daemon=True)
+        self._thread.start()
+
+    def stop(self) -> dict | None:
+        """Call after run_episode. Returns the STOP result if the monitor
+        interrupted the episode, else None."""
+        self._active.clear()
+        if self._thread is not None:
+            self._thread.join(timeout=5.0)
+            self._thread = None
+        self.logger.info(f"Monitor completed {self._check_count} check(s) "
+                         f"for '{self._sub_task}'")
+        with self._result_lock:
+            return self._result
+
+    def _sleep_interruptible(self, seconds: float):
+        """Sleep in small increments so we respond quickly to _active.clear()."""
+        waited = 0.0
+        while self._active.is_set() and waited < seconds:
+            time.sleep(0.2)
+            waited += 0.2
+
+    def _sample_recent_frames(self, n: int) -> tuple[list[Image.Image], float]:
+        """Get the N most recent frames from the clip buffer as PIL images,
+        plus the time span they cover."""
+        with self._client._clip_lock:
+            entries = list(self._client._episode_clip[-n:])
+        if len(entries) < 2:
+            return [], 0.0
+        span = entries[-1][0] - entries[0][0]
+        frames = [Image.fromarray(frame.astype(np.uint8))
+                  for _, frame in entries]
+        return frames, span
+
+    def _monitor_loop(self):
+        grace = self._cfg.convergence_grace_period
+        self._sleep_interruptible(grace)
+
+        while self._active.is_set():
+            clip, span = self._sample_recent_frames(self._cfg.vlm_monitor_num_frames)
+            if len(clip) >= 2:
+                fps = (len(clip) - 1) / span if span > 0 else None
+                try:
+                    result = self._planner.monitor(self._sub_task, clip, fps=fps)
+                except Exception as e:
+                    self.logger.warning(f"Monitor inference failed ({e}); "
+                                        "defaulting to CONTINUE")
+                    result = {"action": "CONTINUE", "reason": f"(inference error) {e}"}
+
+                self._check_count += 1
+                action = result.get("action", "CONTINUE").upper()
+                reason = result.get("reason", "")
+
+                if action == "STOP":
+                    with self._result_lock:
+                        self._result = result
+                    self.logger.warning(
+                        f"[VLM MONITOR] STOP after {self._check_count} check(s): "
+                        f"{reason}")
+                    self._client.episode_done.set()
+                    return
+                else:
+                    self.logger.info(
+                        f"[VLM MONITOR] CONTINUE (check {self._check_count}): "
+                        f"{reason}")
+
+            else:
+                # No frames yet — brief sleep to avoid busy-waiting
+                time.sleep(0.2)
+
+
+# ---------------------------------------------------------------------------
 # Output parsing helpers
 # ---------------------------------------------------------------------------
 def _strip_code_fences(text: str) -> str:
@@ -704,6 +847,50 @@ class VLMPlanner:
         )
         logging.debug(f"Raw eval output: {output}")
         return parse_evaluation(output)
+
+    def monitor(
+        self,
+        sub_task: str,
+        clip: "list[Image.Image]",
+        fps: float | None = None,
+    ) -> dict:
+        """Mid-episode trajectory check -> {'action': 'CONTINUE'|'STOP', 'reason': str}.
+
+        Fail-safe: returns CONTINUE on parse failure so a broken check never
+        stops a potentially-good episode.
+        """
+        text = (
+            f'\nThe robot is currently attempting this sub-task: "{sub_task}"\n'
+            f"Should it continue or stop?"
+        )
+        content = self._user_content_video(clip, text, fps=fps)
+        messages = [
+            {"role": "system", "content": [{"type": "text", "text": MONITOR_SYSTEM_PROMPT}]},
+            {"role": "user", "content": content},
+        ]
+        output = generate(
+            self.model, self.processor, messages,
+            max_new_tokens=256, temperature=self.temperature,
+        )
+        logging.debug(f"Raw monitor output: {output}")
+        try:
+            parsed = json.loads(_strip_code_fences(output))
+            if isinstance(parsed, dict) and "action" in parsed:
+                return parsed
+        except (json.JSONDecodeError, ValueError):
+            pass
+        # Try extracting JSON substring
+        text = output.strip()
+        start, end = text.find("{"), text.rfind("}")
+        if start != -1 and end > start:
+            try:
+                parsed = json.loads(text[start : end + 1])
+                if isinstance(parsed, dict) and "action" in parsed:
+                    return parsed
+            except (json.JSONDecodeError, ValueError):
+                pass
+        logging.warning(f"Could not parse monitor output — defaulting to CONTINUE: {output}")
+        return {"action": "CONTINUE", "reason": f"(parse failure) {output[:200]}"}
 
     def evaluate_final(
         self,
@@ -1277,6 +1464,9 @@ def _run_high_level_task_body(
             logger.info(f"  {i}. {st}")
         return new_queue
 
+    # Create the VLM monitor (reused across subtasks)
+    monitor = VLMMonitor(client, planner, cfg) if cfg.enable_vlm_monitor else None
+
     # 2. Work through the sub-task queue
     while pending:
         sub_task = pending.pop(0)
@@ -1302,8 +1492,11 @@ def _run_high_level_task_body(
                         f"({attempts_left} retries left)"
                         + (f" [original: '{sub_task}']"
                            if current_instruction != sub_task else ""))
+            if monitor is not None:
+                monitor.start(current_instruction)
             ep_result = client.run_episode(current_instruction,
                                            enable_abort_listener=False)
+            monitor_result = monitor.stop() if monitor is not None else None
 
             # --- Interjection check: after episode ---
             itype, _ = interjection.check_and_consume()
@@ -1385,7 +1578,14 @@ def _run_high_level_task_body(
                     f"not in the robot's vocabulary."
                 )
 
-            if not cfg.evaluate_subtasks:
+            # --- VLM monitor interrupted the episode ---
+            if monitor_result is not None:
+                success = False
+                reason = monitor_result.get("reason", "VLM monitor triggered early stop")
+                failure_type = "VLM_INTERRUPT"
+                logger.info(f"VLM monitor interrupted episode: {reason}")
+                # Fall through to the retry logic below (skip post-episode eval)
+            elif not cfg.evaluate_subtasks:
                 succeeded = True
                 break
             else:
