@@ -169,6 +169,9 @@ class OrchestratorConfig(LoopClientConfig):
     # --- Continuous VLM monitoring during VLA execution ---
     enable_vlm_monitor: bool = True
     vlm_monitor_num_frames: int = 4
+    # Seconds to wait after each monitor check before starting the next,
+    # giving the VLA policy server uncontested GPU time for inference.
+    vlm_monitor_cooldown: float = 3.0
 
 
 # ---------------------------------------------------------------------------
@@ -629,6 +632,10 @@ class VLMMonitor:
             else:
                 # No frames yet — brief sleep to avoid busy-waiting
                 time.sleep(0.2)
+                continue
+
+            # Yield GPU time to the VLA policy server between checks
+            self._sleep_interruptible(self._cfg.vlm_monitor_cooldown)
 
 
 # ---------------------------------------------------------------------------
