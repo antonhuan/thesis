@@ -604,14 +604,7 @@ class LoopRobotClient:
 
         while not self.episode_done.is_set():
             try:
-                try:
-                    actions_chunk = self.stub.GetActions(
-                        services_pb2.Empty(), timeout=0.5
-                    )
-                except grpc.RpcError as e:
-                    if e.code() == grpc.StatusCode.DEADLINE_EXCEEDED:
-                        continue
-                    raise
+                actions_chunk = self.stub.GetActions(services_pb2.Empty())
                 if len(actions_chunk.data) == 0:
                     continue
 
@@ -901,16 +894,15 @@ class LoopRobotClient:
             self.logger.info("Press Enter to abort episode early.")
 
         self._control_loop_thread(task)  # blocks until episode_done
-        receiver.join(timeout=1.0)
+        receiver.join(timeout=5.0)
         if abort is not None:
             abort.join(timeout=1.0)
 
         # Receiver and control threads have stopped: no more chunks will bind and
         # no more actions will execute. Write the executed subset of each bound
         # chunk (paired with its input) to actions.csv and render the recap.
-        # Run in a background thread so it doesn't delay go_home.
         if self.config.log_vla_inputs:
-            threading.Thread(target=self._flush_executed_chunks, daemon=True).start()
+            self._flush_executed_chunks()
 
         result = EpisodeResult(
             duration=time.perf_counter() - self._episode_start_perf,
