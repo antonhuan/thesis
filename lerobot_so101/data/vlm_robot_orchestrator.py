@@ -169,16 +169,6 @@ class OrchestratorConfig(LoopClientConfig):
     # --- Continuous VLM monitoring during VLA execution ---
     enable_vlm_monitor: bool = True
     vlm_monitor_num_frames: int = 4
-    # Seconds to wait after each monitor check before starting the next,
-    # giving the VLA policy server uncontested GPU time for inference.
-    vlm_monitor_cooldown: float = 3.0
-    # Minimum actions in the queue before a monitor check is allowed.
-    # Ensures the robot has enough buffered movement (~3s at 30Hz) to
-    # sustain motion while VLM inference temporarily occupies the GPU.
-    vlm_monitor_min_queue_depth: int = 100
-    # Stall timeout override during monitored episodes; the default 2s is
-    # too short when VLM inference causes brief GPU contention windows.
-    vlm_monitor_stall_extension: float = 8.0
 
 
 # ---------------------------------------------------------------------------
@@ -609,18 +599,6 @@ class VLMMonitor:
         self._sleep_interruptible(grace)
 
         while self._active.is_set():
-            # Gate on action queue depth: only run VLM inference when the
-            # robot has enough buffered actions to keep moving during the
-            # GPU contention window.
-            with self._client.action_queue_lock:
-                queue_depth = self._client.action_queue.qsize()
-            if queue_depth < self._cfg.vlm_monitor_min_queue_depth:
-                self.logger.debug(
-                    f"[VLM MONITOR] Skipping check — queue depth "
-                    f"{queue_depth} < {self._cfg.vlm_monitor_min_queue_depth}")
-                self._sleep_interruptible(1.0)
-                continue
-
             clip, span = self._sample_recent_frames(self._cfg.vlm_monitor_num_frames)
             if len(clip) >= 2:
                 fps = (len(clip) - 1) / span if span > 0 else None
@@ -651,10 +629,6 @@ class VLMMonitor:
             else:
                 # No frames yet — brief sleep to avoid busy-waiting
                 time.sleep(0.2)
-                continue
-
-            # Yield GPU time to the VLA policy server between checks
-            self._sleep_interruptible(self._cfg.vlm_monitor_cooldown)
 
 
 # ---------------------------------------------------------------------------
@@ -1519,16 +1493,10 @@ def _run_high_level_task_body(
                         + (f" [original: '{sub_task}']"
                            if current_instruction != sub_task else ""))
             if monitor is not None:
-                original_stall_timeout = client.config.action_stall_timeout
-                client.config.action_stall_timeout = cfg.vlm_monitor_stall_extension
                 monitor.start(current_instruction)
             ep_result = client.run_episode(current_instruction,
                                            enable_abort_listener=False)
-            if monitor is not None:
-                monitor_result = monitor.stop()
-                client.config.action_stall_timeout = original_stall_timeout
-            else:
-                monitor_result = None
+            monitor_result = monitor.stop() if monitor is not None else None
 
             # --- Interjection check: after episode ---
             itype, _ = interjection.check_and_consume()
