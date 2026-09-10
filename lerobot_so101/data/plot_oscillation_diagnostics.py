@@ -3,12 +3,15 @@
 Oscillation Diagnostic Plots for VLA Action Logs
 =================================================
 Generates 3 diagnostic plots for a given episode's action CSV:
-  1. Measured/Commanded joint positions over time (shoulder_lift & elbow_flex)
+  1. Measured/Commanded joint positions over time (one row per joint)
   2. Commanded vs measured overlay (if both available)
   3. Velocity profile with major reversal markers
 
+All joints present in the CSV are plotted (one subplot row each).
+
 Usage:
     python plot_oscillation_diagnostics.py <actions.csv> [--output-dir DIR] [--title TITLE]
+                                           [--joints j1,j2,...]
 
 The script auto-detects two CSV formats:
   - pouch_study_analysis: columns include shoulder_pan, shoulder_lift, elbow_flex, ...
@@ -19,6 +22,7 @@ The script auto-detects two CSV formats:
 Examples:
     python plot_oscillation_diagnostics.py actions/purse__067_purse.csv
     python plot_oscillation_diagnostics.py actions/purse__067_purse.csv --output-dir plots/ --title "purse_067"
+    python plot_oscillation_diagnostics.py actions/purse__067_purse.csv --joints shoulder_lift,elbow_flex
 """
 
 import argparse
@@ -34,6 +38,21 @@ try:
 except ImportError:
     print("ERROR: matplotlib is required. Install with: pip install matplotlib")
     sys.exit(1)
+
+
+# Canonical joint order for the SO-101 arm. Used to order plots consistently;
+# any additional joints found in the CSV are appended after these.
+CANONICAL_JOINTS = [
+    'shoulder_pan',
+    'shoulder_lift',
+    'elbow_flex',
+    'wrist_flex',
+    'wrist_roll',
+    'gripper',
+]
+
+# Metadata columns in the bare (pouch_study_analysis) format that are NOT joints.
+BARE_META_COLS = {'action_n', 't', 'step', 'queue', 'dmax'}
 
 
 def load_csv(path):
@@ -57,40 +76,82 @@ def detect_format(headers):
     Returns: 'split' if in_/act_ columns exist (vla_failure_test format),
              'bare' if bare joint names (pouch_study_analysis format).
     """
-    if any(h.startswith('in_') for h in headers):
+    if any(h.startswith('in_') or h.startswith('act_') for h in headers):
         return 'split'
-    elif 'shoulder_lift' in headers:
+    elif any(j in headers for j in CANONICAL_JOINTS):
         return 'bare'
     else:
         print(f"ERROR: Unrecognized CSV format. Headers: {headers}")
         sys.exit(1)
 
 
-def get_joint_data(data, headers, fmt):
+def _order_joints(names):
+    """Return joint names in canonical order, appending any unknown ones."""
+    names = list(names)
+    ordered = [j for j in CANONICAL_JOINTS if j in names]
+    extra = [j for j in names if j not in CANONICAL_JOINTS]
+    return ordered + extra
+
+
+def detect_joints(headers, fmt):
     """
-    Extract shoulder_lift and elbow_flex time series.
-    Returns dict with keys: t, sl_cmd, ef_cmd, sl_meas, ef_meas
-    sl_meas/ef_meas are None if not available (bare format).
+    Return the ordered list of joint names present in the CSV.
+    - split: joints derived from act_*.pos / in_*.pos columns
+    - bare:  header columns that aren't metadata
     """
-    result = {}
+    if fmt == 'split':
+        names = set()
+        for h in headers:
+            for prefix in ('act_', 'in_'):
+                if h.startswith(prefix):
+                    name = h[len(prefix):]
+                    if name.endswith('.pos'):
+                        name = name[:-len('.pos')]
+                    names.add(name)
+    else:  # bare
+        names = {h for h in headers if h not in BARE_META_COLS}
+    return _order_joints(names)
+
+
+def get_joint_data(data, headers, fmt, joints):
+    """
+    Extract per-joint time series.
+    Returns dict:
+      't'      -> time array
+      'joints' -> list of joint names (in plot order)
+      'cmd'    -> {joint: commanded array}
+      'meas'   -> {joint: measured array or None}
+    """
+    result = {'joints': joints, 'cmd': {}, 'meas': {}}
 
     if 't' in data:
         result['t'] = data['t']
     else:
         result['t'] = np.arange(len(next(iter(data.values()))))
 
-    if fmt == 'split':
-        result['sl_cmd'] = data.get('act_shoulder_lift.pos', data.get('act_shoulder_lift'))
-        result['ef_cmd'] = data.get('act_elbow_flex.pos', data.get('act_elbow_flex'))
-        result['sl_meas'] = data.get('in_shoulder_lift.pos', data.get('in_shoulder_lift'))
-        result['ef_meas'] = data.get('in_elbow_flex.pos', data.get('in_elbow_flex'))
-    else:  # bare
-        result['sl_cmd'] = data['shoulder_lift']
-        result['ef_cmd'] = data['elbow_flex']
-        result['sl_meas'] = None
-        result['ef_meas'] = None
+    for j in joints:
+        if fmt == 'split':
+            result['cmd'][j] = data.get(f'act_{j}.pos', data.get(f'act_{j}'))
+            result['meas'][j] = data.get(f'in_{j}.pos', data.get(f'in_{j}'))
+        else:  # bare
+            result['cmd'][j] = data.get(j)
+            result['meas'][j] = None
 
     return result
+
+
+def _new_axes(n):
+    """Create a figure with n stacked, x-shared subplots. Always returns a list."""
+    height = max(3.0, 2.6 * n)
+    fig, axes = plt.subplots(n, 1, figsize=(14, height), sharex=True)
+    if n == 1:
+        axes = [axes]
+    return fig, list(axes)
+
+
+def _joint_label(name):
+    """Human-friendly joint label, e.g. 'shoulder_lift' -> 'Shoulder Lift'."""
+    return name.replace('_', ' ').title()
 
 
 def compute_velocity(positions, times):
@@ -131,40 +192,30 @@ def find_major_reversals(positions, threshold_deg=15.0):
 
 
 def plot_positions(jdata, title, output_path):
-    """Plot 1: Joint positions over time."""
-    fig, axes = plt.subplots(2, 1, figsize=(14, 8), sharex=True)
+    """Plot 1: Joint positions over time (one row per joint)."""
+    joints = jdata['joints']
+    fig, axes = _new_axes(len(joints))
     t = jdata['t']
 
-    # Shoulder lift
-    ax = axes[0]
-    if jdata['sl_meas'] is not None:
-        ax.plot(t, jdata['sl_meas'], 'b-', linewidth=0.8, alpha=0.9, label='Measured')
-        ax.plot(t, jdata['sl_cmd'], 'r-', linewidth=0.6, alpha=0.5, label='Commanded')
-    else:
-        ax.plot(t, jdata['sl_cmd'], 'b-', linewidth=0.8, label='Commanded')
-    ax.set_ylabel('Shoulder Lift (°)')
-    ax.set_title(f'{title} — Joint Positions')
-    ax.legend(loc='upper right')
-    ax.grid(True, alpha=0.3)
-    rng = np.nanmax(jdata['sl_cmd']) - np.nanmin(jdata['sl_cmd'])
-    ax.text(0.02, 0.95, f'Range: {rng:.1f}°', transform=ax.transAxes, va='top',
-            fontsize=9, bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+    for i, j in enumerate(joints):
+        ax = axes[i]
+        cmd = jdata['cmd'][j]
+        meas = jdata['meas'][j]
+        if meas is not None:
+            ax.plot(t, meas, 'b-', linewidth=0.8, alpha=0.9, label='Measured')
+            ax.plot(t, cmd, 'r-', linewidth=0.6, alpha=0.5, label='Commanded')
+        else:
+            ax.plot(t, cmd, 'b-', linewidth=0.8, label='Commanded')
+        ax.set_ylabel(f'{_joint_label(j)} (°)')
+        ax.legend(loc='upper right')
+        ax.grid(True, alpha=0.3)
+        rng = np.nanmax(cmd) - np.nanmin(cmd)
+        ax.text(0.02, 0.95, f'Range: {rng:.1f}°', transform=ax.transAxes, va='top',
+                fontsize=9, bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+        if i == 0:
+            ax.set_title(f'{title} — Joint Positions')
 
-    # Elbow flex
-    ax = axes[1]
-    if jdata['ef_meas'] is not None:
-        ax.plot(t, jdata['ef_meas'], 'b-', linewidth=0.8, alpha=0.9, label='Measured')
-        ax.plot(t, jdata['ef_cmd'], 'r-', linewidth=0.6, alpha=0.5, label='Commanded')
-    else:
-        ax.plot(t, jdata['ef_cmd'], 'b-', linewidth=0.8, label='Commanded')
-    ax.set_ylabel('Elbow Flex (°)')
-    ax.set_xlabel('Time (s)')
-    ax.legend(loc='upper right')
-    ax.grid(True, alpha=0.3)
-    rng = np.nanmax(jdata['ef_cmd']) - np.nanmin(jdata['ef_cmd'])
-    ax.text(0.02, 0.95, f'Range: {rng:.1f}°', transform=ax.transAxes, va='top',
-            fontsize=9, bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-
+    axes[-1].set_xlabel('Time (s)')
     plt.tight_layout()
     plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
@@ -172,60 +223,56 @@ def plot_positions(jdata, title, output_path):
 
 
 def plot_commanded_vs_measured(jdata, title, output_path):
-    """Plot 2: Commanded vs measured overlay (only for split format)."""
-    if jdata['sl_meas'] is None:
-        # For bare format, plot commanded positions with velocity coloring
-        fig, axes = plt.subplots(2, 1, figsize=(14, 8), sharex=True)
-        t = jdata['t']
+    """Plot 2: Commanded vs measured overlay (one row per joint)."""
+    joints = jdata['joints']
+    t = jdata['t']
+    has_meas = any(jdata['meas'][j] is not None for j in joints)
 
-        for i, (joint_name, cmd_key) in enumerate([('Shoulder Lift', 'sl_cmd'), ('Elbow Flex', 'ef_cmd')]):
+    if not has_meas:
+        # Bare format: plot commanded positions with velocity coloring.
+        fig, axes = _new_axes(len(joints))
+        for i, j in enumerate(joints):
             ax = axes[i]
-            pos = jdata[cmd_key]
-            vel = np.diff(pos)
-            vel_abs = np.abs(vel)
-
-            # Color by velocity magnitude
-            for j in range(len(t) - 1):
-                color = 'red' if vel_abs[j] > np.percentile(vel_abs, 75) else 'blue'
-                ax.plot(t[j:j+2], pos[j:j+2], color=color, linewidth=0.8, alpha=0.7)
-
-            ax.set_ylabel(f'{joint_name} (°)')
+            pos = jdata['cmd'][j]
+            vel_abs = np.abs(np.diff(pos))
+            hi = np.percentile(vel_abs, 75) if len(vel_abs) else 0.0
+            for k in range(len(t) - 1):
+                color = 'red' if vel_abs[k] > hi else 'blue'
+                ax.plot(t[k:k+2], pos[k:k+2], color=color, linewidth=0.8, alpha=0.7)
+            ax.set_ylabel(f'{_joint_label(j)} (°)')
             ax.grid(True, alpha=0.3)
             if i == 0:
                 ax.set_title(f'{title} — Commanded Positions (red = high velocity)')
-
-        axes[1].set_xlabel('Time (s)')
+        axes[-1].set_xlabel('Time (s)')
         plt.tight_layout()
         plt.savefig(output_path, dpi=150, bbox_inches='tight')
         plt.close()
         print(f"  Saved: {output_path}")
         return
 
-    fig, axes = plt.subplots(2, 1, figsize=(14, 8), sharex=True)
-    t = jdata['t']
-
-    for i, (joint_name, cmd_key, meas_key) in enumerate([
-        ('Shoulder Lift', 'sl_cmd', 'sl_meas'),
-        ('Elbow Flex', 'ef_cmd', 'ef_meas')
-    ]):
+    fig, axes = _new_axes(len(joints))
+    for i, j in enumerate(joints):
         ax = axes[i]
-        ax.plot(t, jdata[meas_key], 'b-', linewidth=1.0, label='Measured', alpha=0.9)
-        ax.plot(t, jdata[cmd_key], 'r--', linewidth=0.7, label='Commanded', alpha=0.6)
-
-        # Show error band
-        error = jdata[cmd_key] - jdata[meas_key]
-        ax2 = ax.twinx()
-        ax2.fill_between(t, error, alpha=0.15, color='orange', label='Error')
-        ax2.set_ylabel('Error (°)', color='orange')
-        ax2.tick_params(axis='y', labelcolor='orange')
-
-        ax.set_ylabel(f'{joint_name} (°)')
+        cmd = jdata['cmd'][j]
+        meas = jdata['meas'][j]
+        if meas is None:
+            # Joint has no measured stream; show commanded only.
+            ax.plot(t, cmd, 'r--', linewidth=0.7, label='Commanded', alpha=0.8)
+        else:
+            ax.plot(t, meas, 'b-', linewidth=1.0, label='Measured', alpha=0.9)
+            ax.plot(t, cmd, 'r--', linewidth=0.7, label='Commanded', alpha=0.6)
+            error = cmd - meas
+            ax2 = ax.twinx()
+            ax2.fill_between(t, error, alpha=0.15, color='orange', label='Error')
+            ax2.set_ylabel('Error (°)', color='orange')
+            ax2.tick_params(axis='y', labelcolor='orange')
+        ax.set_ylabel(f'{_joint_label(j)} (°)')
         ax.legend(loc='upper left')
         ax.grid(True, alpha=0.3)
         if i == 0:
             ax.set_title(f'{title} — Commanded vs Measured')
 
-    axes[1].set_xlabel('Time (s)')
+    axes[-1].set_xlabel('Time (s)')
     plt.tight_layout()
     plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
@@ -233,49 +280,46 @@ def plot_commanded_vs_measured(jdata, title, output_path):
 
 
 def plot_velocity_reversals(jdata, title, output_path, threshold_deg=15.0):
-    """Plot 3: Velocity profile with major reversal markers."""
-    fig, axes = plt.subplots(2, 1, figsize=(14, 8), sharex=True)
-
-    # Use measured if available, otherwise commanded
-    sl_pos = jdata['sl_meas'] if jdata['sl_meas'] is not None else jdata['sl_cmd']
-    ef_pos = jdata['ef_meas'] if jdata['ef_meas'] is not None else jdata['ef_cmd']
+    """Plot 3: Velocity profile with major reversal markers (one row per joint)."""
+    joints = jdata['joints']
+    fig, axes = _new_axes(len(joints))
     t = jdata['t']
     duration = t[-1] - t[0] if len(t) > 1 else 1.0
 
-    for i, (joint_name, pos, color) in enumerate([
-        ('Shoulder Lift', sl_pos, 'steelblue'),
-        ('Elbow Flex', ef_pos, 'darkorange')
-    ]):
+    # Cycle through a color list so each joint is visually distinct.
+    palette = ['steelblue', 'darkorange', 'seagreen', 'crimson',
+               'mediumpurple', 'saddlebrown', 'teal', 'darkgoldenrod']
+
+    for i, j in enumerate(joints):
         ax = axes[i]
+        # Use measured if available, otherwise commanded.
+        pos = jdata['meas'][j] if jdata['meas'][j] is not None else jdata['cmd'][j]
+        color = palette[i % len(palette)]
         vel = np.diff(pos)
         t_vel = t[:-1]
 
-        # Plot velocity
         ax.plot(t_vel, vel, color=color, linewidth=0.6, alpha=0.8)
         ax.axhline(y=0, color='black', linewidth=0.5, alpha=0.3)
         ax.fill_between(t_vel, vel, alpha=0.2, color=color)
 
-        # Find and mark major reversals
         reversals = find_major_reversals(pos, threshold_deg)
         for rev_idx in reversals:
-            if rev_idx < len(t_vel):
+            if rev_idx < len(t):
                 ax.axvline(x=t[rev_idx], color='red', linewidth=1.0, alpha=0.6)
 
         n_rev = len(reversals)
         rev_per_s = n_rev / duration if duration > 0 else 0
         rng = np.nanmax(pos) - np.nanmin(pos)
 
-        ax.set_ylabel(f'{joint_name}\nVelocity (°/step)')
+        ax.set_ylabel(f'{_joint_label(j)}\nVelocity (°/step)')
         ax.grid(True, alpha=0.3)
-
         stats_text = f'Major reversals: {n_rev}  |  rev/s: {rev_per_s:.3f}  |  Range: {rng:.1f}°'
         ax.text(0.02, 0.95, stats_text, transform=ax.transAxes, va='top',
                 fontsize=9, bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.8))
-
         if i == 0:
             ax.set_title(f'{title} — Velocity & Major Reversals (threshold={threshold_deg}°)')
 
-    axes[1].set_xlabel('Time (s)')
+    axes[-1].set_xlabel('Time (s)')
     plt.tight_layout()
     plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
@@ -295,6 +339,8 @@ def main():
                         help='Title prefix for plots (default: derived from filename)')
     parser.add_argument('--threshold', type=float, default=15.0,
                         help='Major reversal threshold in degrees (default: 15.0)')
+    parser.add_argument('--joints', default=None,
+                        help='Comma-separated joints to plot (default: all joints in CSV)')
     args = parser.parse_args()
 
     if not os.path.exists(args.csv_path):
@@ -316,7 +362,19 @@ def main():
     print(f"  Format: {fmt} ({'in_/act_ columns' if fmt == 'split' else 'bare joint names'})")
     print(f"  Rows: {len(data[headers[0]])}")
 
-    jdata = get_joint_data(data, headers, fmt)
+    joints = detect_joints(headers, fmt)
+    if args.joints:
+        requested = [j.strip() for j in args.joints.split(',') if j.strip()]
+        missing = [j for j in requested if j not in joints]
+        if missing:
+            print(f"  WARNING: requested joints not found in CSV: {missing}")
+        joints = [j for j in requested if j in joints]
+        if not joints:
+            print("ERROR: none of the requested joints are present in the CSV.")
+            sys.exit(1)
+    print(f"  Joints ({len(joints)}): {', '.join(joints)}")
+
+    jdata = get_joint_data(data, headers, fmt, joints)
 
     prefix = os.path.join(args.output_dir, args.title)
 
