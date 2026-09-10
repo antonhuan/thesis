@@ -13,14 +13,17 @@ the wall-clock time (seconds) of each VLM inference chunk.
 Oscillation is defined exactly as in ``parse_pouch_episodes.py``: a *major
 reversal* is a direction change that occurs only after at least
 ``--reversal-threshold`` degrees (default 15°) of travel since the previous
-reversal.  Classification is evaluated over **every joint**: an episode is
-``oscillation`` when *any* joint sweeps a wide range (> ``--min-range``) while
-reversing often (>= ``--min-rev-per-s`` major reversals per second).
+reversal.  Rates are measured **per timestep** (per executed action), not per
+real second.  Classification is evaluated over the analysed joints
+(shoulder_pan, shoulder_lift, elbow_flex, wrist_flex -- gripper and wrist_roll
+are excluded): an episode is ``oscillation`` when *any* analysed joint sweeps a
+wide range (> ``--min-range``) while reversing often (>= ``--min-rev-per-step``
+major reversals per timestep).
 
 Outputs (written to ``vla_failure_analysis/``):
 
   * oscillation_manifest.csv  one row per episode with per-joint reversal
-                               counts, ranges, rev/s, the oscillating joints,
+                               counts, ranges, rev/step, the oscillating joints,
                                and the class label
   * oscillating_episodes.txt   just the episode ids classified as oscillating
 
@@ -42,13 +45,14 @@ from pathlib import Path
 
 import numpy as np
 
+# Joints used for oscillation analysis. gripper and wrist_roll are excluded:
+# the gripper cycles open/close by design and wrist_roll barely moves, so
+# neither reflects the arm-oscillation failure mode.
 JOINTS = [
     "shoulder_pan",
     "shoulder_lift",
     "elbow_flex",
     "wrist_flex",
-    "wrist_roll",
-    "gripper",
 ]
 
 TEST_DIR = Path("vla_failure_test")
@@ -104,21 +108,23 @@ def load_actions_csv(path: Path, source: str) -> tuple[dict[str, np.ndarray], np
 
 
 def analyse_episode(positions: dict[str, np.ndarray], elapsed: np.ndarray,
-                    threshold_deg: float, min_rev_per_s: float, min_range: float) -> dict:
+                    threshold_deg: float, min_rev_per_step: float, min_range: float) -> dict:
     """Compute per-joint oscillation metrics and a class label for one episode.
 
-    Classification considers every joint: the episode oscillates if any single
-    joint both sweeps > min_range degrees and reverses >= min_rev_per_s / sec.
+    Rates are per timestep (per executed action), not per real second: an
+    episode oscillates if any analysed joint both sweeps > min_range degrees
+    and reverses >= min_rev_per_step reversals per timestep.
     """
     n = len(next(iter(positions.values())))
-    # Duration from the elapsed-seconds column (per-chunk wall clock).
+    n_steps = n - 1  # number of step-to-step intervals
+    # Real elapsed time is kept for reference only; the rate uses timesteps.
     finite = elapsed[np.isfinite(elapsed)]
     duration = float(finite[-1] - finite[0]) if len(finite) >= 2 else 0.0
 
     metrics: dict = {"num_actions": n, "duration_s": round(duration, 3)}
 
     ranges: dict[str, float] = {}
-    rev_per_s: dict[str, float] = {}
+    rev_per_step: dict[str, float] = {}
     rev_counts: dict[str, int] = {}
     oscillating_joints: list[str] = []
 
@@ -130,19 +136,19 @@ def analyse_episode(positions: dict[str, np.ndarray], elapsed: np.ndarray,
         else:
             rng = float(np.nanmax(pos) - np.nanmin(pos))
             revs = find_major_reversals(pos, threshold_deg)
-        rps = len(revs) / duration if duration > 0 else 0.0
+        rps = len(revs) / n_steps if n_steps > 0 else 0.0
         ranges[j] = round(rng, 1)
-        rev_per_s[j] = round(rps, 3)
+        rev_per_step[j] = round(rps, 4)
         rev_counts[j] = len(revs)
         metrics[f"{j}_major_rev"] = len(revs)
         metrics[f"{j}_range"] = round(rng, 1)
-        metrics[f"{j}_rev_per_s"] = round(rps, 3)
-        if rng > min_range and rps >= min_rev_per_s:
+        metrics[f"{j}_rev_per_step"] = round(rps, 4)
+        if rng > min_range and rps >= min_rev_per_step:
             oscillating_joints.append(j)
 
     metrics["total_major_rev"] = sum(rev_counts.values())
     metrics["max_range"] = round(max(ranges.values()), 1)
-    metrics["max_rev_per_s"] = round(max(rev_per_s.values()), 3)
+    metrics["max_rev_per_step"] = round(max(rev_per_step.values()), 4)
     metrics["oscillating_joints"] = ";".join(oscillating_joints)
     metrics["n_oscillating_joints"] = len(oscillating_joints)
 
@@ -167,8 +173,9 @@ def main() -> None:
                         help="Use commanded (act_) or measured (in_) positions (default: commanded)")
     parser.add_argument("--reversal-threshold", type=float, default=REVERSAL_THRESHOLD_DEG,
                         help="Major reversal threshold in degrees (default: 15.0)")
-    parser.add_argument("--min-rev-per-s", type=float, default=0.5,
-                        help="Min reversals/sec (any joint) to call oscillation (default: 0.5)")
+    parser.add_argument("--min-rev-per-step", type=float, default=0.02,
+                        help="Min reversals per timestep (any joint) to call oscillation "
+                             "(default: 0.02)")
     parser.add_argument("--min-range", type=float, default=50.0,
                         help="Min joint range (deg) to call oscillation (default: 50.0)")
     parser.add_argument("--plots", action="store_true",
@@ -194,8 +201,8 @@ def main() -> None:
     manifest_fields = ["episode_id", "object_type", "episode_dir", "task",
                        "num_actions", "duration_s", "source"]
     for j in JOINTS:
-        manifest_fields += [f"{j}_major_rev", f"{j}_range", f"{j}_rev_per_s"]
-    manifest_fields += ["total_major_rev", "max_range", "max_rev_per_s",
+        manifest_fields += [f"{j}_major_rev", f"{j}_range", f"{j}_rev_per_step"]
+    manifest_fields += ["total_major_rev", "max_range", "max_rev_per_step",
                         "oscillating_joints", "n_oscillating_joints", "oscillation_class"]
 
     rows: list[dict] = []
@@ -218,7 +225,7 @@ def main() -> None:
             continue
 
         m = analyse_episode(positions, elapsed, args.reversal_threshold,
-                            args.min_rev_per_s, args.min_range)
+                            args.min_rev_per_step, args.min_range)
 
         row = {"episode_id": episode_id, "object_type": object_type,
                "episode_dir": episode_dir_name, "task": task, "source": args.source}
@@ -251,11 +258,11 @@ def main() -> None:
           f"reversal-threshold={args.reversal_threshold}°).")
     print(f"Classes: {', '.join(f'{k}={v}' for k, v in sorted(by_class.items()))}")
     print(f"\n{len(oscillating)} episode(s) with OSCILLATION behaviour "
-          f"(any joint: range > {args.min_range}°, >= {args.min_rev_per_s} rev/s):")
+          f"(any joint: range > {args.min_range}°, >= {args.min_rev_per_step} rev/step):")
     for ep_id in oscillating:
         r = next(x for x in rows if x["episode_id"] == ep_id)
         print(f"  {ep_id:28s} max_range={r['max_range']:6.1f}°  "
-              f"max_rev/s={r['max_rev_per_s']:.3f}  joints=[{r['oscillating_joints']}]")
+              f"max_rev/step={r['max_rev_per_step']:.4f}  joints=[{r['oscillating_joints']}]")
     print(f"\nWrote {manifest_path}")
     print(f"Wrote {osc_list_path}")
     if args.plots:
