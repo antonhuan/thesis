@@ -20,12 +20,19 @@ are excluded): an episode is ``oscillation`` when *any* analysed joint sweeps a
 wide range (> ``--min-range``) while reversing often (>= ``--min-rev-per-step``
 major reversals per timestep).
 
-Separately, a **manual-review flag** captures two velocity-based signatures
-with an inclusive OR: an episode is flagged for review if any analysed joint
-has high mean velocity (>= ``--vel-threshold`` deg/step) OR many high-velocity
-sign flips (>= ``--fast-rev-threshold`` reversals among fast steps, where a
-"fast" step moves >= ``--fast-step`` deg).  This is meant as a high-recall net
-to hand-check, not a precise classifier.
+Separately, a **review flag** marks the high-velocity oscillation signature.
+Manual review of 30 flagged episodes showed that oscillation is *sustained*
+fast motion with *large excursions*: a single threshold on either mean or peak
+per-step velocity overlaps with non-oscillation episodes (a one-off large
+correction spikes the peak without sustained fast motion; a fast-but-directed
+reach raises the mean without a large single step), but the **conjunction**
+separates them cleanly.  An episode is flagged when any analysed joint has both
+high mean velocity (>= ``--vel-threshold`` deg/step) AND a high peak per-step
+velocity (>= ``--peak-threshold`` deg/step).  ``fast_rev`` (sign flips among
+fast steps) is still reported per joint as a diagnostic but is NOT used for the
+flag: review showed it fires on successful, non-oscillating episodes (and the
+single highest flip count in the set belonged to a success), so it does not
+discriminate oscillation.
 
 Outputs (written to ``vla_failure_analysis/``):
 
@@ -70,9 +77,34 @@ OUT_DIR = Path("vla_failure_analysis")
 REVERSAL_THRESHOLD_DEG = 15.0
 
 # A step counts as "fast" when the commanded joint moves at least this many
-# degrees in one action. "Big sign flips" counts how often the direction of
-# fast motion reverses (the red<->blue alternation in the velocity plots).
+# degrees in one action. Used only for the diagnostic fast_rev sign-flip count
+# (see module docstring); it does NOT feed the review flag.
 FAST_STEP_DEG = 2.0
+
+# --- Review-flag threshold calibration -------------------------------------
+# The flag fires when one joint has BOTH mean per-step speed >= VEL_THRESHOLD
+# AND peak per-step speed >= PEAK_THRESHOLD (see analyse_episode). Defaults were
+# calibrated against 30 hand-labelled episodes (7 oscillation, 23 not); on that
+# set the conjunction gives a perfect split (7/7 caught, 0 false positives).
+#
+# Downward room, each gate measured with the other held at its default:
+#   VEL_THRESHOLD  = 2.3 deg/step  -> safe range (2.13, 2.43]; room DOWN ~0.17
+#       lowest oscillation joint = 2.43 (banana__110 shoulder_lift);
+#       first non-oscillation false positive at 2.13 (plush__162 shoulder_lift).
+#       This is the BINDING gate -- the window is only ~0.3 deg/step wide, so
+#       2.3 sits near the floor. If adjusting, prefer moving UP toward ~2.4 for
+#       margin rather than down. Mean speed is the real discriminator.
+#   PEAK_THRESHOLD = 100 deg/step  -> safe range (87.7, 108.7]; room DOWN ~12
+#       lowest oscillation joint = 108.7; first false positive at 87.7
+#       (plush__133 elbow_flex). Peak has real slack; its job is to reject
+#       single-spike corrections (high peak, low mean) such as purse__016.
+#
+# On this set every oscillation triggers on shoulder_lift (elbow_flex sometimes
+# too); shoulder_pan / wrist_flex never trigger. Margins come from n=30 (7
+# positives) -- the ~0.17 mean headroom is thin, so re-check the gap as more
+# labelled episodes accumulate.
+VEL_THRESHOLD_DEG = 2.3
+PEAK_THRESHOLD_DEG = 100.0
 
 
 def fast_sign_flips(positions: np.ndarray, fast_step_deg: float) -> int:
@@ -139,7 +171,7 @@ def load_actions_csv(path: Path, source: str) -> tuple[dict[str, np.ndarray], np
 def analyse_episode(positions: dict[str, np.ndarray], elapsed: np.ndarray,
                     threshold_deg: float, min_rev_per_step: float, min_range: float,
                     fast_step_deg: float, vel_threshold: float,
-                    fast_rev_threshold: int) -> dict:
+                    peak_threshold: float) -> dict:
     """Compute per-joint oscillation metrics and a class label for one episode.
 
     Two independent views are produced:
@@ -147,9 +179,10 @@ def analyse_episode(positions: dict[str, np.ndarray], elapsed: np.ndarray,
     * ``oscillation_class`` -- the timestep-based major-reversal metric: an
       episode oscillates if any analysed joint sweeps > min_range degrees and
       reverses >= min_rev_per_step reversals per timestep.
-    * ``review_flag`` -- an inclusive OR net for manual review: True if any
-      joint has high mean velocity (>= vel_threshold deg/step) OR many
-      high-velocity sign flips (>= fast_rev_threshold).
+    * ``review_flag`` -- the high-velocity oscillation signature: True if any
+      joint has BOTH high mean velocity (>= vel_threshold deg/step) AND a high
+      peak per-step velocity (>= peak_threshold deg/step). The conjunction is
+      what separates oscillation from non-oscillation; neither gate alone does.
     """
     n = len(next(iter(positions.values())))
     n_steps = n - 1  # number of step-to-step intervals
@@ -163,6 +196,7 @@ def analyse_episode(positions: dict[str, np.ndarray], elapsed: np.ndarray,
     rev_per_step: dict[str, float] = {}
     rev_counts: dict[str, int] = {}
     mean_speeds: dict[str, float] = {}
+    peak_speeds: dict[str, float] = {}
     fast_revs: dict[str, int] = {}
     oscillating_joints: list[str] = []
 
@@ -170,22 +204,26 @@ def analyse_episode(positions: dict[str, np.ndarray], elapsed: np.ndarray,
         pos = positions[j]
         pos = pos[np.isfinite(pos)]
         if len(pos) < 2:
-            rng, revs, mean_speed, fflip = 0.0, [], 0.0, 0
+            rng, revs, mean_speed, peak_speed, fflip = 0.0, [], 0.0, 0.0, 0
         else:
             rng = float(np.nanmax(pos) - np.nanmin(pos))
             revs = find_major_reversals(pos, threshold_deg)
-            mean_speed = float(np.abs(np.diff(pos)).mean())
+            step_vel = np.abs(np.diff(pos))
+            mean_speed = float(step_vel.mean())
+            peak_speed = float(step_vel.max())
             fflip = fast_sign_flips(pos, fast_step_deg)
         rps = len(revs) / n_steps if n_steps > 0 else 0.0
         ranges[j] = round(rng, 1)
         rev_per_step[j] = round(rps, 4)
         rev_counts[j] = len(revs)
         mean_speeds[j] = round(mean_speed, 3)
+        peak_speeds[j] = round(peak_speed, 2)
         fast_revs[j] = fflip
         metrics[f"{j}_major_rev"] = len(revs)
         metrics[f"{j}_range"] = round(rng, 1)
         metrics[f"{j}_rev_per_step"] = round(rps, 4)
         metrics[f"{j}_mean_speed"] = round(mean_speed, 3)
+        metrics[f"{j}_peak_speed"] = round(peak_speed, 2)
         metrics[f"{j}_fast_rev"] = fflip
         if rng > min_range and rps >= min_rev_per_step:
             oscillating_joints.append(j)
@@ -204,22 +242,22 @@ def analyse_episode(positions: dict[str, np.ndarray], elapsed: np.ndarray,
         cls = "normal"
     metrics["oscillation_class"] = cls
 
-    # --- velocity / sign-flip review flag (inclusive OR) ---
+    # --- high-velocity oscillation review flag (mean AND peak) ---
+    # Both gates must trip on the *same* joint: sustained fast motion (mean) with
+    # a large single-step excursion (peak). A joint with only one of the two is a
+    # directed fast reach or a one-off correction, not oscillation.
     max_mean_speed = max(mean_speeds.values())
-    max_fast_rev = max(fast_revs.values())
+    max_peak_speed = max(peak_speeds.values())
+    max_fast_rev = max(fast_revs.values())  # diagnostic only; not used for the flag
     metrics["max_mean_speed"] = round(max_mean_speed, 3)
+    metrics["max_peak_speed"] = round(max_peak_speed, 2)
     metrics["max_fast_rev"] = max_fast_rev
-    high_velocity = max_mean_speed >= vel_threshold
-    big_sign_flips = max_fast_rev >= fast_rev_threshold
-    reasons = []
-    if high_velocity:
-        reasons.append("high_velocity")
-    if big_sign_flips:
-        reasons.append("big_sign_flips")
-    metrics["high_velocity"] = high_velocity
-    metrics["big_sign_flips"] = big_sign_flips
-    metrics["review_flag"] = bool(reasons)
-    metrics["review_reason"] = ";".join(reasons)
+    oscillating = any(mean_speeds[j] >= vel_threshold and peak_speeds[j] >= peak_threshold
+                      for j in JOINTS)
+    metrics["high_velocity"] = max_mean_speed >= vel_threshold
+    metrics["high_peak"] = max_peak_speed >= peak_threshold
+    metrics["review_flag"] = bool(oscillating)
+    metrics["review_reason"] = "high_mean_and_peak" if oscillating else ""
     return metrics
 
 
@@ -241,13 +279,13 @@ def main() -> None:
                         help="Min joint range (deg) to call oscillation (default: 50.0)")
     parser.add_argument("--fast-step", type=float, default=FAST_STEP_DEG,
                         help="Per-step move (deg) that counts as a 'fast' step for "
-                             "sign-flip counting (default: 2.0)")
-    parser.add_argument("--vel-threshold", type=float, default=2.0,
-                        help="Review flag: min mean speed (deg/step, any joint) that "
-                             "counts as high velocity (default: 2.0)")
-    parser.add_argument("--fast-rev-threshold", type=int, default=23,
-                        help="Review flag: min high-velocity sign flips (any joint) that "
-                             "count as big sign flips (default: 23)")
+                             "the diagnostic sign-flip count (default: 2.0)")
+    parser.add_argument("--vel-threshold", type=float, default=VEL_THRESHOLD_DEG,
+                        help=f"Review flag: min mean speed (deg/step) a joint needs "
+                             f"(combined with --peak-threshold) (default: {VEL_THRESHOLD_DEG})")
+    parser.add_argument("--peak-threshold", type=float, default=PEAK_THRESHOLD_DEG,
+                        help=f"Review flag: min peak per-step speed (deg/step) a joint "
+                             f"needs (combined with --vel-threshold) (default: {PEAK_THRESHOLD_DEG})")
     parser.add_argument("--plots", action="store_true",
                         help="Generate diagnostic plots for oscillating episodes "
                              "(via plot_oscillation_diagnostics.py)")
@@ -272,11 +310,11 @@ def main() -> None:
                        "num_actions", "duration_s", "source"]
     for j in JOINTS:
         manifest_fields += [f"{j}_major_rev", f"{j}_range", f"{j}_rev_per_step",
-                            f"{j}_mean_speed", f"{j}_fast_rev"]
+                            f"{j}_mean_speed", f"{j}_peak_speed", f"{j}_fast_rev"]
     manifest_fields += ["total_major_rev", "max_range", "max_rev_per_step",
                         "oscillating_joints", "n_oscillating_joints", "oscillation_class",
-                        "max_mean_speed", "max_fast_rev", "high_velocity",
-                        "big_sign_flips", "review_flag", "review_reason"]
+                        "max_mean_speed", "max_peak_speed", "max_fast_rev",
+                        "high_velocity", "high_peak", "review_flag", "review_reason"]
 
     rows: list[dict] = []
     warnings: list[str] = []
@@ -300,7 +338,7 @@ def main() -> None:
 
         m = analyse_episode(positions, elapsed, args.reversal_threshold,
                             args.min_rev_per_step, args.min_range,
-                            args.fast_step, args.vel_threshold, args.fast_rev_threshold)
+                            args.fast_step, args.vel_threshold, args.peak_threshold)
 
         row = {"episode_id": episode_id, "object_type": object_type,
                "episode_dir": episode_dir_name, "task": task, "source": args.source}
@@ -329,7 +367,7 @@ def main() -> None:
     osc_list_path = out_dir / "oscillating_episodes.txt"
     osc_list_path.write_text("\n".join(oscillating) + ("\n" if oscillating else ""))
 
-    # Review list: high-velocity OR big sign flips, with the reason per episode.
+    # Review list: high mean AND peak per-step velocity, with the reason per episode.
     review_path = out_dir / "review_episodes.txt"
     review_lines = []
     for ep_id in review:
@@ -350,15 +388,15 @@ def main() -> None:
               f"max_rev/step={r['max_rev_per_step']:.4f}  joints=[{r['oscillating_joints']}]")
 
     n_hv = sum(1 for r in rows if r["high_velocity"])
-    n_bf = sum(1 for r in rows if r["big_sign_flips"])
-    print(f"\n{len(review)} episode(s) FLAGGED FOR MANUAL REVIEW "
-          f"(mean speed >= {args.vel_threshold} deg/step OR "
-          f">= {args.fast_rev_threshold} fast sign flips) "
-          f"[high_velocity={n_hv}, big_sign_flips={n_bf}]:")
+    n_hp = sum(1 for r in rows if r["high_peak"])
+    print(f"\n{len(review)} episode(s) FLAGGED AS OSCILLATION "
+          f"(any joint: mean speed >= {args.vel_threshold} deg/step AND "
+          f"peak speed >= {args.peak_threshold} deg/step) "
+          f"[high_velocity={n_hv}, high_peak={n_hp}]:")
     for ep_id in review:
         r = next(x for x in rows if x["episode_id"] == ep_id)
         print(f"  {ep_id:28s} mean_speed={r['max_mean_speed']:5.2f}  "
-              f"fast_rev={r['max_fast_rev']:3d}  reason=[{r['review_reason']}]")
+              f"peak_speed={r['max_peak_speed']:6.1f}  reason=[{r['review_reason']}]")
     print(f"\nWrote {manifest_path}")
     print(f"Wrote {osc_list_path}")
     print(f"Wrote {review_path}")

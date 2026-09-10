@@ -284,7 +284,6 @@ def plot_velocity_reversals(jdata, title, output_path, threshold_deg=15.0):
     joints = jdata['joints']
     fig, axes = _new_axes(len(joints))
     t = jdata['t']
-    duration = t[-1] - t[0] if len(t) > 1 else 1.0
 
     # Cycle through a color list so each joint is visually distinct.
     palette = ['steelblue', 'darkorange', 'seagreen', 'crimson',
@@ -292,8 +291,12 @@ def plot_velocity_reversals(jdata, title, output_path, threshold_deg=15.0):
 
     for i, j in enumerate(joints):
         ax = axes[i]
-        # Use measured if available, otherwise commanded.
-        pos = jdata['meas'][j] if jdata['meas'][j] is not None else jdata['cmd'][j]
+        # Per-action-step velocity: diff the COMMANDED stream, which updates every
+        # action step. The measured stream (in_*) is sampled once per chunk and
+        # repeated across that chunk's exec rows, so diffing it yields zeros within
+        # a chunk and a single large spike at each chunk boundary. Fall back to
+        # measured only when no commanded stream exists (e.g. bare format quirks).
+        pos = jdata['cmd'][j] if jdata['cmd'][j] is not None else jdata['meas'][j]
         color = palette[i % len(palette)]
         vel = np.diff(pos)
         t_vel = t[:-1]
@@ -308,18 +311,19 @@ def plot_velocity_reversals(jdata, title, output_path, threshold_deg=15.0):
                 ax.axvline(x=t[rev_idx], color='red', linewidth=1.0, alpha=0.6)
 
         n_rev = len(reversals)
-        rev_per_s = n_rev / duration if duration > 0 else 0
+        n_steps = len(pos) - 1
+        rev_per_step = n_rev / n_steps if n_steps > 0 else 0
         rng = np.nanmax(pos) - np.nanmin(pos)
 
         ax.set_ylabel(f'{_joint_label(j)}\nVelocity (°/step)')
         ax.grid(True, alpha=0.3)
-        stats_text = f'Major reversals: {n_rev}  |  rev/s: {rev_per_s:.3f}  |  Range: {rng:.1f}°'
+        stats_text = f'Major reversals: {n_rev}  |  rev/step: {rev_per_step:.3f}  |  Range: {rng:.1f}°'
         ax.text(0.02, 0.95, stats_text, transform=ax.transAxes, va='top',
                 fontsize=9, bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.8))
         if i == 0:
             ax.set_title(f'{title} — Velocity & Major Reversals (threshold={threshold_deg}°)')
 
-    axes[-1].set_xlabel('Time (s)')
+    axes[-1].set_xlabel('Action step')
     plt.tight_layout()
     plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
