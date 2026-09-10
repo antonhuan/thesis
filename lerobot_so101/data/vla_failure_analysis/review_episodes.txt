@@ -1,0 +1,7 @@
+banana__110_banana	high_mean_and_peak
+banana__172_banana	high_mean_and_peak
+fail__074_pouch	high_mean_and_peak
+fail__080_box	high_mean_and_peak
+fail__196_pencil	high_mean_and_peak
+pouch__002_pouch	high_mean_and_peak
+pouch__004_pouch	high_mean_and_peak
