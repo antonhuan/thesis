@@ -20,12 +20,21 @@ are excluded): an episode is ``oscillation`` when *any* analysed joint sweeps a
 wide range (> ``--min-range``) while reversing often (>= ``--min-rev-per-step``
 major reversals per timestep).
 
+Separately, a **manual-review flag** captures two velocity-based signatures
+with an inclusive OR: an episode is flagged for review if any analysed joint
+has high mean velocity (>= ``--vel-threshold`` deg/step) OR many high-velocity
+sign flips (>= ``--fast-rev-threshold`` reversals among fast steps, where a
+"fast" step moves >= ``--fast-step`` deg).  This is meant as a high-recall net
+to hand-check, not a precise classifier.
+
 Outputs (written to ``vla_failure_analysis/``):
 
   * oscillation_manifest.csv  one row per episode with per-joint reversal
-                               counts, ranges, rev/step, the oscillating joints,
-                               and the class label
-  * oscillating_episodes.txt   just the episode ids classified as oscillating
+                               counts, ranges, rev/step, mean speed, fast-rev
+                               counts, the class label, and the review flag
+  * oscillating_episodes.txt   episode ids classified as oscillating (reversal)
+  * review_episodes.txt        episode ids flagged for manual review (velocity
+                               OR sign flips), tab-separated with the reason
 
 Run from ``lerobot_so101/data/``::
 
@@ -59,6 +68,26 @@ TEST_DIR = Path("vla_failure_test")
 OUT_DIR = Path("vla_failure_analysis")
 
 REVERSAL_THRESHOLD_DEG = 15.0
+
+# A step counts as "fast" when the commanded joint moves at least this many
+# degrees in one action. "Big sign flips" counts how often the direction of
+# fast motion reverses (the red<->blue alternation in the velocity plots).
+FAST_STEP_DEG = 2.0
+
+
+def fast_sign_flips(positions: np.ndarray, fast_step_deg: float) -> int:
+    """Count velocity sign reversals among 'fast' steps (|delta| >= fast_step_deg).
+
+    This isolates high-velocity back-and-forth motion: near-zero jitter is
+    ignored, and only direction changes between fast moves are counted.
+    """
+    if len(positions) < 2:
+        return 0
+    v = np.diff(positions)
+    fast_signs = np.sign(v[np.abs(v) >= fast_step_deg])
+    if len(fast_signs) < 2:
+        return 0
+    return int((np.diff(fast_signs) != 0).sum())
 
 
 def find_major_reversals(positions: np.ndarray, threshold_deg: float) -> list[int]:
@@ -108,12 +137,19 @@ def load_actions_csv(path: Path, source: str) -> tuple[dict[str, np.ndarray], np
 
 
 def analyse_episode(positions: dict[str, np.ndarray], elapsed: np.ndarray,
-                    threshold_deg: float, min_rev_per_step: float, min_range: float) -> dict:
+                    threshold_deg: float, min_rev_per_step: float, min_range: float,
+                    fast_step_deg: float, vel_threshold: float,
+                    fast_rev_threshold: int) -> dict:
     """Compute per-joint oscillation metrics and a class label for one episode.
 
-    Rates are per timestep (per executed action), not per real second: an
-    episode oscillates if any analysed joint both sweeps > min_range degrees
-    and reverses >= min_rev_per_step reversals per timestep.
+    Two independent views are produced:
+
+    * ``oscillation_class`` -- the timestep-based major-reversal metric: an
+      episode oscillates if any analysed joint sweeps > min_range degrees and
+      reverses >= min_rev_per_step reversals per timestep.
+    * ``review_flag`` -- an inclusive OR net for manual review: True if any
+      joint has high mean velocity (>= vel_threshold deg/step) OR many
+      high-velocity sign flips (>= fast_rev_threshold).
     """
     n = len(next(iter(positions.values())))
     n_steps = n - 1  # number of step-to-step intervals
@@ -126,23 +162,31 @@ def analyse_episode(positions: dict[str, np.ndarray], elapsed: np.ndarray,
     ranges: dict[str, float] = {}
     rev_per_step: dict[str, float] = {}
     rev_counts: dict[str, int] = {}
+    mean_speeds: dict[str, float] = {}
+    fast_revs: dict[str, int] = {}
     oscillating_joints: list[str] = []
 
     for j in JOINTS:
         pos = positions[j]
         pos = pos[np.isfinite(pos)]
         if len(pos) < 2:
-            rng, revs = 0.0, []
+            rng, revs, mean_speed, fflip = 0.0, [], 0.0, 0
         else:
             rng = float(np.nanmax(pos) - np.nanmin(pos))
             revs = find_major_reversals(pos, threshold_deg)
+            mean_speed = float(np.abs(np.diff(pos)).mean())
+            fflip = fast_sign_flips(pos, fast_step_deg)
         rps = len(revs) / n_steps if n_steps > 0 else 0.0
         ranges[j] = round(rng, 1)
         rev_per_step[j] = round(rps, 4)
         rev_counts[j] = len(revs)
+        mean_speeds[j] = round(mean_speed, 3)
+        fast_revs[j] = fflip
         metrics[f"{j}_major_rev"] = len(revs)
         metrics[f"{j}_range"] = round(rng, 1)
         metrics[f"{j}_rev_per_step"] = round(rps, 4)
+        metrics[f"{j}_mean_speed"] = round(mean_speed, 3)
+        metrics[f"{j}_fast_rev"] = fflip
         if rng > min_range and rps >= min_rev_per_step:
             oscillating_joints.append(j)
 
@@ -159,6 +203,23 @@ def analyse_episode(positions: dict[str, np.ndarray], elapsed: np.ndarray,
     else:
         cls = "normal"
     metrics["oscillation_class"] = cls
+
+    # --- velocity / sign-flip review flag (inclusive OR) ---
+    max_mean_speed = max(mean_speeds.values())
+    max_fast_rev = max(fast_revs.values())
+    metrics["max_mean_speed"] = round(max_mean_speed, 3)
+    metrics["max_fast_rev"] = max_fast_rev
+    high_velocity = max_mean_speed >= vel_threshold
+    big_sign_flips = max_fast_rev >= fast_rev_threshold
+    reasons = []
+    if high_velocity:
+        reasons.append("high_velocity")
+    if big_sign_flips:
+        reasons.append("big_sign_flips")
+    metrics["high_velocity"] = high_velocity
+    metrics["big_sign_flips"] = big_sign_flips
+    metrics["review_flag"] = bool(reasons)
+    metrics["review_reason"] = ";".join(reasons)
     return metrics
 
 
@@ -178,6 +239,15 @@ def main() -> None:
                              "(default: 0.02)")
     parser.add_argument("--min-range", type=float, default=50.0,
                         help="Min joint range (deg) to call oscillation (default: 50.0)")
+    parser.add_argument("--fast-step", type=float, default=FAST_STEP_DEG,
+                        help="Per-step move (deg) that counts as a 'fast' step for "
+                             "sign-flip counting (default: 2.0)")
+    parser.add_argument("--vel-threshold", type=float, default=2.0,
+                        help="Review flag: min mean speed (deg/step, any joint) that "
+                             "counts as high velocity (default: 2.0)")
+    parser.add_argument("--fast-rev-threshold", type=int, default=23,
+                        help="Review flag: min high-velocity sign flips (any joint) that "
+                             "count as big sign flips (default: 23)")
     parser.add_argument("--plots", action="store_true",
                         help="Generate diagnostic plots for oscillating episodes "
                              "(via plot_oscillation_diagnostics.py)")
@@ -201,13 +271,17 @@ def main() -> None:
     manifest_fields = ["episode_id", "object_type", "episode_dir", "task",
                        "num_actions", "duration_s", "source"]
     for j in JOINTS:
-        manifest_fields += [f"{j}_major_rev", f"{j}_range", f"{j}_rev_per_step"]
+        manifest_fields += [f"{j}_major_rev", f"{j}_range", f"{j}_rev_per_step",
+                            f"{j}_mean_speed", f"{j}_fast_rev"]
     manifest_fields += ["total_major_rev", "max_range", "max_rev_per_step",
-                        "oscillating_joints", "n_oscillating_joints", "oscillation_class"]
+                        "oscillating_joints", "n_oscillating_joints", "oscillation_class",
+                        "max_mean_speed", "max_fast_rev", "high_velocity",
+                        "big_sign_flips", "review_flag", "review_reason"]
 
     rows: list[dict] = []
     warnings: list[str] = []
     oscillating: list[str] = []
+    review: list[str] = []
 
     for csv_path in csv_paths:
         ep_dir = csv_path.parent
@@ -225,7 +299,8 @@ def main() -> None:
             continue
 
         m = analyse_episode(positions, elapsed, args.reversal_threshold,
-                            args.min_rev_per_step, args.min_range)
+                            args.min_rev_per_step, args.min_range,
+                            args.fast_step, args.vel_threshold, args.fast_rev_threshold)
 
         row = {"episode_id": episode_id, "object_type": object_type,
                "episode_dir": episode_dir_name, "task": task, "source": args.source}
@@ -234,6 +309,8 @@ def main() -> None:
 
         if m["oscillation_class"] == "oscillation":
             oscillating.append(episode_id)
+        if m["review_flag"]:
+            review.append(episode_id)
             if args.plots:
                 plot_dir.mkdir(parents=True, exist_ok=True)
                 subprocess.run(
@@ -252,6 +329,14 @@ def main() -> None:
     osc_list_path = out_dir / "oscillating_episodes.txt"
     osc_list_path.write_text("\n".join(oscillating) + ("\n" if oscillating else ""))
 
+    # Review list: high-velocity OR big sign flips, with the reason per episode.
+    review_path = out_dir / "review_episodes.txt"
+    review_lines = []
+    for ep_id in review:
+        r = next(x for x in rows if x["episode_id"] == ep_id)
+        review_lines.append(f"{ep_id}\t{r['review_reason']}")
+    review_path.write_text("\n".join(review_lines) + ("\n" if review_lines else ""))
+
     # --- summary ---
     by_class = Counter(r["oscillation_class"] for r in rows)
     print(f"Scanned {len(rows)} episodes under {test_dir} (source={args.source}, "
@@ -263,10 +348,22 @@ def main() -> None:
         r = next(x for x in rows if x["episode_id"] == ep_id)
         print(f"  {ep_id:28s} max_range={r['max_range']:6.1f}°  "
               f"max_rev/step={r['max_rev_per_step']:.4f}  joints=[{r['oscillating_joints']}]")
+
+    n_hv = sum(1 for r in rows if r["high_velocity"])
+    n_bf = sum(1 for r in rows if r["big_sign_flips"])
+    print(f"\n{len(review)} episode(s) FLAGGED FOR MANUAL REVIEW "
+          f"(mean speed >= {args.vel_threshold} deg/step OR "
+          f">= {args.fast_rev_threshold} fast sign flips) "
+          f"[high_velocity={n_hv}, big_sign_flips={n_bf}]:")
+    for ep_id in review:
+        r = next(x for x in rows if x["episode_id"] == ep_id)
+        print(f"  {ep_id:28s} mean_speed={r['max_mean_speed']:5.2f}  "
+              f"fast_rev={r['max_fast_rev']:3d}  reason=[{r['review_reason']}]")
     print(f"\nWrote {manifest_path}")
     print(f"Wrote {osc_list_path}")
+    print(f"Wrote {review_path}")
     if args.plots:
-        print(f"Plots: {len(oscillating)} episodes × 3 in {plot_dir}/")
+        print(f"Plots: {len(review)} review episodes × 3 in {plot_dir}/")
     if warnings:
         print(f"\n{len(warnings)} warning(s):")
         for wmsg in warnings:
