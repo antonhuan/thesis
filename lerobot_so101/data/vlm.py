@@ -304,12 +304,6 @@ REFINEMENT_SYSTEM_PROMPT = """You previously generated a robot instruction that 
 
 Given the failed instruction and a description of what went wrong, suggest 3 alternative names for the target object. Use simple, common, single-word nouns when possible. Return ONLY the three alternatives, one per line, most likely first. No numbering, no explanation."""
 
-GUIDED_VOCAB_MATCH_SYSTEM_PROMPT = """You identified an object using an open-vocabulary label, but the robot could not execute instructions with that name or the alternatives you suggested.
-
-The robot was trained with a fixed set of object labels. Given the label you used and the training vocabulary, determine which training label refers to the same object. If none match, say NONE.
-
-Return ONLY the matching training label (exactly as it appears in the list) or the word NONE."""
-
 
 # ---------------------------------------------------------------------------
 # Image content builders
