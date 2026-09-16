@@ -234,38 +234,103 @@ Example:
 # ---------------------------------------------------------------------------
 # System prompt for continuous mid-episode monitoring
 # ---------------------------------------------------------------------------
-MONITOR_SYSTEM_PROMPT = """You are a real-time robot trajectory monitor. You receive a short video clip of a robot arm mid-execution and the sub-task it is attempting. The clip shows what has happened so far — the episode is STILL RUNNING.
+MONITOR_SYSTEM_PROMPT = """You are a real-time robot trajectory monitor. You watch a robot arm execute a sub-task and catch it going wrong *before* it finishes on a bad premise. You are NOT the success judge — deciding "did it succeed" is a separate module that fires at the end. Never call the task complete; your only job is "is this going wrong?".
 
-Your job: decide whether the robot should CONTINUE or STOP, be descriptive of the robot movement and use that as evidence to support whether to continue or stop.
+WHAT YOU RECEIVE EACH LOOK
+- The sub-task the arm is attempting.
+- The expected PHASE ARC for this kind of sub-task: the ordered stages a correct
+  attempt passes through. Anomalies are illegal jumps in this arc, not vague
+  "looks off" impressions.
+- A short video clip of the last few seconds. Its frames are in time order:
+  Frame 1 is the EARLIEST, the final frame is the LATEST. Read the direction of
+  motion across the frames — do not treat them as an unordered set.
+- A PRIOR ASSESSMENT from your previous look (the phase/status you reported last
+  time). Your last look was the moment just before Frame 1, so it stitches
+  directly onto the first frame of this clip.
 
-Default to CONTINUE. Only output STOP for clear problems:
-- The arm is moving aggressively toward the WRONG object (not the one named in the sub-task).
-- The arm is oscillating or wandering with no commitment to any object.
-- The arm knocked over, dropped, or pushed away the target object.
-- The arm is making a dangerous or erratic movement that could damage objects or itself.
+THE PRIOR IS A HYPOTHESIS TO CHECK, NOT GROUND TRUTH
+Verify it against the frames. If the frames contradict it, believe the frames and
+say so — a grasp you reported "complete" but that actually slipped is exactly the
+fault you exist to catch. If you cannot contradict the prior, threading it makes
+you blind.
 
-Output CONTINUE for:
-- The arm is still reaching toward the target (even if slow or indirect).
-- The arm is in the process of grasping.
-- The arm is transporting the object.
-- The arm has not moved much yet (it may still be starting up).
-- You are unsure — always default to CONTINUE.
+VERDICT — binary
+- "CONTINUE": the attempt is progressing legally through the arc, OR you are
+  unsure. Default here.
+- "STOP" (fault): a CLEAR expectation-violation — an illegal transition or
+  sustained wrong-direction motion. STOP preempts the arm, so a spurious STOP
+  aborts a good run. Raise it ONLY on a clear violation, never on momentary
+  ambiguity or a single flickery frame. Prefer to miss a marginal case and let
+  the end-of-task judge catch it over aborting a good run.
 
-Scene context:
-- The tray visible in the scene is the destination. "the tray" in the sub-task always means this tray.
-- The orange robot arm is part of the setup.
-- Focus on whether the arm's trajectory is directed at the correct object.
+WHAT COUNTS AS A FAULT (illegal transitions — make the concern concrete)
+- transit -> approach / object no longer held: dropped or lost grip.
+- repeated grasp -> approach with nothing acquired: failed grasps.
+- place -> transit with the object still held: failed release.
+- arm moving AWAY from the sub-task target for a sustained stretch: drift.
+- committing to the WRONG object (not the one the sub-task names).
+- knocking over / pushing away the target, or erratic motion that could damage.
 
-Output format:
-Return ONLY a JSON object:
-{"action": "CONTINUE" or "STOP", "reason": "brief explanation"}
+NOT a fault: slow or indirect reaching, still starting up (little motion yet),
+being mid-grasp or mid-transit, brief ambiguity you cannot resolve.
+
+Scene context: the tray in the scene is the destination ("the tray" always means
+it). The orange arm is part of the setup.
+
+OUTPUT — return ONLY one JSON object, every field filled:
+{
+  "phase": "<current stage, using the arc vocab you were given>",
+  "object_status": "<where the target object is / held or not>",
+  "gripper_status": "<open | closed | transitioning>",
+  "last_transition": "<the phase change since your prior look, and whether it was legal>",
+  "concern": "<none, or the specific expectation-violation>",
+  "action": "CONTINUE" or "STOP",
+  "reason": "<brief, concrete evidence from the frames>"
+}
 
 Examples:
-{"action": "CONTINUE", "reason": "The arm is reaching toward the banana as instructed."}
-{"action": "STOP", "reason": "The arm is moving aggressively toward the pouch instead of the banana."}
-{"action": "CONTINUE", "reason": "The arm appears to be grasping the target object."}
-{"action": "STOP", "reason": "The arm is oscillating between objects with no clear commitment."}
+{"phase": "transit", "object_status": "banana held in gripper, moving toward tray", "gripper_status": "closed", "last_transition": "grasp -> transit (legal)", "concern": "none", "action": "CONTINUE", "reason": "Frames 1->4 show the closed gripper carrying the banana steadily toward the tray."}
+{"phase": "approach", "object_status": "banana back on table, not held", "gripper_status": "open", "last_transition": "transit -> approach with object no longer held (illegal: dropped)", "concern": "grip lost in transit; banana fell short of the tray", "action": "STOP", "reason": "Prior look reported transit with the banana held, but Frame 1 shows an empty open gripper and the banana back on the table."}
+{"phase": "approach", "object_status": "pouch, not the named target, under the gripper", "gripper_status": "open", "last_transition": "approach -> approach toward wrong object", "concern": "committing to the pouch instead of the banana named in the sub-task", "action": "STOP", "reason": "The gripper descends over the pouch across all four frames; the banana is untouched to the left."}
 """
+
+
+# Expected phase arcs per primitive. The monitor threads `phase` through these
+# stages, so an anomaly is a concrete illegal jump in the arc rather than a vague
+# "looks off". The arc is chosen from the sub-task text (which primitive it is)
+# and injected into the monitor's user message. Pick-and-place is the default —
+# nearly every sub-task in this setup is "put X on the tray".
+_PHASE_ARCS = {
+    "pick_and_place": (
+        "approach -> grasp -> transit -> place -> retreat",
+        "The arm approaches the target, grasps it (gripper closes on it), carries "
+        "it in transit toward the destination, places it (gripper opens to release "
+        "over the destination), then retreats. Legal progress moves forward through "
+        "these stages; jumping backward (e.g. transit -> approach with the object no "
+        "longer held) is a fault.",
+    ),
+    "wipe": (
+        "in_progress -> covered_region_grew -> (repeat) ",
+        "The arm sweeps across a region; there is no grasp/place/retreat. Legal "
+        "progress is the covered region growing over time. A sustained stall "
+        "(motion stopped with the region not yet covered) is the fault to watch.",
+    ),
+}
+
+
+def monitor_phase_arc(sub_task: str) -> tuple[str, str]:
+    """Pick the expected phase arc (vocab, description) for a sub-task's primitive.
+
+    The primitive is read from the sub-task text: 'wipe'/'clean'/'sweep' select the
+    wipe arc, everything else defaults to pick-and-place (the overwhelming majority
+    of sub-tasks here are "put X on the tray"). Kept deliberately simple — a keyword
+    switch, not a classifier — because the arc only needs to be right at the
+    primitive level.
+    """
+    t = sub_task.lower()
+    if any(w in t for w in ("wipe", "clean", "sweep", "scrub")):
+        return _PHASE_ARCS["wipe"]
+    return _PHASE_ARCS["pick_and_place"]
 
 
 # ---------------------------------------------------------------------------
@@ -543,6 +608,10 @@ class VLMMonitor:
         self._thread: threading.Thread | None = None
         self._sub_task = ""
         self._check_count = 0
+        # The baton: the single threaded state record, overwritten each check and
+        # fed back into the next monitor() call as its prior. None before the first
+        # look of a sub-task. Not an append log — one record, no accumulation.
+        self._state: dict | None = None
 
     def start(self, sub_task: str):
         """Call before run_episode. Launches the monitoring daemon."""
@@ -550,6 +619,7 @@ class VLMMonitor:
             self._result = None
         self._sub_task = sub_task
         self._check_count = 0
+        self._state = None
         self._active.set()
         self._thread = threading.Thread(target=self._monitor_loop, daemon=True)
         self._thread.start()
@@ -625,28 +695,41 @@ class VLMMonitor:
 
         fps = (len(clip) - 1) / span if span > 0 else None
         try:
-            result = self._planner.monitor(self._sub_task, clip, fps=fps)
+            result = self._planner.monitor(
+                self._sub_task, clip, fps=fps, prior_state=self._state)
         except Exception as e:
             self.logger.warning(f"Monitor inference failed ({e}); "
                                 "defaulting to CONTINUE")
-            result = {"action": "CONTINUE", "reason": f"(inference error) {e}"}
+            # Carry the baton forward on an inference error, same as a parse
+            # failure — a transient error must not reset progress to "first look".
+            result = dict(self._state or {})
+            result.update({"action": "CONTINUE",
+                           "reason": f"(inference error) {e}"})
 
         self._check_count += 1
         action = result.get("action", "CONTINUE").upper()
         reason = result.get("reason", "")
+        phase = result.get("phase", "?")
+        concern = result.get("concern", "none")
+        # Overwrite the baton with this look's assessment (drop the verdict fields;
+        # only the progress state is threaded forward as the next call's prior).
+        self._state = {k: result.get(k) for k in
+                       ("phase", "object_status", "gripper_status",
+                        "last_transition", "concern")
+                       if result.get(k) is not None}
         self._save_debug_grid(clip, span, action)
 
         if action == "STOP":
             with self._result_lock:
                 self._result = result
             self.logger.warning(
-                f"[VLM MONITOR] STOP after {self._check_count} check(s): "
-                f"{reason}")
+                f"[VLM MONITOR] STOP after {self._check_count} check(s) "
+                f"[phase={phase}]: {concern or reason}")
             self._client.episode_done.set()
         else:
             self.logger.info(
-                f"[VLM MONITOR] CONTINUE (check {self._check_count}): "
-                f"{reason}")
+                f"[VLM MONITOR] CONTINUE (check {self._check_count}) "
+                f"[phase={phase}]: {reason}")
         return action
 
     def _monitor_loop(self):
@@ -918,15 +1001,50 @@ class VLMPlanner:
         sub_task: str,
         clip: "list[Image.Image]",
         fps: float | None = None,
+        prior_state: dict | None = None,
     ) -> dict:
-        """Mid-episode trajectory check -> {'action': 'CONTINUE'|'STOP', 'reason': str}.
+        """Mid-episode trajectory check (the baton recurrence).
 
-        Fail-safe: returns CONTINUE on parse failure so a broken check never
-        stops a potentially-good episode.
+        Returns the full threaded state overwritten this look:
+        {'phase', 'object_status', 'gripper_status', 'last_transition',
+         'concern', 'action': 'CONTINUE'|'STOP', 'reason'}. The caller threads the
+        state fields back in as `prior_state` on the next call — one record,
+        overwritten, never an append log.
+
+        `prior_state` is the previous look's assessment, presented to the model as
+        a hypothesis to verify against the frames (it must be able to overturn it).
+        None on the first look of a sub-task.
+
+        Fail-safe: returns CONTINUE on parse failure so a broken check never stops
+        a potentially-good episode.
         """
+        arc_vocab, arc_desc = monitor_phase_arc(sub_task)
+        n = len(clip)
+        if prior_state:
+            prior_block = (
+                "PRIOR ASSESSMENT (your previous look, the moment just before "
+                "Frame 1 — verify it against the frames, do not assume it still "
+                f"holds):\n"
+                f"  phase: {prior_state.get('phase', '?')}\n"
+                f"  object_status: {prior_state.get('object_status', '?')}\n"
+                f"  gripper_status: {prior_state.get('gripper_status', '?')}\n"
+                f"  concern: {prior_state.get('concern', 'none')}\n"
+            )
+        else:
+            prior_block = (
+                "PRIOR ASSESSMENT: none — this is the FIRST look at this sub-task. "
+                "The arm may still be starting up; report the phase you observe and "
+                "default to CONTINUE unless there is already a clear fault.\n"
+            )
         text = (
-            f'\nThe robot is currently attempting this sub-task: "{sub_task}"\n'
-            f"Should it continue or stop?"
+            f'\nThe robot is currently attempting this sub-task: "{sub_task}"\n\n'
+            f"EXPECTED PHASE ARC for this sub-task:\n  {arc_vocab}\n  {arc_desc}\n\n"
+            f"{prior_block}\n"
+            f"The clip has {n} frames in time order: Frame 1 is the earliest, "
+            f"Frame {n} is the latest. Read the direction of motion across them.\n"
+            "Fill every field of the JSON. Is the attempt progressing legally "
+            "through the arc (CONTINUE), or is there a clear expectation-violation "
+            "(STOP)?"
         )
         content = self._user_content_video(clip, text, fps=fps)
         messages = [
@@ -935,7 +1053,7 @@ class VLMPlanner:
         ]
         output = generate(
             self.model, self.processor, messages,
-            max_new_tokens=256, temperature=self.temperature,
+            max_new_tokens=384, temperature=self.temperature,
         )
         logging.debug(f"Raw monitor output: {output}")
         try:
@@ -955,7 +1073,17 @@ class VLMPlanner:
             except (json.JSONDecodeError, ValueError):
                 pass
         logging.warning(f"Could not parse monitor output — defaulting to CONTINUE: {output}")
-        return {"action": "CONTINUE", "reason": f"(parse failure) {output[:200]}"}
+        # Carry the prior phase forward so a single unparseable look does not wipe
+        # the baton (a missing phase would bias the next look toward "first look").
+        return {
+            "phase": (prior_state or {}).get("phase", "unknown"),
+            "object_status": (prior_state or {}).get("object_status", "unknown"),
+            "gripper_status": (prior_state or {}).get("gripper_status", "unknown"),
+            "last_transition": "(parse failure — prior carried forward)",
+            "concern": "none",
+            "action": "CONTINUE",
+            "reason": f"(parse failure) {output[:200]}",
+        }
 
     def evaluate_final(
         self,
