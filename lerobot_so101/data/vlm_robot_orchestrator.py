@@ -257,9 +257,20 @@ WHAT YOU RECEIVE EACH LOOK
 - A short video clip of the last few seconds. Its frames are in time order:
   Frame 1 is the EARLIEST, the final frame is the LATEST. Read the direction of
   motion across the frames — do not treat them as an unordered set.
+- The CURRENT FRAME on its own, in full detail: the single still that shows the
+  scene RIGHT NOW (it is the same moment as the clip's last frame, at higher
+  resolution).
 - A PRIOR ASSESSMENT from your previous look (the phase/status you reported last
   time). Your last look was the moment just before Frame 1, so it stitches
   directly onto the first frame of this clip.
+
+GROUND YOUR DESCRIPTION IN THE CURRENT FRAME
+Read `phase`, `object_status` and `gripper_status` off the CURRENT FRAME — it is
+the true present state. Do not describe an averaged or earlier moment from the
+clip. Use the video ONLY to judge the direction of motion and the transition since
+your prior look. Where the current frame is clear, prefer it; name only what you
+can actually see in it (object positions, whether the gripper holds anything),
+never what the sub-task implies should be there.
 
 THE PRIOR IS A HYPOTHESIS TO CHECK, NOT GROUND TRUTH
 Verify it against the frames. If the frames contradict it, believe the frames and
@@ -290,21 +301,35 @@ being mid-grasp or mid-transit, brief ambiguity you cannot resolve.
 Scene context: the tray in the scene is the destination ("the tray" always means
 it). The orange arm is part of the setup.
 
-OUTPUT — return ONLY one JSON object, every field filled:
+OUTPUT — OBSERVE FIRST, LABEL AFTER
+Return ONLY one JSON object. The field order is deliberate: you must describe what
+you literally see in the CURRENT FRAME *before* you name the phase, and the phase
+must follow from what you described. Do NOT decide the phase first and then
+back-fill the observations to match it.
 {
-  "phase": "<current stage, using the arc vocab you were given>",
-  "object_status": "<where the target object is / held or not>",
+  "gripper_visible": "<what the gripper is doing in the CURRENT FRAME: open, or closed on something>",
+  "object_held": "<yes/no — is the target object clamped in the gripper jaws right now? Look at the current frame>",
+  "object_status": "<where the target object is: on the table / in the gripper / on the tray>",
   "gripper_status": "<open | closed | transitioning>",
   "last_transition": "<the phase change since your prior look, and whether it was legal>",
+  "phase": "<current stage, using the arc vocab — it MUST be consistent with the fields above>",
   "concern": "<none, or the specific expectation-violation>",
   "action": "CONTINUE" or "STOP",
-  "reason": "<brief, concrete evidence from the frames>"
+  "reason": "<brief, concrete evidence from the current frame>"
 }
 
+CONSISTENCY RULES (the phase cannot contradict what you observed)
+- object_held = yes  =>  you are AT LEAST at "grasp", and if the arm is moving the
+  held object you are in "transit". You are NOT in "approach" — approach ends the
+  moment the object is held.
+- gripper closed on the object  =>  the grasp already happened; do not report
+  "approach" or "nothing held".
+- object_held = no AND gripper open AND arm reaching  =>  "approach".
+
 Examples:
-{"phase": "transit", "object_status": "banana held in gripper, moving toward tray", "gripper_status": "closed", "last_transition": "grasp -> transit (legal)", "concern": "none", "action": "CONTINUE", "reason": "Frames 1->4 show the closed gripper carrying the banana steadily toward the tray."}
-{"phase": "approach", "object_status": "banana back on table, not held", "gripper_status": "open", "last_transition": "transit -> approach with object no longer held (illegal: dropped)", "concern": "grip lost in transit; banana fell short of the tray", "action": "STOP", "reason": "Prior look reported transit with the banana held, but Frame 1 shows an empty open gripper and the banana back on the table."}
-{"phase": "approach", "object_status": "pouch, not the named target, under the gripper", "gripper_status": "open", "last_transition": "approach -> approach toward wrong object", "concern": "committing to the pouch instead of the banana named in the sub-task", "action": "STOP", "reason": "The gripper descends over the pouch across all four frames; the banana is untouched to the left."}
+{"gripper_visible": "closed on the pouch", "object_held": "yes", "object_status": "pouch clamped in the gripper, lifted off the table", "gripper_status": "closed", "last_transition": "grasp -> transit (legal)", "phase": "transit", "concern": "none", "action": "CONTINUE", "reason": "Current frame shows the pouch held in the closed gripper and lifting; the grasp is done."}
+{"gripper_visible": "open, descending toward the banana", "object_held": "no", "object_status": "banana on the table under the gripper", "gripper_status": "open", "last_transition": "approach -> approach (legal)", "phase": "approach", "concern": "none", "action": "CONTINUE", "reason": "Open gripper still lowering onto the banana; not yet grasped."}
+{"gripper_visible": "open, empty", "object_held": "no", "object_status": "banana back on the table, short of the tray", "gripper_status": "open", "last_transition": "transit -> approach with object no longer held (illegal: dropped)", "phase": "approach", "concern": "grip lost in transit; banana fell short of the tray", "action": "STOP", "reason": "Prior look reported transit holding the banana, but the current frame shows an empty open gripper and the banana back on the table."}
 """
 
 
@@ -1074,8 +1099,10 @@ class VLMPlanner:
         if prior_state:
             prior_block = (
                 "PRIOR ASSESSMENT (your previous look, the moment just before "
-                "Frame 1 — verify it against the frames, do not assume it still "
-                f"holds):\n"
+                "Frame 1). This is very likely STALE — the arm has moved since. It "
+                "is only context for the transition; the CURRENT FRAME overrides it "
+                "in every case of disagreement. Do NOT repeat 'approach' or 'not "
+                "held' from here if the current frame shows the object grasped:\n"
                 f"  phase: {prior_state.get('phase', '?')}\n"
                 f"  object_status: {prior_state.get('object_status', '?')}\n"
                 f"  gripper_status: {prior_state.get('gripper_status', '?')}\n"
@@ -1092,12 +1119,23 @@ class VLMPlanner:
             f"EXPECTED PHASE ARC for this sub-task:\n  {arc_vocab}\n  {arc_desc}\n\n"
             f"{prior_block}\n"
             f"The clip has {n} frames in time order: Frame 1 is the earliest, "
-            f"Frame {n} is the latest. Read the direction of motion across them.\n"
+            f"Frame {n} is the latest. Read the direction of motion across them, "
+            "then ground phase/object_status/gripper_status in the CURRENT FRAME "
+            "(shown separately, full detail).\n"
             "Fill every field of the JSON. Is the attempt progressing legally "
             "through the arc (CONTINUE), or is there a clear expectation-violation "
             "(STOP)?"
         )
-        content = self._user_content_video(clip, text, fps=fps)
+        # Video for motion, plus the latest frame on its own as a full-detail still
+        # so the state fields are grounded in the true present scene rather than a
+        # downsampled/averaged read of the clip.
+        content = [
+            {"type": "text", "text": "[top-down camera, video of the last few seconds]"},
+            {"type": "video", "video": clip, "fps": fps or self.eval_fps},
+            {"type": "text", "text": "[CURRENT FRAME — the scene right now, full detail]"},
+            {"type": "image", "image": clip[-1]},
+            {"type": "text", "text": text},
+        ]
         messages = [
             {"role": "system", "content": [{"type": "text", "text": MONITOR_SYSTEM_PROMPT}]},
             {"role": "user", "content": content},
