@@ -238,6 +238,13 @@ class LoopRobotClient:
         self.must_go = threading.Event()
         self.must_go.set()
 
+        # Execution gate: when set (the default), the control loop is free to send
+        # actions to the arm. An external supervisor (the VLM monitor) may clear it
+        # to pause execution — e.g. while running inference — and set it again to
+        # resume. Default open so runs without gating are unchanged.
+        self.execution_gate = threading.Event()
+        self.execution_gate.set()
+
         # Episode clip buffer: per-episode (timestamp, frame) pairs so the VLM can
         # be shown a short video of the attempt. Timestamps drive even-in-time
         # subsampling. The buffer uniformly downsamples the frame stream when full
@@ -571,6 +578,8 @@ class LoopRobotClient:
             self._start_vla_episode_dir(task)
         self.episode_done.clear()
         self.must_go.set()
+        # Start each episode with execution allowed; the monitor re-gates as needed.
+        self.execution_gate.set()
         self.latest_action = -1
         # Highest observation timestep sent this episode; -1 until the first
         # observation goes out, so any chunk received before then (necessarily a
@@ -707,11 +716,15 @@ class LoopRobotClient:
                 self.episode_done.set()
                 break
 
-            # Execute action if available
+            # Execute action if available. gate_open is read once per loop and
+            # governs both action execution and stall detection: while the gate is
+            # closed (the VLM monitor is pausing execution) the arm holds and the
+            # observation->queue pipeline keeps refreshing the queue below.
+            gate_open = self.execution_gate.is_set()
             with self.action_queue_lock:
                 has_action = not self.action_queue.empty()
 
-            if has_action:
+            if has_action and gate_open:
                 try:
                     with self.action_queue_lock:
                         self.action_queue_size.append(self.action_queue.qsize())
@@ -801,13 +814,15 @@ class LoopRobotClient:
                 except Empty:
                     pass
 
-            else:
+            elif gate_open:
                 # --- Stale-action detection ---
                 # If the policy server stops sending actions (queue empty) but
                 # we've already received some, the arm has effectively stopped.
                 # This catches the case where π0.5 stops producing chunks when
                 # it considers the task done, so the in-window convergence check
                 # never fires because no new actions enter the buffer.
+                # Only runs when the gate is open: a gated pause is a deliberate
+                # hold, not a stall, so it must not trip this early-termination.
                 if (self._total_actions > 0
                         and elapsed >= self.config.convergence_grace_period):
                     time_since_last = elapsed - self._last_action_time
@@ -821,8 +836,12 @@ class LoopRobotClient:
                         self.episode_done.set()
                         break
 
-            # Send observation if ready
-            if self._ready_to_send_observation():
+            # Send observation if ready. When the gate is closed we send
+            # regardless of the queue-drain threshold: the queue is not draining
+            # while paused, so without this the queue would go stale. Forcing a
+            # send (with must_go below) keeps the queue refreshed against the most
+            # recent observation while the VLM decides.
+            if self._ready_to_send_observation() or not gate_open:
                 try:
                     raw_observation: RawObservation = self.robot.get_observation()
                     raw_observation["task"] = task
@@ -849,7 +868,14 @@ class LoopRobotClient:
                     )
 
                     with self.action_queue_lock:
-                        observation.must_go = self.must_go.is_set() and self.action_queue.empty()
+                        queue_empty = self.action_queue.empty()
+                    # Force inference while paused so the server re-predicts on the
+                    # fresh observation even though the queue is non-empty and the
+                    # scene looks similar; the returned chunk aggregates into the
+                    # (frozen-timestep) queue via the configured aggregate_fn.
+                    observation.must_go = (
+                        (self.must_go.is_set() and queue_empty) or not gate_open
+                    )
                     self.send_observation(observation)
                     # Capture the VLA input for every observation sent (not only
                     # must_go): the server predicts any observation that clears its
@@ -1295,15 +1321,22 @@ class LoopRobotClient:
             self.logger.error(f"Failed to render episode recap: {e}")
             return None
 
-    def get_episode_clip(self, num_frames: int) -> tuple[list, float]:
-        """Return up to num_frames frames sampled evenly *in time* across the episode
-        buffer, oldest-first, along with the wall-clock span those frames cover.
+    def get_episode_clip(self, num_frames: int,
+                         window_s: float | None = None) -> tuple[list, float]:
+        """Return up to num_frames frames sampled evenly *in time*, oldest-first,
+        along with the wall-clock span those frames cover.
+
+        By default samples across the whole episode buffer. If window_s is given,
+        first restricts to the recent window — only frames whose timestamp is
+        within window_s of the newest buffered frame — so the clip tracks what the
+        arm is doing now rather than the whole (growing) trajectory. Early in an
+        episode (age < window_s) this naturally includes every buffered frame.
 
         The buffer decimates rather than evicting its head (see _buffer_clip_frame),
         so it spans the whole episode; the span here is the difference between the
-        first and last retained frame timestamps. Callers derive the clip's frame rate
-        from this span — using the episode duration instead would hand the VLM
-        stretched timestamps.
+        first and last *retained/selected* frame timestamps. Callers derive the
+        clip's frame rate from this span — using the episode duration instead would
+        hand the VLM stretched timestamps.
 
         Frames are chosen by nearest timestamp to evenly-spaced target times, not by
         index: appends happen at irregular (backpressure-gated) intervals, so index-
@@ -1316,6 +1349,10 @@ class LoopRobotClient:
             entries = list(self._episode_clip)
         if not entries or num_frames <= 0:
             return [], 0.0
+
+        if window_s is not None and len(entries) > 1:
+            cutoff = entries[-1][0] - window_s
+            entries = [e for e in entries if e[0] >= cutoff]
 
         span = entries[-1][0] - entries[0][0] if len(entries) > 1 else 0.0
         if len(entries) <= num_frames or span <= 0:

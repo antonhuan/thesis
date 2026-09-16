@@ -95,7 +95,6 @@ from vlm_core import generate, load_model
 from vlm import (
     DECOMPOSITION_SYSTEM_PROMPT,
     REFINEMENT_SYSTEM_PROMPT,
-    GUIDED_VOCAB_MATCH_SYSTEM_PROMPT,
     identify_objects,
     survey_scene,
     decompose_from_objects,
@@ -163,12 +162,40 @@ class OrchestratorConfig(LoopClientConfig):
     no_movement_threshold: float = 10.0
     # --- Vocabulary refinement (closed-loop failure classification) ---
     enable_vocab_refinement: bool = True
-    training_labels: list[str] = field(
-        default_factory=lambda: ["banana", "toy", "pouch"]
-    )
     # --- Continuous VLM monitoring during VLA execution ---
     enable_vlm_monitor: bool = True
+    # Number of frames sampled (evenly in time, across the recent monitor window
+    # `vlm_monitor_window_s`) from the clip buffer for each mid-episode monitor
+    # check, giving the VLM temporal continuity over the recent trajectory.
     vlm_monitor_num_frames: int = 4
+    # Seconds of recent trajectory each monitor check judges. The monitor samples
+    # only the last `vlm_monitor_window_s` seconds of the episode (not the whole,
+    # growing episode) so its judgement tracks what the arm is doing now rather
+    # than being diluted by old history as the episode lengthens.
+    vlm_monitor_window_s: float = 6.0
+    # Debug: on every monitor check, save the exact frames the monitor saw as an
+    # annotated contact-sheet grid (same layout as the episode recap.png) into the
+    # current task dir. Independent of --save_frames; off by default.
+    vlm_monitor_debug_images: bool = True
+    # Gate VLA execution on the monitor's judgement (propose-verify rhythm): the
+    # arm executes for `vlm_monitor_interval` seconds, then execution is paused
+    # while the VLM inspects the recent frames, resuming on CONTINUE (STOP still
+    # ends the episode). While paused the observation->action-queue pipeline stays
+    # live, so the arm resumes on a queue that reflects the latest observation.
+    # Off by default: the monitor stays interrupt-only. Requires enable_vlm_monitor.
+    vlm_gate_execution: bool = True
+    # Seconds the arm executes (execution gate open) between gated VLM checks.
+    # Only used when vlm_gate_execution is True.
+    vlm_monitor_interval: float = 5.0
+
+    def __post_init__(self):
+        super().__post_init__()
+        if self.vlm_gate_execution and not self.enable_vlm_monitor:
+            raise ValueError(
+                "vlm_gate_execution requires enable_vlm_monitor=True: the gate is "
+                "opened/closed by the VLM monitor, which is not built when "
+                "enable_vlm_monitor is False."
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -209,7 +236,7 @@ Example:
 # ---------------------------------------------------------------------------
 MONITOR_SYSTEM_PROMPT = """You are a real-time robot trajectory monitor. You receive a short video clip of a robot arm mid-execution and the sub-task it is attempting. The clip shows what has happened so far — the episode is STILL RUNNING.
 
-Your job: decide whether the robot should CONTINUE or STOP.
+Your job: decide whether the robot should CONTINUE or STOP, be descriptive of the robot movement and use that as evidence to support whether to continue or stop.
 
 Default to CONTINUE. Only output STOP for clear problems:
 - The arm is moving aggressively toward the WRONG object (not the one named in the sub-task).
@@ -287,6 +314,8 @@ The perception findings are GROUND TRUTH about where the objects are. You did no
 Scene context:
 - The tray is the destination. It may be any colour (pink, black, etc.). "the tray" and "away" in the instruction always mean this tray.
 - The orange robot arm is part of the setup, ignore it. It is not an object.
+- Be mindful that the object can appear to be on top of another object or leaning on it but still be inside the tray.
+- The tray and robot arm are not considered objects that should be manipulated, do not consider them in the evaluation.
 
 Judge overall success as ALL of the following:
 - Every object the instruction asked to move (or clear/put away/tidy) is now at its destination (e.g. on the tray).
@@ -439,46 +468,6 @@ class InterjectionManager:
             self._replan_context = ""
         self.client.episode_done.set()
 
-    def prompt_for_context(self, header: str) -> str:
-        """Block on stdin for one line of operator guidance and return it.
-
-        Typing the abort key instead records an ABORT (retrievable via
-        check_and_consume) and returns "".
-
-        Pauses the background listener first so it does not swallow the typed
-        line. Safe to call when no listener is running: it falls back to a
-        plain input().
-        """
-        listener_running = self._thread is not None and self._active.is_set()
-        hint = (f"[REPLAN] Additional context for the planner "
-                f"(Enter for none, '{ABORT_KEY}' to abort): ")
-
-        if not listener_running:
-            print(f"\n{header}")
-            try:
-                line = input(hint).strip()
-            except EOFError:
-                return ""
-            return self._consume_context_line(line)
-
-        self._paused.set()
-        # Longer than the listener's select() timeout, so any in-flight poll
-        # returns and observes _paused before touching stdin.
-        time.sleep(0.25)
-        try:
-            print(f"\n{header}")
-            print(hint, end="", flush=True)
-            line = sys.stdin.readline()
-            return self._consume_context_line(line.strip() if line else "")
-        finally:
-            self._paused.clear()
-
-    def _consume_context_line(self, line: str) -> str:
-        if line.lower() == ABORT_KEY:
-            self.request_abort()
-            return ""
-        return line
-
     def _listener(self):
         if self._abort_only:
             print(f"\n[INTERJECT] Press '{ABORT_KEY}'+Enter to ABORT the whole task")
@@ -511,10 +500,9 @@ class InterjectionManager:
                     # key rather than acting on a keystroke the operator opted out of.
                     continue
                 elif line == "r":
-                    # End the episode immediately; context is collected on the
-                    # main thread once the arm has stopped (prompt_for_context),
-                    # so the robot never keeps executing while the user types and
-                    # the episode can't naturally end mid-typing and drop the replan.
+                    # End the episode immediately so the arm stops before the
+                    # main thread replans; the robot never keeps executing into
+                    # a replan.
                     with self._lock:
                         self._type = InterjectionType.REPLAN
                         self._replan_context = ""
@@ -542,10 +530,13 @@ class VLMMonitor:
     logger = logging.getLogger("vlm_monitor")
 
     def __init__(self, client: "LoopRobotClient", planner: "VLMPlanner",
-                 cfg: "OrchestratorConfig"):
+                 cfg: "OrchestratorConfig", frames: "VLMFrameSource | None" = None):
         self._client = client
         self._planner = planner
         self._cfg = cfg
+        # Frame source, used only to render/save the debug grids (reuses its
+        # _render_clip_recap and per-task output dir); None disables saving.
+        self._frames = frames
         self._active = threading.Event()
         self._result: dict | None = None
         self._result_lock = threading.Lock()
@@ -582,53 +573,117 @@ class VLMMonitor:
             time.sleep(0.2)
             waited += 0.2
 
-    def _sample_recent_frames(self, n: int) -> tuple[list[Image.Image], float]:
-        """Get the N most recent frames from the clip buffer as PIL images,
-        plus the time span they cover."""
-        with self._client._clip_lock:
-            entries = list(self._client._episode_clip[-n:])
-        if len(entries) < 2:
+    def _save_debug_grid(self, clip: "list[Image.Image]", span: float,
+                         action: str) -> None:
+        """When --vlm_monitor_debug_images is on, save the exact frames this check
+        saw as an annotated contact-sheet grid (reusing VLMFrameSource's renderer,
+        the same layout as recap.png) into the current task dir. The filename
+        carries the check number and the resulting verdict. Never raises."""
+        if not self._cfg.vlm_monitor_debug_images or self._frames is None:
+            return
+        try:
+            self._frames.task_dir.mkdir(parents=True, exist_ok=True)
+            ts = time.strftime("%Y%m%d_%H%M%S")
+            name = f"monitor_{ts}_chk{self._check_count:03d}_{action}.png"
+            self._frames._render_clip_recap(
+                clip, span, self._frames.task_dir / name)
+            self.logger.info(
+                f"[VLM MONITOR] saved debug grid ({len(clip)} frames): {name}")
+        except Exception as e:  # noqa: BLE001 - debug output must never break a run
+            self.logger.error(f"Failed to save monitor debug grid: {e}")
+
+    def _sample_episode_frames(self, n: int) -> tuple[list[Image.Image], float]:
+        """Get N frames sampled evenly in time across the recent monitor window
+        (`vlm_monitor_window_s`) as PIL images, oldest-first, plus the time span
+        they cover.
+
+        Delegates to the client's even-in-time sampler (the same one the final
+        evaluator uses), but restricted to the recent window so the VLM tracks what
+        the arm is doing now rather than the whole (growing) trajectory. Returns
+        ([], 0.0) if fewer than 2 frames were buffered in the window, so the
+        _monitor_loop guard skips the check cleanly."""
+        arrays, span = self._client.get_episode_clip(
+            n, window_s=self._cfg.vlm_monitor_window_s)
+        frames = [Image.fromarray(arr.astype(np.uint8)) for arr in arrays
+                  if isinstance(arr, np.ndarray) and arr.ndim == 3 and arr.shape[-1] == 3]
+        if len(frames) < 2:
             return [], 0.0
-        span = entries[-1][0] - entries[0][0]
-        frames = [Image.fromarray(frame.astype(np.uint8))
-                  for _, frame in entries]
         return frames, span
+
+    def _run_check(self) -> str | None:
+        """Sample the recent trajectory and ask the VLM for a verdict.
+
+        Returns the verdict action ("STOP" / "CONTINUE"), or None when there were
+        too few frames to judge. On STOP, records the result under lock (for the
+        orchestrator to consume as the interrupt reason) and sets the client's
+        episode_done to end the episode. Inference errors default to CONTINUE
+        (fail-safe).
+        """
+        clip, span = self._sample_episode_frames(self._cfg.vlm_monitor_num_frames)
+        if len(clip) < 2:
+            return None
+
+        fps = (len(clip) - 1) / span if span > 0 else None
+        try:
+            result = self._planner.monitor(self._sub_task, clip, fps=fps)
+        except Exception as e:
+            self.logger.warning(f"Monitor inference failed ({e}); "
+                                "defaulting to CONTINUE")
+            result = {"action": "CONTINUE", "reason": f"(inference error) {e}"}
+
+        self._check_count += 1
+        action = result.get("action", "CONTINUE").upper()
+        reason = result.get("reason", "")
+        self._save_debug_grid(clip, span, action)
+
+        if action == "STOP":
+            with self._result_lock:
+                self._result = result
+            self.logger.warning(
+                f"[VLM MONITOR] STOP after {self._check_count} check(s): "
+                f"{reason}")
+            self._client.episode_done.set()
+        else:
+            self.logger.info(
+                f"[VLM MONITOR] CONTINUE (check {self._check_count}): "
+                f"{reason}")
+        return action
 
     def _monitor_loop(self):
         grace = self._cfg.convergence_grace_period
         self._sleep_interruptible(grace)
+        gating = self._cfg.vlm_gate_execution
 
-        while self._active.is_set():
-            clip, span = self._sample_recent_frames(self._cfg.vlm_monitor_num_frames)
-            if len(clip) >= 2:
-                fps = (len(clip) - 1) / span if span > 0 else None
-                try:
-                    result = self._planner.monitor(self._sub_task, clip, fps=fps)
-                except Exception as e:
-                    self.logger.warning(f"Monitor inference failed ({e}); "
-                                        "defaulting to CONTINUE")
-                    result = {"action": "CONTINUE", "reason": f"(inference error) {e}"}
-
-                self._check_count += 1
-                action = result.get("action", "CONTINUE").upper()
-                reason = result.get("reason", "")
-
-                if action == "STOP":
-                    with self._result_lock:
-                        self._result = result
-                    self.logger.warning(
-                        f"[VLM MONITOR] STOP after {self._check_count} check(s): "
-                        f"{reason}")
-                    self._client.episode_done.set()
-                    return
+        # The finally guarantees the gate is left open no matter how the loop
+        # exits (STOP, a manual abort setting episode_done, stop(), or an
+        # unexpected error) so the arm is never stranded paused after the monitor
+        # thread ends.
+        try:
+            while self._active.is_set():
+                if gating:
+                    # Propose-verify: the arm executes freely for the interval
+                    # (gate open), then we hold it while the VLM judges the recent
+                    # window (the queue keeps refreshing during the held inference).
+                    self._sleep_interruptible(self._cfg.vlm_monitor_interval)
+                    if not self._active.is_set():
+                        break
+                    self._client.execution_gate.clear()
+                    action = self._run_check()
+                    if action == "STOP":
+                        return  # episode ending; finally reopens the gate
+                    # CONTINUE (or too few frames to judge): resume the arm.
+                    self._client.execution_gate.set()
                 else:
-                    self.logger.info(
-                        f"[VLM MONITOR] CONTINUE (check {self._check_count}): "
-                        f"{reason}")
-
-            else:
-                # No frames yet — brief sleep to avoid busy-waiting
-                time.sleep(0.2)
+                    # Interrupt-only monitor: judge back-to-back, never gate.
+                    action = self._run_check()
+                    if action == "STOP":
+                        return
+                    if action is None:
+                        # No frames yet — brief sleep to avoid busy-waiting
+                        time.sleep(0.2)
+        finally:
+            if gating:
+                self._client.execution_gate.set()
 
 
 # ---------------------------------------------------------------------------
@@ -820,6 +875,7 @@ class VLMPlanner:
         sub_task: str,
         observation: "Image.Image | list[Image.Image] | None",
         fps: float | None = None,
+        extra_context: str | None = None,
     ) -> dict:
         """Observation + attempted sub-task -> {'success': bool, 'reason': str}.
 
@@ -829,10 +885,19 @@ class VLMPlanner:
         `fps` overrides the configured nominal rate — pass the clip's true rate
         (frames / episode duration) so the model's frame timestamps span the
         real length of the attempt.
+
+        `extra_context` is appended to the prompt as additional information for
+        the judgement — e.g. the reason the continuous monitor stopped the episode
+        early, so the evaluator re-judges the attempt informed by why it was cut short.
         """
         text = (
             f'\nThe robot just attempted this sub-task: "{sub_task}"\nDid it succeed?'
         )
+        if extra_context:
+            text += (
+                "\n\nThe episode was stopped early by a continuous monitor for this "
+                f"reason: {extra_context}\nTake this into account in your judgement."
+            )
         if isinstance(observation, list) and observation:
             content = self._user_content_video(observation, text, fps=fps)
         else:
@@ -1000,33 +1065,6 @@ class VLMPlanner:
         ]
         return [l for l in lines if l]
 
-    def guided_vocab_match(
-        self,
-        vlm_label: str,
-        training_labels: list[str],
-        frame: "Image.Image | None" = None,
-    ) -> "str | None":
-        """Match a VLM label against the training vocabulary as a last resort."""
-        label_list = ", ".join(training_labels)
-        text = (
-            f'You identified an object as "{vlm_label}".\n'
-            f"Training vocabulary: [{label_list}].\n"
-            "Which training label refers to the same object?"
-        )
-        messages = [
-            {"role": "system", "content": [{"type": "text", "text": GUIDED_VOCAB_MATCH_SYSTEM_PROMPT}]},
-            {"role": "user", "content": self._user_content(frame, text)},
-        ]
-        output = generate(
-            self.model, self.processor, messages, temperature=self.temperature
-        )
-        logging.debug(f"Raw guided-vocab output: {output}")
-        answer = output.strip().lower()
-        for label in training_labels:
-            if label.lower() == answer:
-                return label
-        return None
-
     def replan(
         self,
         original_prompt: str,
@@ -1034,10 +1072,9 @@ class VLMPlanner:
         failed_subtask: str,
         failure_reason: str,
         frame: Image.Image | None,
-        user_context: str = "",
     ) -> list[str]:
-        """Replan remaining sub-tasks given what succeeded, what failed, the
-        current scene state, and any guidance typed by the human operator."""
+        """Replan remaining sub-tasks given what succeeded, what failed, and the
+        current scene state."""
         context_parts = [f'Original instruction: "{original_prompt}"']
 
         if completed_subtasks:
@@ -1052,13 +1089,6 @@ class VLMPlanner:
             f'Failed sub-task: "{failed_subtask}"\n'
             f'Failure reason: {failure_reason}'
         )
-
-        if user_context:
-            context_parts.append(
-                "Additional guidance from the human operator (authoritative — "
-                "follow it over your own reading of the scene):\n"
-                f"{user_context}"
-            )
 
         context_parts.append(
             "Produce a revised sub-task list for the REMAINING work only."
@@ -1444,7 +1474,7 @@ def _run_high_level_task_body(
     pending = list(subtasks)
 
     def do_replan(failed_subtask: str, failure_reason: str,
-                  user_context: str, tag: str) -> list[str] | None:
+                  tag: str) -> list[str] | None:
         """Capture a frame and replan; returns the new queue, or None on failure."""
         replan_frame = frames.capture(tag=tag)
         try:
@@ -1454,7 +1484,6 @@ def _run_high_level_task_body(
                 failed_subtask=failed_subtask,
                 failure_reason=failure_reason,
                 frame=replan_frame,
-                user_context=user_context,
             )
         except ValueError as e:
             logger.error(f"Replan failed ({e}) — continuing with remaining queue.")
@@ -1465,7 +1494,8 @@ def _run_high_level_task_body(
         return new_queue
 
     # Create the VLM monitor (reused across subtasks)
-    monitor = VLMMonitor(client, planner, cfg) if cfg.enable_vlm_monitor else None
+    monitor = (VLMMonitor(client, planner, cfg, frames)
+               if cfg.enable_vlm_monitor else None)
 
     # 2. Work through the sub-task queue
     while pending:
@@ -1480,7 +1510,6 @@ def _run_high_level_task_body(
         reason = ""  # last failure reason, passed to replan
         current_instruction = sub_task
         vocab_refinement_used = False
-        vocab_fallback_used = False
 
         while attempts_left > 0:
             attempts_left -= 1
@@ -1512,20 +1541,10 @@ def _run_high_level_task_body(
                 client.go_home()
                 continue
             elif itype == InterjectionType.REPLAN:
-                logger.info("User requested replan — stopping and asking for context...")
+                logger.info("User requested replan — stopping and replanning...")
                 client.go_home()
-                user_context = interjection.prompt_for_context(
-                    f"[REPLAN] Replan requested during sub-task '{sub_task}'"
-                )
-                # The operator can type the abort key instead of context.
-                if interjection.check_and_consume()[0] == InterjectionType.ABORT:
-                    abort("at the replan prompt")
-                    user_aborted = True
-                    break
-                if user_context:
-                    logger.info(f"  Operator context: {user_context}")
                 new_queue = do_replan(sub_task, "The user requested a replan.",
-                                      user_context, "user_replan")
+                                      "user_replan")
                 if new_queue is not None:
                     pending = new_queue
                 user_replanned = True
@@ -1548,19 +1567,9 @@ def _run_high_level_task_body(
                             f"({attempts_left} attempt(s) left)")
                 continue
             elif itype == InterjectionType.REPLAN:
-                logger.info("User requested replan — stopping and asking for context...")
-                user_context = interjection.prompt_for_context(
-                    f"[REPLAN] Replan requested during sub-task '{sub_task}'"
-                )
-                # The operator can type the abort key instead of context.
-                if interjection.check_and_consume()[0] == InterjectionType.ABORT:
-                    abort("at the replan prompt")
-                    user_aborted = True
-                    break
-                if user_context:
-                    logger.info(f"  Operator context: {user_context}")
+                logger.info("User requested replan — stopping and replanning...")
                 new_queue = do_replan(sub_task, "The user requested a replan.",
-                                      user_context, "user_replan")
+                                      "user_replan")
                 if new_queue is not None:
                     pending = new_queue
                 user_replanned = True
@@ -1578,16 +1587,27 @@ def _run_high_level_task_body(
                     f"not in the robot's vocabulary."
                 )
 
-            # --- VLM monitor interrupted the episode ---
+            # --- VLM monitor stopped the episode ---
+            # A monitor STOP ends the episode (episode_done) but does NOT skip the
+            # success evaluation: we re-judge the attempt with the monitor's STOP
+            # reason as extra context, so the evaluator's verdict (success /
+            # failure_type) drives the retry/refine/replan logic below.
+            monitor_context = (
+                monitor_result.get("reason", "") if monitor_result is not None else None
+            )
             if monitor_result is not None:
-                success = False
-                reason = monitor_result.get("reason", "VLM monitor triggered early stop")
-                failure_type = "VLM_INTERRUPT"
-                logger.info(f"VLM monitor interrupted episode: {reason}")
-                # Fall through to the retry logic below (skip post-episode eval)
-            elif not cfg.evaluate_subtasks:
-                succeeded = True
-                break
+                logger.info(f"VLM monitor stopped the episode: {monitor_context}")
+
+            if not cfg.evaluate_subtasks:
+                if monitor_result is not None:
+                    # No success evaluator configured — cannot re-judge; treat the
+                    # monitor interrupt as a plain failure and fall through to retry.
+                    success = False
+                    reason = monitor_context or "VLM monitor triggered early stop"
+                    failure_type = "VLM_INTERRUPT"
+                else:
+                    succeeded = True
+                    break
             else:
                 # 3. Judge success — from a video clip of the attempt if available,
                 #    otherwise a fresh still frame.
@@ -1617,7 +1637,8 @@ def _run_high_level_task_body(
                                 "(vlm_eval_use_video disabled).")
                 try:
                     eval_result = planner.evaluate(current_instruction, observation,
-                                                   fps=clip_fps)
+                                                   fps=clip_fps,
+                                                   extra_context=monitor_context)
                 except ValueError as e:
                     logger.warning(f"Could not parse VLM evaluation ({e}); "
                                    "assuming success and moving on.")
@@ -1669,44 +1690,25 @@ def _run_high_level_task_body(
             # --- Failure-classified retry logic ---
             if (cfg.enable_vocab_refinement
                     and failure_type == "VOCAB"
-                    and attempts_left > 0):
+                    and attempts_left > 0
+                    and not vocab_refinement_used):
+                logger.info("VOCAB failure — attempting label refinement...")
                 eval_frame = frames.capture(tag=f"refine_task{task_num}")
-                if not vocab_refinement_used:
-                    logger.info("VOCAB failure — attempting label refinement...")
-                    try:
-                        alternatives = planner.refine_label(
-                            current_instruction, reason, frame=eval_frame)
-                    except Exception as e:
-                        logger.warning(f"Refinement call failed ({e}); "
-                                       "retrying with current instruction.")
-                        alternatives = []
-                    if alternatives:
-                        new_instr = rebuild_instruction(
-                            current_instruction, alternatives[0])
-                        logger.info(f"Refined: '{current_instruction}' -> "
-                                    f"'{new_instr}' "
-                                    f"(candidates: {alternatives})")
-                        current_instruction = new_instr
-                    vocab_refinement_used = True
-                elif not vocab_fallback_used:
-                    logger.info("VOCAB failure after refinement — "
-                                "trying guided vocabulary match...")
-                    try:
-                        matched = planner.guided_vocab_match(
-                            extract_object_name(current_instruction),
-                            cfg.training_labels,
-                            frame=eval_frame,
-                        )
-                    except Exception as e:
-                        logger.warning(f"Guided vocab match failed ({e}).")
-                        matched = None
-                    if matched:
-                        new_instr = rebuild_instruction(
-                            current_instruction, matched)
-                        logger.info(f"Guided match: '{current_instruction}' "
-                                    f"-> '{new_instr}'")
-                        current_instruction = new_instr
-                    vocab_fallback_used = True
+                try:
+                    alternatives = planner.refine_label(
+                        current_instruction, reason, frame=eval_frame)
+                except Exception as e:
+                    logger.warning(f"Refinement call failed ({e}); "
+                                   "retrying with current instruction.")
+                    alternatives = []
+                if alternatives:
+                    new_instr = rebuild_instruction(
+                        current_instruction, alternatives[0])
+                    logger.info(f"Refined: '{current_instruction}' -> "
+                                f"'{new_instr}' "
+                                f"(candidates: {alternatives})")
+                    current_instruction = new_instr
+                vocab_refinement_used = True
             elif attempts_left > 0:
                 logger.info(f"Retrying sub-task ({attempts_left} attempt(s) "
                             f"left)...")
@@ -1746,22 +1748,7 @@ def _run_high_level_task_body(
         logger.info(f"  Failed: '{sub_task}' — {reason}")
         logger.info(f"  Remaining (discarded): {pending}")
 
-        # Give the operator a chance to tell the planner what actually went
-        # wrong. This BLOCKS until Enter — an unattended run will sit here
-        # until someone responds. Bare Enter replans with no extra context.
-        user_context = interjection.prompt_for_context(
-            f"[REPLAN] Sub-task '{sub_task}' failed after all retries: {reason}"
-        )
-        # The operator can type the abort key instead of context.
-        if interjection.check_and_consume()[0] == InterjectionType.ABORT:
-            abort("at the replan prompt")
-            logger.info(f"  Completed before the abort: {completed}")
-            return RoundResult(stopped=True, planned=len(subtasks),
-                               completed=list(completed))
-        if user_context:
-            logger.info(f"  Operator context: {user_context}")
-
-        new_subtasks = do_replan(sub_task, reason, user_context, "replan")
+        new_subtasks = do_replan(sub_task, reason, "replan")
         if new_subtasks is None:
             continue
 
