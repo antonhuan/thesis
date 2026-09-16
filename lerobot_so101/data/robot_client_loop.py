@@ -1014,6 +1014,16 @@ class LoopRobotClient:
                 self._episode_clip = self._episode_clip[::2]
                 self._clip_stride *= 2
 
+    def latest_clip_frame_time(self) -> float | None:
+        """perf_counter timestamp of the newest buffered clip frame, or None if the
+        buffer is empty. Lets a caller (the VLM monitor) block until a frame
+        captured *after* it closed the execution gate has actually landed, so it
+        samples the settled current scene rather than a pre-pause frame."""
+        with self._clip_lock:
+            if not self._episode_clip:
+                return None
+            return self._episode_clip[-1][0]
+
     @staticmethod
     def _slugify_task(task: str) -> str:
         """Filesystem-safe, length-capped rendering of a task string."""

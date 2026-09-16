@@ -187,6 +187,19 @@ class OrchestratorConfig(LoopClientConfig):
     # Seconds the arm executes (execution gate open) between gated VLM checks.
     # Only used when vlm_gate_execution is True.
     vlm_monitor_interval: float = 5.0
+    # After closing the gate, the monitor BLOCKS until a clip frame captured under
+    # the closed gate has actually landed in the buffer, then samples + infers.
+    # Without this the monitor samples the instant the gate closes, but the newest
+    # buffered frame still predates the pause (while the gate is open frames are
+    # buffered only at the queue-drain cadence, and the control loop has not yet
+    # run an iteration under the closed gate); the arm has physically moved past
+    # that frame, so inference judges a scene that lags the arm's actual state.
+    # Waiting for a genuinely fresh frame guarantees the sampled window ends at the
+    # true current, settled state. This value is the TIMEOUT ceiling on that wait:
+    # if no fresh frame lands within it (e.g. the camera pipeline stalled) the
+    # monitor proceeds anyway rather than hanging. Only used when
+    # vlm_gate_execution is True.
+    vlm_monitor_gate_settle_s: float = 1.0
 
     def __post_init__(self):
         super().__post_init__()
@@ -643,6 +656,30 @@ class VLMMonitor:
             time.sleep(0.2)
             waited += 0.2
 
+    def _wait_for_fresh_frame(self, timeout_s: float) -> bool:
+        """Block until a clip frame captured *after this call* lands in the buffer.
+
+        Called right after closing the execution gate: it ensures the frame the
+        monitor is about to sample reflects the settled current scene, not a
+        pre-pause frame the arm has already moved past. Polls the client's newest
+        buffered-frame timestamp (a perf_counter, same clock) until it advances
+        past the moment of the call, or `timeout_s` elapses (camera stalled — we
+        proceed rather than hang). Returns True if a fresh frame arrived, False on
+        timeout. Responsive to _active.clear() so shutdown is not delayed."""
+        t_gate = time.perf_counter()
+        get_ts = getattr(self._client, "latest_clip_frame_time", None)
+        if get_ts is None:
+            # Older client without the accessor: fall back to a plain settle.
+            self._sleep_interruptible(timeout_s)
+            return False
+        deadline = t_gate + timeout_s
+        while self._active.is_set() and time.perf_counter() < deadline:
+            ts = get_ts()
+            if ts is not None and ts > t_gate:
+                return True
+            time.sleep(0.02)
+        return False
+
     def _save_debug_grid(self, clip: "list[Image.Image]", span: float,
                          action: str) -> None:
         """When --vlm_monitor_debug_images is on, save the exact frames this check
@@ -750,7 +787,21 @@ class VLMMonitor:
                     self._sleep_interruptible(self._cfg.vlm_monitor_interval)
                     if not self._active.is_set():
                         break
+                    # Gate FIRST, then infer. Close the gate and block until a frame
+                    # captured under the closed gate actually lands before sampling —
+                    # otherwise the sampled window ends on a pre-pause frame and
+                    # inference judges a scene that lags the arm's actual state (see
+                    # vlm_monitor_gate_settle_s).
                     self._client.execution_gate.clear()
+                    fresh = self._wait_for_fresh_frame(
+                        self._cfg.vlm_monitor_gate_settle_s)
+                    if not self._active.is_set():
+                        break
+                    if not fresh:
+                        self.logger.warning(
+                            "[VLM MONITOR] no fresh frame within "
+                            f"{self._cfg.vlm_monitor_gate_settle_s}s of gating; "
+                            "sampling anyway (frame may lag the arm)")
                     action = self._run_check()
                     if action == "STOP":
                         return  # episode ending; finally reopens the gate
