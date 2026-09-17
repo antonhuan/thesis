@@ -25,13 +25,16 @@ Two knobs, matching what actually changes the monitor's behaviour:
   2. System prompt (/edit, /prompt, /reload) — edit the live prompt in $EDITOR,
      print it, or reload it from --prompt-file, all without dropping the model.
 
-Image input: the orchestrator saves each monitor look as a contact-sheet grid
-(monitor_*.png under runs/<run>/<task>/) — N frames tiled in time order, each
-tile labelled t=..s #i. This harness feeds that grid as a SINGLE still: the
-model sees every tile at once, and the last tile (#n) is the current frame.
-This differs from the production path (a true video clip + a separate
-full-detail current still), so treat verdicts here as a prompt-tuning signal,
-not a bit-exact replay.
+Image input — two modes:
+  --image <path> : ONE image. A full-res still, or a saved monitor contact-sheet
+      grid (monitor_*.png under runs/<run>/<task>/). A grid's tiles are ~1/4 res,
+      which starves object-in-gripper perception — prefer a full-res still.
+  --clip <glob|dir> : an ordered run of full-res frames (e.g. the per-timestep
+      stills under vla_failure_test/<object>/<episode>/), fed as a real video
+      clip + a separate full-detail current still — matching production's
+      VLMPlanner.monitor() input exactly. This is the faithful path; use it when
+      you have sequential frames. The sub-task can often be read off the
+      filenames (put_the_X_on_the_tray).
 
 Shared model loading and inference live in vlm_core.py.
 
@@ -51,8 +54,10 @@ Usage:
 """
 
 import argparse
+import glob as globlib
 import json
 import os
+import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -479,24 +484,57 @@ def _prior_block(prior_state: dict | None) -> str:
     )
 
 
-def _monitor_user_content(image: Image.Image, sub_task: str,
-                          prior_state: dict | None,
-                          closing: str) -> list[dict]:
-    """Build the shared user content: grid note + image + task/arc/prior + closing.
+# Note for a single full-res still (a real camera frame, not a contact sheet).
+SINGLE_STILL_NOTE = (
+    "The image is a SINGLE still: the scene RIGHT NOW, at full detail. Ground every "
+    "field in it — name only what you can actually see (object positions, whether "
+    "the gripper holds anything)."
+)
 
-    `closing` is the pass-specific final instruction (describe vs judge vs both).
-    """
+
+def _monitor_task_block(sub_task: str, prior_state: dict | None) -> str:
+    """The shared sub-task + phase-arc + prior preamble (input-agnostic)."""
     arc_vocab, arc_desc = monitor_phase_arc(sub_task)
-    text = (
+    return (
         f'\nThe robot is currently attempting this sub-task: "{sub_task}"\n\n'
         f"EXPECTED PHASE ARC for this sub-task:\n  {arc_vocab}\n  {arc_desc}\n\n"
         f"{_prior_block(prior_state)}\n"
-        f"{GRID_IMAGE_NOTE}\n\n"
-        f"{closing}"
     )
+
+
+def _still_content(image: Image.Image, sub_task: str, prior_state: dict | None,
+                   closing: str, grid: bool) -> list[dict]:
+    """User content for ONE image — a contact-sheet grid (grid=True) or a single
+    full-res still (grid=False)."""
+    note = GRID_IMAGE_NOTE if grid else SINGLE_STILL_NOTE
+    label = ("[top-down camera — monitor contact sheet]" if grid
+             else "[top-down camera — current frame, full detail]")
+    text = _monitor_task_block(sub_task, prior_state) + f"{note}\n\n{closing}"
     return [
-        {"type": "text", "text": "[top-down camera — monitor contact sheet]"},
+        {"type": "text", "text": label},
         {"type": "image", "image": image},
+        {"type": "text", "text": text},
+    ]
+
+
+def _clip_content(clip: list[Image.Image], sub_task: str,
+                  prior_state: dict | None, closing: str,
+                  fps: float) -> list[dict]:
+    """User content matching production's monitor(): a video clip of the last few
+    seconds PLUS the full-res current still (clip[-1]) on its own."""
+    n = len(clip)
+    note = (
+        f"The clip has {n} frames in time order: Frame 1 is the earliest, Frame {n} "
+        "is the latest. Read the direction of motion across them, then ground "
+        "phase/object_status/gripper_status in the CURRENT FRAME (shown separately, "
+        "full detail)."
+    )
+    text = _monitor_task_block(sub_task, prior_state) + f"{note}\n\n{closing}"
+    return [
+        {"type": "text", "text": "[top-down camera, video of the last few seconds]"},
+        {"type": "video", "video": clip, "fps": fps},
+        {"type": "text", "text": "[CURRENT FRAME — the scene right now, full detail]"},
+        {"type": "image", "image": clip[-1]},
         {"type": "text", "text": text},
     ]
 
@@ -505,17 +543,17 @@ def _monitor_user_content(image: Image.Image, sub_task: str,
 # The monitor call(s)
 # ---------------------------------------------------------------------------
 
-def run_monitor_single(model, processor, prompts, image, sub_task,
-                       prior_state, temperature):
+def run_monitor_single(model, processor, prompts, content_fn, temperature):
     """Single-call monitor: observations + verdict in one shot.
 
+    `content_fn(closing)` builds the user content for the given pass instruction,
+    so this path is agnostic to whether the input is a still or a clip.
     Returns (parsed_dict_or_None, raw_output).
     """
-    content = _monitor_user_content(
-        image, sub_task, prior_state,
-        closing=("Fill every field of the JSON. Is the attempt progressing legally "
-                 "through the arc (CONTINUE), or is there a clear "
-                 "expectation-violation (STOP)?"),
+    content = content_fn(
+        "Fill every field of the JSON. Is the attempt progressing legally "
+        "through the arc (CONTINUE), or is there a clear "
+        "expectation-violation (STOP)?"
     )
     messages = [
         {"role": "system", "content": [{"type": "text", "text": prompts["single"]}]},
@@ -526,19 +564,18 @@ def run_monitor_single(model, processor, prompts, image, sub_task,
     return parse_json_object(output), output
 
 
-def run_monitor_split(model, processor, prompts, image, sub_task,
-                      prior_state, temperature):
+def run_monitor_split(model, processor, prompts, content_fn, temperature):
     """observe->judge monitor: pass 1 describes, pass 2 judges the description.
 
+    `content_fn(closing)` builds the user content (still or clip) for each pass.
     Returns (merged_dict_or_None, raw_output_string). The merged dict combines the
     observation fields (pass 1) and the verdict fields (pass 2) so the printout
     matches the single-call schema.
     """
     # --- Pass 1: observe ---
-    obs_content = _monitor_user_content(
-        image, sub_task, prior_state,
-        closing="Describe the current frame. Fill every field of the observation "
-                "JSON. Do NOT give a verdict.",
+    obs_content = content_fn(
+        "Describe the current frame. Fill every field of the observation "
+        "JSON. Do NOT give a verdict."
     )
     obs_messages = [
         {"role": "system", "content": [{"type": "text", "text": prompts["observe"]}]},
@@ -551,11 +588,10 @@ def run_monitor_split(model, processor, prompts, image, sub_task,
 
     # --- Pass 2: judge, given the observations ---
     obs_summary = json.dumps(observations, indent=2) if observations else obs_output.strip()
-    judge_content = _monitor_user_content(
-        image, sub_task, prior_state,
-        closing=("The perception pass reported these observations of the current "
-                 f"frame:\n{obs_summary}\n\nVerify them against the image, then "
-                 "return the verdict JSON (concern, action, reason)."),
+    judge_content = content_fn(
+        "The perception pass reported these observations of the current "
+        f"frame:\n{obs_summary}\n\nVerify them against the image, then "
+        "return the verdict JSON (concern, action, reason)."
     )
     judge_messages = [
         {"role": "system", "content": [{"type": "text", "text": prompts["judge"]}]},
@@ -573,15 +609,117 @@ def run_monitor_split(model, processor, prompts, image, sub_task,
     return (merged if merged else None), raw
 
 
-def run_monitor(model, processor, prompts, image, sub_task, prior_state,
-                temperature, split):
-    """Dispatch to the single-call or observe->judge path and pretty-print it.
-
-    Returns the merged/parsed verdict dict (or {} on parse failure) so the REPL
-    can thread it forward as the next call's prior_state.
+def run_probe(model, processor, image, question, temperature):
+    """Ask the loaded model a freeform question about the image with NO monitor
+    system prompt — raw perception, to test what the model can actually see
+    (e.g. "what is the gripper holding") independent of any prompt reasoning.
     """
     print(f"\n{'='*60}")
-    print(f"MONITOR CHECK ({'observe->judge' if split else 'single-call'})")
+    print(f"RAW PROBE (no system prompt)\nQuestion: \"{question}\"")
+    print(f"{'='*60}")
+    content = [
+        {"type": "text", "text": "[top-down camera]"},
+        {"type": "image", "image": image},
+        {"type": "text", "text": question},
+    ]
+    messages = [{"role": "user", "content": content}]
+    output = generate(model, processor, messages,
+                      max_new_tokens=512, temperature=temperature)
+    print(f"\n{output}")
+    return output
+
+
+# ---------------------------------------------------------------------------
+# Image sources: a single still/grid, or a reconstructed clip + current still
+# ---------------------------------------------------------------------------
+
+class StillSource:
+    """One image — a full-res still (grid=False) or a contact-sheet grid."""
+
+    def __init__(self, image: Image.Image, path: str, grid: bool):
+        self.image = image
+        self.path = path
+        self.grid = grid
+
+
+class ClipSource:
+    """An ordered run of full-res frames — fed as production's video clip +
+    full-res current still (clip[-1]). Faithful to VLMPlanner.monitor()."""
+
+    def __init__(self, clip: list[Image.Image], paths: list[str]):
+        self.clip = clip
+        self.paths = paths
+
+
+_TASK_RE = re.compile(r"(put_the_.+?)(?:\.(?:png|jpg|jpeg))?$", re.IGNORECASE)
+
+
+def task_from_path(path: str) -> str:
+    """Recover a sub-task from a frame filename like
+    '00012_front_put_the_toy_on_the_tray.png' -> 'put the toy on the tray'."""
+    m = _TASK_RE.search(Path(path).stem + Path(path).suffix)
+    return m.group(1).replace("_", " ") if m else ""
+
+
+def load_still(path: str) -> StillSource:
+    """Load one image. Flags it as a grid if the filename looks like a monitor
+    contact sheet (so the prompt gets the right note)."""
+    p = Path(path)
+    grid = "monitor_" in p.name or "recap" in p.name
+    return StillSource(Image.open(p).convert("RGB"), str(p), grid)
+
+
+def load_clip(pattern: str, view: str = "front", window: int = 4) -> ClipSource:
+    """Load an ordered run of frames matching a glob or directory.
+
+    Filters to a single camera `view` when the names carry it (front/wrist),
+    sorts by the numeric frame index in the name, and keeps the LAST `window`
+    frames (the recent window the monitor judges). Raises ValueError with a clear
+    message if nothing matches.
+    """
+    if os.path.isdir(pattern):
+        pattern = os.path.join(pattern, "*")
+    paths = [p for p in globlib.glob(pattern)
+             if p.lower().endswith((".png", ".jpg", ".jpeg"))]
+    if view:
+        viewed = [p for p in paths if view in Path(p).name]
+        paths = viewed or paths
+    if not paths:
+        raise ValueError(f"No image frames matched: {pattern}")
+
+    def frame_index(p):
+        m = re.match(r"(\d+)", Path(p).name)
+        return int(m.group(1)) if m else 0
+
+    paths = sorted(paths, key=frame_index)
+    if window and len(paths) > window:
+        paths = paths[-window:]
+    clip = [Image.open(p).convert("RGB") for p in paths]
+    return ClipSource(clip, [str(p) for p in paths])
+
+
+def run_monitor(model, processor, prompts, source, sub_task, prior_state,
+                temperature, split, fps=2.0):
+    """Dispatch to the single-call or observe->judge path and pretty-print it.
+
+    `source` is either a single PIL image (a full-res still or a contact-sheet
+    grid) or a ClipSource (a reconstructed video clip + current still). Returns
+    the merged/parsed verdict dict (or {} on parse failure) so the REPL can thread
+    it forward as the next call's prior_state.
+    """
+    if isinstance(source, ClipSource):
+        clip = source.clip
+        mode = f"clip x{len(clip)} + current still @ {fps:g}fps"
+        content_fn = (lambda closing:
+                      _clip_content(clip, sub_task, prior_state, closing, fps))
+    else:  # single PIL image
+        mode = "grid (single image)" if source.grid else "single still"
+        content_fn = (lambda closing:
+                      _still_content(source.image, sub_task, prior_state,
+                                     closing, source.grid))
+
+    print(f"\n{'='*60}")
+    print(f"MONITOR CHECK ({'observe->judge' if split else 'single-call'}) — {mode}")
     print(f"Sub-task: \"{sub_task}\"")
     # (variant is reflected in the loaded prompts, shown via /prompt and /help)
     arc_vocab, _ = monitor_phase_arc(sub_task)
@@ -590,8 +728,7 @@ def run_monitor(model, processor, prompts, image, sub_task, prior_state,
     print(f"{'='*60}")
 
     runner = run_monitor_split if split else run_monitor_single
-    parsed, raw = runner(model, processor, prompts, image, sub_task,
-                         prior_state, temperature)
+    parsed, raw = runner(model, processor, prompts, content_fn, temperature)
 
     print(f"\nModel output:\n{raw}")
 
@@ -731,12 +868,19 @@ def prompt_for_prior() -> dict | None:
 
 INTERACTIVE_HELP = """
 Commands:
-  <any text>          Run the monitor on the current image for this sub-task
+  <any text>          Run the monitor on the current source for this sub-task
                       (e.g. "put the banana on the tray")
-  /image <path>       Load a different saved frame/grid (current: {image})
+  /image <path>       Load ONE image — a full-res still or a monitor grid
+  /clip <glob|dir>    Load an ordered run of full-res frames as a video clip +
+                      current still (production's real monitor input). e.g.
+                      /clip vla_failure_test/toy/000_toy   (current: {source})
+  /probe <question>   Ask the model a freeform question about the current frame
+                      with NO monitor prompt (e.g. /probe what is the gripper
+                      holding) — raw perception, for isolating what it can see
   /variant <name>     Swap prompt scope: full | semantic. Resets any /edit
                       changes to that variant's built-in prompts. (current: {variant})
   /split              Toggle single-call vs observe->judge (current: {split})
+  /fps <value>        Clip playback fps for video timestamps (current: {fps})
   /temp <value>       Set temperature (current: {temp})
   /prior              Set/clear the PRIOR ASSESSMENT threaded into the next check
                       (current: {prior})
@@ -751,14 +895,31 @@ Commands:
 """.strip()
 
 
-def interactive_loop(model, processor, prompts, image, image_path,
-                     prompt_file, temp, split, variant="full"):
+def source_label(source) -> str:
+    if source is None:
+        return "none"
+    if isinstance(source, ClipSource):
+        first, last = Path(source.paths[0]).name, Path(source.paths[-1]).name
+        return f"clip x{len(source.clip)} ({first} .. {last})"
+    return source.path + (" [grid]" if source.grid else " [still]")
+
+
+def probe_image(source):
+    """The single still to probe: the current still for a clip, else the image."""
+    if isinstance(source, ClipSource):
+        return source.clip[-1]
+    return source.image if source is not None else None
+
+
+def interactive_loop(model, processor, prompts, source,
+                     prompt_file, temp, split, variant="full", fps=2.0,
+                     clip_window=4):
     prior_state = None
     auto_thread = False
 
     print(f"\n{'='*60}")
     print("MONITOR TUNING MODE — model loaded, type a sub-task to run a check.")
-    print(f"Image: {image_path or '(none — set with /image)'}")
+    print(f"Source: {source_label(source)}")
     print("Type /help for commands, /quit to exit.")
     print(f"{'='*60}")
 
@@ -778,9 +939,10 @@ def interactive_loop(model, processor, prompts, image, image_path,
 
         elif user_input == "/help":
             print(INTERACTIVE_HELP.format(
-                image=image_path or "none",
+                source=source_label(source),
                 variant=variant,
                 split="observe->judge" if split else "single-call",
+                fps=fps,
                 temp=temp,
                 prior=(json.dumps(prior_state) if prior_state else "none"),
                 auto="ON" if auto_thread else "OFF",
@@ -809,15 +971,47 @@ def interactive_loop(model, processor, prompts, image, image_path,
                 print(f"[ERROR] Image not found: {p}")
                 continue
             try:
-                image = Image.open(p).convert("RGB")
-                image_path = str(p)
-                print(f"Loaded image: {p} ({image.width}x{image.height})")
+                source = load_still(str(p))
+                print(f"Loaded image: {source_label(source)} "
+                      f"({source.image.width}x{source.image.height})")
             except Exception as e:  # noqa: BLE001
                 print(f"[ERROR] Could not open image: {e}")
+
+        elif user_input.startswith("/clip"):
+            parts = user_input.split(maxsplit=1)
+            if len(parts) < 2:
+                print("Usage: /clip <glob|dir>  (e.g. /clip vla_failure_test/toy/000_toy)")
+                continue
+            try:
+                source = load_clip(parts[1].strip(), window=clip_window)
+                print(f"Loaded {source_label(source)}")
+                task_guess = task_from_path(source.paths[-1])
+                if task_guess:
+                    print(f"  (filename suggests task: \"{task_guess}\")")
+            except Exception as e:  # noqa: BLE001
+                print(f"[ERROR] Could not load clip: {e}")
+
+        elif user_input.startswith("/probe"):
+            parts = user_input.split(maxsplit=1)
+            if len(parts) < 2:
+                print("Usage: /probe <question>  (e.g. /probe what is the gripper holding)")
+                continue
+            img = probe_image(source)
+            if img is None:
+                print("[ERROR] No source loaded. Use /image or /clip first.")
+                continue
+            run_probe(model, processor, img, parts[1].strip(), temp)
 
         elif user_input == "/split":
             split = not split
             print(f"Pass structure: {'observe->judge' if split else 'single-call'}")
+
+        elif user_input.startswith("/fps "):
+            try:
+                fps = float(user_input[5:].strip())
+                print(f"Clip fps set to {fps}")
+            except ValueError:
+                print("Usage: /fps <float>  (e.g. /fps 2.0)")
 
         elif user_input.startswith("/temp "):
             try:
@@ -897,12 +1091,12 @@ def interactive_loop(model, processor, prompts, image, image_path,
 
         # --- Run a monitor check ---
         else:
-            if image is None:
-                print("[ERROR] No image loaded. Use /image <path> or start with "
-                      "--image.")
+            if source is None:
+                print("[ERROR] No source loaded. Use /image or /clip (or start "
+                      "with --image/--clip).")
                 continue
-            verdict = run_monitor(model, processor, prompts, image, user_input,
-                                  prior_state, temp, split)
+            verdict = run_monitor(model, processor, prompts, source, user_input,
+                                  prior_state, temp, split, fps=fps)
             if auto_thread and verdict:
                 prior_state = {k: verdict.get(k) for k in
                                ("phase", "object_status", "gripper_status",
@@ -925,7 +1119,28 @@ def main():
     )
     parser.add_argument(
         "--image", default=None,
-        help="Path to a saved frame/monitor grid (e.g. runs/<run>/<task>/monitor_*.png)",
+        help="Path to ONE image: a full-res still or a monitor grid "
+             "(e.g. runs/<run>/<task>/monitor_*.png)",
+    )
+    parser.add_argument(
+        "--clip", default=None,
+        help="Glob or directory of ordered full-res frames to feed as a video "
+             "clip + current still, matching production (e.g. "
+             "vla_failure_test/toy/000_toy). Takes precedence over --image.",
+    )
+    parser.add_argument(
+        "--view", default="front",
+        help="Camera view to keep when a clip dir has multiple (front/wrist). "
+             "Default: front",
+    )
+    parser.add_argument(
+        "--window", type=int, default=4,
+        help="Frames kept from the end of a clip (the recent window the monitor "
+             "judges). Matches vlm_monitor_num_frames. Default: 4",
+    )
+    parser.add_argument(
+        "--fps", type=float, default=2.0,
+        help="Clip playback fps for video timestamps (default: 2.0)",
     )
     parser.add_argument(
         "--variant", default="full", choices=list(PROMPT_VARIANTS),
@@ -958,25 +1173,36 @@ def main():
             print(f"[INFO] --prompt-file {prompt_file} does not exist yet; using "
                   "built-in prompts. /save will create it.")
 
-    # --- Resolve image ---
-    image = None
-    image_path = None
-    if args.image:
+    # --- Resolve source (clip takes precedence over a single image) ---
+    source = None
+    if args.clip:
+        try:
+            source = load_clip(args.clip, view=args.view, window=args.window)
+            print(f"Using {source_label(source)}")
+            task_guess = task_from_path(source.paths[-1])
+            if task_guess:
+                print(f"  (filename suggests task: \"{task_guess}\")")
+        except Exception as e:  # noqa: BLE001
+            print(f"[ERROR] Could not load clip: {e}")
+            return
+    elif args.image:
         p = Path(args.image)
         if not p.exists():
             print(f"[ERROR] Image not found: {p}")
             return
-        image = Image.open(p).convert("RGB")
-        image_path = str(p)
-        print(f"Using image: {p} ({image.width}x{image.height})")
+        source = load_still(str(p))
+        print(f"Using {source_label(source)} "
+              f"({source.image.width}x{source.image.height})")
     else:
-        print("[INFO] No --image given; set one with /image before running a check.")
+        print("[INFO] No --image/--clip given; set one with /image or /clip "
+              "before running a check.")
 
     # --- Load model ---
     model, processor = load_model(args.model)
 
-    interactive_loop(model, processor, prompts, image, image_path,
-                     prompt_file, args.temp, args.split, variant=args.variant)
+    interactive_loop(model, processor, prompts, source,
+                     prompt_file, args.temp, args.split, variant=args.variant,
+                     fps=args.fps, clip_window=args.window)
 
 
 if __name__ == "__main__":
