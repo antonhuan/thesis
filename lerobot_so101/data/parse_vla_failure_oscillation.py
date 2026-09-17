@@ -21,8 +21,8 @@ wide range (> ``--min-range``) while reversing often (>= ``--min-rev-per-step``
 major reversals per timestep).
 
 Separately, a **review flag** marks the high-velocity oscillation signature.
-Manual review of 30 flagged episodes showed that oscillation is *sustained*
-fast motion with *large excursions*: a single threshold on either mean or peak
+Manual labelling of the full test set (142 episodes) showed that oscillation is
+*sustained* fast motion with *large excursions*: a single threshold on either mean or peak
 per-step velocity overlaps with non-oscillation episodes (a one-off large
 correction spikes the peak without sustained fast motion; a fast-but-directed
 reach raises the mean without a large single step), but the **conjunction**
@@ -84,25 +84,28 @@ FAST_STEP_DEG = 2.0
 # --- Review-flag threshold calibration -------------------------------------
 # The flag fires when one joint has BOTH mean per-step speed >= VEL_THRESHOLD
 # AND peak per-step speed >= PEAK_THRESHOLD (see analyse_episode). Defaults were
-# calibrated against 30 hand-labelled episodes (7 oscillation, 23 not); on that
-# set the conjunction gives a perfect split (7/7 caught, 0 false positives).
+# first calibrated on a 30-episode subset and have since been VERIFIED against
+# the full hand-labelled test set: 142 episodes (7 oscillation, 135 not). On the
+# full set the conjunction still gives a perfect split (7/7 caught, 0 false
+# positives) at the unchanged defaults below -- the extra 112 labelled episodes
+# introduced no new boundary cases, so the thresholds hold as-is.
 #
-# Downward room, each gate measured with the other held at its default:
+# Separation on the full set, each gate measured with the other held at default:
 #   VEL_THRESHOLD  = 2.3 deg/step  -> safe range (2.13, 2.43]; room DOWN ~0.17
-#       lowest oscillation joint = 2.43 (banana__110 shoulder_lift);
-#       first non-oscillation false positive at 2.13 (plush__162 shoulder_lift).
-#       This is the BINDING gate -- the window is only ~0.3 deg/step wide, so
-#       2.3 sits near the floor. If adjusting, prefer moving UP toward ~2.4 for
-#       margin rather than down. Mean speed is the real discriminator.
-#   PEAK_THRESHOLD = 100 deg/step  -> safe range (87.7, 108.7]; room DOWN ~12
-#       lowest oscillation joint = 108.7; first false positive at 87.7
-#       (plush__133 elbow_flex). Peak has real slack; its job is to reject
-#       single-spike corrections (high peak, low mean) such as purse__016.
+#       lowest oscillation = 2.434 (banana__110); first non-oscillation false
+#       positive at 2.134 (plush__162) -- the SAME two boundary episodes as the
+#       30-ep calibration, i.e. full labelling confirms the window rather than
+#       widening it. This is the BINDING gate: the window is only ~0.3 deg/step
+#       wide, so 2.3 sits near the floor. If adjusting, prefer moving UP toward
+#       ~2.4 for margin rather than down. Mean speed is the real discriminator.
+#   PEAK_THRESHOLD = 100 deg/step  -> safe range (87.7, 111.4]; room DOWN ~12
+#       lowest oscillation peak = 111.4 (pouch__002); first false positive at
+#       87.65 (plush__133). Peak has real slack; its job is to reject
+#       single-spike corrections (high peak, low mean).
 #
 # On this set every oscillation triggers on shoulder_lift (elbow_flex sometimes
-# too); shoulder_pan / wrist_flex never trigger. Margins come from n=30 (7
-# positives) -- the ~0.17 mean headroom is thin, so re-check the gap as more
-# labelled episodes accumulate.
+# too); shoulder_pan / wrist_flex never trigger. The ~0.17 mean headroom stayed
+# thin even at full labelling, so keep re-checking the gap if the test set grows.
 VEL_THRESHOLD_DEG = 2.3
 PEAK_THRESHOLD_DEG = 100.0
 
