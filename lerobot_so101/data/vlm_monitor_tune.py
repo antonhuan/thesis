@@ -253,6 +253,126 @@ Return ONLY one JSON object:
 
 
 # ---------------------------------------------------------------------------
+# NARROWED ("semantic") variant.
+#
+# Scopes the monitor to the semantic/state faults a kinematic monitor cannot see:
+# (1) is the arm acting on the RIGHT object, (2) did the grasp actually take /
+# is it still held, (3) did the object land at the destination. Motion quality
+# (speed, oscillation, stall, drift) is DELEGATED to the velocity-threshold
+# monitor and explicitly out of scope here. Shorter and faster than the full
+# prompt, and drops the "sustained wrong-direction motion" language that is the
+# main source of spurious STOPs off sampled frames.
+# ---------------------------------------------------------------------------
+
+MONITOR_SEMANTIC_SYSTEM_PROMPT = """You are a real-time robot STATE verifier for an orange tabletop arm (SO-101, 6-DOF). While the arm executes a pick-and-place sub-task, a SEPARATE kinematic monitor watches motion quality — speed, oscillation, stalls, drift — from the arm's proprioception. That is NOT your job and you must never comment on it. YOUR job is the semantic state the kinematics is blind to: is the arm acting on the RIGHT object, and is its grasp/placement state actually what it appears to claim. You are NOT the success judge (a separate module fires at the end); never call the task complete.
+
+WHAT YOU RECEIVE EACH LOOK
+- The sub-task, which names ONE target object.
+- The expected PHASE ARC (context for naming the phase).
+- A short video clip of the last few seconds plus the CURRENT FRAME on its own in
+  full detail. The current frame is the true present state — ground every field in
+  it. Use the clip ONLY to tell whether the target is held NOW versus was held
+  before (grasp/lost-grip), NEVER to assess how the arm is moving.
+- A PRIOR ASSESSMENT from your previous look — a hypothesis to check against the
+  frames, not ground truth. If the frames contradict it, believe the frames.
+
+THE THREE CHECKS (all are STATE facts, none is motion):
+1. RIGHT OBJECT — name the object directly beneath or closest to the jaws right
+   now, from what you SEE, not from what the sub-task asked for. If the gripper is
+   descending onto or closing on an object that is NOT the named target, that is a
+   fault.
+2. GRASP INTEGRITY — if the gripper is closed and lifted but the jaws are visibly
+   empty (nothing acquired), OR the prior look reported the target held but the
+   current frame shows empty jaws with the object back on a surface (lost grip),
+   that is a fault.
+3. PLACEMENT — if the object has been released somewhere other than its
+   destination (dropped short of the tray), or the target has been knocked over or
+   pushed away, that is a fault.
+
+VERDICT — binary
+- "CONTINUE": the arm is acting on the correct object and its grasp/placement state
+  is consistent, OR you are unsure. Default here.
+- "STOP" (fault): a CLEAR semantic violation from the three checks above. STOP
+  preempts the arm, so raise it ONLY on a clear state fault, never on momentary
+  ambiguity or a single flickery frame.
+
+NOT YOUR CALL — do NOT STOP for any of these (the kinematic monitor owns them):
+reaching speed, indirect or curved paths, oscillation, stalls, motion stopping,
+"drifting" or "moving away". Merely passing ABOVE a neighbouring object on the way
+to the target is fine — it becomes a fault only once the gripper is clearly
+descending onto or closing on the wrong object.
+
+OUTPUT — OBSERVE FIRST, LABEL AFTER
+Return ONLY one JSON object. Describe what you literally see in the CURRENT FRAME
+before you name the phase or the verdict; the phase and verdict must follow from
+what you described, not the other way round.
+{
+  "gripper_visible": "<what the gripper is doing in the CURRENT FRAME: open, or closed on something>",
+  "object_under_gripper": "<name the ONE object directly beneath or closest to the jaws right now — what it actually is (e.g. plush toy, pouch, banana), or 'none' if over bare table>",
+  "target_match": "<yes/no — is object_under_gripper the SAME object the sub-task names?>",
+  "object_held": "<yes/no — is the target object clamped in the jaws right now?>",
+  "object_status": "<where the target object is: on the table / in the gripper / on the tray>",
+  "gripper_status": "<open | closed | transitioning>",
+  "phase": "<current stage, using the arc vocab — consistent with the fields above>",
+  "concern": "<none, or the specific STATE fault (wrong object / failed grasp / lost grip / bad placement)>",
+  "action": "CONTINUE" or "STOP",
+  "reason": "<brief, concrete evidence from the current frame>"
+}
+
+CONSISTENCY RULES
+- object_held = yes  =>  you are at least at "grasp"/"transit", not "approach".
+- gripper closed on the object  =>  the grasp already happened; do not report "nothing held".
+- target_match = no AND the gripper is descending onto or closing on object_under_gripper  =>  wrong-object fault, action MUST be "STOP".
+
+Examples:
+{"gripper_visible": "open, descending toward the banana", "object_under_gripper": "banana", "target_match": "yes", "object_held": "no", "object_status": "banana on the table under the gripper", "gripper_status": "open", "phase": "approach", "concern": "none", "action": "CONTINUE", "reason": "Jaws lowering onto the banana, the named target; not yet grasped."}
+{"gripper_visible": "open, descending onto the plush toy", "object_under_gripper": "plush toy", "target_match": "no", "object_held": "no", "object_status": "banana still on the table further back, not under the gripper", "gripper_status": "open", "phase": "approach", "concern": "wrong object: gripper is descending onto the plush toy, but the sub-task names the banana", "action": "STOP", "reason": "The jaws are lowering onto the plush toy; the banana sits further back and is not the object being approached."}
+{"gripper_visible": "closed, lifted, jaws empty", "object_under_gripper": "none", "target_match": "no", "object_held": "no", "object_status": "banana still on the table where it started", "gripper_status": "closed", "phase": "transit", "concern": "failed grasp: gripper closed and lifted but nothing is in the jaws", "action": "STOP", "reason": "Prior look reported the banana grasped, but the current frame shows the closed gripper lifted with empty jaws and the banana still on the table."}
+"""
+
+MONITOR_SEMANTIC_OBSERVE_SYSTEM_PROMPT = """You are the perception half of a real-time robot STATE verifier. Your ONLY job on this pass is to describe what you literally see in the CURRENT FRAME. You do NOT decide CONTINUE or STOP, and you do NOT comment on how the arm is moving (a separate kinematic monitor owns motion). Describe state only.
+
+WHAT YOU RECEIVE
+- The sub-task, which names ONE target object (context — describe what you SEE, not what the sub-task implies).
+- The expected PHASE ARC (use its vocabulary to name the phase).
+- The frames; the latest is the current scene. Use earlier frames ONLY to tell whether the target is held NOW versus was held before — never to assess motion.
+- A PRIOR ASSESSMENT to CHECK against the frames, not to trust.
+
+Ground every field in the current frame. Above all, name the object the gripper is actually over or closing on RIGHT NOW — the one object directly beneath or closest to the jaws — from what you see, and say whether it is the object the sub-task names.
+
+Return ONLY one JSON object, no verdict fields:
+{
+  "gripper_visible": "<what the gripper is doing in the current frame: open, or closed on something>",
+  "object_under_gripper": "<name the ONE object directly beneath or closest to the jaws right now (e.g. plush toy, pouch, banana), or 'none' if over bare table>",
+  "target_match": "<yes/no — is object_under_gripper the SAME object the sub-task names?>",
+  "object_held": "<yes/no — is the target object clamped in the jaws right now?>",
+  "object_status": "<where the target object is: on the table / in the gripper / on the tray>",
+  "gripper_status": "<open | closed | transitioning>",
+  "phase": "<current stage, using the arc vocab — consistent with the fields above>"
+}
+"""
+
+MONITOR_SEMANTIC_JUDGE_SYSTEM_PROMPT = """You are the judgement half of a real-time robot STATE verifier. A perception pass has already described the current frame (its observations are given to you). Your ONLY job is to decide whether a SEMANTIC state fault has occurred. You do NOT judge motion — speed, oscillation, stalls and drift belong to a separate kinematic monitor. You are NOT the success judge; never call the task complete. Verify the observations against the image; if the image contradicts them, believe the image.
+
+Raise "STOP" only for a CLEAR fault from these three, otherwise "CONTINUE" (also when unsure):
+1. WRONG OBJECT — target_match = no AND the gripper is descending onto or closing on object_under_gripper. Picking up the wrong object is a fault even when the approach otherwise looks clean.
+2. FAILED GRASP / LOST GRIP — the gripper is closed and lifted but the jaws are empty, or the object that was reported held is now back on a surface with empty jaws.
+3. BAD PLACEMENT — the object was released short of / off the destination, or the target was knocked over or pushed away.
+
+Do NOT STOP for: reaching speed, indirect paths, oscillation, stalls, "moving away", or merely passing above a neighbouring object en route to the target. STOP preempts the arm — never fire on momentary ambiguity or a single flickery frame.
+
+Scene context: the tray in the scene is the destination ("the tray" always means it). The orange arm is part of the setup.
+
+Return ONLY one JSON object:
+{
+  "concern": "<none, or the specific STATE fault (wrong object / failed grasp / lost grip / bad placement)>",
+  "action": "CONTINUE" or "STOP",
+  "reason": "<brief, concrete evidence from the current frame>"
+}
+"""
+
+
+# ---------------------------------------------------------------------------
 # Phase arcs (copied from vlm_robot_orchestrator.py so this harness matches what
 # the monitor is actually told, without importing the orchestrator's heavy
 # robot/lerobot dependency stack).
@@ -463,6 +583,7 @@ def run_monitor(model, processor, prompts, image, sub_task, prior_state,
     print(f"\n{'='*60}")
     print(f"MONITOR CHECK ({'observe->judge' if split else 'single-call'})")
     print(f"Sub-task: \"{sub_task}\"")
+    # (variant is reflected in the loaded prompts, shown via /prompt and /help)
     arc_vocab, _ = monitor_phase_arc(sub_task)
     print(f"Phase arc: {arc_vocab}")
     print(f"Prior: {prior_state if prior_state else 'none (first look)'}")
@@ -506,12 +627,28 @@ _PROMPT_MARKERS = {
 }
 
 
-def default_prompts() -> dict:
-    return {
+# Two scopings you can A/B with /variant (or --variant at startup):
+#   full     — the original monitor: right object + grasp/placement state AND
+#              motion faults (drift, wrong-direction) all in the VLM.
+#   semantic — narrowed to the state faults a kinematic monitor cannot see
+#              (right object, grasp integrity, placement); motion is delegated
+#              to the velocity-threshold monitor.
+PROMPT_VARIANTS = {
+    "full": {
         "single": MONITOR_SYSTEM_PROMPT,
         "observe": MONITOR_OBSERVE_SYSTEM_PROMPT,
         "judge": MONITOR_JUDGE_SYSTEM_PROMPT,
-    }
+    },
+    "semantic": {
+        "single": MONITOR_SEMANTIC_SYSTEM_PROMPT,
+        "observe": MONITOR_SEMANTIC_OBSERVE_SYSTEM_PROMPT,
+        "judge": MONITOR_SEMANTIC_JUDGE_SYSTEM_PROMPT,
+    },
+}
+
+
+def default_prompts(variant: str = "full") -> dict:
+    return dict(PROMPT_VARIANTS[variant])
 
 
 def serialize_prompts(prompts: dict) -> str:
@@ -597,6 +734,8 @@ Commands:
   <any text>          Run the monitor on the current image for this sub-task
                       (e.g. "put the banana on the tray")
   /image <path>       Load a different saved frame/grid (current: {image})
+  /variant <name>     Swap prompt scope: full | semantic. Resets any /edit
+                      changes to that variant's built-in prompts. (current: {variant})
   /split              Toggle single-call vs observe->judge (current: {split})
   /temp <value>       Set temperature (current: {temp})
   /prior              Set/clear the PRIOR ASSESSMENT threaded into the next check
@@ -613,7 +752,7 @@ Commands:
 
 
 def interactive_loop(model, processor, prompts, image, image_path,
-                     prompt_file, temp, split):
+                     prompt_file, temp, split, variant="full"):
     prior_state = None
     auto_thread = False
 
@@ -640,12 +779,25 @@ def interactive_loop(model, processor, prompts, image, image_path,
         elif user_input == "/help":
             print(INTERACTIVE_HELP.format(
                 image=image_path or "none",
+                variant=variant,
                 split="observe->judge" if split else "single-call",
                 temp=temp,
                 prior=(json.dumps(prior_state) if prior_state else "none"),
                 auto="ON" if auto_thread else "OFF",
                 pfile=prompt_file or "none",
             ))
+
+        elif user_input.startswith("/variant"):
+            parts = user_input.split(maxsplit=1)
+            which = parts[1].strip() if len(parts) > 1 else ""
+            if which not in PROMPT_VARIANTS:
+                print(f"Usage: /variant {' | '.join(PROMPT_VARIANTS)}  "
+                      f"(current: {variant})")
+                continue
+            variant = which
+            prompts = dict(PROMPT_VARIANTS[which])
+            print(f"Prompt variant: {variant} (reset to built-in prompts; any "
+                  "/edit changes discarded).")
 
         elif user_input.startswith("/image"):
             parts = user_input.split(maxsplit=1)
@@ -776,6 +928,11 @@ def main():
         help="Path to a saved frame/monitor grid (e.g. runs/<run>/<task>/monitor_*.png)",
     )
     parser.add_argument(
+        "--variant", default="full", choices=list(PROMPT_VARIANTS),
+        help="Prompt scope: 'full' (state + motion) or 'semantic' (state only, "
+             "motion delegated to the kinematic monitor). Default: full",
+    )
+    parser.add_argument(
         "--split", action="store_true",
         help="Start in observe->judge mode (default: single-call)",
     )
@@ -790,7 +947,7 @@ def main():
     args = parser.parse_args()
 
     # --- Resolve prompts ---
-    prompts = default_prompts()
+    prompts = default_prompts(args.variant)
     prompt_file = args.prompt_file
     if prompt_file:
         p = Path(prompt_file)
@@ -819,7 +976,7 @@ def main():
     model, processor = load_model(args.model)
 
     interactive_loop(model, processor, prompts, image, image_path,
-                     prompt_file, args.temp, args.split)
+                     prompt_file, args.temp, args.split, variant=args.variant)
 
 
 if __name__ == "__main__":
