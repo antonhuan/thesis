@@ -29,12 +29,14 @@ Image input — two modes:
   --image <path> : ONE image. A full-res still, or a saved monitor contact-sheet
       grid (monitor_*.png under runs/<run>/<task>/). A grid's tiles are ~1/4 res,
       which starves object-in-gripper perception — prefer a full-res still.
-  --clip <glob|dir> : an ordered run of full-res frames (e.g. the per-timestep
-      stills under vla_failure_test/<object>/<episode>/), fed as a real video
-      clip + a separate full-detail current still — matching production's
-      VLMPlanner.monitor() input exactly. This is the faithful path; use it when
-      you have sequential frames. The sub-task can often be read off the
-      filenames (put_the_X_on_the_tray).
+  --clip <glob|dir> : a whole run of full-res frames (e.g. the per-timestep
+      stills under vla_failure_test/<object>/<episode>/). A single check feeds the
+      last --window frames as a real video clip + a separate full-detail current
+      still, matching production's VLMPlanner.monitor() input exactly. /scan (or
+      --scan) slides that window across EVERY frame in the run, one monitor look
+      per step with the prior threaded forward — an offline replay of how the
+      monitor fires repeatedly across a live episode, ending in a verdict
+      timeline. The sub-task can often be read off the filenames.
 
 Shared model loading and inference live in vlm_core.py.
 
@@ -643,12 +645,23 @@ class StillSource:
 
 
 class ClipSource:
-    """An ordered run of full-res frames — fed as production's video clip +
-    full-res current still (clip[-1]). Faithful to VLMPlanner.monitor()."""
+    """An ordered run of full-res frames. Holds the WHOLE run; a single check
+    uses the last `window` frames, while /scan slides a window across all of
+    them. Each window is fed as production's video clip + full-res current still
+    (clip[-1]), faithful to VLMPlanner.monitor()."""
 
     def __init__(self, clip: list[Image.Image], paths: list[str]):
         self.clip = clip
         self.paths = paths
+
+    def window(self, start: int, size: int) -> "ClipSource":
+        """A sub-run of `size` frames starting at index `start`."""
+        return ClipSource(self.clip[start:start + size],
+                          self.paths[start:start + size])
+
+    def tail(self, size: int) -> "ClipSource":
+        """The last `size` frames — one monitor look at the end of the run."""
+        return ClipSource(self.clip[-size:], self.paths[-size:])
 
 
 _TASK_RE = re.compile(r"(put_the_.+?)(?:\.(?:png|jpg|jpeg))?$", re.IGNORECASE)
@@ -669,13 +682,13 @@ def load_still(path: str) -> StillSource:
     return StillSource(Image.open(p).convert("RGB"), str(p), grid)
 
 
-def load_clip(pattern: str, view: str = "front", window: int = 4) -> ClipSource:
-    """Load an ordered run of frames matching a glob or directory.
+def load_clip(pattern: str, view: str = "front") -> ClipSource:
+    """Load the WHOLE ordered run of frames matching a glob or directory.
 
-    Filters to a single camera `view` when the names carry it (front/wrist),
-    sorts by the numeric frame index in the name, and keeps the LAST `window`
-    frames (the recent window the monitor judges). Raises ValueError with a clear
-    message if nothing matches.
+    Filters to a single camera `view` when the names carry it (front/wrist) and
+    sorts by the numeric frame index in the name. Keeps ALL matching frames — the
+    consumer decides the window (a single check uses the tail; /scan slides across
+    all of them). Raises ValueError with a clear message if nothing matches.
     """
     if os.path.isdir(pattern):
         pattern = os.path.join(pattern, "*")
@@ -692,8 +705,6 @@ def load_clip(pattern: str, view: str = "front", window: int = 4) -> ClipSource:
         return int(m.group(1)) if m else 0
 
     paths = sorted(paths, key=frame_index)
-    if window and len(paths) > window:
-        paths = paths[-window:]
     clip = [Image.open(p).convert("RGB") for p in paths]
     return ClipSource(clip, [str(p) for p in paths])
 
@@ -749,6 +760,66 @@ def run_monitor(model, processor, prompts, source, sub_task, prior_state,
     print(f"  reason:         {parsed.get('reason', '?')}")
     print(f"{'-'*60}")
     return parsed
+
+
+def run_scan(model, processor, prompts, source: ClipSource, sub_task,
+             temperature, split, fps=2.0, win=4, step=1, stop_on_stop=False):
+    """Slide a `win`-frame window across the WHOLE run, one monitor look per step.
+
+    Threads each look's state forward as the next look's prior_state, exactly as
+    the orchestrator does across a live episode. Prints a per-window verdict and,
+    at the end, a compact timeline of every window's action so a whole episode's
+    behaviour is legible at a glance. With `stop_on_stop`, halts at the first STOP
+    (mimicking production's preemption); otherwise runs every window.
+    """
+    n = len(source.clip)
+    if n < win:
+        print(f"[ERROR] Run has {n} frame(s); need at least win={win}.")
+        return []
+
+    starts = list(range(0, n - win + 1, step))
+    print(f"\n{'#'*60}")
+    print(f"SCAN — {len(starts)} window(s) of {win} frames (step {step}) over "
+          f"{n} frames")
+    print(f"Sub-task: \"{sub_task}\"  |  {'observe->judge' if split else 'single-call'}"
+          f"  |  {'stop-on-STOP' if stop_on_stop else 'full pass'}")
+    print(f"{'#'*60}")
+
+    prior_state = None
+    timeline = []
+    for k, start in enumerate(starts):
+        win_src = source.window(start, win)
+        idx_lo = re.match(r"(\d+)", Path(win_src.paths[0]).name)
+        idx_hi = re.match(r"(\d+)", Path(win_src.paths[-1]).name)
+        span = (f"{idx_lo.group(1) if idx_lo else start}.."
+                f"{idx_hi.group(1) if idx_hi else start + win - 1}")
+        print(f"\n----- window {k + 1}/{len(starts)} (frames {span}) -----")
+        verdict = run_monitor(model, processor, prompts, win_src, sub_task,
+                              prior_state, temperature, split, fps=fps)
+        action = str(verdict.get("action", "?")).upper() if verdict else "PARSE_FAIL"
+        timeline.append((span, action, verdict.get("concern", "") if verdict else ""))
+        if verdict:
+            prior_state = {k2: verdict.get(k2) for k2 in
+                           ("phase", "object_status", "gripper_status",
+                            "last_transition", "concern")
+                           if verdict.get(k2) is not None}
+        if stop_on_stop and action == "STOP":
+            print(f"\n[SCAN] first STOP at window {k + 1} (frames {span}); halting.")
+            break
+
+    # --- Timeline summary ---
+    print(f"\n{'#'*60}\nSCAN TIMELINE\n{'#'*60}")
+    for span, action, concern in timeline:
+        mark = "  🛑" if action == "STOP" else ("  ⚠" if action == "PARSE_FAIL" else "")
+        line = f"  frames {span:<9} {action}{mark}"
+        if action == "STOP" and concern:
+            line += f"  — {concern}"
+        print(line)
+    stops = [t for t in timeline if t[1] == "STOP"]
+    print(f"\n  {len(timeline)} window(s): {len(stops)} STOP, "
+          f"{sum(1 for t in timeline if t[1] == 'CONTINUE')} CONTINUE, "
+          f"{sum(1 for t in timeline if t[1] == 'PARSE_FAIL')} parse-fail")
+    return timeline
 
 
 # ---------------------------------------------------------------------------
@@ -871,9 +942,12 @@ Commands:
   <any text>          Run the monitor on the current source for this sub-task
                       (e.g. "put the banana on the tray")
   /image <path>       Load ONE image — a full-res still or a monitor grid
-  /clip <glob|dir>    Load an ordered run of full-res frames as a video clip +
-                      current still (production's real monitor input). e.g.
-                      /clip vla_failure_test/toy/000_toy   (current: {source})
+  /clip <glob|dir>    Load a whole run of full-res frames. A single check uses
+                      the last {win} as the clip; /scan slides across all of them.
+                      e.g. /clip vla_failure_test/toy/000_toy   (current: {source})
+  /scan [sub-task]    Slide the {win}-frame window across EVERY frame in the run,
+                      one monitor look per step (prior threaded forward), then
+                      print a verdict timeline. Task defaults to the filename's.
   /probe <question>   Ask the model a freeform question about the current frame
                       with NO monitor prompt (e.g. /probe what is the gripper
                       holding) — raw perception, for isolating what it can see
@@ -941,6 +1015,7 @@ def interactive_loop(model, processor, prompts, source,
             print(INTERACTIVE_HELP.format(
                 source=source_label(source),
                 variant=variant,
+                win=clip_window,
                 split="observe->judge" if split else "single-call",
                 fps=fps,
                 temp=temp,
@@ -983,13 +1058,24 @@ def interactive_loop(model, processor, prompts, source,
                 print("Usage: /clip <glob|dir>  (e.g. /clip vla_failure_test/toy/000_toy)")
                 continue
             try:
-                source = load_clip(parts[1].strip(), window=clip_window)
+                source = load_clip(parts[1].strip())
                 print(f"Loaded {source_label(source)}")
                 task_guess = task_from_path(source.paths[-1])
                 if task_guess:
                     print(f"  (filename suggests task: \"{task_guess}\")")
             except Exception as e:  # noqa: BLE001
                 print(f"[ERROR] Could not load clip: {e}")
+
+        elif user_input.startswith("/scan"):
+            if not isinstance(source, ClipSource):
+                print("[ERROR] /scan needs a clip. Load one with /clip <dir>.")
+                continue
+            task = user_input[len("/scan"):].strip() or task_from_path(source.paths[-1])
+            if not task:
+                print("Provide a sub-task: /scan put the toy on the tray")
+                continue
+            run_scan(model, processor, prompts, source, task, temp, split,
+                     fps=fps, win=clip_window, step=1)
 
         elif user_input.startswith("/probe"):
             parts = user_input.split(maxsplit=1)
@@ -1095,7 +1181,9 @@ def interactive_loop(model, processor, prompts, source,
                 print("[ERROR] No source loaded. Use /image or /clip (or start "
                       "with --image/--clip).")
                 continue
-            verdict = run_monitor(model, processor, prompts, source, user_input,
+            check_src = (source.tail(clip_window)
+                         if isinstance(source, ClipSource) else source)
+            verdict = run_monitor(model, processor, prompts, check_src, user_input,
                                   prior_state, temp, split, fps=fps)
             if auto_thread and verdict:
                 prior_state = {k: verdict.get(k) for k in
@@ -1135,8 +1223,18 @@ def main():
     )
     parser.add_argument(
         "--window", type=int, default=4,
-        help="Frames kept from the end of a clip (the recent window the monitor "
-             "judges). Matches vlm_monitor_num_frames. Default: 4",
+        help="Window size: frames per monitor look (the tail for a single check, "
+             "the sliding window for /scan). Matches vlm_monitor_num_frames. "
+             "Default: 4",
+    )
+    parser.add_argument(
+        "--scan", action="store_true",
+        help="With --clip: slide the window across the whole run on startup "
+             "(then drop into the REPL). Task from --task or the filenames.",
+    )
+    parser.add_argument(
+        "--task", default=None,
+        help="Sub-task for --scan (default: read from the frame filenames)",
     )
     parser.add_argument(
         "--fps", type=float, default=2.0,
@@ -1177,7 +1275,7 @@ def main():
     source = None
     if args.clip:
         try:
-            source = load_clip(args.clip, view=args.view, window=args.window)
+            source = load_clip(args.clip, view=args.view)
             print(f"Using {source_label(source)}")
             task_guess = task_from_path(source.paths[-1])
             if task_guess:
@@ -1199,6 +1297,19 @@ def main():
 
     # --- Load model ---
     model, processor = load_model(args.model)
+
+    # --- Optional one-shot scan on startup ---
+    if args.scan:
+        if not isinstance(source, ClipSource):
+            print("[ERROR] --scan needs --clip.")
+            return
+        task = args.task or task_from_path(source.paths[-1])
+        if not task:
+            print("[ERROR] --scan needs a task; pass --task or use frames whose "
+                  "names carry it (put_the_X_on_the_tray).")
+        else:
+            run_scan(model, processor, prompts, source, task, args.temp,
+                     args.split, fps=args.fps, win=args.window, step=1)
 
     interactive_loop(model, processor, prompts, source,
                      prompt_file, args.temp, args.split, variant=args.variant,
