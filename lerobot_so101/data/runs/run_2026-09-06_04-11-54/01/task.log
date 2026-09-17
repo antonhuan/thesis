@@ -1,0 +1,45 @@
+INFO 2026-09-06 04:12:28 strator.py:1424 Decomposing high-level prompt (round 1): 'put everything on the tray'
+INFO 2026-09-06 04:12:28 strator.py:1143 Saved VLM frame: runs/run_2026-09-06_04-11-54/01/decompose_20260906_041228.png
+  Generated 180 tokens in 15.1s (11.9 tok/s)
+INFO 2026-09-06 04:12:43 pace/vlm.py:411 Identification tokens: 95
+INFO 2026-09-06 04:12:43 estrator.py:769 Identified objects (8): ['table', 'robot arm', 'plush toy', 'base', 'tray', 'cloth', 'black object', 'wires']
+  Generated 146 tokens in 9.6s (15.2 tok/s)
+
+Visible: ['table', 'robot arm', 'plush toy', 'base', 'tray', 'cloth', 'black object', 'wires']
+Excluded: []
+Completed: []
+Allowed: ['table', 'robot arm', 'plush toy', 'base', 'cloth', 'black object', 'wires']
+
+Parsed 7 sub-tasks:
+  1. put the table on the tray
+  2. put the robot arm on the tray
+  3. put the plush toy on the tray
+  4. put the base on the tray
+  5. put the cloth on the tray
+  6. put the black object on the tray
+  7. put the wires on the tray
+INFO 2026-09-06 04:12:53 strator.py:1442 Sub-task queue (7):
+INFO 2026-09-06 04:12:53 strator.py:1444   1. put the table on the tray
+INFO 2026-09-06 04:12:53 strator.py:1444   2. put the robot arm on the tray
+INFO 2026-09-06 04:12:53 strator.py:1444   3. put the plush toy on the tray
+INFO 2026-09-06 04:12:53 strator.py:1444   4. put the base on the tray
+INFO 2026-09-06 04:12:53 strator.py:1444   5. put the cloth on the tray
+INFO 2026-09-06 04:12:53 strator.py:1444   6. put the black object on the tray
+INFO 2026-09-06 04:12:53 strator.py:1444   7. put the wires on the tray
+INFO 2026-09-06 04:12:53 strator.py:1498 [1] Executing sub-task: 'put the table on the tray' (1 retries left)
+INFO 2026-09-06 04:12:53 nt_loop.py:1057 VLA inputs for this episode -> vla_failure_test/table/134_table/
+INFO 2026-09-06 04:12:53 ent_loop.py:696 Control loop started | task: 'put the table on the tray' | duration: 50.0s
+INFO 2026-09-06 04:12:53 ent_loop.py:603 Action receiver thread started
+  Generated 59 tokens in 5.0s (11.9 tok/s)
+WARNING 2026-09-06 04:13:04 estrator.py:622 [VLM MONITOR] STOP after 1 check(s): The robot is attempting to put 'the table' on the tray, but there is no table visible in the scene — only a plush toy and a tray. The robot is likely misinterpreting the task or targeting the wrong object.
+INFO 2026-09-06 04:13:04 ent_loop.py:921 Episode finished: 11.5s, converged=False, max_displacement=0.0000, actions=0
+INFO 2026-09-06 04:13:04 estrator.py:576 Monitor completed 1 check(s) for 'put the table on the tray'
+INFO 2026-09-06 04:13:04 ent_loop.py:409 Returning to home position...
+INFO 2026-09-06 04:13:06 ent_loop.py:422 Home position reached.
+INFO 2026-09-06 04:13:06 strator.py:1593 VLM monitor interrupted episode: The robot is attempting to put 'the table' on the tray, but there is no table visible in the scene — only a plush toy and a tray. The robot is likely misinterpreting the task or targeting the wrong object.
+INFO 2026-09-06 04:13:06 strator.py:1388 ATTEMPT attempt=1 original='put the table on the tray' current='put the table on the tray' success=False failure_type=VLM_INTERRUPT reason="The robot is attempting to put 'the table' on the tray, but there is no table visible in the scene — only a plush toy and a tray. The robot is likely misinterpreting the task or targeting the wrong object." refinement=False
+INFO 2026-09-06 04:13:06 strator.py:1718 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-09-06 04:13:06 strator.py:1498 [1] Executing sub-task: 'put the table on the tray' (0 retries left)
+INFO 2026-09-06 04:13:06 nt_loop.py:1057 VLA inputs for this episode -> vla_failure_test/table/135_table/
+INFO 2026-09-06 04:13:06 ent_loop.py:696 Control loop started | task: 'put the table on the tray' | duration: 50.0s
+INFO 2026-09-06 04:13:06 ent_loop.py:603 Action receiver thread started

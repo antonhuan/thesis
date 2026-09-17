@@ -1,0 +1,103 @@
+INFO 2026-09-09 07:04:34 strator.py:1417 Decomposing high-level prompt (round 1): 'put everything on the tray'
+INFO 2026-09-09 07:04:34 strator.py:1136 Saved VLM frame: runs/run_2026-09-09_07-03-56/01/decompose_20260909_070434.png
+  Generated 109 tokens in 9.6s (11.3 tok/s)
+INFO 2026-09-09 07:04:44 pace/vlm.py:411 Identification tokens: 55
+INFO 2026-09-09 07:04:44 estrator.py:762 Identified objects (5): ['plush toy', 'pouch', 'banana', 'tray', 'table']
+  Generated 87 tokens in 5.8s (15.1 tok/s)
+
+Visible: ['plush toy', 'pouch', 'banana', 'tray', 'table']
+Excluded: []
+Completed: []
+Allowed: ['plush toy', 'pouch', 'banana']
+
+Parsed 3 sub-tasks:
+  1. put the plush toy on the tray
+  2. put the pouch on the tray
+  3. put the banana on the tray
+INFO 2026-09-09 07:04:49 strator.py:1435 Sub-task queue (3):
+INFO 2026-09-09 07:04:49 strator.py:1437   1. put the plush toy on the tray
+INFO 2026-09-09 07:04:49 strator.py:1437   2. put the pouch on the tray
+INFO 2026-09-09 07:04:49 strator.py:1437   3. put the banana on the tray
+INFO 2026-09-09 07:04:49 strator.py:1491 [1] Executing sub-task: 'put the plush toy on the tray' (1 retries left)
+INFO 2026-09-09 07:04:49 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/plush/155_plush/
+INFO 2026-09-09 07:04:49 ent_loop.py:689 Control loop started | task: 'put the plush toy on the tray' | duration: 50.0s
+INFO 2026-09-09 07:04:49 ent_loop.py:603 Action receiver thread started
+  Generated 30 tokens in 3.6s (8.2 tok/s)
+INFO 2026-09-09 07:04:59 estrator.py:625 [VLM MONITOR] CONTINUE (check 1): The arm is positioned near the plush toy and appears to be starting to grasp it.
+  Generated 24 tokens in 3.0s (8.0 tok/s)
+INFO 2026-09-09 07:05:02 estrator.py:625 [VLM MONITOR] CONTINUE (check 2): The arm is reaching toward the plush toy as instructed.
+  Generated 36 tokens in 4.1s (8.8 tok/s)
+INFO 2026-09-09 07:05:06 estrator.py:625 [VLM MONITOR] CONTINUE (check 3): The arm is positioned near the plush toy and appears to be in the process of grasping or moving toward it.
+  Generated 36 tokens in 4.4s (8.3 tok/s)
+INFO 2026-09-09 07:05:11 estrator.py:625 [VLM MONITOR] CONTINUE (check 4): The arm is positioned near the plush toy and appears to be in the process of grasping or moving toward it.
+  Generated 38 tokens in 4.3s (8.8 tok/s)
+INFO 2026-09-09 07:05:15 estrator.py:625 [VLM MONITOR] CONTINUE (check 5): The arm is positioned near the plush toy and appears to be in the process of grasping or moving toward it as instructed.
+  Generated 38 tokens in 2.6s (14.4 tok/s)
+INFO 2026-09-09 07:05:18 estrator.py:625 [VLM MONITOR] CONTINUE (check 6): The arm is positioned near the plush toy and appears to be in the process of grasping or moving toward it as instructed.
+  Generated 38 tokens in 2.6s (14.6 tok/s)
+INFO 2026-09-09 07:05:21 estrator.py:625 [VLM MONITOR] CONTINUE (check 7): The arm is positioned near the plush toy and appears to be in the process of grasping or moving toward it as instructed.
+INFO 2026-09-09 07:05:22 ent_loop.py:913 Episode finished: 33.0s, converged=True, max_displacement=174.7883, actions=642
+  Generated 38 tokens in 2.6s (14.8 tok/s)
+INFO 2026-09-09 07:05:23 estrator.py:625 [VLM MONITOR] CONTINUE (check 8): The arm is positioned near the plush toy and appears to be in the process of grasping or moving toward it as instructed.
+INFO 2026-09-09 07:05:23 estrator.py:573 Monitor completed 8 check(s) for 'put the plush toy on the tray'
+INFO 2026-09-09 07:05:23 ent_loop.py:409 Returning to home position...
+INFO 2026-09-09 07:05:25 ent_loop.py:422 Home position reached.
+INFO 2026-09-09 07:05:28 strator.py:1166 Saved VLM eval recap (32 frames): runs/run_2026-09-09_07-03-56/01/eval_task1_20260909_070525_recap.png
+INFO 2026-09-09 07:05:28 strator.py:1607 Evaluation observation: video clip (32 frames over 25.2s of a 33.0s episode, 1.23 fps)
+  Generated 22 tokens in 2.2s (10.1 tok/s)
+INFO 2026-09-09 07:05:30 strator.py:1649 VLM judgement: success=True | failure_type=RETRY | The plush toy is now on the tray as instructed.
+INFO 2026-09-09 07:05:30 strator.py:1491 [2] Executing sub-task: 'put the pouch on the tray' (1 retries left)
+INFO 2026-09-09 07:05:30 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/pouch/156_pouch/
+INFO 2026-09-09 07:05:30 ent_loop.py:689 Control loop started | task: 'put the pouch on the tray' | duration: 50.0s
+INFO 2026-09-09 07:05:30 ent_loop.py:603 Action receiver thread started
+  Generated 35 tokens in 4.2s (8.4 tok/s)
+INFO 2026-09-09 07:05:41 estrator.py:625 [VLM MONITOR] CONTINUE (check 1): The arm is positioned near the pouch and appears to be in the process of grasping or moving toward it.
+  Generated 23 tokens in 2.7s (8.4 tok/s)
+INFO 2026-09-09 07:05:44 estrator.py:625 [VLM MONITOR] CONTINUE (check 2): The arm is reaching toward the pouch as instructed.
+  Generated 35 tokens in 4.1s (8.5 tok/s)
+INFO 2026-09-09 07:05:48 estrator.py:625 [VLM MONITOR] CONTINUE (check 3): The arm is positioned near the pouch and appears to be in the process of grasping or moving toward it.
+  Generated 37 tokens in 3.5s (10.7 tok/s)
+INFO 2026-09-09 07:05:51 estrator.py:625 [VLM MONITOR] CONTINUE (check 4): The arm is positioned near the pouch and appears to be in the process of grasping or moving toward it as instructed.
+  Generated 37 tokens in 3.3s (11.4 tok/s)
+INFO 2026-09-09 07:05:55 estrator.py:625 [VLM MONITOR] CONTINUE (check 5): The arm is positioned near the pouch and appears to be in the process of grasping or moving toward it as instructed.
+INFO 2026-09-09 07:05:55 ent_loop.py:913 Episode finished: 24.5s, converged=True, max_displacement=225.2130, actions=502
+  Generated 37 tokens in 2.9s (12.7 tok/s)
+INFO 2026-09-09 07:05:58 estrator.py:625 [VLM MONITOR] CONTINUE (check 6): The arm is positioned near the pouch and appears to be in the process of grasping or moving toward it as instructed.
+INFO 2026-09-09 07:05:58 estrator.py:573 Monitor completed 6 check(s) for 'put the pouch on the tray'
+INFO 2026-09-09 07:05:58 ent_loop.py:409 Returning to home position...
+INFO 2026-09-09 07:06:00 ent_loop.py:422 Home position reached.
+INFO 2026-09-09 07:06:02 strator.py:1166 Saved VLM eval recap (32 frames): runs/run_2026-09-09_07-03-56/01/eval_task2_20260909_070600_recap.png
+INFO 2026-09-09 07:06:02 strator.py:1607 Evaluation observation: video clip (32 frames over 17.7s of a 24.5s episode, 1.75 fps)
+  Generated 38 tokens in 3.0s (12.8 tok/s)
+INFO 2026-09-09 07:06:05 strator.py:1649 VLM judgement: success=False | failure_type=RETRY | The arm reached the pouch but did not grasp it, and the pouch remained on the table.
+INFO 2026-09-09 07:06:05 strator.py:1381 ATTEMPT attempt=1 original='put the pouch on the tray' current='put the pouch on the tray' success=False failure_type=RETRY reason='The arm reached the pouch but did not grasp it, and the pouch remained on the table.' refinement=False
+INFO 2026-09-09 07:06:05 strator.py:1711 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-09-09 07:06:05 strator.py:1491 [2] Executing sub-task: 'put the pouch on the tray' (0 retries left)
+INFO 2026-09-09 07:06:05 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/pouch/157_pouch/
+INFO 2026-09-09 07:06:05 ent_loop.py:689 Control loop started | task: 'put the pouch on the tray' | duration: 50.0s
+INFO 2026-09-09 07:06:05 ent_loop.py:603 Action receiver thread started
+  Generated 37 tokens in 3.4s (10.8 tok/s)
+INFO 2026-09-09 07:06:15 estrator.py:625 [VLM MONITOR] CONTINUE (check 1): The arm is positioned near the pouch and appears to be in the process of grasping or moving toward it as instructed.
+INFO 2026-09-09 07:06:17 ent_loop.py:913 Episode finished: 11.8s, converged=True, max_displacement=2.1086, actions=103
+  Generated 37 tokens in 3.2s (11.6 tok/s)
+INFO 2026-09-09 07:06:18 estrator.py:625 [VLM MONITOR] CONTINUE (check 2): The arm is positioned near the pouch and appears to be in the process of grasping or moving toward it as instructed.
+INFO 2026-09-09 07:06:18 estrator.py:573 Monitor completed 2 check(s) for 'put the pouch on the tray'
+INFO 2026-09-09 07:06:18 ent_loop.py:409 Returning to home position...
+INFO 2026-09-09 07:06:20 ent_loop.py:422 Home position reached.
+WARNING 2026-09-09 07:06:20 strator.py:1574 No movement detected (max_displacement=2.1086). The object name 'pouch' is likely not in the robot's vocabulary.
+INFO 2026-09-09 07:06:22 strator.py:1166 Saved VLM eval recap (32 frames): runs/run_2026-09-09_07-03-56/01/eval_task2_20260909_070620_recap.png
+INFO 2026-09-09 07:06:22 strator.py:1607 Evaluation observation: video clip (32 frames over 6.6s of a 11.8s episode, 4.68 fps)
+  Generated 36 tokens in 2.9s (12.4 tok/s)
+INFO 2026-09-09 07:06:26 strator.py:1649 VLM judgement: success=False | failure_type=VOCAB | The arm did not move toward the pouch or attempt to place it on the tray.
+INFO 2026-09-09 07:06:26 strator.py:1381 ATTEMPT attempt=2 original='put the pouch on the tray' current='put the pouch on the tray' success=False failure_type=VOCAB reason='The arm did not move toward the pouch or attempt to place it on the tray.' refinement=False
+WARNING 2026-09-09 07:06:26 strator.py:1735 Sub-task 'put the pouch on the tray' failed after all retries.
+INFO 2026-09-09 07:06:26 strator.py:1744 Triggering replan (0 replan(s) left after this)...
+INFO 2026-09-09 07:06:26 strator.py:1745   Completed so far: ['put the plush toy on the tray']
+INFO 2026-09-09 07:06:26 strator.py:1746   Failed: 'put the pouch on the tray' — The arm did not move toward the pouch or attempt to place it on the tray.
+INFO 2026-09-09 07:06:26 strator.py:1747   Remaining (discarded): ['put the banana on the tray']
+
+[REPLAN] Sub-task 'put the pouch on the tray' failed after all retries: The arm did not move toward the pouch or attempt to place it on the tray.
+[REPLAN] Additional context for the planner (Enter for none, 'q' to abort): WARNING 2026-09-09 07:13:35 strator.py:1408 ABORT requested at the replan prompt — abandoning high-level task 'put everything on the tray' and returning to the prompt.
+INFO 2026-09-09 07:13:35 ent_loop.py:409 Returning to home position...
+INFO 2026-09-09 07:13:37 ent_loop.py:422 Home position reached.
+INFO 2026-09-09 07:13:37 strator.py:1758   Completed before the abort: ['put the plush toy on the tray']

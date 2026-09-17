@@ -1,0 +1,77 @@
+INFO 2026-09-06 03:54:04 strator.py:1417 Decomposing high-level prompt (round 1): 'put everything away'
+INFO 2026-09-06 03:54:04 strator.py:1136 Saved VLM frame: runs/run_2026-09-06_03-53-19/01/decompose_20260906_035404.png
+  Generated 87 tokens in 8.1s (10.7 tok/s)
+INFO 2026-09-06 03:54:12 pace/vlm.py:411 Identification tokens: 42
+INFO 2026-09-06 03:54:12 estrator.py:762 Identified objects (4): ['plush toy', 'pouch', 'tray', 'table']
+  Generated 73 tokens in 4.8s (15.3 tok/s)
+
+Visible: ['plush toy', 'pouch', 'tray', 'table']
+Excluded: []
+Completed: []
+Allowed: ['plush toy', 'pouch']
+
+Parsed 2 sub-tasks:
+  1. put the plush toy in the tray
+  2. put the pouch in the tray
+INFO 2026-09-06 03:54:17 strator.py:1435 Sub-task queue (2):
+INFO 2026-09-06 03:54:17 strator.py:1437   1. put the plush toy in the tray
+INFO 2026-09-06 03:54:17 strator.py:1437   2. put the pouch in the tray
+INFO 2026-09-06 03:54:17 strator.py:1491 [1] Executing sub-task: 'put the plush toy in the tray' (1 retries left)
+INFO 2026-09-06 03:54:17 nt_loop.py:1057 VLA inputs for this episode -> vla_failure_test/plush/127_plush/
+INFO 2026-09-06 03:54:17 ent_loop.py:696 Control loop started | task: 'put the plush toy in the tray' | duration: 50.0s
+INFO 2026-09-06 03:54:17 ent_loop.py:603 Action receiver thread started
+  Generated 30 tokens in 2.2s (13.9 tok/s)
+INFO 2026-09-06 03:54:26 estrator.py:625 [VLM MONITOR] CONTINUE (check 1): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 38 tokens in 2.6s (14.9 tok/s)
+INFO 2026-09-06 03:54:28 estrator.py:625 [VLM MONITOR] CONTINUE (check 2): The arm is positioned near the plush toy and appears to be preparing to grasp it, which is consistent with the sub-task.
+  Generated 30 tokens in 2.0s (14.9 tok/s)
+INFO 2026-09-06 03:54:30 estrator.py:625 [VLM MONITOR] CONTINUE (check 3): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 30 tokens in 2.1s (14.3 tok/s)
+INFO 2026-09-06 03:54:32 estrator.py:625 [VLM MONITOR] CONTINUE (check 4): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 30 tokens in 2.0s (14.7 tok/s)
+INFO 2026-09-06 03:54:35 estrator.py:625 [VLM MONITOR] CONTINUE (check 5): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 30 tokens in 2.0s (14.8 tok/s)
+INFO 2026-09-06 03:54:37 estrator.py:625 [VLM MONITOR] CONTINUE (check 6): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 38 tokens in 2.6s (14.8 tok/s)
+INFO 2026-09-06 03:54:39 estrator.py:625 [VLM MONITOR] CONTINUE (check 7): The arm is positioned near the plush toy and appears to be preparing to grasp it, which is consistent with the sub-task.
+  Generated 30 tokens in 2.0s (14.7 tok/s)
+INFO 2026-09-06 03:54:41 estrator.py:625 [VLM MONITOR] CONTINUE (check 8): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 30 tokens in 2.0s (14.7 tok/s)
+INFO 2026-09-06 03:54:44 estrator.py:625 [VLM MONITOR] CONTINUE (check 9): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 30 tokens in 2.0s (14.7 tok/s)
+INFO 2026-09-06 03:54:46 estrator.py:625 [VLM MONITOR] CONTINUE (check 10): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 38 tokens in 2.6s (14.6 tok/s)
+INFO 2026-09-06 03:54:48 estrator.py:625 [VLM MONITOR] CONTINUE (check 11): The arm is positioned near the plush toy and appears to be preparing to grasp it, which is consistent with the sub-task.
+  Generated 30 tokens in 2.1s (14.4 tok/s)
+INFO 2026-09-06 03:54:50 estrator.py:625 [VLM MONITOR] CONTINUE (check 12): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 30 tokens in 2.1s (14.4 tok/s)
+INFO 2026-09-06 03:54:53 estrator.py:625 [VLM MONITOR] CONTINUE (check 13): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 30 tokens in 2.1s (14.5 tok/s)
+INFO 2026-09-06 03:54:55 estrator.py:625 [VLM MONITOR] CONTINUE (check 14): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 30 tokens in 2.1s (14.3 tok/s)
+INFO 2026-09-06 03:54:57 estrator.py:625 [VLM MONITOR] CONTINUE (check 15): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 38 tokens in 2.6s (14.4 tok/s)
+INFO 2026-09-06 03:55:00 estrator.py:625 [VLM MONITOR] CONTINUE (check 16): The arm is positioned near the plush toy and appears to be preparing to grasp it, which is consistent with the sub-task.
+  Generated 30 tokens in 2.2s (13.9 tok/s)
+INFO 2026-09-06 03:55:02 estrator.py:625 [VLM MONITOR] CONTINUE (check 17): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 30 tokens in 2.2s (13.8 tok/s)
+INFO 2026-09-06 03:55:04 estrator.py:625 [VLM MONITOR] CONTINUE (check 18): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+  Generated 30 tokens in 2.2s (13.6 tok/s)
+INFO 2026-09-06 03:55:06 estrator.py:625 [VLM MONITOR] CONTINUE (check 19): The arm is positioned near the plush toy and appears to be preparing to grasp it.
+INFO 2026-09-06 03:55:08 ent_loop.py:713 Episode timeout (50.0s)
+INFO 2026-09-06 03:55:08 ent_loop.py:921 Episode finished: 50.8s, converged=False, max_displacement=0.0000, actions=0
+  Generated 38 tokens in 2.6s (14.5 tok/s)
+INFO 2026-09-06 03:55:09 estrator.py:625 [VLM MONITOR] CONTINUE (check 20): The arm is positioned near the plush toy and appears to be preparing to grasp it, which is consistent with the sub-task.
+INFO 2026-09-06 03:55:09 estrator.py:573 Monitor completed 20 check(s) for 'put the plush toy in the tray'
+INFO 2026-09-06 03:55:09 ent_loop.py:409 Returning to home position...
+INFO 2026-09-06 03:55:11 ent_loop.py:422 Home position reached.
+INFO 2026-09-06 03:55:14 strator.py:1166 Saved VLM eval recap (32 frames): runs/run_2026-09-06_03-53-19/01/eval_task1_20260906_035511_recap.png
+INFO 2026-09-06 03:55:14 strator.py:1607 Evaluation observation: video clip (32 frames over 49.3s of a 50.8s episode, 0.63 fps)
+  Generated 44 tokens in 4.2s (10.5 tok/s)
+INFO 2026-09-06 03:55:18 strator.py:1649 VLM judgement: success=False | failure_type=RETRY | The arm did not move toward the plush toy or the tray; it remained stationary, indicating no attempt to complete the task.
+INFO 2026-09-06 03:55:18 strator.py:1381 ATTEMPT attempt=1 original='put the plush toy in the tray' current='put the plush toy in the tray' success=False failure_type=RETRY reason='The arm did not move toward the plush toy or the tray; it remained stationary, indicating no attempt to complete the task.' refinement=False
+INFO 2026-09-06 03:55:18 strator.py:1711 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-09-06 03:55:18 strator.py:1491 [1] Executing sub-task: 'put the plush toy in the tray' (0 retries left)
+INFO 2026-09-06 03:55:18 nt_loop.py:1057 VLA inputs for this episode -> vla_failure_test/plush/128_plush/
+INFO 2026-09-06 03:55:18 ent_loop.py:696 Control loop started | task: 'put the plush toy in the tray' | duration: 50.0s
+INFO 2026-09-06 03:55:18 ent_loop.py:603 Action receiver thread started

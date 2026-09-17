@@ -1,0 +1,134 @@
+INFO 2026-09-09 07:16:46 strator.py:1423 Decomposing high-level prompt (round 1): 'put everything on the tray'
+INFO 2026-09-09 07:16:46 strator.py:1142 Saved VLM frame: runs/run_2026-09-09_07-16-05/01/decompose_20260909_071646.png
+  Generated 140 tokens in 14.3s (9.8 tok/s)
+INFO 2026-09-09 07:17:01 pace/vlm.py:411 Identification tokens: 74
+INFO 2026-09-09 07:17:01 estrator.py:768 Identified objects (6): ['plush toy', 'banana', 'brown object', 'tray', 'table', 'robot arm']
+  Generated 92 tokens in 7.8s (11.8 tok/s)
+
+Visible: ['plush toy', 'banana', 'brown object', 'tray', 'table', 'robot arm']
+Excluded: []
+Completed: []
+Allowed: ['plush toy', 'banana', 'brown object']
+
+Parsed 3 sub-tasks:
+  1. put the plush toy on the tray
+  2. put the banana on the tray
+  3. put the brown object on the tray
+INFO 2026-09-09 07:17:09 strator.py:1441 Sub-task queue (3):
+INFO 2026-09-09 07:17:09 strator.py:1443   1. put the plush toy on the tray
+INFO 2026-09-09 07:17:09 strator.py:1443   2. put the banana on the tray
+INFO 2026-09-09 07:17:09 strator.py:1443   3. put the brown object on the tray
+INFO 2026-09-09 07:17:09 strator.py:1497 [1] Executing sub-task: 'put the plush toy on the tray' (1 retries left)
+INFO 2026-09-09 07:17:09 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/plush/158_plush/
+INFO 2026-09-09 07:17:09 ent_loop.py:689 Control loop started | task: 'put the plush toy on the tray' | duration: 50.0s
+INFO 2026-09-09 07:17:09 ent_loop.py:603 Action receiver thread started
+  Generated 24 tokens in 2.9s (8.2 tok/s)
+INFO 2026-09-09 07:17:18 estrator.py:631 [VLM MONITOR] CONTINUE (check 1): The arm is reaching toward the plush toy as instructed.
+  Generated 24 tokens in 3.5s (6.8 tok/s)
+INFO 2026-09-09 07:17:22 estrator.py:631 [VLM MONITOR] CONTINUE (check 2): The arm is reaching toward the plush toy as instructed.
+  Generated 24 tokens in 3.1s (7.8 tok/s)
+INFO 2026-09-09 07:17:25 estrator.py:631 [VLM MONITOR] CONTINUE (check 3): The arm is reaching toward the plush toy as instructed.
+  Generated 26 tokens in 3.2s (8.1 tok/s)
+INFO 2026-09-09 07:17:29 estrator.py:631 [VLM MONITOR] CONTINUE (check 4): The arm is moving the plush toy toward the tray as instructed.
+  Generated 29 tokens in 3.4s (8.5 tok/s)
+INFO 2026-09-09 07:17:32 estrator.py:631 [VLM MONITOR] CONTINUE (check 5): The arm is grasping and placing the plush toy onto the tray as instructed.
+  Generated 26 tokens in 2.0s (13.3 tok/s)
+INFO 2026-09-09 07:17:34 estrator.py:631 [VLM MONITOR] CONTINUE (check 6): The arm is moving the plush toy toward the tray as instructed.
+  Generated 26 tokens in 2.0s (13.0 tok/s)
+INFO 2026-09-09 07:17:37 estrator.py:631 [VLM MONITOR] CONTINUE (check 7): The arm is moving the plush toy toward the tray as instructed.
+  Generated 26 tokens in 2.0s (13.1 tok/s)
+INFO 2026-09-09 07:17:39 estrator.py:631 [VLM MONITOR] CONTINUE (check 8): The arm is moving the plush toy toward the tray as instructed.
+INFO 2026-09-09 07:17:40 ent_loop.py:913 Episode finished: 31.1s, converged=True, max_displacement=168.1997, actions=659
+  Generated 26 tokens in 2.0s (13.3 tok/s)
+INFO 2026-09-09 07:17:41 estrator.py:631 [VLM MONITOR] CONTINUE (check 9): The arm is moving the plush toy toward the tray as instructed.
+INFO 2026-09-09 07:17:41 estrator.py:576 Monitor completed 9 check(s) for 'put the plush toy on the tray'
+INFO 2026-09-09 07:17:41 ent_loop.py:409 Returning to home position...
+INFO 2026-09-09 07:17:43 ent_loop.py:422 Home position reached.
+INFO 2026-09-09 07:17:46 strator.py:1172 Saved VLM eval recap (32 frames): runs/run_2026-09-09_07-16-05/01/eval_task1_20260909_071743_recap.png
+INFO 2026-09-09 07:17:46 strator.py:1613 Evaluation observation: video clip (32 frames over 23.1s of a 31.1s episode, 1.34 fps)
+  Generated 22 tokens in 2.0s (11.2 tok/s)
+INFO 2026-09-09 07:17:48 strator.py:1655 VLM judgement: success=True | failure_type=RETRY | The plush toy is now on the tray as instructed.
+INFO 2026-09-09 07:17:48 strator.py:1497 [2] Executing sub-task: 'put the banana on the tray' (1 retries left)
+INFO 2026-09-09 07:17:48 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/banana/159_banana/
+INFO 2026-09-09 07:17:48 ent_loop.py:689 Control loop started | task: 'put the banana on the tray' | duration: 50.0s
+INFO 2026-09-09 07:17:48 ent_loop.py:603 Action receiver thread started
+  Generated 23 tokens in 3.0s (7.6 tok/s)
+INFO 2026-09-09 07:17:57 estrator.py:631 [VLM MONITOR] CONTINUE (check 1): The arm is reaching toward the banana as instructed.
+  Generated 23 tokens in 2.8s (8.2 tok/s)
+INFO 2026-09-09 07:18:00 estrator.py:631 [VLM MONITOR] CONTINUE (check 2): The arm is reaching toward the banana as instructed.
+  Generated 23 tokens in 2.9s (8.1 tok/s)
+INFO 2026-09-09 07:18:03 estrator.py:631 [VLM MONITOR] CONTINUE (check 3): The arm is reaching toward the banana as instructed.
+  Generated 23 tokens in 2.0s (11.6 tok/s)
+INFO 2026-09-09 07:18:06 estrator.py:631 [VLM MONITOR] CONTINUE (check 4): The arm is reaching toward the banana as instructed.
+  Generated 23 tokens in 1.7s (13.3 tok/s)
+INFO 2026-09-09 07:18:08 estrator.py:631 [VLM MONITOR] CONTINUE (check 5): The arm is reaching toward the banana as instructed.
+  Generated 23 tokens in 1.7s (13.3 tok/s)
+INFO 2026-09-09 07:18:10 estrator.py:631 [VLM MONITOR] CONTINUE (check 6): The arm is reaching toward the banana as instructed.
+INFO 2026-09-09 07:18:11 ent_loop.py:913 Episode finished: 22.8s, converged=True, max_displacement=195.2067, actions=451
+  Generated 23 tokens in 1.7s (13.3 tok/s)
+INFO 2026-09-09 07:18:12 estrator.py:631 [VLM MONITOR] CONTINUE (check 7): The arm is reaching toward the banana as instructed.
+INFO 2026-09-09 07:18:12 estrator.py:576 Monitor completed 7 check(s) for 'put the banana on the tray'
+INFO 2026-09-09 07:18:12 ent_loop.py:409 Returning to home position...
+INFO 2026-09-09 07:18:14 ent_loop.py:422 Home position reached.
+INFO 2026-09-09 07:18:16 strator.py:1172 Saved VLM eval recap (32 frames): runs/run_2026-09-09_07-16-05/01/eval_task2_20260909_071814_recap.png
+INFO 2026-09-09 07:18:16 strator.py:1613 Evaluation observation: video clip (32 frames over 16.4s of a 22.8s episode, 1.89 fps)
+  Generated 21 tokens in 1.9s (11.0 tok/s)
+INFO 2026-09-09 07:18:18 strator.py:1655 VLM judgement: success=True | failure_type=RETRY | The banana is now on the tray as instructed.
+INFO 2026-09-09 07:18:18 strator.py:1497 [3] Executing sub-task: 'put the brown object on the tray' (1 retries left)
+INFO 2026-09-09 07:18:18 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/brown/160_brown/
+INFO 2026-09-09 07:18:18 ent_loop.py:689 Control loop started | task: 'put the brown object on the tray' | duration: 50.0s
+INFO 2026-09-09 07:18:18 ent_loop.py:603 Action receiver thread started
+  Generated 38 tokens in 3.0s (12.7 tok/s)
+INFO 2026-09-09 07:18:28 estrator.py:631 [VLM MONITOR] CONTINUE (check 1): The arm is stationary and has not yet moved toward the brown object or the tray, indicating it may still be starting up.
+INFO 2026-09-09 07:18:31 ent_loop.py:913 Episode finished: 12.3s, converged=True, max_displacement=1.3206, actions=103
+  Generated 42 tokens in 3.5s (12.2 tok/s)
+INFO 2026-09-09 07:18:31 estrator.py:631 [VLM MONITOR] CONTINUE (check 2): The arm is stationary and has not yet moved toward the brown object or the tray, so it is still in the initial phase of the task.
+INFO 2026-09-09 07:18:31 estrator.py:576 Monitor completed 2 check(s) for 'put the brown object on the tray'
+INFO 2026-09-09 07:18:31 ent_loop.py:409 Returning to home position...
+INFO 2026-09-09 07:18:33 ent_loop.py:422 Home position reached.
+WARNING 2026-09-09 07:18:33 strator.py:1580 No movement detected (max_displacement=1.3206). The object name 'brown object' is likely not in the robot's vocabulary.
+INFO 2026-09-09 07:18:36 strator.py:1172 Saved VLM eval recap (32 frames): runs/run_2026-09-09_07-16-05/01/eval_task3_20260909_071833_recap.png
+INFO 2026-09-09 07:18:36 strator.py:1613 Evaluation observation: video clip (32 frames over 6.7s of a 12.3s episode, 4.63 fps)
+  Generated 36 tokens in 3.6s (10.0 tok/s)
+INFO 2026-09-09 07:18:40 strator.py:1655 VLM judgement: success=False | failure_type=VOCAB | The arm did not move toward the brown object or the tray; it remained stationary.
+INFO 2026-09-09 07:18:40 strator.py:1387 ATTEMPT attempt=1 original='put the brown object on the tray' current='put the brown object on the tray' success=False failure_type=VOCAB reason='The arm did not move toward the brown object or the tray; it remained stationary.' refinement=False
+INFO 2026-09-09 07:18:40 strator.py:1142 Saved VLM frame: runs/run_2026-09-09_07-16-05/01/refine_task3_20260909_071840.png
+INFO 2026-09-09 07:18:40 strator.py:1681 VOCAB failure — attempting label refinement...
+  Generated 8 tokens in 0.8s (10.6 tok/s)
+INFO 2026-09-09 07:18:41 strator.py:1692 Refined: 'put the brown object on the tray' -> 'put the banana on the tray' (candidates: ['banana', 'toy', 'stuffed animal'])
+INFO 2026-09-09 07:18:41 strator.py:1497 [3] Executing sub-task: 'put the banana on the tray' (0 retries left) [original: 'put the brown object on the tray']
+INFO 2026-09-09 07:18:41 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/banana/161_banana/
+INFO 2026-09-09 07:18:41 ent_loop.py:689 Control loop started | task: 'put the banana on the tray' | duration: 50.0s
+INFO 2026-09-09 07:18:41 ent_loop.py:603 Action receiver thread started
+  Generated 29 tokens in 2.1s (13.5 tok/s)
+INFO 2026-09-09 07:18:49 estrator.py:631 [VLM MONITOR] CONTINUE (check 1): The arm is stationary and has not yet begun moving toward the banana or tray.
+  Generated 29 tokens in 2.2s (13.4 tok/s)
+INFO 2026-09-09 07:18:51 estrator.py:631 [VLM MONITOR] CONTINUE (check 2): The arm is stationary and has not yet begun moving toward the banana or tray.
+INFO 2026-09-09 07:18:52 ent_loop.py:913 Episode finished: 11.7s, converged=True, max_displacement=2.8103, actions=103
+  Generated 29 tokens in 2.1s (13.6 tok/s)
+INFO 2026-09-09 07:18:54 estrator.py:631 [VLM MONITOR] CONTINUE (check 3): The arm is stationary and has not yet begun moving toward the banana or tray.
+INFO 2026-09-09 07:18:54 estrator.py:576 Monitor completed 3 check(s) for 'put the banana on the tray'
+INFO 2026-09-09 07:18:54 ent_loop.py:409 Returning to home position...
+INFO 2026-09-09 07:18:56 ent_loop.py:422 Home position reached.
+WARNING 2026-09-09 07:18:56 strator.py:1580 No movement detected (max_displacement=2.8103). The object name 'banana' is likely not in the robot's vocabulary.
+INFO 2026-09-09 07:18:58 strator.py:1172 Saved VLM eval recap (32 frames): runs/run_2026-09-09_07-16-05/01/eval_task3_20260909_071856_recap.png
+INFO 2026-09-09 07:18:58 strator.py:1613 Evaluation observation: video clip (32 frames over 6.0s of a 11.7s episode, 5.15 fps)
+  Generated 21 tokens in 1.9s (11.1 tok/s)
+INFO 2026-09-09 07:19:01 strator.py:1655 VLM judgement: success=True | failure_type=RETRY | The banana is already on the tray as instructed.
+INFO 2026-09-09 07:19:01 strator.py:1783 Running final evaluation against the original prompt...
+INFO 2026-09-09 07:19:01 strator.py:1142 Saved VLM frame: runs/run_2026-09-09_07-16-05/01/final_eval_20260909_071901.png
+[INTERJECT] ABORT requested — stopping current action...
+  Generated 185 tokens in 12.7s (14.5 tok/s)
+INFO 2026-09-09 07:19:14 pace/vlm.py:470 Scene survey tokens: 98
+INFO 2026-09-09 07:19:14 estrator.py:931 Final-eval surveyed 4 object(s):
+INFO 2026-09-09 07:19:14 estrator.py:933   brown pouch -> table (lying on the bare table, to the right of the orange robot arm, clear of the tray)
+INFO 2026-09-09 07:19:14 estrator.py:933   plush toy -> table (lying on the bare table, to the right of the orange robot arm, clear of the tray)
+INFO 2026-09-09 07:19:14 estrator.py:933   banana -> table (lying on the bare table, to the right of the orange robot arm, clear of the tray)
+INFO 2026-09-09 07:19:14 estrator.py:933   tray -> table (a pink rectangular tray on the bare table, with objects inside it)
+  Generated 32 tokens in 2.2s (14.2 tok/s)
+INFO 2026-09-09 07:19:16 strator.py:1791 FINAL VLM judgement for 'put everything on the tray' (round 1): success=False | The brown pouch, plush toy, and banana are still on the table instead of being placed on the tray.
+WARNING 2026-09-09 07:19:16 strator.py:1414 ABORT requested during final evaluation — abandoning high-level task 'put everything on the tray' and returning to the prompt.
+INFO 2026-09-09 07:19:16 ent_loop.py:409 Returning to home position...
+INFO 2026-09-09 07:19:18 ent_loop.py:422 Home position reached.
+INFO 2026-09-09 07:19:18 strator.py:1804 Round 1 complete for: 'put everything on the tray'
+INFO 2026-09-09 07:19:18 strator.py:1805   Completed 3/3 sub-tasks planned this round: ['put the plush toy on the tray', 'put the banana on the tray', 'put the brown object on the tray']

@@ -1,0 +1,178 @@
+INFO 2026-09-09 06:57:58 strator.py:1417 Decomposing high-level prompt (round 1): 'put everything on the tray'
+INFO 2026-09-09 06:57:58 strator.py:1136 Saved VLM frame: runs/run_2026-09-09_02-42-03/02/decompose_20260909_065758.png
+  Generated 140 tokens in 9.6s (14.6 tok/s)
+INFO 2026-09-09 06:58:08 pace/vlm.py:411 Identification tokens: 73
+INFO 2026-09-09 06:58:08 estrator.py:762 Identified objects (6): ['plush toy', 'banana', 'brown object', 'tray', 'table', 'robot arm']
+  Generated 92 tokens in 6.4s (14.4 tok/s)
+
+Visible: ['plush toy', 'banana', 'brown object', 'tray', 'table', 'robot arm']
+Excluded: []
+Completed: []
+Allowed: ['plush toy', 'banana', 'brown object']
+
+Parsed 3 sub-tasks:
+  1. put the plush toy on the tray
+  2. put the banana on the tray
+  3. put the brown object on the tray
+INFO 2026-09-09 06:58:14 strator.py:1435 Sub-task queue (3):
+INFO 2026-09-09 06:58:14 strator.py:1437   1. put the plush toy on the tray
+INFO 2026-09-09 06:58:14 strator.py:1437   2. put the banana on the tray
+INFO 2026-09-09 06:58:14 strator.py:1437   3. put the brown object on the tray
+INFO 2026-09-09 06:58:14 strator.py:1491 [1] Executing sub-task: 'put the plush toy on the tray' (1 retries left)
+INFO 2026-09-09 06:58:14 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/plush/154_plush/
+INFO 2026-09-09 06:58:14 ent_loop.py:689 Control loop started | task: 'put the plush toy on the tray' | duration: 50.0s
+INFO 2026-09-09 06:58:14 ent_loop.py:603 Action receiver thread started
+  Generated 36 tokens in 4.6s (7.9 tok/s)
+INFO 2026-09-09 06:58:25 estrator.py:625 [VLM MONITOR] CONTINUE (check 1): The arm is positioned near the plush toy and appears to be in the process of grasping or moving toward it.
+WARNING 2026-09-09 06:58:26 a_opencv.py:487 Error reading frame in background thread for OpenCVCamera(1): OpenCVCamera(1) read failed (status=False).
+WARNING 2026-09-09 06:58:26 a_opencv.py:487 Error reading frame in background thread for OpenCVCamera(1): OpenCVCamera(1) read failed (status=False).
+WARNING 2026-09-09 06:58:26 a_opencv.py:487 Error reading frame in background thread for OpenCVCamera(1): OpenCVCamera(1) read failed (status=False).
+WARNING 2026-09-09 06:58:26 a_opencv.py:487 Error reading frame in background thread for OpenCVCamera(1): OpenCVCamera(1) read failed (status=False).
+WARNING 2026-09-09 06:58:26 a_opencv.py:487 Error reading frame in background thread for OpenCVCamera(1): OpenCVCamera(1) read failed (status=False).
+WARNING 2026-09-09 06:58:26 a_opencv.py:487 Error reading frame in background thread for OpenCVCamera(1): OpenCVCamera(1) read failed (status=False).
+WARNING 2026-09-09 06:58:26 a_opencv.py:487 Error reading frame in background thread for OpenCVCamera(1): OpenCVCamera(1) read failed (status=False).
+WARNING 2026-09-09 06:58:26 a_opencv.py:487 Error reading frame in background thread for OpenCVCamera(1): OpenCVCamera(1) read failed (status=False).
+WARNING 2026-09-09 06:58:26 a_opencv.py:487 Error reading frame in background thread for OpenCVCamera(1): OpenCVCamera(1) read failed (status=False).
+WARNING 2026-09-09 06:58:26 a_opencv.py:487 Error reading frame in background thread for OpenCVCamera(1): OpenCVCamera(1) read failed (status=False).
+WARNING 2026-09-09 06:58:26 a_opencv.py:487 Error reading frame in background thread for OpenCVCamera(1): OpenCVCamera(1) read failed (status=False).
+Exception in thread OpenCVCamera(1)_read_loop:
+Traceback (most recent call last):
+  File "/opt/lerobot/src/lerobot/cameras/opencv/camera_opencv.py", line 472, in _read_loop
+    raw_frame = self._read_from_hardware()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/lerobot/src/lerobot/cameras/opencv/camera_opencv.py", line 372, in _read_from_hardware
+    raise RuntimeError(f"{self} read failed (status={ret}).")
+RuntimeError: OpenCVCamera(1) read failed (status=False).
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/threading.py", line 1073, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.12/threading.py", line 1010, in run
+    self._target(*self._args, **self._kwargs)
+  File "/opt/lerobot/src/lerobot/cameras/opencv/camera_opencv.py", line 489, in _read_loop
+    raise RuntimeError(f"{self} exceeded maximum consecutive read failures.") from e
+RuntimeError: OpenCVCamera(1) exceeded maximum consecutive read failures.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:26 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:27 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:28 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+  Generated 36 tokens in 3.3s (11.0 tok/s)
+INFO 2026-09-09 06:58:29 estrator.py:625 [VLM MONITOR] CONTINUE (check 2): The arm is positioned near the plush toy and appears to be in the process of grasping or moving toward it.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+ERROR 2026-09-09 06:58:29 ent_loop.py:868 Error in observation sender: OpenCVCamera(1) read thread is not running.
+INFO 2026-09-09 06:58:30 ent_loop.py:816 Action stall detected at 15.1s — no new actions for 2.0s. Max displacement from start: 165.7494
+  Generated 36 tokens in 2.7s (13.2 tok/s)
+INFO 2026-09-09 06:58:31 estrator.py:625 [VLM MONITOR] CONTINUE (check 3): The arm is positioned near the plush toy and appears to be in the process of grasping or moving toward it.
+  Generated 36 tokens in 2.7s (13.5 tok/s)
+INFO 2026-09-09 06:58:34 estrator.py:625 [VLM MONITOR] CONTINUE (check 4): The arm is positioned near the plush toy and appears to be in the process of grasping or moving toward it.
+  Generated 36 tokens in 2.7s (13.3 tok/s)
+INFO 2026-09-09 06:58:37 estrator.py:625 [VLM MONITOR] CONTINUE (check 5): The arm is positioned near the plush toy and appears to be in the process of grasping or moving toward it.
+INFO 2026-09-09 06:58:37 ent_loop.py:913 Episode finished: 22.8s, converged=True, max_displacement=165.7494, actions=363
+  Generated 36 tokens in 2.5s (14.4 tok/s)
+INFO 2026-09-09 06:58:39 estrator.py:625 [VLM MONITOR] CONTINUE (check 6): The arm is positioned near the plush toy and appears to be in the process of grasping or moving toward it.
+INFO 2026-09-09 06:58:39 estrator.py:573 Monitor completed 6 check(s) for 'put the plush toy on the tray'
+INFO 2026-09-09 06:58:39 ent_loop.py:409 Returning to home position...

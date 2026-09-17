@@ -1,0 +1,22 @@
+INFO 2026-09-06 05:24:28 strator.py:1443 Decomposing high-level prompt (round 1): 'put everything away'
+INFO 2026-09-06 05:24:28 strator.py:1162 Saved VLM frame: runs/run_2026-09-06_05-23-53/01/decompose_20260906_052428.png
+  Generated 115 tokens in 9.9s (11.6 tok/s)
+INFO 2026-09-06 05:24:38 pace/vlm.py:411 Identification tokens: 59
+INFO 2026-09-06 05:24:38 estrator.py:788 Identified objects (5): ['plush toy', 'pouch', 'tray', 'table', 'robot arm']
+  Generated 77 tokens in 5.1s (15.2 tok/s)
+
+Visible: ['plush toy', 'pouch', 'tray', 'table', 'robot arm']
+Excluded: []
+Completed: []
+Allowed: ['plush toy', 'pouch']
+
+Parsed 2 sub-tasks:
+  1. put the plush toy in the tray
+  2. put the pouch in the tray
+INFO 2026-09-06 05:24:43 strator.py:1461 Sub-task queue (2):
+INFO 2026-09-06 05:24:43 strator.py:1463   1. put the plush toy in the tray
+INFO 2026-09-06 05:24:43 strator.py:1463   2. put the pouch in the tray
+INFO 2026-09-06 05:24:43 strator.py:1517 [1] Executing sub-task: 'put the plush toy in the tray' (1 retries left)
+INFO 2026-09-06 05:24:43 nt_loop.py:1057 VLA inputs for this episode -> vla_failure_test/plush/141_plush/
+INFO 2026-09-06 05:24:43 ent_loop.py:696 Control loop started | task: 'put the plush toy in the tray' | duration: 50.0s
+INFO 2026-09-06 05:24:43 ent_loop.py:603 Action receiver thread started

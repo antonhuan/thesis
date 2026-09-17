@@ -1,0 +1,57 @@
+INFO 2026-09-06 05:42:56 strator.py:1230 Decomposing high-level prompt (round 1): 'put everything away'
+INFO 2026-09-06 05:42:56 estrator.py:949 Saved VLM frame: runs/run_2026-09-06_05-42-20/01/decompose_20260906_054256.png
+  Generated 84 tokens in 9.6s (8.7 tok/s)
+INFO 2026-09-06 05:43:06 pace/vlm.py:411 Identification tokens: 40
+INFO 2026-09-06 05:43:06 estrator.py:619 Identified objects (4): ['toy', 'pouch', 'tray', 'table']
+  Generated 68 tokens in 5.7s (11.8 tok/s)
+
+Visible: ['toy', 'pouch', 'tray', 'table']
+Excluded: []
+Completed: []
+Allowed: ['toy', 'pouch']
+
+Parsed 2 sub-tasks:
+  1. put the toy in the tray
+  2. put the pouch in the tray
+INFO 2026-09-06 05:43:11 strator.py:1248 Sub-task queue (2):
+INFO 2026-09-06 05:43:11 strator.py:1250   1. put the toy in the tray
+INFO 2026-09-06 05:43:11 strator.py:1250   2. put the pouch in the tray
+INFO 2026-09-06 05:43:11 strator.py:1301 [1] Executing sub-task: 'put the toy in the tray' (1 retries left)
+INFO 2026-09-06 05:43:11 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/toy/143_toy/
+INFO 2026-09-06 05:43:11 ent_loop.py:689 Control loop started | task: 'put the toy in the tray' | duration: 50.0s
+INFO 2026-09-06 05:43:11 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-06 05:43:37 ent_loop.py:913 Episode finished: 26.0s, converged=True, max_displacement=224.7267, actions=473
+INFO 2026-09-06 05:43:37 ent_loop.py:409 Returning to home position...
+INFO 2026-09-06 05:43:39 ent_loop.py:422 Home position reached.
+INFO 2026-09-06 05:43:42 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-06_05-42-20/01/eval_task1_20260906_054339_recap.png
+INFO 2026-09-06 05:43:42 strator.py:1407 Evaluation observation: video clip (32 frames over 19.3s of a 26.0s episode, 1.61 fps)
+  Generated 21 tokens in 2.0s (10.3 tok/s)
+INFO 2026-09-06 05:43:44 strator.py:1449 VLM judgement: success=True | failure_type=RETRY | The toy is now on the tray as instructed.
+INFO 2026-09-06 05:43:44 strator.py:1301 [2] Executing sub-task: 'put the pouch in the tray' (1 retries left)
+INFO 2026-09-06 05:43:44 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/pouch/144_pouch/
+INFO 2026-09-06 05:43:44 ent_loop.py:689 Control loop started | task: 'put the pouch in the tray' | duration: 50.0s
+INFO 2026-09-06 05:43:44 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-06 05:43:56 ent_loop.py:913 Episode finished: 12.0s, converged=True, max_displacement=1.9176, actions=127
+INFO 2026-09-06 05:43:56 ent_loop.py:409 Returning to home position...
+INFO 2026-09-06 05:43:58 ent_loop.py:422 Home position reached.
+WARNING 2026-09-06 05:43:58 strator.py:1381 No movement detected (max_displacement=1.9176). The object name 'pouch' is likely not in the robot's vocabulary.
+INFO 2026-09-06 05:44:01 estrator.py:979 Saved VLM eval recap (32 frames): runs/run_2026-09-06_05-42-20/01/eval_task2_20260906_054359_recap.png
+INFO 2026-09-06 05:44:01 strator.py:1407 Evaluation observation: video clip (32 frames over 7.5s of a 12.0s episode, 4.12 fps)
+  Generated 44 tokens in 3.4s (12.8 tok/s)
+INFO 2026-09-06 05:44:05 strator.py:1449 VLM judgement: success=False | failure_type=VOCAB | The arm did not move toward the pouch or the tray; it remained stationary, indicating no attempt to complete the sub-task.
+INFO 2026-09-06 05:44:05 strator.py:1194 ATTEMPT attempt=1 original='put the pouch in the tray' current='put the pouch in the tray' success=False failure_type=VOCAB reason='The arm did not move toward the pouch or the tray; it remained stationary, indicating no attempt to complete the sub-task.' refinement=False
+INFO 2026-09-06 05:44:05 estrator.py:949 Saved VLM frame: runs/run_2026-09-06_05-42-20/01/refine_task2_20260906_054405.png
+INFO 2026-09-06 05:44:05 strator.py:1475 VOCAB failure — attempting label refinement...
+  Generated 7 tokens in 0.5s (12.9 tok/s)
+INFO 2026-09-06 05:44:05 strator.py:1486 Refined: 'put the pouch in the tray' -> 'put the pouch in the tray' (candidates: ['pouch', 'bag', 'case'])
+INFO 2026-09-06 05:44:05 strator.py:1301 [2] Executing sub-task: 'put the pouch in the tray' (0 retries left)
+INFO 2026-09-06 05:44:05 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/pouch/145_pouch/
+INFO 2026-09-06 05:44:05 ent_loop.py:689 Control loop started | task: 'put the pouch in the tray' | duration: 50.0s
+INFO 2026-09-06 05:44:05 ent_loop.py:603 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-09-06 05:44:27 ent_loop.py:913 Episode finished: 21.8s, converged=False, max_displacement=141.5515, actions=396
+WARNING 2026-09-06 05:44:27 strator.py:1221 ABORT requested during sub-task 'put the pouch in the tray' — abandoning high-level task 'put everything away' and returning to the prompt.
+INFO 2026-09-06 05:44:27 ent_loop.py:409 Returning to home position...
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-09-06 05:44:29 ent_loop.py:422 Home position reached.
+INFO 2026-09-06 05:44:29 strator.py:1515   Completed before the abort: ['put the toy in the tray']

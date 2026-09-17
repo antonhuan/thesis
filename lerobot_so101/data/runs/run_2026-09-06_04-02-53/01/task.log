@@ -1,0 +1,44 @@
+INFO 2026-09-06 04:03:27 strator.py:1424 Decomposing high-level prompt (round 1): 'put everything away'
+INFO 2026-09-06 04:03:27 strator.py:1143 Saved VLM frame: runs/run_2026-09-06_04-02-53/01/decompose_20260906_040327.png
+  Generated 162 tokens in 13.4s (12.1 tok/s)
+INFO 2026-09-06 04:03:41 pace/vlm.py:411 Identification tokens: 83
+INFO 2026-09-06 04:03:41 estrator.py:769 Identified objects (7): ['table', 'plush toy', 'tray', 'cable', 'orange arm', 'label', 'blue cloth']
+  Generated 125 tokens in 8.2s (15.3 tok/s)
+
+Visible: ['table', 'plush toy', 'tray', 'cable', 'orange arm', 'label', 'blue cloth']
+Excluded: []
+Completed: []
+Allowed: ['plush toy', 'tray', 'cable', 'orange arm', 'label', 'blue cloth']
+
+Parsed 5 sub-tasks:
+  1. put the plush toy on the tray
+  2. put the cable on the tray
+  3. put the orange arm on the tray
+  4. put the label on the tray
+  5. put the blue cloth on the tray
+INFO 2026-09-06 04:03:49 strator.py:1442 Sub-task queue (5):
+INFO 2026-09-06 04:03:49 strator.py:1444   1. put the plush toy on the tray
+INFO 2026-09-06 04:03:49 strator.py:1444   2. put the cable on the tray
+INFO 2026-09-06 04:03:49 strator.py:1444   3. put the orange arm on the tray
+INFO 2026-09-06 04:03:49 strator.py:1444   4. put the label on the tray
+INFO 2026-09-06 04:03:49 strator.py:1444   5. put the blue cloth on the tray
+INFO 2026-09-06 04:03:49 strator.py:1498 [1] Executing sub-task: 'put the plush toy on the tray' (1 retries left)
+INFO 2026-09-06 04:03:49 nt_loop.py:1057 VLA inputs for this episode -> vla_failure_test/plush/130_plush/
+INFO 2026-09-06 04:03:49 ent_loop.py:696 Control loop started | task: 'put the plush toy on the tray' | duration: 50.0s
+INFO 2026-09-06 04:03:49 ent_loop.py:603 Action receiver thread started
+[INTERJECT] SKIP requested — stopping current action...
+INFO 2026-09-06 04:04:12 ent_loop.py:921 Episode finished: 23.1s, converged=False, max_displacement=0.0000, actions=0
+INFO 2026-09-06 04:04:12 strator.py:1517 User skipped sub-task: 'put the plush toy on the tray' (1 attempt(s) left)
+INFO 2026-09-06 04:04:12 ent_loop.py:409 Returning to home position...
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-09-06 04:04:14 ent_loop.py:422 Home position reached.
+INFO 2026-09-06 04:04:14 strator.py:1498 [1] Executing sub-task: 'put the plush toy on the tray' (0 retries left)
+INFO 2026-09-06 04:04:14 nt_loop.py:1057 VLA inputs for this episode -> vla_failure_test/plush/131_plush/
+INFO 2026-09-06 04:04:14 ent_loop.py:696 Control loop started | task: 'put the plush toy on the tray' | duration: 50.0s
+INFO 2026-09-06 04:04:14 ent_loop.py:603 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-09-06 04:04:17 ent_loop.py:921 Episode finished: 2.5s, converged=False, max_displacement=0.0000, actions=0
+WARNING 2026-09-06 04:04:17 strator.py:1415 ABORT requested during sub-task 'put the plush toy on the tray' — abandoning high-level task 'put everything away' and returning to the prompt.
+INFO 2026-09-06 04:04:17 ent_loop.py:409 Returning to home position...
+INFO 2026-09-06 04:04:19 ent_loop.py:422 Home position reached.
+INFO 2026-09-06 04:04:19 strator.py:1722   Completed before the abort: []

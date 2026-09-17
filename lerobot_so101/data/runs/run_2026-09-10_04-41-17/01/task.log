@@ -1,0 +1,294 @@
+INFO 2026-09-10 04:42:11 strator.py:1380 Decomposing high-level prompt (round 1): 'put the food on the tray'
+INFO 2026-09-10 04:42:11 strator.py:1099 Saved VLM frame: runs/run_2026-09-10_04-41-17/01/decompose_20260910_044211.png
+  Generated 113 tokens in 9.9s (11.4 tok/s)
+INFO 2026-09-10 04:42:21 pace/vlm.py:405 Identification tokens: 59
+INFO 2026-09-10 04:42:21 estrator.py:760 Identified objects (5): ['banana', 'plush toy', 'cylindrical object', 'tray', 'table']
+  Generated 78 tokens in 6.1s (12.9 tok/s)
+
+Visible: ['banana', 'plush toy', 'cylindrical object', 'tray', 'table']
+Excluded: []
+Completed: []
+Allowed: ['banana', 'cylindrical object']
+
+Parsed 2 sub-tasks:
+  1. put the banana on the tray
+  2. put the cylindrical object on the tray
+INFO 2026-09-10 04:42:27 strator.py:1398 Sub-task queue (2):
+INFO 2026-09-10 04:42:27 strator.py:1400   1. put the banana on the tray
+INFO 2026-09-10 04:42:27 strator.py:1400   2. put the cylindrical object on the tray
+INFO 2026-09-10 04:42:27 strator.py:1453 [1] Executing sub-task: 'put the banana on the tray' (1 retries left)
+INFO 2026-09-10 04:42:27 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/banana/184_banana/
+INFO 2026-09-10 04:42:27 ent_loop.py:689 Control loop started | task: 'put the banana on the tray' | duration: 50.0s
+INFO 2026-09-10 04:42:27 ent_loop.py:603 Action receiver thread started
+  Generated 23 tokens in 3.1s (7.5 tok/s)
+INFO 2026-09-10 04:42:38 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044236_chk001_CONTINUE.png
+INFO 2026-09-10 04:42:38 estrator.py:623 [VLM MONITOR] CONTINUE (check 1): The arm is reaching toward the banana as instructed.
+  Generated 23 tokens in 3.1s (7.5 tok/s)
+INFO 2026-09-10 04:42:43 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044241_chk002_CONTINUE.png
+INFO 2026-09-10 04:42:43 estrator.py:623 [VLM MONITOR] CONTINUE (check 2): The arm is reaching toward the banana as instructed.
+  Generated 23 tokens in 3.0s (7.6 tok/s)
+INFO 2026-09-10 04:42:48 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044246_chk003_CONTINUE.png
+INFO 2026-09-10 04:42:48 estrator.py:623 [VLM MONITOR] CONTINUE (check 3): The arm is reaching toward the banana as instructed.
+  Generated 23 tokens in 3.2s (7.2 tok/s)
+INFO 2026-09-10 04:42:53 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044251_chk004_CONTINUE.png
+INFO 2026-09-10 04:42:53 estrator.py:623 [VLM MONITOR] CONTINUE (check 4): The arm is reaching toward the banana as instructed.
+  Generated 23 tokens in 1.7s (13.4 tok/s)
+INFO 2026-09-10 04:42:56 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044255_chk005_CONTINUE.png
+INFO 2026-09-10 04:42:56 estrator.py:623 [VLM MONITOR] CONTINUE (check 5): The arm is reaching toward the banana as instructed.
+  Generated 41 tokens in 3.6s (11.3 tok/s)
+INFO 2026-09-10 04:43:01 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044300_chk006_CONTINUE.png
+INFO 2026-09-10 04:43:01 estrator.py:623 [VLM MONITOR] CONTINUE (check 6): The arm is positioned near the banana and appears to be in the process of grasping or moving toward it, consistent with the sub-task.
+INFO 2026-09-10 04:43:02 ent_loop.py:913 Episode finished: 35.1s, converged=True, max_displacement=203.7823, actions=639
+  Generated 41 tokens in 3.1s (13.1 tok/s)
+INFO 2026-09-10 04:43:05 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044304_chk007_CONTINUE.png
+INFO 2026-09-10 04:43:05 estrator.py:623 [VLM MONITOR] CONTINUE (check 7): The arm is positioned near the banana and appears to be in the process of grasping or moving toward it, consistent with the sub-task.
+INFO 2026-09-10 04:43:05 estrator.py:545 Monitor completed 7 check(s) for 'put the banana on the tray'
+INFO 2026-09-10 04:43:05 ent_loop.py:409 Returning to home position...
+INFO 2026-09-10 04:43:07 ent_loop.py:422 Home position reached.
+INFO 2026-09-10 04:43:10 strator.py:1129 Saved VLM eval recap (32 frames): runs/run_2026-09-10_04-41-17/01/eval_task1_20260910_044308_recap.png
+INFO 2026-09-10 04:43:10 strator.py:1549 Evaluation observation: video clip (32 frames over 25.0s of a 35.1s episode, 1.24 fps)
+  Generated 21 tokens in 2.2s (9.7 tok/s)
+INFO 2026-09-10 04:43:13 strator.py:1591 VLM judgement: success=True | failure_type=RETRY | The banana is now on the tray as instructed.
+INFO 2026-09-10 04:43:13 strator.py:1453 [2] Executing sub-task: 'put the cylindrical object on the tray' (1 retries left)
+INFO 2026-09-10 04:43:13 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/cylindrical/185_cylindrical/
+INFO 2026-09-10 04:43:13 ent_loop.py:689 Control loop started | task: 'put the cylindrical object on the tray' | duration: 50.0s
+INFO 2026-09-10 04:43:13 ent_loop.py:603 Action receiver thread started
+  Generated 24 tokens in 3.2s (7.5 tok/s)
+INFO 2026-09-10 04:43:24 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044322_chk001_CONTINUE.png
+INFO 2026-09-10 04:43:24 estrator.py:623 [VLM MONITOR] CONTINUE (check 1): The arm is reaching toward the cylindrical object as instructed.
+  Generated 24 tokens in 3.4s (7.1 tok/s)
+INFO 2026-09-10 04:43:29 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044327_chk002_CONTINUE.png
+INFO 2026-09-10 04:43:29 estrator.py:623 [VLM MONITOR] CONTINUE (check 2): The arm is reaching toward the cylindrical object as instructed.
+  Generated 24 tokens in 1.8s (13.1 tok/s)
+INFO 2026-09-10 04:43:32 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044331_chk003_CONTINUE.png
+INFO 2026-09-10 04:43:32 estrator.py:623 [VLM MONITOR] CONTINUE (check 3): The arm is reaching toward the cylindrical object as instructed.
+  Generated 24 tokens in 1.9s (12.3 tok/s)
+INFO 2026-09-10 04:43:36 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044334_chk004_CONTINUE.png
+INFO 2026-09-10 04:43:36 estrator.py:623 [VLM MONITOR] CONTINUE (check 4): The arm is reaching toward the cylindrical object as instructed.
+INFO 2026-09-10 04:43:36 ent_loop.py:913 Episode finished: 22.9s, converged=True, max_displacement=163.7857, actions=431
+  Generated 24 tokens in 1.8s (13.3 tok/s)
+INFO 2026-09-10 04:43:39 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044338_chk005_CONTINUE.png
+INFO 2026-09-10 04:43:39 estrator.py:623 [VLM MONITOR] CONTINUE (check 5): The arm is reaching toward the cylindrical object as instructed.
+INFO 2026-09-10 04:43:39 estrator.py:545 Monitor completed 5 check(s) for 'put the cylindrical object on the tray'
+INFO 2026-09-10 04:43:39 ent_loop.py:409 Returning to home position...
+INFO 2026-09-10 04:43:41 ent_loop.py:422 Home position reached.
+INFO 2026-09-10 04:43:44 strator.py:1129 Saved VLM eval recap (32 frames): runs/run_2026-09-10_04-41-17/01/eval_task2_20260910_044341_recap.png
+INFO 2026-09-10 04:43:44 strator.py:1549 Evaluation observation: video clip (32 frames over 15.8s of a 22.9s episode, 1.96 fps)
+  Generated 41 tokens in 4.0s (10.4 tok/s)
+INFO 2026-09-10 04:43:48 strator.py:1591 VLM judgement: success=False | failure_type=RETRY | The arm reached the cylindrical object but failed to grasp it properly, and it was not placed on the tray.
+INFO 2026-09-10 04:43:48 strator.py:1344 ATTEMPT attempt=1 original='put the cylindrical object on the tray' current='put the cylindrical object on the tray' success=False failure_type=RETRY reason='The arm reached the cylindrical object but failed to grasp it properly, and it was not placed on the tray.' refinement=False
+INFO 2026-09-10 04:43:48 strator.py:1634 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-09-10 04:43:48 strator.py:1453 [2] Executing sub-task: 'put the cylindrical object on the tray' (0 retries left)
+INFO 2026-09-10 04:43:48 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/cylindrical/186_cylindrical/
+INFO 2026-09-10 04:43:48 ent_loop.py:689 Control loop started | task: 'put the cylindrical object on the tray' | duration: 50.0s
+INFO 2026-09-10 04:43:48 ent_loop.py:603 Action receiver thread started
+  Generated 40 tokens in 2.8s (14.0 tok/s)
+INFO 2026-09-10 04:43:58 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044357_chk001_CONTINUE.png
+INFO 2026-09-10 04:43:58 estrator.py:623 [VLM MONITOR] CONTINUE (check 1): The arm is stationary and has not yet moved toward the cylindrical object or the tray, indicating it may still be initializing or starting up.
+INFO 2026-09-10 04:43:59 ent_loop.py:913 Episode finished: 10.5s, converged=True, max_displacement=2.1719, actions=115
+  Generated 40 tokens in 2.8s (14.5 tok/s)
+INFO 2026-09-10 04:44:03 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044401_chk002_CONTINUE.png
+INFO 2026-09-10 04:44:03 estrator.py:623 [VLM MONITOR] CONTINUE (check 2): The arm is stationary and appears to be initializing or preparing to move toward the cylindrical object, which is the target for the sub-task.
+INFO 2026-09-10 04:44:03 estrator.py:545 Monitor completed 2 check(s) for 'put the cylindrical object on the tray'
+INFO 2026-09-10 04:44:03 ent_loop.py:409 Returning to home position...
+INFO 2026-09-10 04:44:05 ent_loop.py:422 Home position reached.
+WARNING 2026-09-10 04:44:05 strator.py:1516 No movement detected (max_displacement=2.1719). The object name 'cylindrical object' is likely not in the robot's vocabulary.
+INFO 2026-09-10 04:44:07 strator.py:1129 Saved VLM eval recap (32 frames): runs/run_2026-09-10_04-41-17/01/eval_task2_20260910_044405_recap.png
+INFO 2026-09-10 04:44:07 strator.py:1549 Evaluation observation: video clip (32 frames over 6.4s of a 10.5s episode, 4.87 fps)
+  Generated 39 tokens in 3.5s (11.3 tok/s)
+INFO 2026-09-10 04:44:11 strator.py:1591 VLM judgement: success=False | failure_type=VOCAB | The arm did not move toward the cylindrical object or the tray, so the task was not attempted.
+INFO 2026-09-10 04:44:11 strator.py:1344 ATTEMPT attempt=2 original='put the cylindrical object on the tray' current='put the cylindrical object on the tray' success=False failure_type=VOCAB reason='The arm did not move toward the cylindrical object or the tray, so the task was not attempted.' refinement=False
+WARNING 2026-09-10 04:44:11 strator.py:1658 Sub-task 'put the cylindrical object on the tray' failed after all retries.
+INFO 2026-09-10 04:44:11 strator.py:1667 Triggering replan (0 replan(s) left after this)...
+INFO 2026-09-10 04:44:11 strator.py:1668   Completed so far: ['put the banana on the tray']
+INFO 2026-09-10 04:44:11 strator.py:1669   Failed: 'put the cylindrical object on the tray' — The arm did not move toward the cylindrical object or the tray, so the task was not attempted.
+INFO 2026-09-10 04:44:11 strator.py:1670   Remaining (discarded): []
+INFO 2026-09-10 04:44:11 strator.py:1099 Saved VLM frame: runs/run_2026-09-10_04-41-17/01/replan_20260910_044411.png
+  Generated 51 tokens in 3.3s (15.6 tok/s)
+
+Visible: ['cylindrical object', 'stuffed animal']
+Excluded: []
+Completed: None
+Allowed: ['cylindrical object']
+
+Parsed 1 sub-tasks:
+  1. put the cylindrical object on the tray
+INFO 2026-09-10 04:44:15 strator.py:1424 Replanned queue (1):
+INFO 2026-09-10 04:44:15 strator.py:1426   1. put the cylindrical object on the tray
+INFO 2026-09-10 04:44:15 strator.py:1453 [2] Executing sub-task: 'put the cylindrical object on the tray' (1 retries left)
+INFO 2026-09-10 04:44:15 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/cylindrical/187_cylindrical/
+INFO 2026-09-10 04:44:15 ent_loop.py:689 Control loop started | task: 'put the cylindrical object on the tray' | duration: 50.0s
+INFO 2026-09-10 04:44:15 ent_loop.py:603 Action receiver thread started
+  Generated 40 tokens in 3.0s (13.3 tok/s)
+INFO 2026-09-10 04:44:25 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044424_chk001_CONTINUE.png
+INFO 2026-09-10 04:44:25 estrator.py:623 [VLM MONITOR] CONTINUE (check 1): The arm is stationary and has not yet moved toward the cylindrical object or the tray, indicating it may still be initializing or starting up.
+INFO 2026-09-10 04:44:26 ent_loop.py:913 Episode finished: 11.9s, converged=True, max_displacement=2.2261, actions=124
+  Generated 35 tokens in 2.5s (14.2 tok/s)
+INFO 2026-09-10 04:44:29 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044428_chk002_CONTINUE.png
+INFO 2026-09-10 04:44:29 estrator.py:623 [VLM MONITOR] CONTINUE (check 2): The arm is stationary and appears to be in a starting position, likely preparing to move toward the cylindrical object.
+INFO 2026-09-10 04:44:29 estrator.py:545 Monitor completed 2 check(s) for 'put the cylindrical object on the tray'
+INFO 2026-09-10 04:44:29 ent_loop.py:409 Returning to home position...
+INFO 2026-09-10 04:44:31 ent_loop.py:422 Home position reached.
+WARNING 2026-09-10 04:44:31 strator.py:1516 No movement detected (max_displacement=2.2261). The object name 'cylindrical object' is likely not in the robot's vocabulary.
+INFO 2026-09-10 04:44:34 strator.py:1129 Saved VLM eval recap (32 frames): runs/run_2026-09-10_04-41-17/01/eval_task2_20260910_044431_recap.png
+INFO 2026-09-10 04:44:34 strator.py:1549 Evaluation observation: video clip (32 frames over 7.1s of a 11.9s episode, 4.39 fps)
+  Generated 39 tokens in 3.0s (13.1 tok/s)
+INFO 2026-09-10 04:44:37 strator.py:1591 VLM judgement: success=False | failure_type=VOCAB | The arm did not move toward the cylindrical object or the tray, so the task was not attempted.
+INFO 2026-09-10 04:44:37 strator.py:1344 ATTEMPT attempt=1 original='put the cylindrical object on the tray' current='put the cylindrical object on the tray' success=False failure_type=VOCAB reason='The arm did not move toward the cylindrical object or the tray, so the task was not attempted.' refinement=False
+INFO 2026-09-10 04:44:37 strator.py:1616 VOCAB failure — attempting label refinement...
+INFO 2026-09-10 04:44:37 strator.py:1099 Saved VLM frame: runs/run_2026-09-10_04-41-17/01/refine_task2_20260910_044437.png
+  Generated 7 tokens in 0.5s (13.8 tok/s)
+INFO 2026-09-10 04:44:38 strator.py:1628 Refined: 'put the cylindrical object on the tray' -> 'put the cylinder on the tray' (candidates: ['cylinder', 'tube', 'bar'])
+INFO 2026-09-10 04:44:38 strator.py:1453 [2] Executing sub-task: 'put the cylinder on the tray' (0 retries left) [original: 'put the cylindrical object on the tray']
+INFO 2026-09-10 04:44:38 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/cylinder/188_cylinder/
+INFO 2026-09-10 04:44:38 ent_loop.py:689 Control loop started | task: 'put the cylinder on the tray' | duration: 50.0s
+INFO 2026-09-10 04:44:38 ent_loop.py:603 Action receiver thread started
+  Generated 34 tokens in 2.7s (12.4 tok/s)
+INFO 2026-09-10 04:44:48 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044447_chk001_CONTINUE.png
+INFO 2026-09-10 04:44:48 estrator.py:623 [VLM MONITOR] CONTINUE (check 1): The arm is stationary and appears to be in a starting position, likely preparing to move toward the cylinder.
+INFO 2026-09-10 04:44:49 ent_loop.py:913 Episode finished: 11.3s, converged=True, max_displacement=1.7939, actions=130
+  Generated 34 tokens in 2.4s (14.4 tok/s)
+INFO 2026-09-10 04:44:52 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044451_chk002_CONTINUE.png
+INFO 2026-09-10 04:44:52 estrator.py:623 [VLM MONITOR] CONTINUE (check 2): The arm is stationary and appears to be in a starting position, likely preparing to move toward the cylinder.
+INFO 2026-09-10 04:44:52 estrator.py:545 Monitor completed 2 check(s) for 'put the cylinder on the tray'
+INFO 2026-09-10 04:44:52 ent_loop.py:409 Returning to home position...
+INFO 2026-09-10 04:44:54 ent_loop.py:422 Home position reached.
+WARNING 2026-09-10 04:44:54 strator.py:1516 No movement detected (max_displacement=1.7939). The object name 'cylinder' is likely not in the robot's vocabulary.
+INFO 2026-09-10 04:44:57 strator.py:1129 Saved VLM eval recap (32 frames): runs/run_2026-09-10_04-41-17/01/eval_task2_20260910_044454_recap.png
+INFO 2026-09-10 04:44:57 strator.py:1549 Evaluation observation: video clip (32 frames over 6.9s of a 11.3s episode, 4.48 fps)
+  Generated 35 tokens in 2.7s (13.0 tok/s)
+INFO 2026-09-10 04:45:00 strator.py:1591 VLM judgement: success=False | failure_type=VOCAB | The arm did not move toward the cylinder or the tray; it remained stationary.
+INFO 2026-09-10 04:45:00 strator.py:1344 ATTEMPT attempt=2 original='put the cylindrical object on the tray' current='put the cylinder on the tray' success=False failure_type=VOCAB reason='The arm did not move toward the cylinder or the tray; it remained stationary.' refinement=True
+WARNING 2026-09-10 04:45:00 strator.py:1658 Sub-task 'put the cylindrical object on the tray' failed after all retries.
+WARNING 2026-09-10 04:45:00 strator.py:1661 No replans remaining — skipping failed sub-task and continuing with the rest of the queue.
+INFO 2026-09-10 04:45:00 strator.py:1685 Running final evaluation against the original prompt...
+INFO 2026-09-10 04:45:00 strator.py:1099 Saved VLM frame: runs/run_2026-09-10_04-41-17/01/final_eval_20260910_044500.png
+  Generated 192 tokens in 12.1s (15.9 tok/s)
+INFO 2026-09-10 04:45:12 pace/vlm.py:464 Scene survey tokens: 103
+INFO 2026-09-10 04:45:12 estrator.py:923 Final-eval surveyed 4 object(s):
+INFO 2026-09-10 04:45:12 estrator.py:925   chocolate bar -> table (a brown, rectangular bar lying on the bare table, to the left of the tray)
+INFO 2026-09-10 04:45:12 estrator.py:925   stuffed animal -> table (a brown, furry stuffed animal with horns, lying on the bare table, to the right of the tray)
+INFO 2026-09-10 04:45:12 estrator.py:925   banana -> table (a yellow and brown banana lying on the bare table, under the stuffed animal and touching the tray's edge)
+INFO 2026-09-10 04:45:12 estrator.py:925   tray -> table (a light pink rectangular tray sitting on the bare table, with the banana touching its edge)
+  Generated 30 tokens in 2.0s (15.1 tok/s)
+INFO 2026-09-10 04:45:14 strator.py:1693 FINAL VLM judgement for 'put the food on the tray' (round 1): success=False | The chocolate bar, banana, and stuffed animal are still on the table instead of on the tray.
+INFO 2026-09-10 04:45:14 strator.py:1706 Round 1 complete for: 'put the food on the tray'
+INFO 2026-09-10 04:45:14 strator.py:1707   Completed 1/2 sub-tasks planned this round: ['put the banana on the tray']
+INFO 2026-09-10 04:45:14 strator.py:1307 Carrying 1 completed sub-task(s) into the re-decompose: ['put the banana on the tray']
+INFO 2026-09-10 04:45:14 strator.py:1309 Retry context passed to the planner:
+A previous attempt at this same instruction was judged INCOMPLETE by the evaluator, who reported:
+The chocolate bar, banana, and stuffed animal are still on the table instead of on the tray.
+
+These sub-tasks were already executed and verified complete in the previous attempt:
+- put the banana on the tray
+The objects they name are already at their destinations. Put those objects in completed_objects, NOT in allowed_objects, and do not plan any sub-task for them.
+
+The camera image shows the CURRENT scene, after that attempt. The image is GROUND TRUTH: where the evaluator's report and the image disagree, believe the image.
+
+Plan only the work that still REMAINS to satisfy the original instruction. If an object is already at its destination in the image, list it in completed_objects — do not put it in allowed_objects and do not give it a sub-task. Do not move any object the instruction says to leave alone; those go in excluded_objects.
+
+Remember the invariant: every object in allowed_objects gets exactly one sub-task. Never return an empty subtasks list while allowed_objects is non-empty — an object that needs no action belongs in completed_objects.
+WARNING 2026-09-10 04:45:14 strator.py:1310 Final evaluation judged 'put the food on the tray' INCOMPLETE: The chocolate bar, banana, and stuffed animal are still on the table instead of on the tray. — running the whole loop again.
+INFO 2026-09-10 04:45:14 strator.py:1256 ============================================================
+INFO 2026-09-10 04:45:14 strator.py:1257 ROUND 2 for 'put the food on the tray' — re-decomposing against the current scene (0 retry round(s) left after this one).
+INFO 2026-09-10 04:45:14 strator.py:1260 ============================================================
+INFO 2026-09-10 04:45:14 strator.py:1380 Decomposing high-level prompt (round 2): 'put the food on the tray'
+INFO 2026-09-10 04:45:14 strator.py:1099 Saved VLM frame: runs/run_2026-09-10_04-41-17/01/decompose_round2_20260910_044514.png
+  Generated 145 tokens in 9.2s (15.8 tok/s)
+INFO 2026-09-10 04:45:23 pace/vlm.py:405 Identification tokens: 78
+INFO 2026-09-10 04:45:23 estrator.py:760 Identified objects (6): ['table', 'robot arm', 'chocolate bar', 'banana', 'stuffed animal', 'tray']
+  Generated 85 tokens in 5.5s (15.5 tok/s)
+
+Visible: ['table', 'robot arm', 'chocolate bar', 'banana', 'stuffed animal', 'tray']
+Excluded: []
+Completed: ['banana']
+Allowed: ['chocolate bar', 'stuffed animal']
+
+Parsed 2 sub-tasks:
+  1. put the chocolate bar on the tray
+  2. put the stuffed animal on the tray
+INFO 2026-09-10 04:45:29 strator.py:1398 Sub-task queue (2):
+INFO 2026-09-10 04:45:29 strator.py:1400   1. put the chocolate bar on the tray
+INFO 2026-09-10 04:45:29 strator.py:1400   2. put the stuffed animal on the tray
+INFO 2026-09-10 04:45:29 strator.py:1453 [1] Executing sub-task: 'put the chocolate bar on the tray' (1 retries left)
+INFO 2026-09-10 04:45:29 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/chocolate/189_chocolate/
+INFO 2026-09-10 04:45:29 ent_loop.py:689 Control loop started | task: 'put the chocolate bar on the tray' | duration: 50.0s
+INFO 2026-09-10 04:45:29 ent_loop.py:603 Action receiver thread started
+  Generated 40 tokens in 3.4s (11.8 tok/s)
+INFO 2026-09-10 04:45:40 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044538_chk001_CONTINUE.png
+INFO 2026-09-10 04:45:40 estrator.py:623 [VLM MONITOR] CONTINUE (check 1): The arm is stationary and has not yet moved toward the chocolate bar or the tray, indicating it may still be initializing or starting up.
+INFO 2026-09-10 04:45:41 ent_loop.py:913 Episode finished: 12.0s, converged=True, max_displacement=1.5626, actions=115
+  Generated 35 tokens in 2.5s (14.1 tok/s)
+INFO 2026-09-10 04:45:44 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044542_chk002_CONTINUE.png
+INFO 2026-09-10 04:45:44 estrator.py:623 [VLM MONITOR] CONTINUE (check 2): The arm is stationary and appears to be in a starting position, likely preparing to move toward the chocolate bar.
+INFO 2026-09-10 04:45:44 estrator.py:545 Monitor completed 2 check(s) for 'put the chocolate bar on the tray'
+INFO 2026-09-10 04:45:44 ent_loop.py:409 Returning to home position...
+INFO 2026-09-10 04:45:46 ent_loop.py:422 Home position reached.
+WARNING 2026-09-10 04:45:46 strator.py:1516 No movement detected (max_displacement=1.5626). The object name 'chocolate bar' is likely not in the robot's vocabulary.
+INFO 2026-09-10 04:45:48 strator.py:1129 Saved VLM eval recap (32 frames): runs/run_2026-09-10_04-41-17/01/eval_task1_20260910_044546_recap.png
+INFO 2026-09-10 04:45:48 strator.py:1549 Evaluation observation: video clip (32 frames over 6.4s of a 12.0s episode, 4.82 fps)
+  Generated 45 tokens in 3.4s (13.4 tok/s)
+INFO 2026-09-10 04:45:52 strator.py:1591 VLM judgement: success=False | failure_type=VOCAB | The arm did not move toward the chocolate bar or the tray; it remained stationary, indicating no attempt to complete the sub-task.
+INFO 2026-09-10 04:45:52 strator.py:1344 ATTEMPT attempt=1 original='put the chocolate bar on the tray' current='put the chocolate bar on the tray' success=False failure_type=VOCAB reason='The arm did not move toward the chocolate bar or the tray; it remained stationary, indicating no attempt to complete the sub-task.' refinement=False
+INFO 2026-09-10 04:45:52 strator.py:1616 VOCAB failure — attempting label refinement...
+INFO 2026-09-10 04:45:52 strator.py:1099 Saved VLM frame: runs/run_2026-09-10_04-41-17/01/refine_task1_20260910_044552.png
+  Generated 8 tokens in 1.0s (8.3 tok/s)
+INFO 2026-09-10 04:45:53 strator.py:1628 Refined: 'put the chocolate bar on the tray' -> 'put the chocolate on the tray' (candidates: ['chocolate', 'bar', 'snack'])
+INFO 2026-09-10 04:45:53 strator.py:1453 [1] Executing sub-task: 'put the chocolate on the tray' (0 retries left) [original: 'put the chocolate bar on the tray']
+INFO 2026-09-10 04:45:53 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/chocolate/190_chocolate/
+INFO 2026-09-10 04:45:53 ent_loop.py:689 Control loop started | task: 'put the chocolate on the tray' | duration: 50.0s
+INFO 2026-09-10 04:45:53 ent_loop.py:603 Action receiver thread started
+  Generated 41 tokens in 3.3s (12.4 tok/s)
+INFO 2026-09-10 04:46:04 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044603_chk001_CONTINUE.png
+INFO 2026-09-10 04:46:04 estrator.py:623 [VLM MONITOR] CONTINUE (check 1): The arm is stationary and has not yet moved toward the chocolate or the tray, indicating it may still be initializing or preparing for the task.
+INFO 2026-09-10 04:46:05 ent_loop.py:913 Episode finished: 11.6s, converged=True, max_displacement=1.5788, actions=113
+  Generated 37 tokens in 2.6s (14.1 tok/s)
+INFO 2026-09-10 04:46:08 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044607_chk002_CONTINUE.png
+INFO 2026-09-10 04:46:08 estrator.py:623 [VLM MONITOR] CONTINUE (check 2): The arm has not yet moved significantly and appears to be in a starting position, likely preparing to reach for the chocolate.
+INFO 2026-09-10 04:46:08 estrator.py:545 Monitor completed 2 check(s) for 'put the chocolate on the tray'
+INFO 2026-09-10 04:46:08 ent_loop.py:409 Returning to home position...
+INFO 2026-09-10 04:46:10 ent_loop.py:422 Home position reached.
+WARNING 2026-09-10 04:46:10 strator.py:1516 No movement detected (max_displacement=1.5788). The object name 'chocolate' is likely not in the robot's vocabulary.
+INFO 2026-09-10 04:46:13 strator.py:1129 Saved VLM eval recap (32 frames): runs/run_2026-09-10_04-41-17/01/eval_task1_20260910_044610_recap.png
+INFO 2026-09-10 04:46:13 strator.py:1549 Evaluation observation: video clip (32 frames over 6.2s of a 11.6s episode, 5.04 fps)
+  Generated 38 tokens in 2.9s (13.1 tok/s)
+INFO 2026-09-10 04:46:16 strator.py:1591 VLM judgement: success=False | failure_type=VOCAB | The robot arm did not move at all, so the chocolate was not placed on the tray.
+INFO 2026-09-10 04:46:16 strator.py:1344 ATTEMPT attempt=2 original='put the chocolate bar on the tray' current='put the chocolate on the tray' success=False failure_type=VOCAB reason='The robot arm did not move at all, so the chocolate was not placed on the tray.' refinement=True
+WARNING 2026-09-10 04:46:16 strator.py:1658 Sub-task 'put the chocolate bar on the tray' failed after all retries.
+INFO 2026-09-10 04:46:16 strator.py:1667 Triggering replan (0 replan(s) left after this)...
+INFO 2026-09-10 04:46:16 strator.py:1668   Completed so far: []
+INFO 2026-09-10 04:46:16 strator.py:1669   Failed: 'put the chocolate bar on the tray' — The robot arm did not move at all, so the chocolate was not placed on the tray.
+INFO 2026-09-10 04:46:16 strator.py:1670   Remaining (discarded): ['put the stuffed animal on the tray']
+INFO 2026-09-10 04:46:16 strator.py:1099 Saved VLM frame: runs/run_2026-09-10_04-41-17/01/replan_20260910_044616.png
+  Generated 77 tokens in 5.1s (15.2 tok/s)
+
+Visible: ['chocolate bar', 'banana', 'stuffed animal']
+Excluded: []
+Completed: None
+Allowed: ['chocolate bar', 'banana', 'stuffed animal']
+
+Parsed 3 sub-tasks:
+  1. put the chocolate bar on the tray
+  2. put the banana on the tray
+  3. put the stuffed animal on the tray
+INFO 2026-09-10 04:46:21 strator.py:1424 Replanned queue (3):
+INFO 2026-09-10 04:46:21 strator.py:1426   1. put the chocolate bar on the tray
+INFO 2026-09-10 04:46:21 strator.py:1426   2. put the banana on the tray
+INFO 2026-09-10 04:46:21 strator.py:1426   3. put the stuffed animal on the tray
+INFO 2026-09-10 04:46:21 strator.py:1453 [1] Executing sub-task: 'put the chocolate bar on the tray' (1 retries left)
+INFO 2026-09-10 04:46:21 nt_loop.py:1049 VLA inputs for this episode -> vla_failure_test/chocolate/191_chocolate/
+INFO 2026-09-10 04:46:21 ent_loop.py:689 Control loop started | task: 'put the chocolate bar on the tray' | duration: 50.0s
+INFO 2026-09-10 04:46:21 ent_loop.py:603 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+  Generated 40 tokens in 2.8s (14.2 tok/s)
+INFO 2026-09-10 04:46:31 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044630_chk001_CONTINUE.png
+INFO 2026-09-10 04:46:31 estrator.py:623 [VLM MONITOR] CONTINUE (check 1): The arm is stationary and has not yet moved toward the chocolate bar or the tray, indicating it may still be initializing or starting up.
+INFO 2026-09-10 04:46:32 ent_loop.py:913 Episode finished: 11.0s, converged=True, max_displacement=1.3465, actions=120
+  Generated 42 tokens in 2.9s (14.6 tok/s)
+INFO 2026-09-10 04:46:36 estrator.py:571 [VLM MONITOR] saved debug grid (16 frames): monitor_20260910_044635_chk002_CONTINUE.png
+INFO 2026-09-10 04:46:36 estrator.py:623 [VLM MONITOR] CONTINUE (check 2): The arm is stationary and has not yet moved toward the chocolate bar or the tray, indicating it may still be initializing or planning its next move.
+INFO 2026-09-10 04:46:36 estrator.py:545 Monitor completed 2 check(s) for 'put the chocolate bar on the tray'
+WARNING 2026-09-10 04:46:36 strator.py:1371 ABORT requested during sub-task 'put the chocolate bar on the tray' — abandoning high-level task 'put the food on the tray' and returning to the prompt.
+INFO 2026-09-10 04:46:36 ent_loop.py:409 Returning to home position...
+INFO 2026-09-10 04:46:38 ent_loop.py:422 Home position reached.
+INFO 2026-09-10 04:46:38 strator.py:1638   Completed before the abort: []

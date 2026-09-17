@@ -1,0 +1,80 @@
+INFO 2026-09-06 05:15:58 strator.py:1443 Decomposing high-level prompt (round 1): 'put everything away'
+INFO 2026-09-06 05:15:58 strator.py:1162 Saved VLM frame: runs/run_2026-09-06_05-15-21/01/decompose_20260906_051558.png
+  Generated 157 tokens in 12.4s (12.7 tok/s)
+INFO 2026-09-06 05:16:10 pace/vlm.py:411 Identification tokens: 79
+INFO 2026-09-06 05:16:10 estrator.py:788 Identified objects (7): ['plush toy', 'pouch', 'tray', 'table', 'robot arm', 'wires', 'black object']
+  Generated 130 tokens in 9.2s (14.1 tok/s)
+
+Visible: ['plush toy', 'pouch', 'tray', 'table', 'robot arm', 'wires', 'black object']
+Excluded: []
+Completed: []
+Allowed: ['plush toy', 'pouch', 'tray', 'table', 'robot arm', 'wires', 'black object']
+
+Parsed 5 sub-tasks:
+  1. put the plush toy in the tray
+  2. put the pouch in the tray
+  3. put the robot arm in the tray
+  4. put the wires in the tray
+  5. put the black object in the tray
+WARNING 2026-09-06 05:16:20 estrator.py:803 Decomposition left 1 allowed object(s) with no sub-task: ['table'] — re-asking the planner once.
+  Generated 138 tokens in 11.0s (12.6 tok/s)
+
+Visible: ['plush toy', 'pouch', 'tray', 'table', 'robot arm', 'wires', 'black object']
+Excluded: []
+Completed: []
+Allowed: ['plush toy', 'pouch', 'tray', 'table', 'robot arm', 'wires', 'black object']
+
+Parsed 6 sub-tasks:
+  1. put the plush toy on the tray
+  2. put the pouch on the tray
+  3. put the tray on the table
+  4. put the robot arm on the table
+  5. put the wires on the table
+  6. put the black object on the table
+INFO 2026-09-06 05:16:31 strator.py:1461 Sub-task queue (6):
+INFO 2026-09-06 05:16:31 strator.py:1463   1. put the plush toy on the tray
+INFO 2026-09-06 05:16:31 strator.py:1463   2. put the pouch on the tray
+INFO 2026-09-06 05:16:31 strator.py:1463   3. put the tray on the table
+INFO 2026-09-06 05:16:31 strator.py:1463   4. put the robot arm on the table
+INFO 2026-09-06 05:16:31 strator.py:1463   5. put the wires on the table
+INFO 2026-09-06 05:16:31 strator.py:1463   6. put the black object on the table
+INFO 2026-09-06 05:16:31 strator.py:1517 [1] Executing sub-task: 'put the plush toy on the tray' (1 retries left)
+INFO 2026-09-06 05:16:31 nt_loop.py:1057 VLA inputs for this episode -> vla_failure_test/plush/138_plush/
+INFO 2026-09-06 05:16:31 ent_loop.py:696 Control loop started | task: 'put the plush toy on the tray' | duration: 50.0s
+INFO 2026-09-06 05:16:31 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-06 05:17:21 ent_loop.py:713 Episode timeout (50.0s)
+INFO 2026-09-06 05:17:21 ent_loop.py:921 Episode finished: 50.8s, converged=False, max_displacement=0.0000, actions=0
+INFO 2026-09-06 05:17:21 estrator.py:583 Monitor completed 0 check(s) for 'put the plush toy on the tray'
+INFO 2026-09-06 05:17:21 ent_loop.py:409 Returning to home position...
+INFO 2026-09-06 05:17:23 ent_loop.py:422 Home position reached.
+INFO 2026-09-06 05:17:26 strator.py:1192 Saved VLM eval recap (32 frames): runs/run_2026-09-06_05-15-21/01/eval_task1_20260906_051724_recap.png
+INFO 2026-09-06 05:17:26 strator.py:1639 Evaluation observation: video clip (32 frames over 49.8s of a 50.8s episode, 0.62 fps)
+  Generated 44 tokens in 3.3s (13.2 tok/s)
+INFO 2026-09-06 05:17:30 strator.py:1681 VLM judgement: success=False | failure_type=RETRY | The arm did not move toward the plush toy or the tray; it remained stationary, indicating no attempt to complete the task.
+INFO 2026-09-06 05:17:30 strator.py:1407 ATTEMPT attempt=1 original='put the plush toy on the tray' current='put the plush toy on the tray' success=False failure_type=RETRY reason='The arm did not move toward the plush toy or the tray; it remained stationary, indicating no attempt to complete the task.' refinement=False
+INFO 2026-09-06 05:17:30 strator.py:1743 Retrying sub-task (1 attempt(s) left)...
+INFO 2026-09-06 05:17:30 strator.py:1517 [1] Executing sub-task: 'put the plush toy on the tray' (0 retries left)
+INFO 2026-09-06 05:17:30 nt_loop.py:1057 VLA inputs for this episode -> vla_failure_test/plush/139_plush/
+INFO 2026-09-06 05:17:30 ent_loop.py:696 Control loop started | task: 'put the plush toy on the tray' | duration: 50.0s
+INFO 2026-09-06 05:17:30 ent_loop.py:603 Action receiver thread started
+INFO 2026-09-06 05:18:20 ent_loop.py:713 Episode timeout (50.0s)
+INFO 2026-09-06 05:18:21 ent_loop.py:921 Episode finished: 50.8s, converged=False, max_displacement=0.0000, actions=0
+INFO 2026-09-06 05:18:21 estrator.py:583 Monitor completed 0 check(s) for 'put the plush toy on the tray'
+INFO 2026-09-06 05:18:21 ent_loop.py:409 Returning to home position...
+INFO 2026-09-06 05:18:23 ent_loop.py:422 Home position reached.
+INFO 2026-09-06 05:18:25 strator.py:1192 Saved VLM eval recap (32 frames): runs/run_2026-09-06_05-15-21/01/eval_task1_20260906_051823_recap.png
+INFO 2026-09-06 05:18:25 strator.py:1639 Evaluation observation: video clip (32 frames over 49.8s of a 50.8s episode, 0.62 fps)
+  Generated 44 tokens in 3.3s (13.3 tok/s)
+INFO 2026-09-06 05:18:29 strator.py:1681 VLM judgement: success=False | failure_type=RETRY | The arm did not move toward the plush toy or the tray; it remained stationary, indicating no attempt to complete the task.
+INFO 2026-09-06 05:18:29 strator.py:1407 ATTEMPT attempt=2 original='put the plush toy on the tray' current='put the plush toy on the tray' success=False failure_type=RETRY reason='The arm did not move toward the plush toy or the tray; it remained stationary, indicating no attempt to complete the task.' refinement=False
+WARNING 2026-09-06 05:18:29 strator.py:1767 Sub-task 'put the plush toy on the tray' failed after all retries.
+INFO 2026-09-06 05:18:29 strator.py:1776 Triggering replan (0 replan(s) left after this)...
+INFO 2026-09-06 05:18:29 strator.py:1777   Completed so far: []
+INFO 2026-09-06 05:18:29 strator.py:1778   Failed: 'put the plush toy on the tray' — The arm did not move toward the plush toy or the tray; it remained stationary, indicating no attempt to complete the task.
+INFO 2026-09-06 05:18:29 strator.py:1779   Remaining (discarded): ['put the pouch on the tray', 'put the tray on the table', 'put the robot arm on the table', 'put the wires on the table', 'put the black object on the table']
+
+[REPLAN] Sub-task 'put the plush toy on the tray' failed after all retries: The arm did not move toward the plush toy or the tray; it remained stationary, indicating no attempt to complete the task.
+[REPLAN] Additional context for the planner (Enter for none, 'q' to abort): WARNING 2026-09-06 05:18:32 strator.py:1434 ABORT requested at the replan prompt — abandoning high-level task 'put everything away' and returning to the prompt.
+INFO 2026-09-06 05:18:32 ent_loop.py:409 Returning to home position...
+INFO 2026-09-06 05:18:34 ent_loop.py:422 Home position reached.
+INFO 2026-09-06 05:18:34 strator.py:1790   Completed before the abort: []

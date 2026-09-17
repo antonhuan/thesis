@@ -1,0 +1,121 @@
+INFO 2026-09-16 09:05:30 strator.py:1664 Decomposing high-level prompt (round 1): 'put everything on the tray except for the banana'
+INFO 2026-09-16 09:05:30 strator.py:1383 Saved VLM frame: runs/run_2026-09-16_09-04-56/01/decompose_20260916_090530.png
+  Generated 140 tokens in 11.4s (12.3 tok/s)
+INFO 2026-09-16 09:05:42 pace/vlm.py:405 Identification tokens: 76
+INFO 2026-09-16 09:05:42 estrator.py:976 Identified objects (6): ['banana', 'plush toy', 'tray', 'table', 'robot arm', 'wire']
+  Generated 93 tokens in 6.0s (15.4 tok/s)
+
+Visible: ['banana', 'plush toy', 'tray', 'table', 'robot arm', 'wire']
+Excluded: ['banana']
+Completed: []
+Allowed: ['plush toy', 'robot arm', 'wire']
+
+Parsed 3 sub-tasks:
+  1. put the plush toy on the tray
+  2. put the robot arm on the tray
+  3. put the wire on the tray
+INFO 2026-09-16 09:05:48 strator.py:1682 Sub-task queue (3):
+INFO 2026-09-16 09:05:48 strator.py:1684   1. put the plush toy on the tray
+INFO 2026-09-16 09:05:48 strator.py:1684   2. put the robot arm on the tray
+INFO 2026-09-16 09:05:48 strator.py:1684   3. put the wire on the tray
+INFO 2026-09-16 09:05:48 strator.py:1737 [1] Executing sub-task: 'put the plush toy on the tray' (1 retries left)
+INFO 2026-09-16 09:05:48 nt_loop.py:1085 VLA inputs for this episode -> vla_failure_test/plush/220_plush/
+INFO 2026-09-16 09:05:48 ent_loop.py:698 Control loop started | task: 'put the plush toy on the tray' | duration: 50.0s
+INFO 2026-09-16 09:05:48 ent_loop.py:612 Action receiver thread started
+  Generated 128 tokens in 13.4s (9.6 tok/s)
+INFO 2026-09-16 09:06:13 estrator.py:722 [VLM MONITOR] saved debug grid (4 frames): monitor_20260916_090612_chk001_CONTINUE.png
+INFO 2026-09-16 09:06:13 estrator.py:792 [VLM MONITOR] CONTINUE (check 1) [phase=grasp]: Current frame shows the gripper closed on the plush toy, holding it and lifting it off the table; this matches the 'grasp' phase of the arc.
+  Generated 128 tokens in 13.4s (9.6 tok/s)
+INFO 2026-09-16 09:06:32 estrator.py:722 [VLM MONITOR] saved debug grid (4 frames): monitor_20260916_090631_chk002_CONTINUE.png
+INFO 2026-09-16 09:06:32 estrator.py:792 [VLM MONITOR] CONTINUE (check 2) [phase=transit]: Current frame shows the plush toy still held in the closed gripper, lifted off the table, and moving toward the tray — consistent with legal transit phase.
+WARNING 2026-09-16 09:06:38 estrator.py:826 [VLM MONITOR] no fresh frame within 1.0s of gating; sampling anyway (frame may lag the arm)
+INFO 2026-09-16 09:06:38 ent_loop.py:939 Episode finished: 50.2s, converged=True, max_displacement=174.9166, actions=446
+INFO 2026-09-16 09:06:43 estrator.py:672 Monitor completed 2 check(s) for 'put the plush toy on the tray'
+INFO 2026-09-16 09:06:43 ent_loop.py:416 Returning to home position...
+INFO 2026-09-16 09:06:45 ent_loop.py:429 Home position reached.
+  Generated 124 tokens in 8.2s (15.1 tok/s)
+INFO 2026-09-16 09:06:46 estrator.py:722 [VLM MONITOR] saved debug grid (4 frames): monitor_20260916_090646_chk003_CONTINUE.png
+INFO 2026-09-16 09:06:46 estrator.py:792 [VLM MONITOR] CONTINUE (check 3) [phase=transit]: Current frame shows the plush toy still held in the closed gripper, lifted off the table; no drop or loss of grip observed.
+INFO 2026-09-16 09:06:47 strator.py:1413 Saved VLM eval recap (32 frames): runs/run_2026-09-16_09-04-56/01/eval_task1_20260916_090645_recap.png
+INFO 2026-09-16 09:06:47 strator.py:1844 Evaluation observation: video clip (32 frames over 44.2s of a 50.2s episode, 0.70 fps)
+  Generated 22 tokens in 1.9s (11.4 tok/s)
+INFO 2026-09-16 09:06:49 strator.py:1887 VLM judgement: success=True | failure_type=RETRY | The plush toy is now on the tray as instructed.
+INFO 2026-09-16 09:06:49 strator.py:1737 [2] Executing sub-task: 'put the robot arm on the tray' (1 retries left)
+INFO 2026-09-16 09:06:49 nt_loop.py:1085 VLA inputs for this episode -> vla_failure_test/robot/221_robot/
+INFO 2026-09-16 09:06:49 ent_loop.py:698 Control loop started | task: 'put the robot arm on the tray' | duration: 50.0s
+INFO 2026-09-16 09:06:49 ent_loop.py:612 Action receiver thread started
+  Generated 150 tokens in 15.1s (10.0 tok/s)
+INFO 2026-09-16 09:07:16 estrator.py:722 [VLM MONITOR] saved debug grid (4 frames): monitor_20260916_090716_chk001_CONTINUE.png
+INFO 2026-09-16 09:07:16 estrator.py:792 [VLM MONITOR] CONTINUE (check 1) [phase=approach]: The gripper is open and empty, and the arm is positioned near the tray, indicating it is in the approach phase. No object is held, and the arm is not yet grasping or moving toward the tray with an object.
+  Generated 136 tokens in 14.2s (9.6 tok/s)
+INFO 2026-09-16 09:07:36 estrator.py:722 [VLM MONITOR] saved debug grid (4 frames): monitor_20260916_090736_chk002_CONTINUE.png
+INFO 2026-09-16 09:07:36 estrator.py:792 [VLM MONITOR] CONTINUE (check 2) [phase=approach]: Current frame shows the gripper open and empty, with the tray still visible on the table; the arm is still in approach phase, not yet grasping or moving toward the tray with an object.
+INFO 2026-09-16 09:07:40 ent_loop.py:715 Episode timeout (50.0s)
+WARNING 2026-09-16 09:07:42 estrator.py:826 [VLM MONITOR] no fresh frame within 1.0s of gating; sampling anyway (frame may lag the arm)
+INFO 2026-09-16 09:07:46 ent_loop.py:939 Episode finished: 56.0s, converged=False, max_displacement=219.1279, actions=514
+INFO 2026-09-16 09:07:51 estrator.py:672 Monitor completed 2 check(s) for 'put the robot arm on the tray'
+INFO 2026-09-16 09:07:51 ent_loop.py:416 Returning to home position...
+  Generated 126 tokens in 8.6s (14.7 tok/s)
+INFO 2026-09-16 09:07:51 estrator.py:722 [VLM MONITOR] saved debug grid (4 frames): monitor_20260916_090751_chk003_CONTINUE.png
+INFO 2026-09-16 09:07:51 estrator.py:792 [VLM MONITOR] CONTINUE (check 3) [phase=approach]: Current frame shows the gripper open and empty, with the banana still on the table; the arm has not yet grasped the object, so it remains in approach phase.
+INFO 2026-09-16 09:07:53 ent_loop.py:429 Home position reached.
+INFO 2026-09-16 09:07:55 strator.py:1413 Saved VLM eval recap (32 frames): runs/run_2026-09-16_09-04-56/01/eval_task2_20260916_090753_recap.png
+INFO 2026-09-16 09:07:55 strator.py:1844 Evaluation observation: video clip (32 frames over 49.9s of a 56.0s episode, 0.62 fps)
+  Generated 34 tokens in 2.7s (12.5 tok/s)
+INFO 2026-09-16 09:07:58 strator.py:1887 VLM judgement: success=False | failure_type=VOCAB | The arm moved aggressively toward the brown cylindrical object instead of the tray.
+INFO 2026-09-16 09:07:58 strator.py:1628 ATTEMPT attempt=1 original='put the robot arm on the tray' current='put the robot arm on the tray' success=False failure_type=VOCAB reason='The arm moved aggressively toward the brown cylindrical object instead of the tray.' refinement=False
+INFO 2026-09-16 09:07:58 strator.py:1912 VOCAB failure — attempting label refinement...
+INFO 2026-09-16 09:07:58 strator.py:1383 Saved VLM frame: runs/run_2026-09-16_09-04-56/01/refine_task2_20260916_090758.png
+  Generated 8 tokens in 0.6s (13.7 tok/s)
+INFO 2026-09-16 09:07:59 strator.py:1924 Refined: 'put the robot arm on the tray' -> 'put the tray on the tray' (candidates: ['tray', 'plate', 'bowl'])
+INFO 2026-09-16 09:07:59 strator.py:1737 [2] Executing sub-task: 'put the tray on the tray' (0 retries left) [original: 'put the robot arm on the tray']
+INFO 2026-09-16 09:07:59 nt_loop.py:1085 VLA inputs for this episode -> vla_failure_test/tray/222_tray/
+INFO 2026-09-16 09:07:59 ent_loop.py:698 Control loop started | task: 'put the tray on the tray' | duration: 50.0s
+INFO 2026-09-16 09:07:59 ent_loop.py:612 Action receiver thread started
+  Generated 134 tokens in 14.5s (9.3 tok/s)
+INFO 2026-09-16 09:08:25 estrator.py:722 [VLM MONITOR] saved debug grid (4 frames): monitor_20260916_090824_chk001_CONTINUE.png
+INFO 2026-09-16 09:08:25 estrator.py:792 [VLM MONITOR] CONTINUE (check 1) [phase=approach]: Current frame shows the gripper open and empty, with the tray still on the table; no object is held, and the arm has not yet grasped the tray, so it is in the initial approach phase.
+WARNING 2026-09-16 09:08:31 estrator.py:826 [VLM MONITOR] no fresh frame within 1.0s of gating; sampling anyway (frame may lag the arm)
+INFO 2026-09-16 09:08:31 ent_loop.py:939 Episode finished: 32.8s, converged=True, max_displacement=1.6429, actions=250
+INFO 2026-09-16 09:08:36 estrator.py:672 Monitor completed 1 check(s) for 'put the tray on the tray'
+INFO 2026-09-16 09:08:36 ent_loop.py:416 Returning to home position...
+INFO 2026-09-16 09:08:38 ent_loop.py:429 Home position reached.
+WARNING 2026-09-16 09:08:38 strator.py:1800 No movement detected (max_displacement=1.6429). The object name 'tray' is likely not in the robot's vocabulary.
+  Generated 129 tokens in 8.6s (15.0 tok/s)
+INFO 2026-09-16 09:08:40 estrator.py:722 [VLM MONITOR] saved debug grid (4 frames): monitor_20260916_090839_chk002_CONTINUE.png
+INFO 2026-09-16 09:08:40 estrator.py:792 [VLM MONITOR] CONTINUE (check 2) [phase=approach]: Current frame shows the gripper open and empty, with the tray still on the table; no object is held and the arm is not yet grasping, consistent with ongoing approach.
+INFO 2026-09-16 09:08:41 strator.py:1413 Saved VLM eval recap (32 frames): runs/run_2026-09-16_09-04-56/01/eval_task2_20260916_090838_recap.png
+INFO 2026-09-16 09:08:41 strator.py:1844 Evaluation observation: video clip (32 frames over 27.5s of a 32.8s episode, 1.13 fps)
+  Generated 41 tokens in 3.2s (12.6 tok/s)
+INFO 2026-09-16 09:08:44 strator.py:1887 VLM judgement: success=False | failure_type=VOCAB | The robot did not move at all, so it did not attempt to put the tray on the tray.
+INFO 2026-09-16 09:08:44 strator.py:1628 ATTEMPT attempt=2 original='put the robot arm on the tray' current='put the tray on the tray' success=False failure_type=VOCAB reason='The robot did not move at all, so it did not attempt to put the tray on the tray.' refinement=True
+WARNING 2026-09-16 09:08:44 strator.py:1954 Sub-task 'put the robot arm on the tray' failed after all retries.
+INFO 2026-09-16 09:08:44 strator.py:1963 Triggering replan (0 replan(s) left after this)...
+INFO 2026-09-16 09:08:44 strator.py:1964   Completed so far: ['put the plush toy on the tray']
+INFO 2026-09-16 09:08:44 strator.py:1965   Failed: 'put the robot arm on the tray' — The robot did not move at all, so it did not attempt to put the tray on the tray.
+INFO 2026-09-16 09:08:44 strator.py:1966   Remaining (discarded): ['put the wire on the tray']
+INFO 2026-09-16 09:08:44 strator.py:1383 Saved VLM frame: runs/run_2026-09-16_09-04-56/01/replan_20260916_090844.png
+  Generated 66 tokens in 4.3s (15.4 tok/s)
+
+Visible: ['banana', 'plush toy', 'robot arm']
+Excluded: ['banana']
+Completed: None
+Allowed: ['plush toy', 'robot arm']
+
+Parsed 2 sub-tasks:
+  1. put the plush toy on the tray
+  2. put the robot arm on the tray
+INFO 2026-09-16 09:08:49 strator.py:1708 Replanned queue (2):
+INFO 2026-09-16 09:08:49 strator.py:1710   1. put the plush toy on the tray
+INFO 2026-09-16 09:08:49 strator.py:1710   2. put the robot arm on the tray
+INFO 2026-09-16 09:08:49 strator.py:1737 [2] Executing sub-task: 'put the plush toy on the tray' (1 retries left)
+INFO 2026-09-16 09:08:49 nt_loop.py:1085 VLA inputs for this episode -> vla_failure_test/plush/223_plush/
+INFO 2026-09-16 09:08:49 ent_loop.py:698 Control loop started | task: 'put the plush toy on the tray' | duration: 50.0s
+INFO 2026-09-16 09:08:49 ent_loop.py:612 Action receiver thread started
+[INTERJECT] ABORT requested — stopping current action...
+INFO 2026-09-16 09:09:00 ent_loop.py:939 Episode finished: 10.9s, converged=True, max_displacement=1.6284, actions=103
+INFO 2026-09-16 09:09:00 estrator.py:672 Monitor completed 0 check(s) for 'put the plush toy on the tray'
+WARNING 2026-09-16 09:09:00 strator.py:1655 ABORT requested during sub-task 'put the plush toy on the tray' — abandoning high-level task 'put everything on the tray except for the banana' and returning to the prompt.
+INFO 2026-09-16 09:09:00 ent_loop.py:416 Returning to home position...
+INFO 2026-09-16 09:09:02 ent_loop.py:429 Home position reached.
+INFO 2026-09-16 09:09:02 strator.py:1934   Completed before the abort: ['put the plush toy on the tray']

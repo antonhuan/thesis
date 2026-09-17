@@ -1,0 +1,27 @@
+INFO 2026-09-06 05:57:00 strator.py:1443 Decomposing high-level prompt (round 1): 'exiy'
+INFO 2026-09-06 05:57:01 strator.py:1162 Saved VLM frame: runs/run_2026-09-06_05-53-28/02/decompose_20260906_055700.png
+[INTERJECT] ABORT requested — stopping current action...
+  Generated 125 tokens in 10.6s (11.8 tok/s)
+INFO 2026-09-06 05:57:11 pace/vlm.py:411 Identification tokens: 66
+INFO 2026-09-06 05:57:11 estrator.py:788 Identified objects (5): ['table', 'robot arm', 'tray', 'toy', 'cylinder']
+  Generated 68 tokens in 5.0s (13.5 tok/s)
+
+Visible: ['table', 'robot arm', 'tray', 'toy', 'cylinder']
+Excluded: []
+Completed: []
+Allowed: ['table', 'robot arm', 'tray', 'toy', 'cylinder']
+
+Parsed 0 sub-tasks:
+WARNING 2026-09-06 05:57:16 estrator.py:803 Decomposition left 5 allowed object(s) with no sub-task: ['table', 'robot arm', 'tray', 'toy', 'cylinder'] — re-asking the planner once.
+[INTERJECT] ABORT requested — stopping current action...
+  Generated 51 tokens in 4.4s (11.5 tok/s)
+
+Visible: ['table', 'robot arm', 'tray', 'toy', 'cylinder']
+Excluded: []
+Completed: []
+Allowed: []
+
+Parsed 0 sub-tasks:
+WARNING 2026-09-06 05:57:21 strator.py:1434 ABORT requested during decomposition — abandoning high-level task 'exiy' and returning to the prompt.
+INFO 2026-09-06 05:57:21 ent_loop.py:409 Returning to home position...
+INFO 2026-09-06 05:57:23 ent_loop.py:422 Home position reached.
