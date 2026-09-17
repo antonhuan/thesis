@@ -116,16 +116,30 @@ VERDICT — binary
   ambiguity or a single flickery frame. Prefer to miss a marginal case and let
   the end-of-task judge catch it over aborting a good run.
 
+IDENTIFY WHICH OBJECT THE ARM IS COMMITTING TO
+The sub-task names ONE target object. Before you judge progress, name the object
+the gripper is actually over or closing on RIGHT NOW — the one object directly
+beneath or closest to the jaws — from what you see, NOT from what the sub-task
+asked for. If the arm is reaching toward, descending onto, or grasping an object
+that is NOT the named target, that is a wrong-object fault, even if everything
+else looks like a clean approach. Do not excuse it because "something" is being
+picked up; picking up the wrong thing is exactly the failure you catch.
+
 WHAT COUNTS AS A FAULT (illegal transitions — make the concern concrete)
 - transit -> approach / object no longer held: dropped or lost grip.
 - repeated grasp -> approach with nothing acquired: failed grasps.
 - place -> transit with the object still held: failed release.
 - arm moving AWAY from the sub-task target for a sustained stretch: drift.
-- committing to the WRONG object (not the one the sub-task names).
+- committing to the WRONG object: the gripper is over / descending onto / closing
+  on an object that is NOT the one the sub-task names. Judge this from
+  object_under_gripper vs the named target, not from intent.
 - knocking over / pushing away the target, or erratic motion that could damage.
 
 NOT a fault: slow or indirect reaching, still starting up (little motion yet),
-being mid-grasp or mid-transit, brief ambiguity you cannot resolve.
+being mid-grasp or mid-transit, brief ambiguity you cannot resolve. Reaching over
+a NEIGHBOURING object on the way to the target is only a fault once the gripper is
+clearly descending onto or closing on the wrong object, not while merely passing
+above it.
 
 Scene context: the tray in the scene is the destination ("the tray" always means
 it). The orange arm is part of the setup.
@@ -138,6 +152,8 @@ back-fill the observations to match it.
 {
   "gripper_visible": "<what the gripper is doing in the CURRENT FRAME: open, or closed on something>",
   "object_held": "<yes/no — is the target object clamped in the gripper jaws right now? Look at the current frame>",
+  "object_under_gripper": "<name the ONE object directly beneath or closest to the jaws right now — what it actually is (e.g. plush toy, pouch, banana), or 'none' if the jaws are over bare table>",
+  "target_match": "<yes/no — is object_under_gripper the SAME object the sub-task names?>",
   "object_status": "<where the target object is: on the table / in the gripper / on the tray>",
   "gripper_status": "<open | closed | transitioning>",
   "last_transition": "<the phase change since your prior look, and whether it was legal>",
@@ -154,11 +170,14 @@ CONSISTENCY RULES (the phase cannot contradict what you observed)
 - gripper closed on the object  =>  the grasp already happened; do not report
   "approach" or "nothing held".
 - object_held = no AND gripper open AND arm reaching  =>  "approach".
+- target_match = no AND the gripper is descending onto or closing on
+  object_under_gripper  =>  wrong-object fault, action MUST be "STOP".
 
 Examples:
-{"gripper_visible": "closed on the pouch", "object_held": "yes", "object_status": "pouch clamped in the gripper, lifted off the table", "gripper_status": "closed", "last_transition": "grasp -> transit (legal)", "phase": "transit", "concern": "none", "action": "CONTINUE", "reason": "Current frame shows the pouch held in the closed gripper and lifting; the grasp is done."}
-{"gripper_visible": "open, descending toward the banana", "object_held": "no", "object_status": "banana on the table under the gripper", "gripper_status": "open", "last_transition": "approach -> approach (legal)", "phase": "approach", "concern": "none", "action": "CONTINUE", "reason": "Open gripper still lowering onto the banana; not yet grasped."}
-{"gripper_visible": "open, empty", "object_held": "no", "object_status": "banana back on the table, short of the tray", "gripper_status": "open", "last_transition": "transit -> approach with object no longer held (illegal: dropped)", "phase": "approach", "concern": "grip lost in transit; banana fell short of the tray", "action": "STOP", "reason": "Prior look reported transit holding the banana, but the current frame shows an empty open gripper and the banana back on the table."}
+{"gripper_visible": "closed on the pouch", "object_held": "yes", "object_under_gripper": "pouch", "target_match": "yes", "object_status": "pouch clamped in the gripper, lifted off the table", "gripper_status": "closed", "last_transition": "grasp -> transit (legal)", "phase": "transit", "concern": "none", "action": "CONTINUE", "reason": "Current frame shows the pouch held in the closed gripper and lifting; the grasp is done."}
+{"gripper_visible": "open, descending toward the banana", "object_held": "no", "object_under_gripper": "banana", "target_match": "yes", "object_status": "banana on the table under the gripper", "gripper_status": "open", "last_transition": "approach -> approach (legal)", "phase": "approach", "concern": "none", "action": "CONTINUE", "reason": "Open gripper still lowering onto the banana; not yet grasped."}
+{"gripper_visible": "open, descending onto the plush toy", "object_held": "no", "object_under_gripper": "plush toy", "target_match": "no", "object_status": "banana still on the table further back, not under the gripper", "gripper_status": "open", "last_transition": "approach onto the wrong object", "phase": "approach", "concern": "arm is descending onto the plush toy, but the sub-task names the banana", "action": "STOP", "reason": "The jaws are lowering onto the plush toy; the banana sits further back and is not the object being approached."}
+{"gripper_visible": "open, empty", "object_held": "no", "object_under_gripper": "none", "target_match": "no", "object_status": "banana back on the table, short of the tray", "gripper_status": "open", "last_transition": "transit -> approach with object no longer held (illegal: dropped)", "phase": "approach", "concern": "grip lost in transit; banana fell short of the tray", "action": "STOP", "reason": "Prior look reported transit holding the banana, but the current frame shows an empty open gripper and the banana back on the table."}
 """
 
 # Pass 1 of the observe->judge split: describe ONLY, no verdict. This removes the
@@ -173,6 +192,13 @@ WHAT YOU RECEIVE
 
 Ground every field in the latest (current) frame. Name only what you can actually see — object positions, whether the gripper holds anything. Report the phase that FOLLOWS from what you see; do not pick a phase first and describe to match it.
 
+IDENTIFY WHICH OBJECT THE ARM IS COMMITTING TO
+The sub-task names ONE target object. Name the object the gripper is actually over
+or closing on RIGHT NOW — the one object directly beneath or closest to the jaws —
+from what you SEE, NOT from what the sub-task asked for. Then say whether it is the
+same object the sub-task names. This is a plain observation; the judgement pass
+decides what to do with it.
+
 CONSISTENCY RULES (the phase cannot contradict what you observed)
 - object_held = yes  =>  you are AT LEAST at "grasp"; if the held object is moving you are in "transit", NOT "approach".
 - gripper closed on the object  =>  the grasp already happened; do not report "approach" or "nothing held".
@@ -182,6 +208,8 @@ Return ONLY one JSON object, no verdict fields:
 {
   "gripper_visible": "<what the gripper is doing in the current frame: open, or closed on something>",
   "object_held": "<yes/no — is the target object clamped in the gripper jaws right now?>",
+  "object_under_gripper": "<name the ONE object directly beneath or closest to the jaws right now — what it actually is (e.g. plush toy, pouch, banana), or 'none' if over bare table>",
+  "target_match": "<yes/no — is object_under_gripper the SAME object the sub-task names?>",
   "object_status": "<where the target object is: on the table / in the gripper / on the tray>",
   "gripper_status": "<open | closed | transitioning>",
   "last_transition": "<the phase change since the prior look, and whether it was legal>",
@@ -205,10 +233,13 @@ WHAT COUNTS AS A FAULT (illegal transitions — make the concern concrete)
 - repeated grasp -> approach with nothing acquired: failed grasps.
 - place -> transit with the object still held: failed release.
 - arm moving AWAY from the sub-task target for a sustained stretch: drift.
-- committing to the WRONG object (not the one the sub-task names).
+- committing to the WRONG object: object_under_gripper is NOT the object the
+  sub-task names (target_match = no) AND the gripper is descending onto or closing
+  on it. Judge this from the observations, not from intent — picking up the wrong
+  object is a fault even when the approach otherwise looks clean.
 - knocking over / pushing away the target, or erratic motion that could damage.
 
-NOT a fault: slow or indirect reaching, still starting up (little motion yet), being mid-grasp or mid-transit, brief ambiguity you cannot resolve.
+NOT a fault: slow or indirect reaching, still starting up (little motion yet), being mid-grasp or mid-transit, brief ambiguity you cannot resolve. Merely passing ABOVE a neighbouring object on the way to the target is not a wrong-object fault; it becomes one once the gripper is clearly descending onto or closing on the wrong object.
 
 Scene context: the tray in the scene is the destination ("the tray" always means it). The orange arm is part of the setup.
 
