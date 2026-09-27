@@ -127,6 +127,13 @@ class LiveMonitorConfig(LoopClientConfig):
     # verify_frame_gap_s apart) instead of the next chunk frame, which arrives ~1 s later
     # with the object already lifting.
     freeze_stall_eps: float = 0.5
+    # A grasp must close ON an object: the stalled aperture has to be at least this far
+    # above the episode-start aperture (gripper.pos, % of range). The policy sometimes
+    # opens and snaps shut mid-approach (trials 24, 27, 29: closed to 0.5-4.4); that
+    # "empty close" is ignored — the watch resets its open peak and keeps watching for the
+    # real grasp. Real grasps froze at 8.8-33 live; offline the thinnest (banana) held
+    # >= 5 above start.
+    min_hold_aperture: float = 4.0
     freeze_settle_s: float = 0.3
     verify_frame_gap_s: float = 0.2
     gripper_open_pos: float = 40.0
@@ -209,6 +216,16 @@ class TappedClient(LoopRobotClient):
                 closed = g <= w["peak"] - T.DEFAULT_GRASP_CLOSE_MARGIN
                 stalled = (len(w["hist"]) >= 4
                            and max(w["hist"]) - min(w["hist"]) < cfg.freeze_stall_eps)
+                if opened and closed and stalled and g - w["start"] < cfg.min_hold_aperture:
+                    # Closed on nothing (a mid-approach open/close blip): not a grasp.
+                    w.setdefault("empty_closes", []).append(
+                        {"t": round(float(elapsed), 2), "aperture": round(g, 1),
+                         "peak": round(w["peak"], 1)})
+                    self.logger.info(f"[grasp watch] empty close ignored (aperture {g:.1f} "
+                                     f"< start {w['start']:.1f} + {cfg.min_hold_aperture:g}, "
+                                     f"peak {w['peak']:.1f}) at t={elapsed:.2f}s — still watching")
+                    w["peak"], w["hist"] = g, []
+                    return
                 if opened and closed and stalled:
                     self.execution_gate.clear()
                     w["frozen_at"] = float(elapsed)
@@ -328,6 +345,7 @@ class LiveMonitor:
         self.grasp_decided = False        # gate=grasp: the single check has run
         self.inventory_dropped = []       # inventory entries dropped as robot / fixtures
         self.freeze_images = []           # saved grasp-freeze frames (paths)
+        self.empty_closes = []            # mid-approach closes on nothing, ignored by the watch
         self.last_check_s = None          # wall time of the latest VLM check
         self.check_started_at = None      # episode time the latest check paused the arm
         self.stale_skipped = 0            # pre-pause frames that did not trigger a check
@@ -373,6 +391,9 @@ class LiveMonitor:
     def _disarm_watch(self):
         if getattr(self.client, "supports_grasp_watch", False):
             with self.client._watch_lock:
+                w = self.client.grasp_watch
+                if w is not None:
+                    self.empty_closes += w.get("empty_closes", [])
                 self.client.grasp_watch = None
 
     def _pause(self):
@@ -904,6 +925,7 @@ def main_repl(cfg: LiveMonitorConfig):
                        "first_close": monitor.first_close, "gate_open_at": monitor.gate_open_at,
                        "verify": monitor.verify_info, "timeline": monitor.timeline,
                        "freeze_images": monitor.freeze_images,
+                       "empty_closes": monitor.empty_closes,
                        "inventory_dropped": monitor.inventory_dropped,
                        "episode": {"dir": str(client._vla_input_dir), **asdict(result)},
                        "wall_s": round(time.time() - t0, 1), "note": note,
@@ -911,6 +933,7 @@ def main_repl(cfg: LiveMonitorConfig):
                            "gate", "horizon", "tail", "verify", "match", "objects", "window",
                            "ground_compare", "unclear_wrist_decides", "grasp_fallback_frames",
                            "freeze_stall_eps", "freeze_settle_s", "verify_frame_gap_s",
+                           "min_hold_aperture",
                            "pause_refreshes", "chunk_size_threshold", "pretrained_name_or_path",
                            "temperature", "episode_duration", "vlm_model")}}
                 path = results / f"trial_{trial_n:03d}.json"
