@@ -64,7 +64,12 @@ import time
 from pathlib import Path
 
 from vlm_monitor_tune import (
+    DEFAULT_APPROACH_GATE_HORIZON,
+    DEFAULT_APPROACH_GATE_MARGIN,
+    DEFAULT_APPROACH_GATE_TAIL,
+    DEFAULT_GRASP_FALLBACK_FRAMES,
     DEFAULT_GRASP_CLOSE_MARGIN,
+    DEFAULT_GRASP_IMMINENT_MARGIN,
     DEFAULT_JOINT_START_THRESH,
     DEFAULT_JOINT_STILL_THRESH,
     DEFAULT_MOTION_THRESH,
@@ -73,6 +78,7 @@ from vlm_monitor_tune import (
     _frame_index,
     default_prompts,
     evaluate_gate,
+    grasp_imminent_windows,
     load_clip,
     run_scan,
     task_from_path,
@@ -190,22 +196,33 @@ def _span(paths: list[str], i: int, win: int) -> str:
 # ---------------------------------------------------------------------------
 
 def gate_only_episode(source: ClipSource, win: int, start_thresh: float,
-                      still_thresh: float, motion_thresh: float) -> dict:
+                      still_thresh: float, motion_thresh: float,
+                      imminent_margin: float = 0.0) -> dict:
     """Slide the window and record the gate decision for each, without the VLM.
 
     Returns per-episode stats: number of windows, how many gated, the frame span of
     the first window the VLM would open on (first non-gated), and the gate signal.
+    With `imminent_margin` > 0 the grasp-imminent gate decides instead (as run_scan
+    does), falling back to the motion gate when the run has no plan data.
     """
     n = len(source.clip)
+    starts = list(range(0, n - win + 1))
+    imminent = (grasp_imminent_windows(source, starts, win, imminent_margin)
+                if imminent_margin > 0 else None)
     windows = []
     first_open = None
-    for i in range(0, n - win + 1):
-        w = source.window(i, win)
-        g = evaluate_gate(w, start_thresh, still_thresh, motion_thresh)
+    for k, i in enumerate(starts):
         span = _span(source.paths, i, win)
-        windows.append({"span": span, "gated": g["gated"], "signal": g["signal"],
-                        "dist": g["dist"], "peak": g["peak"], "motion": g["motion"]})
-        if not g["gated"] and first_open is None:
+        if imminent is not None:
+            is_open, why = imminent[k]
+            windows.append({"span": span, "gated": not is_open, "signal": "imminent",
+                            "reason": why})
+        else:
+            g = evaluate_gate(source.window(i, win), start_thresh, still_thresh,
+                              motion_thresh)
+            windows.append({"span": span, "gated": g["gated"], "signal": g["signal"],
+                            "dist": g["dist"], "peak": g["peak"], "motion": g["motion"]})
+        if not windows[-1]["gated"] and first_open is None:
             first_open = span
     n_gated = sum(1 for w in windows if w["gated"])
     return {
@@ -226,7 +243,17 @@ def full_episode(model, processor, prompts, source: ClipSource, task: str,
                  fps: float, temp: float, win: int, start_thresh: float,
                  still_thresh: float, motion_thresh: float,
                  stop_on_stop: bool, grasp_memory: bool = True,
-                 grasp_close_margin: float = DEFAULT_GRASP_CLOSE_MARGIN) -> dict:
+                 grasp_close_margin: float = DEFAULT_GRASP_CLOSE_MARGIN,
+                 grasp_imminent_margin: float = DEFAULT_GRASP_IMMINENT_MARGIN,
+                 grasp_verify: bool = False,
+                 grasp_verify_match: str = "scene",
+                 approach_gate_margin: float = DEFAULT_APPROACH_GATE_MARGIN,
+                 approach_gate_tail: int = DEFAULT_APPROACH_GATE_TAIL,
+                 approach_gate_trigger: str = "open",
+                 approach_gate_horizon: int = DEFAULT_APPROACH_GATE_HORIZON,
+                 ground_compare: bool = False,
+                 grasp_fallback_frames: int = DEFAULT_GRASP_FALLBACK_FRAMES,
+                 unclear_wrist_decides: bool = False) -> dict:
     """Run the full sliding-window monitor on one episode for ONE sub-task.
 
     Wraps run_scan (whose verbose output is suppressed) and reduces its timeline to a
@@ -241,7 +268,17 @@ def full_episode(model, processor, prompts, source: ClipSource, task: str,
                             fps=fps, win=win, step=1, stop_on_stop=stop_on_stop,
                             motion_thresh=motion_thresh, start_thresh=start_thresh,
                             still_thresh=still_thresh, grasp_memory=grasp_memory,
-                            grasp_close_margin=grasp_close_margin)
+                            grasp_close_margin=grasp_close_margin,
+                            grasp_imminent_margin=grasp_imminent_margin,
+                            grasp_verify=grasp_verify,
+                            grasp_verify_match=grasp_verify_match,
+                            approach_gate_margin=approach_gate_margin,
+                            approach_gate_tail=approach_gate_tail,
+                            approach_gate_trigger=approach_gate_trigger,
+                            approach_gate_horizon=approach_gate_horizon,
+                            ground_compare=ground_compare,
+                            grasp_fallback_frames=grasp_fallback_frames,
+                            unclear_wrist_decides=unclear_wrist_decides)
     # timeline: list of (span, action, reason, phase)
     first_open = next((sp for sp, a, _, _ in timeline if a != "GATED"), None)
     stop = next(((sp, r) for sp, a, r, _ in timeline if a == "STOP"), None)
@@ -274,12 +311,32 @@ def score_episode(model, processor, prompts, source: ClipSource,
                            args.temp, args.window, args.joint_start_thresh,
                            args.joint_still_thresh, args.motion_thresh, stop_on_stop,
                            grasp_memory=grasp_memory,
-                           grasp_close_margin=args.grasp_close_margin)
+                           grasp_close_margin=args.grasp_close_margin,
+                           grasp_imminent_margin=args.grasp_imminent_margin,
+                           grasp_verify=args.grasp_verify,
+                           grasp_verify_match=args.grasp_verify_match,
+                           approach_gate_margin=args.approach_gate_margin,
+                           approach_gate_tail=args.approach_gate_tail,
+                           approach_gate_trigger=args.approach_gate_trigger,
+                           approach_gate_horizon=args.approach_gate_horizon,
+                           ground_compare=args.ground_compare,
+                           grasp_fallback_frames=args.grasp_fallback_frames,
+                           unclear_wrist_decides=args.unclear_wrist_decides)
     wrong = full_episode(model, processor, prompts, source, wrong_task, args.fps,
                          args.temp, args.window, args.joint_start_thresh,
                          args.joint_still_thresh, args.motion_thresh, stop_on_stop,
                          grasp_memory=grasp_memory,
-                         grasp_close_margin=args.grasp_close_margin)
+                         grasp_close_margin=args.grasp_close_margin,
+                         grasp_imminent_margin=args.grasp_imminent_margin,
+                         grasp_verify=args.grasp_verify,
+                         grasp_verify_match=args.grasp_verify_match,
+                         approach_gate_margin=args.approach_gate_margin,
+                         approach_gate_tail=args.approach_gate_tail,
+                         approach_gate_trigger=args.approach_gate_trigger,
+                         approach_gate_horizon=args.approach_gate_horizon,
+                         ground_compare=args.ground_compare,
+                         grasp_fallback_frames=args.grasp_fallback_frames,
+                         unclear_wrist_decides=args.unclear_wrist_decides)
     return {
         "correct": correct,
         "wrong": wrong,
@@ -338,6 +395,36 @@ def main():
                          "this far below the widest opening seen this run (fingers "
                          "closed on the object). 0 disables (VLM-only commit). "
                          f"Default: {DEFAULT_GRASP_CLOSE_MARGIN}")
+    ap.add_argument("--grasp-verify", action="store_true",
+                    help="Hybrid: confirm each STOP with a wrist-only 'what is held' probe "
+                         "at the first gripper close; veto it when the wrist shows the "
+                         "sub-task's target.")
+    ap.add_argument("--approach-gate-margin", type=float, default=DEFAULT_APPROACH_GATE_MARGIN,
+                    help="Approach gate: VLM only from the queued gripper opening until "
+                         "--approach-gate-tail frames after the first grasp close; replaces "
+                         "the motion gate. 0 disables.")
+    ap.add_argument("--approach-gate-tail", type=int, default=DEFAULT_APPROACH_GATE_TAIL)
+    ap.add_argument("--unclear-wrist-decides", action="store_true",
+                    help="Grasp trigger: when the look-back check is 'unclear', the wrist decides")
+    ap.add_argument("--grasp-fallback-frames", type=int, default=DEFAULT_GRASP_FALLBACK_FRAMES,
+                    help="Grasp trigger: fallback check this many frames after the gripper "
+                         "opened when no close is observed")
+    ap.add_argument("--approach-gate-trigger", choices=["open", "close", "grasp"], default="open",
+                    help="'close' = open the gate when the grasp close is queued within "
+                         "--approach-gate-horizon steps (enables the gate on its own)")
+    ap.add_argument("--approach-gate-horizon", type=int, default=DEFAULT_APPROACH_GATE_HORIZON)
+    ap.add_argument("--ground-compare", action="store_true",
+                    help="Give pass 2 the scene-grounded object instead of the task wording")
+    ap.add_argument("--grasp-verify-match", choices=["scene", "inventory", "text", "open"], default="scene",
+                    help="--grasp-verify target check: 'scene' grounds the sub-task's "
+                         "object on the initial scene (default); 'text' uses the compare "
+                         "pass on the wording.")
+    ap.add_argument("--grasp-imminent-margin", type=float,
+                    default=DEFAULT_GRASP_IMMINENT_MARGIN,
+                    help="Grasp-imminent gate: ask the VLM only while the queued action "
+                         "chunk plans to close the still-open gripper by at least this "
+                         "much (first grasp only); replaces the motion gate. 0 disables. "
+                         f"Default: {DEFAULT_GRASP_IMMINENT_MARGIN}")
     ap.add_argument("--out", default="vlm_monitor_test/monitor_test_results.json", help="Write per-episode results to this JSON file")
     ap.add_argument("--plot", default="vlm_monitor_test/confusion_matrix.png",
                     help="Write a confusion-matrix PNG here (full mode only). "
@@ -423,7 +510,8 @@ def main():
 
         if args.gate_only:
             r = gate_only_episode(source, args.window, args.joint_start_thresh,
-                                  args.joint_still_thresh, args.motion_thresh)
+                                  args.joint_still_thresh, args.motion_thresh,
+                                  imminent_margin=args.grasp_imminent_margin)
             rec.update(r)
             print(f"[{k}/{len(episodes)}] {cat}/{name}: joints={'Y' if rec['joints_loaded'] else 'N'} "
                   f"gate={r['gate_signal']} gated {r['n_gated']}/{r['n_windows']} "

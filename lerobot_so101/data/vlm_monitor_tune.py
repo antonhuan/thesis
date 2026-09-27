@@ -135,6 +135,77 @@ DEFAULT_MOTION_THRESH = 2.0         # pixel fallback
 # a run has no joint CSV, the gate is skipped and the commit is VLM-only.
 DEFAULT_GRASP_CLOSE_MARGIN = 6.0
 
+# GRASP-IMMINENT gate (off by default; replaces the start/still/pixel gates when on).
+# The live orchestrator pauses the arm while the VLM runs, so the VLA's queued action
+# chunk is the policy's own plan for the next moments. Instead of guessing from motion
+# when a reach is resolved, check ONLY when that queue says a grasp is about to happen:
+# the gripper has opened (its aperture rose at least GRIPPER_OPEN_MIN above the
+# episode-start aperture), it has not yet closed on anything, and the queued chunk
+# plans to close it by at least this margin below the current aperture. That is the
+# moment the wrist view shows one object under the open gripper. Once the first grasp
+# is observed (aperture this margin below the run's open peak) the gate never reopens
+# — the pre-grasp look is done. Offline, the queue is each frame's logged `act_*` rows
+# (only the executed prefix of the chunk, so the horizon is shorter than live). 0
+# disables. Tunable with --grasp-imminent-margin / /imminent.
+DEFAULT_GRASP_IMMINENT_MARGIN = 0.0
+GRIPPER_OPEN_MIN = 10.0
+
+# APPROACH gate (off by default; replaces the start/still/pixel motion gate when on).
+# Keys the reach check on the policy's own grasp cycle instead of a calibrated joint
+# distance: the VLM is asked only from the frame where the queued (or observed) gripper
+# aperture first rises >= this margin above the episode-start aperture (the approach
+# opens the gripper — the queue plans it ~20 steps before it happens) until
+# DEFAULT_APPROACH_GATE_TAIL frames after the first observed grasp close (the lift, where
+# the reach check sees a wrong object in the gripper). The opening command is abrupt
+# (aperture ~1 -> 15-30 in one chunk), so any margin in 3..15 opens on the same frame.
+# 0 disables. Tunable with --approach-gate-margin / --approach-gate-tail.
+DEFAULT_APPROACH_GATE_MARGIN = 0.0
+DEFAULT_APPROACH_GATE_TAIL = 5
+# CLOSE trigger for the approach gate (--approach-gate-trigger close): open instead at
+# the first frame where the queue plans the grasp close within a FIXED look-ahead of
+# DEFAULT_APPROACH_GATE_HORIZON control steps (~27.5 Hz, so 20 ~ 0.7 s): the queued
+# aperture within the horizon drops >= DEFAULT_GRASP_CLOSE_MARGIN below the observed
+# one, after the gripper has opened. A fixed horizon keeps the lead time independent of
+# where the queue is in its refresh cycle, and stays within the logged (executed) part
+# of each chunk offline. Falls back to the observed first close. Offline sweep: detection
+# levels off at 15-20 steps; the opening trigger looked earlier and added false alarms.
+DEFAULT_APPROACH_GATE_HORIZON = 20
+# GRASP trigger (--approach-gate-trigger grasp): the monitor stays gated until the grasp
+# and judges ONCE — the single reach window is the one ending at the first observed close
+# (a look-back over the approach), followed by the usual hybrid verify. In the hybrid a
+# pre-grasp STOP is deferred to the grasp anyway and a pre-grasp CONTINUE changes
+# nothing, so the earlier checks were mostly redundant. Fallback when no close is
+# observed: the window ending this many frames after the gripper opened (or the final
+# window if it never opens), so a run without a grasp is still checked once.
+DEFAULT_GRASP_FALLBACK_FRAMES = 6
+
+# Pass-1 'reaching_for' values that mean the reach is not resolved.
+_UNDECIDED_REACH = {"", "unclear", "none", "?", "unknown", "none (arm not moving)"}
+
+# GRASP-VERIFY (hybrid; off by default). The reach check's STOP is treated as a
+# SUSPICION, confirmed on the grasp itself: at the first observed close of the first
+# grasp (opened >= GRIPPER_OPEN_MIN above start, then >= DEFAULT_GRASP_CLOSE_MARGIN
+# below the open peak — the jaws are closed on the object, which is still on the
+# table), a wrist-only forced-choice probe asks what is held, on that frame and the
+# next. If both agree on an object and the compare pass says it IS the sub-task's
+# target, the STOP is VETOED and the grasp is committed (check retired). A blind wrist
+# ('nothing' / disagreement), no observed close, or a different object -> the STOP
+# stands. Targets the reach pass's pre-grasp misreads (a flat object hidden under the
+# arm, its neighbour in view), which the closed-jaw wrist view resolves.
+# The veto compares PHYSICAL objects: the sub-task's object phrase is grounded once per
+# run on the initial scene by match_task_object (closed choice over HELD_PROBE_OBJECTS),
+# and the STOP is vetoed only when the wrist probe names that same object. Grounded to
+# 'none' (the named object is not in the scene) -> never veto; 'ambiguous'/unparsed ->
+# fall back to the text compare pass (grasp_verify_match="text" forces that fallback).
+# The probe's object list is scene knowledge: fixed here for the tabletop set; live it
+# must come from the scene (initial frame / task decomposition).
+HELD_PROBE_OBJECTS = ["banana", "brown pouch", "plush moose toy"]
+HELD_PROBE_PROMPT = (
+    "This is a close-up from a camera mounted on a robot gripper; the two orange "
+    "fingers are the gripper jaws. Which object is held between the jaws? Choose "
+    "exactly one of: {choices}, nothing. "
+    'Return ONLY JSON: {{"object": "<choice>", "reason": "<what you see>"}}')
+
 # The wrist camera is mounted rotated 90° CLOCKWISE relative to the front (overhead)
 # view, so a raw wrist frame's left/right/up/down do not match the table. We rotate
 # every wrist frame by this many degrees COUNTER-CLOCKWISE at load time (PIL's positive
@@ -279,6 +350,37 @@ def load_joint_states(run_dir: str) -> dict[int, list[float]]:
                     continue
         return states
     except Exception:  # noqa: BLE001 - a motion hint must never break loading
+        return {}
+
+
+def load_planned_gripper(run_dir: str) -> dict[int, list[float]]:
+    """Map frame index -> the gripper apertures the VLA queued at that frame.
+
+    Reads the `act_gripper.pos` column of <run_dir>/actions.csv: the rows logged for
+    one input frame are the actions executed from the chunk returned for it, in
+    `exec_index` order, i.e. the queue's plan for the time until the next frame.
+    Returns {} when there is no CSV or it lacks the columns. Never raises.
+    """
+    path = os.path.join(run_dir, "actions.csv")
+    if not os.path.isfile(path):
+        return {}
+    try:
+        plans: dict[int, list[tuple[int, float]]] = {}
+        with open(path, newline="") as f:
+            reader = csv.DictReader(f)
+            if not reader.fieldnames or not {"act_gripper.pos", "exec_index"} <= set(reader.fieldnames):
+                return {}
+            for row in reader:
+                idx = _frame_index(row.get("front_img", ""))
+                if idx is None:
+                    continue
+                try:
+                    plans.setdefault(idx, []).append(
+                        (int(row["exec_index"]), float(row["act_gripper.pos"])))
+                except (TypeError, ValueError):
+                    continue
+        return {i: [g for _, g in sorted(v)] for i, v in plans.items()}
+    except Exception:  # noqa: BLE001 - a gate hint must never break loading
         return {}
 
 
@@ -456,7 +558,8 @@ def _identify_content(clip: list[Image.Image],
     return content
 
 
-def _compare_content(sub_task: str, identified: dict) -> list[dict]:
+def _compare_content(sub_task: str, identified: dict,
+                     target_object: str | None = None) -> list[dict]:
     """Pass 2 content: text identity check of the sub-task's target against the
     object the trajectory has resolved on. No image — identity only.
 
@@ -493,8 +596,13 @@ def _compare_content(sub_task: str, identified: dict) -> list[dict]:
         "The perception pass could not yet resolve which object the arm is going for "
         "(unclear).\n"
     )
+    # GROUND-COMPARE: with `target_object` (the sub-task's object grounded on the initial
+    # scene, e.g. "roll" -> "brown pouch"), pass 2 is told that object instead of the task
+    # wording, so paraphrase resolution is done once by the grounder, not by pass 2.
+    task_line = (f'The robot\'s target object is: "{target_object}".\n' if target_object
+                 else f'The robot\'s sub-task is: "{sub_task}".\n')
     return [{"type": "text", "text": (
-        f'The robot\'s sub-task is: "{sub_task}".\n'
+        task_line +
         f'A perception pass watched the arm\'s trajectory (held: {held}).\n'
         + resolved_line +
         f'The object(s) still in play are: {cand_line}.\n\n'
@@ -533,7 +641,8 @@ class ClipSource:
                  initial_path: str | None = None,
                  joints: "list[list[float] | None] | None" = None,
                  initial_joints: "list[float] | None" = None,
-                 wrist: "list[Image.Image | None] | None" = None):
+                 wrist: "list[Image.Image | None] | None" = None,
+                 plans: "list[list[float] | None] | None" = None):
         self.clip = clip
         self.paths = paths
         # The WRIST-camera track, aligned index-for-index to `clip` (the front
@@ -546,6 +655,10 @@ class ClipSource:
         # frame with no CSV row). None for the whole run when no actions.csv was found,
         # in which case the gate falls back to pixel motion.
         self.joints = joints
+        # Per-frame QUEUED gripper plan aligned to `clip` (the act_gripper values the
+        # VLA queued at that frame; None entry when missing). None for the whole run
+        # without an actions.csv. Feeds the grasp-imminent gate.
+        self.plans = plans
         # The EPISODE-START joint pose — the run's very first observed joint vector,
         # PRESERVED across window()/tail() so the startup (home-proximity) gate keeps a
         # fixed reference even on a windowed slice. Defaults to the first non-None
@@ -565,6 +678,9 @@ class ClipSource:
     def _slice_wrist(self, sl: slice) -> "list[Image.Image | None] | None":
         return self.wrist[sl] if self.wrist is not None else None
 
+    def _slice_plans(self, sl: slice) -> "list[list[float] | None] | None":
+        return self.plans[sl] if self.plans is not None else None
+
     def window(self, start: int, size: int) -> "ClipSource":
         """A sub-run of `size` frames starting at index `start`."""
         return ClipSource(self.clip[start:start + size],
@@ -572,7 +688,8 @@ class ClipSource:
                           initial=self.initial, initial_path=self.initial_path,
                           joints=self._slice_joints(slice(start, start + size)),
                           initial_joints=self.initial_joints,
-                          wrist=self._slice_wrist(slice(start, start + size)))
+                          wrist=self._slice_wrist(slice(start, start + size)),
+                          plans=self._slice_plans(slice(start, start + size)))
 
     def tail(self, size: int) -> "ClipSource":
         """The last `size` frames — one monitor look at the end of the run."""
@@ -580,7 +697,8 @@ class ClipSource:
                           initial=self.initial, initial_path=self.initial_path,
                           joints=self._slice_joints(slice(-size, None)),
                           initial_joints=self.initial_joints,
-                          wrist=self._slice_wrist(slice(-size, None)))
+                          wrist=self._slice_wrist(slice(-size, None)),
+                          plans=self._slice_plans(slice(-size, None)))
 
 
 _TASK_RE = re.compile(r"(put_the_.+?)(?:\.(?:png|jpg|jpeg))?$", re.IGNORECASE)
@@ -670,7 +788,11 @@ def load_clip(pattern: str, view: str = "front", wrist_view: str = "wrist",
         print(f"  (loaded joint states for {aligned}/{len(front_paths)} frames from "
               f"{os.path.join(run_dir, 'actions.csv')})")
 
-    return ClipSource(clip, [str(p) for p in front_paths], joints=joints, wrist=wrist)
+    planned = load_planned_gripper(run_dir)
+    plans = ([planned.get(_frame_index(p)) for p in front_paths] if planned else None)
+
+    return ClipSource(clip, [str(p) for p in front_paths], joints=joints, wrist=wrist,
+                      plans=plans)
 
 
 # ---------------------------------------------------------------------------
@@ -728,7 +850,8 @@ def run_check(model, processor, prompts, source: ClipSource, sub_task,
               start_thresh=DEFAULT_JOINT_START_THRESH,
               still_thresh=DEFAULT_JOINT_STILL_THRESH,
               held_hint: str | None = None,
-              gripper_closed: bool | None = None):
+              gripper_closed: bool | None = None,
+              target_object: str | None = None):
     """Two-pass identify->compare check over a clip, with pretty-printing.
 
     A motion gate runs first: if the arm is not actively reaching, we short-circuit to
@@ -808,7 +931,7 @@ def run_check(model, processor, prompts, source: ClipSource, sub_task,
     # --- Pass 2: compare to the sub-task ---
     cmp_messages = [
         {"role": "system", "content": [{"type": "text", "text": prompts["compare"]}]},
-        {"role": "user", "content": _compare_content(sub_task, identified)},
+        {"role": "user", "content": _compare_content(sub_task, identified, target_object)},
     ]
     print("  [pass 2 — compare to sub-task]")
     cmp_output = generate(model, processor, cmp_messages,
@@ -850,6 +973,347 @@ def run_check(model, processor, prompts, source: ClipSource, sub_task,
     return merged
 
 
+def grasp_imminent_windows(source: ClipSource, starts: list[int], win: int,
+                           margin: float) -> "list[tuple[bool, str]] | None":
+    """Grasp-imminent gate decision for each window start (see
+    DEFAULT_GRASP_IMMINENT_MARGIN): (open, reason) per window, keyed on the window's
+    LATEST frame. Open only while the gripper has opened, has not yet closed on its
+    first grasp, and the queued chunk plans to close it by >= `margin`. Depends only on
+    joints + queued plans (never the VLM), so gate-only sweeps can call it. Returns
+    None when the run lacks joint or plan data.
+    """
+    if source.joints is None or source.plans is None or source.initial_joints is None:
+        return None
+    start_ap = source.initial_joints[_GRIPPER_IDX]
+    peak = None
+    grasped = False
+    out = []
+    for start in starts:
+        last = start + win - 1
+        cur = current_gripper(source.joints[start:last + 1])
+        plan = source.plans[last]
+        if cur is not None:
+            peak = cur if peak is None else max(peak, cur)
+        opened = cur is not None and peak - start_ap >= GRIPPER_OPEN_MIN
+        if opened and cur <= peak - margin:
+            grasped = True  # the first grasp has closed -> the pre-grasp look is over
+        drop = (cur - min(plan)) if plan and cur is not None else None
+        if grasped:
+            out.append((False, "first grasp already closed"))
+        elif not opened:
+            out.append((False, "gripper not opened yet"))
+        elif drop is None or drop < margin:
+            out.append((False, f"no close queued (planned drop {_fmt(drop)} < {margin:g})"))
+        else:
+            out.append((True, f"grasp queued: aperture {_fmt(cur)} -> planned min "
+                              f"{_fmt(min(plan))} (drop {_fmt(drop)})"))
+    return out
+
+
+def first_grasp_close(source: ClipSource,
+                      margin: float = DEFAULT_GRASP_CLOSE_MARGIN) -> int | None:
+    """Index of the first frame where the gripper has closed on its first grasp:
+    opened >= GRIPPER_OPEN_MIN above the episode-start aperture, then come in >=
+    `margin` below the open peak. None without joints or if it never closes."""
+    if source.joints is None or source.initial_joints is None:
+        return None
+    start = source.initial_joints[_GRIPPER_IDX]
+    peak = None
+    for i, j in enumerate(source.joints):
+        if j is None:
+            continue
+        g = j[_GRIPPER_IDX]
+        peak = g if peak is None else max(peak, g)
+        if peak - start >= GRIPPER_OPEN_MIN and g <= peak - margin:
+            return i
+    return None
+
+
+# Task -> scene-object matcher (tested by vlm_object_matcher_test.py): grounds the
+# sub-task's object phrase on the INITIAL SCENE so the grasp-verify veto compares
+# physical objects, not words ("the roll" -> the brown pouch).
+
+def object_phrase(task: str) -> str:
+    """'put the brown pouch on the tray' -> 'brown pouch' (tolerates the truncated and
+    misspelled destinations found in the filenames)."""
+    t = task.lower().strip()
+    t = re.sub(r"^put the ", "", t)
+    t = re.sub(r" (on|in) (the|thet)( \w*)?$", "", t)
+    t = re.sub(r" (on|in)$", "", t)
+    return t.strip()
+
+
+LIST_PROMPT = (
+    "This is a robot's tabletop workspace before the robot starts. List every distinct "
+    "object on the table that the robot arm could pick up — not the robot itself, not "
+    "the table, and not a container that objects are placed into. Use a short, plain "
+    'name for each. Return ONLY JSON: {"objects": ["<name>", ...]}')
+
+# Scene vocabulary for grasp_verify_match="inventory": built ONCE from the initial scene
+# and used as the canonical terms for both the task grounding and the wrist probe, so
+# nothing is hard-coded and the wrist never names objects from scratch. The names only
+# need to be consistent between the two uses, not correct ("sausage" for the pouch works
+# as long as grounding and wrist both use it).
+INVENTORY_PROMPT = (
+    "This is a robot's tabletop workspace before the robot starts. List every distinct "
+    "object on the table that the robot arm could pick up — not the robot itself, not "
+    "the table, and not a container that objects are placed into. For each give a short, "
+    "plain, distinct name and a few words on what it looks like (colour, shape, material). "
+    'Return ONLY JSON: {"objects": [{"name": "<name>", "appearance": "<looks>"}, ...]}')
+
+
+def scene_inventory(model, processor, initial: Image.Image,
+                    temperature: float = 0.1) -> list[dict]:
+    """The pickable objects in the initial scene as [{"name", "appearance"}], names
+    lower-cased and de-duplicated (order kept)."""
+    msgs = [{"role": "user", "content": [{"type": "image", "image": initial},
+                                         {"type": "text", "text": INVENTORY_PROMPT}]}]
+    out = parse_json_object(generate(model, processor, msgs, max_new_tokens=256,
+                                     temperature=temperature)) or {}
+    inv, seen = [], set()
+    for o in out.get("objects") or []:
+        if isinstance(o, str):
+            o = {"name": o, "appearance": ""}
+        name = str(o.get("name", "")).strip().lower()
+        if name and name not in seen and name not in ("none", "nothing", "ambiguous"):
+            seen.add(name)
+            inv.append({"name": name, "appearance": str(o.get("appearance", "")).strip()})
+    return inv
+
+
+def match_name(answer: str, names: list[str]) -> str | None:
+    """Map a free answer back to one of `names` (exact, then containment either way)."""
+    a = (answer or "").strip().lower()
+    if a in names:
+        return a
+    hits = [n for n in names if n in a or a in n] if a else []
+    return max(hits, key=len) if hits else None
+
+
+MATCH_PROMPT = (
+    "This is a robot's tabletop workspace before the robot starts. The robot's "
+    'instruction is: "{task}".\n'
+    "Which object on the table does the instruction's object ('{phrase}') refer to? "
+    "Judge by what each object looks like; the instruction may use an unusual or loose "
+    "description. The destination named in the instruction is not the object to pick.\n"
+    "Choose exactly one of: {choices}, none (nothing on the table fits the "
+    "description), ambiguous (more than one object fits equally well).\n"
+    'Return ONLY JSON: {{"object": "<choice>", "reason": "<why>"}}')
+
+
+def match_task_object(model, processor, initial: Image.Image, task: str,
+                      objects: list[str] | None = None,
+                      temperature: float = 0.1) -> dict:
+    """Resolve the task's object phrase to one object in the initial scene.
+
+    With `objects` (closed mode) the VLM chooses among them; without (open mode) it
+    first lists the pickable objects it sees and chooses among its own list. Returns
+    {"object": <choice | 'none' | 'ambiguous'>, "reason": ..., "scene_objects": [...]}.
+    """
+    scene = objects
+    if scene is None:
+        msgs = [{"role": "user", "content": [{"type": "image", "image": initial},
+                                             {"type": "text", "text": LIST_PROMPT}]}]
+        listed = parse_json_object(generate(model, processor, msgs, max_new_tokens=128,
+                                            temperature=temperature)) or {}
+        scene = [str(o).strip() for o in (listed.get("objects") or []) if str(o).strip()]
+    prompt = MATCH_PROMPT.format(task=task, phrase=object_phrase(task),
+                                 choices=", ".join(scene) if scene else "(no objects listed)")
+    msgs = [{"role": "user", "content": [{"type": "image", "image": initial},
+                                         {"type": "text", "text": prompt}]}]
+    out = parse_json_object(generate(model, processor, msgs, max_new_tokens=192,
+                                     temperature=temperature)) or {}
+    return {"object": str(out.get("object", "")).strip().lower(),
+            "reason": out.get("reason", ""), "scene_objects": scene}
+
+
+DIRECT_PROMPT = (
+    'Command: "{task}"\n'
+    "Which object in the image is this command referring to? The command may not use "
+    "the object's exact name — match its term to the object in the image that is "
+    "closest in meaning.\n"
+    'Return ONLY JSON: {{"object": "<name of the object>", '
+    '"appearance": "<a few words on what it looks like>"}}')
+
+
+def describe_task_object(model, processor, initial: Image.Image, task: str,
+                         temperature: float = 0.1) -> dict:
+    """Direct mode: ground the task's object with no object list, in one call."""
+    msgs = [{"role": "user", "content": [
+        {"type": "image", "image": initial},
+        {"type": "text", "text": DIRECT_PROMPT.format(task=task)}]}]
+    out = parse_json_object(generate(model, processor, msgs, max_new_tokens=192,
+                                     temperature=temperature)) or {}
+    return {"object": str(out.get("object", "")).strip().lower(),
+            "appearance": str(out.get("appearance", ""))}
+
+
+# Open-vocabulary grasp verification (grasp_verify_match="open"): no object list anywhere.
+# The target comes from describe_task_object on the initial scene; the wrist frames are
+# described freely; one text-only call decides whether they show the target.
+HELD_PROBE_OPEN_PROMPT = (
+    "This is a close-up from a camera mounted on a robot gripper; the two orange "
+    "fingers are the gripper jaws. Which object is held between the jaws? Answer with "
+    "its name, or nothing if no object is held. "
+    'Return ONLY JSON: {"object": "<name of the object, or nothing>", '
+    '"appearance": "<a few words on what it looks like>"}')
+
+OPEN_VERIFY_PROMPT = (
+    'Target object (identified in the scene for the command "{task}"): "{t_name}" — '
+    "{t_app}.\n"
+    "Wrist camera at the grasp, frame 1: \"{a_name}\" — {a_app}.\n"
+    "Wrist camera at the grasp, frame 2: \"{b_name}\" — {b_app}.\n"
+    "The wrist camera is very close to the object, so it often shows only part of it (a "
+    "surface, a zipper, a texture) and may name that part; judge whether what it shows "
+    "is consistent with the target object, not whether the names match.\n"
+    "Is the target object the one held in the gripper? Answer yes if both wrist frames "
+    "describe the same physical object as the target; no if both wrist frames describe "
+    "the same object and it is a different object from the target; unclear if either "
+    "frame shows nothing or the two frames describe different objects.\n"
+    'Return ONLY JSON: {{"answer": "yes|no|unclear", "reason": "<why>"}}')
+
+
+def verify_held_open(model, processor, source: ClipSource, close_idx: int,
+                     temperature: float) -> list[dict]:
+    """Free-text 'what is held' on the wrist frames at close_idx and close_idx + 1."""
+    answers = []
+    for i in (close_idx, close_idx + 1):
+        im = source.wrist[i] if source.wrist and i < len(source.wrist) else None
+        if im is None:
+            answers.append({"frame": i, "object": "nothing", "appearance": "no wrist frame"})
+            continue
+        msgs = [{"role": "user", "content": [{"type": "image", "image": im},
+                                             {"type": "text", "text": HELD_PROBE_OPEN_PROMPT}]}]
+        p = parse_json_object(generate(model, processor, msgs, max_new_tokens=96,
+                                       temperature=temperature)) or {}
+        answers.append({"frame": i, "object": str(p.get("object", "nothing")).strip().lower(),
+                        "appearance": str(p.get("appearance", ""))})
+    return answers
+
+
+def open_verify_decision(model, processor, task: str, target: dict, answers: list[dict],
+                         temperature: float) -> tuple[str, str]:
+    """yes / no / unclear: do the free-text wrist answers show the grounded target?"""
+    if any(a["object"] in ("nothing", "", "none") for a in answers):
+        return "unclear", "a wrist frame shows nothing"
+    a, b = answers
+    text = OPEN_VERIFY_PROMPT.format(task=task, t_name=target.get("object", "?"),
+                                     t_app=target.get("appearance", ""),
+                                     a_name=a["object"], a_app=a["appearance"],
+                                     b_name=b["object"], b_app=b["appearance"])
+    msgs = [{"role": "system", "content": [{"type": "text", "text": COMPARE_SYSTEM_PROMPT}]},
+            {"role": "user", "content": [{"type": "text", "text": text}]}]
+    out = parse_json_object(generate(model, processor, msgs, max_new_tokens=128,
+                                     temperature=temperature)) or {}
+    ans = str(out.get("answer", "unclear")).strip().lower()
+    return (ans if ans in ("yes", "no", "unclear") else "unclear"), str(out.get("reason", ""))
+
+
+def verify_held(model, processor, source: ClipSource, close_idx: int,
+                temperature: float,
+                choices: "list[dict] | None" = None) -> tuple[str, list[dict]]:
+    """Wrist-only forced-choice 'what is held' probe on frames close_idx and
+    close_idx + 1. Returns (object, answers): the object both frames agree on, or
+    'unclear' when either says nothing, they disagree, or a frame is missing."""
+    names = ([c["name"] for c in choices] if choices is not None
+             else list(HELD_PROBE_OBJECTS))
+    shown = (", ".join(f"{c['name']} ({c['appearance']})" if c.get("appearance") else c["name"]
+                       for c in choices) if choices is not None else ", ".join(names))
+    if choices is not None:
+        # A scene-built vocabulary can miss objects; let the wrist say so rather than
+        # forcing the held object onto the nearest listed name ('other' never matches
+        # the grounded target, so the STOP stands).
+        shown += ", other (an object not in this list)"
+    prompt = HELD_PROBE_PROMPT.format(choices=shown)
+    answers = []
+    for i in (close_idx, close_idx + 1):
+        im = source.wrist[i] if source.wrist and i < len(source.wrist) else None
+        if im is None:
+            answers.append({"frame": i, "object": "nothing", "reason": "no wrist frame"})
+            continue
+        msgs = [{"role": "user", "content": [{"type": "image", "image": im},
+                                             {"type": "text", "text": prompt}]}]
+        p = parse_json_object(generate(model, processor, msgs, max_new_tokens=128,
+                                       temperature=temperature)) or {}
+        raw = str(p.get("object", "nothing")).strip().lower()
+        obj = raw if raw in ("nothing", "other") else (match_name(raw, names) or raw)
+        answers.append({"frame": i, "object": obj, "reason": p.get("reason", "")})
+    a0, a1 = answers[0]["object"], answers[1]["object"]
+    return (a0 if a0 == a1 and a0 != "nothing" else "unclear"), answers
+
+
+def approach_gate_windows(source: ClipSource, starts: list[int], win: int,
+                          margin: float, tail: int, trigger: str = "open",
+                          horizon: int = DEFAULT_APPROACH_GATE_HORIZON,
+                          fallback: int = DEFAULT_GRASP_FALLBACK_FRAMES
+                          ) -> "list[tuple[bool, str]] | None":
+    """Approach-gate decision per window start (see DEFAULT_APPROACH_GATE_MARGIN):
+    (open, reason), keyed on the window's LATEST frame. Opens at the trigger — 'open':
+    the first frame whose queued or observed gripper aperture is >= `margin` above the
+    episode start; 'close': the first frame whose queue plans the grasp close within
+    `horizon` steps (see DEFAULT_APPROACH_GATE_HORIZON) — and stays open until `tail`
+    frames after the first grasp close. None without joint or plan data."""
+    if source.joints is None or source.plans is None or source.initial_joints is None:
+        return None
+    start_ap = source.initial_joints[_GRIPPER_IDX]
+    close = first_grasp_close(source)
+    if trigger == "grasp":
+        # One window only: ending at the first observed close (look-back over the reach).
+        n = len(source.clip)
+        if close is not None:
+            target, why = close, f"grasp at close@{close} — single look-back check"
+        else:
+            gs = [j[_GRIPPER_IDX] if j is not None else None for j in source.joints]
+            opened = next((i for i, g in enumerate(gs)
+                           if g is not None and g - start_ap >= GRIPPER_OPEN_MIN), None)
+            target = n - 1 if opened is None else min(n - 1, opened + fallback)
+            why = (f"no grasp observed — fallback check @{target} "
+                   f"({'gripper never opened' if opened is None else f'opened @{opened} + {fallback}'})")
+        target = max(target, win - 1)
+        return [((start + win - 1) == target,
+                 why if (start + win - 1) == target else
+                 ("waiting for the grasp" if start + win - 1 < target else "past the grasp check"))
+                for start in starts]
+    opened_at = None
+    if trigger == "close":
+        peak = None
+        for i, (j, plan) in enumerate(zip(source.joints, source.plans)):
+            if close is not None and i >= close:
+                break
+            cur = j[_GRIPPER_IDX] if j is not None else None
+            if cur is None:
+                continue
+            peak = cur if peak is None else max(peak, cur)
+            ahead = (plan or [])[:horizon]
+            if (peak - start_ap >= GRIPPER_OPEN_MIN and ahead
+                    and cur - min(ahead) >= DEFAULT_GRASP_CLOSE_MARGIN):
+                opened_at = i
+                break
+        if opened_at is None:
+            opened_at = close  # the close was never seen within the horizon at a check
+    else:
+        for i, (j, plan) in enumerate(zip(source.joints, source.plans)):
+            cur = j[_GRIPPER_IDX] if j is not None else None
+            top = max([*(plan or []), *([cur] if cur is not None else [])], default=None)
+            if top is not None and top - start_ap >= margin:
+                opened_at = i
+                break
+    last_open = (close + tail) if close is not None else len(source.clip) - 1
+    out = []
+    for start in starts:
+        last = start + win - 1
+        if opened_at is None or last < opened_at:
+            out.append((False, "approach not started (no gripper opening queued yet)"
+                        if trigger == "open" else
+                        f"no grasp close queued within {horizon} steps yet"))
+        elif last > last_open:
+            out.append((False, f"past the grasp (close@{close} + {tail} frames)"))
+        else:
+            out.append((True, f"approach open ({trigger} trigger @{opened_at}, "
+                              f"close@{close}, open until @{last_open})"))
+    return out
+
+
 def _grasp_confirmed(verdict: dict) -> bool:
     """True once a window shows the CORRECT object grasped: compare said CONTINUE with
     an explicit match AND the identify pass saw the object held. This is the moment the
@@ -870,7 +1334,16 @@ def run_scan(model, processor, prompts, source: ClipSource, sub_task,
              start_thresh=DEFAULT_JOINT_START_THRESH,
              still_thresh=DEFAULT_JOINT_STILL_THRESH,
              grasp_memory=True,
-             grasp_close_margin=DEFAULT_GRASP_CLOSE_MARGIN):
+             grasp_close_margin=DEFAULT_GRASP_CLOSE_MARGIN,
+             grasp_imminent_margin=DEFAULT_GRASP_IMMINENT_MARGIN,
+             grasp_verify=False, grasp_verify_match="scene",
+             approach_gate_margin=DEFAULT_APPROACH_GATE_MARGIN,
+             approach_gate_tail=DEFAULT_APPROACH_GATE_TAIL,
+             approach_gate_trigger="open",
+             approach_gate_horizon=DEFAULT_APPROACH_GATE_HORIZON,
+             ground_compare=False,
+             grasp_fallback_frames=DEFAULT_GRASP_FALLBACK_FRAMES,
+             unclear_wrist_decides=False):
     """Slide a `win`-frame window across the WHOLE run, one two-pass check per step.
 
     Runs the two-pass identify->compare on every window and prints a per-window
@@ -887,6 +1360,17 @@ def run_scan(model, processor, prompts, source: ClipSource, sub_task,
     wrong grasp: grabbing the WRONG object gives match=no and STOPs BEFORE commit ever
     latches (commit needs match=yes). Pass grasp_memory=False to disable the commit
     and run the two-pass on every window (ablation).
+
+    GRASP-IMMINENT gate (`grasp_imminent_margin` > 0, default off): the VLM is asked
+    only while the queued action chunk plans to close the still-open gripper on its
+    first grasp (see DEFAULT_GRASP_IMMINENT_MARGIN); every other window is GATED. It
+    replaces the start/still/pixel motion gate. Falls back to that gate when the run
+    has no joint or plan data.
+
+    GRASP-VERIFY (`grasp_verify`, default off): a STOP is confirmed on the grasp
+    itself before it is acted on (see HELD_PROBE_OBJECTS). Vetoed STOPs are logged as
+    'VETOED' and commit the grasp. Offline the probe always uses the first-close frames
+    of the run (the live system would pause at the close and look then).
     """
     n = len(source.clip)
     if n < win:
@@ -900,8 +1384,30 @@ def run_scan(model, processor, prompts, source: ClipSource, sub_task,
     print(f"Sub-task: \"{sub_task}\"  |  "
           f"{'stop-on-STOP' if stop_on_stop else 'full pass'}  |  "
           f"grasp commit {'on' if grasp_memory else 'off'}")
+    imminent = (grasp_imminent_windows(source, starts, win, grasp_imminent_margin)
+                if grasp_imminent_margin > 0 else None)
+    if imminent is None and (approach_gate_margin > 0
+                             or approach_gate_trigger in ("close", "grasp")):
+        imminent = approach_gate_windows(source, starts, win, approach_gate_margin,
+                                         approach_gate_tail, approach_gate_trigger,
+                                         approach_gate_horizon, grasp_fallback_frames)
+        detail = (f"close within {approach_gate_horizon} steps" if approach_gate_trigger == "close"
+                  else "single check at the grasp" if approach_gate_trigger == "grasp"
+                  else f"opening margin {approach_gate_margin:g}")
+        print("Approach gate: " + (f"on ({detail}, tail {approach_gate_tail})"
+                                   if imminent is not None else
+                                   "requested but no joint/plan data — motion gate used"))
+    use_imminent = imminent is not None
+    if grasp_imminent_margin > 0:
+        print("Grasp-imminent gate: " + (
+            f"on (margin {grasp_imminent_margin:g}, open ≥ {GRIPPER_OPEN_MIN:g})"
+            if use_imminent else "requested but no joint/plan data — motion gate used"))
     print(f"{'#'*60}")
 
+    verify_close = first_grasp_close(source) if grasp_verify else None
+    verify_cache = None   # (held, answers) — probed once per run
+    grounded = None       # sub-task object grounded on the initial scene (once per run)
+    inventory = None      # scene vocabulary (inventory mode), built once per run
     timeline = []
     committed = False     # confirmed the right object is grasped -> retire the check
     held_object = None    # what the gripper was confirmed to pick up (for logging)
@@ -937,14 +1443,172 @@ def run_scan(model, processor, prompts, source: ClipSource, sub_task,
             timeline.append((span, "CONTINUE", f"committed to '{held_object}'", "held"))
             continue
 
+        gates = dict(motion_thresh=motion_thresh, start_thresh=start_thresh,
+                     still_thresh=still_thresh)
+        if use_imminent:
+            is_open, why = imminent[k]
+            print(f"  [{'imminent' if grasp_imminent_margin > 0 else 'approach'} gate] {why} — "
+                  + ("asking the VLM." if is_open else "skipping VLM, CONTINUE."))
+            if not is_open:
+                timeline.append((span, "GATED", f"queue-gated: {why}", "reach"))
+                continue
+            # The queue already says the arm is reaching to grasp; the motion gate
+            # would only block this window (e.g. near-start distance), so disable it.
+            gates = dict(motion_thresh=0, start_thresh=0, still_thresh=0)
+
+        # GROUND-COMPARE: resolve the sub-task's object on the initial scene once, at the
+        # first reach check, and give pass 2 that object (the verify reuses it).
+        target_object = None
+        if ground_compare and grasp_verify_match in ("scene", "inventory") \
+                and source.initial is not None:
+            if grasp_verify_match == "inventory" and inventory is None:
+                inventory = scene_inventory(model, processor, source.initial, temperature)
+                print("  [ground] scene inventory: "
+                      + "; ".join(f"{o['name']} ({o['appearance']})" for o in inventory))
+            g_vocab = ([o["name"] for o in inventory] if grasp_verify_match == "inventory"
+                       else list(HELD_PROBE_OBJECTS))
+            if grounded is None and g_vocab:
+                raw = match_task_object(model, processor, source.initial, sub_task,
+                                        objects=g_vocab, temperature=temperature)["object"]
+                grounded = raw if raw in ("none", "ambiguous") else (match_name(raw, g_vocab) or raw)
+                print(f"  [ground] sub-task object grounded on initial scene: '{grounded}'")
+            if grounded in g_vocab:
+                target_object = grounded
+
         verdict = run_check(model, processor, prompts, win_src, sub_task,
-                            temperature, fps=fps, motion_thresh=motion_thresh,
-                            start_thresh=start_thresh, still_thresh=still_thresh,
-                            gripper_closed=win_gripper_closed)
+                            temperature, fps=fps, gripper_closed=win_gripper_closed,
+                            target_object=target_object, **gates)
         raw_action = str(verdict.get("action", "?")).upper() if verdict else "PARSE_FAIL"
         gated = bool(verdict) and "motion" in verdict and \
             str(verdict.get("reaching_for", "")).startswith("none (arm not moving)")
         action = "GATED" if gated else raw_action
+
+        # UNCLEAR -> WRIST DECIDES (grasp trigger only): the single look-back check at the
+        # grasp often cannot resolve the reach (jaws over the object, neighbours in view).
+        # Then the wrist probe on the close frames decides: it clearly shows a scene object
+        # that is NOT the grounded target -> STOP (the verify below then confirms it from the
+        # same cached answers); target / blind / inconsistent -> CONTINUE as before.
+        if (unclear_wrist_decides and approach_gate_trigger == "grasp" and use_imminent
+                and grasp_verify and action == "CONTINUE" and verify_close is not None
+                and grasp_verify_match in ("scene", "inventory") and source.initial is not None
+                and str(verdict.get("reaching_for", "")).strip().lower() in _UNDECIDED_REACH):
+            if grasp_verify_match == "inventory" and inventory is None:
+                inventory = scene_inventory(model, processor, source.initial, temperature)
+            u_vocab = ([o["name"] for o in inventory] if grasp_verify_match == "inventory"
+                       else list(HELD_PROBE_OBJECTS))
+            if verify_cache is None:
+                verify_cache = verify_held(
+                    model, processor, source, verify_close, temperature,
+                    choices=inventory if grasp_verify_match == "inventory" else None)
+            u_held, u_answers = verify_cache
+            if grounded is None and u_vocab:
+                raw = match_task_object(model, processor, source.initial, sub_task,
+                                        objects=u_vocab, temperature=temperature)["object"]
+                grounded = raw if raw in ("none", "ambiguous") else (match_name(raw, u_vocab) or raw)
+            u_seen = "/".join(a["object"] for a in u_answers)
+            if u_held in u_vocab and grounded in u_vocab and u_held != grounded:
+                action = "STOP"
+                verdict["action"] = "STOP"
+                verdict["reason"] = (f"[wrist-decided: reach unclear; wrist held '{u_held}' "
+                                     f"({u_seen}), task object '{grounded}'] "
+                                     f"{verdict.get('reason', '')}")
+                print(f"  [unclear->wrist] reach unclear; wrist holds '{u_held}' ({u_seen}) "
+                      f"!= task object '{grounded}' — STOP")
+            else:
+                verdict["reason"] = (f"[wrist: reach unclear; wrist '{u_held}' ({u_seen}), "
+                                     f"task object '{grounded}' — CONTINUE] "
+                                     f"{verdict.get('reason', '')}")
+                print(f"  [unclear->wrist] reach unclear; wrist '{u_held}' ({u_seen}) — CONTINUE")
+
+        if grasp_verify and action == "STOP" and grasp_verify_match == "open":
+            if verify_close is None or source.initial is None:
+                note = "no observed grasp close to verify on"
+            else:
+                if grounded is None:
+                    grounded = describe_task_object(model, processor, source.initial,
+                                                    sub_task, temperature)
+                    print(f"  [grasp verify] open grounding on initial scene: "
+                          f"'{grounded['object']}' [{grounded['appearance']}]")
+                if verify_cache is None:
+                    answers = verify_held_open(model, processor, source, verify_close,
+                                               temperature)
+                    verify_cache = (open_verify_decision(model, processor, sub_task,
+                                                         grounded, answers, temperature),
+                                    answers)
+                (ans, why), answers = verify_cache
+                seen = " / ".join(f"{a['object']} [{a['appearance']}]" for a in answers)
+                if ans == "yes":
+                    print(f"  [grasp verify] wrist at close@{verify_close}: {seen} = target "
+                          f"'{grounded['object']}' — STOP VETOED, committing.")
+                    timeline.append((span, "VETOED",
+                                     f"vetoed: wrist {seen} = target '{grounded['object']}' "
+                                     f"[{grounded['appearance']}]; reach said: "
+                                     f"{verdict.get('reason', '')}", "reach"))
+                    committed, held_object = True, answers[0]["object"]
+                    continue
+                note = (f"open verify {ans}: wrist {seen}; target '{grounded['object']}' "
+                        f"[{grounded['appearance']}] — {why}")
+            print(f"  [grasp verify] STOP stands — {note}.")
+            verdict["reason"] = f"[verify: {note}] {verdict.get('reason', '')}"
+        elif grasp_verify and action == "STOP":
+            if verify_close is None:
+                note = "no observed grasp close to verify on"
+            else:
+                if grasp_verify_match == "inventory" and inventory is None:
+                    inventory = (scene_inventory(model, processor, source.initial, temperature)
+                                 if source.initial is not None else [])
+                    print(f"  [grasp verify] scene inventory: "
+                          + "; ".join(f"{o['name']} ({o['appearance']})" for o in inventory))
+                vocab = ([o["name"] for o in inventory] if grasp_verify_match == "inventory"
+                         else list(HELD_PROBE_OBJECTS))
+                if verify_cache is None:
+                    verify_cache = verify_held(
+                        model, processor, source, verify_close, temperature,
+                        choices=inventory if grasp_verify_match == "inventory" else None)
+                held, answers = verify_cache
+                seen = "/".join(a["object"] for a in answers)
+                if grasp_verify_match in ("scene", "inventory") and grounded is None:
+                    raw = (match_task_object(model, processor, source.initial, sub_task,
+                                             objects=vocab, temperature=temperature)["object"]
+                           if source.initial is not None and vocab else "")
+                    grounded = raw if raw in ("none", "ambiguous") else (match_name(raw, vocab) or raw)
+                    print(f"  [grasp verify] sub-task object grounded on initial scene: "
+                          f"'{grounded}'")
+                scene_match = (grasp_verify_match in ("scene", "inventory")
+                               and grounded in (*vocab, "none"))
+                if held == "unclear":
+                    note = f"wrist blind or inconsistent at close@{verify_close} ({seen})"
+                elif scene_match:
+                    if held == grounded:
+                        print(f"  [grasp verify] wrist at close@{verify_close} holds "
+                              f"'{held}' ({seen}) = grounded target — STOP VETOED, committing.")
+                        timeline.append((span, "VETOED",
+                                         f"vetoed: wrist held '{held}' ({seen}) = task object "
+                                         f"'{grounded}'; reach said: {verdict.get('reason', '')}",
+                                         "reach"))
+                        committed, held_object = True, held
+                        continue
+                    note = (f"wrist held '{held}' ({seen}), task object grounded to "
+                            f"'{grounded}'")
+                else:
+                    cmp_msgs = [
+                        {"role": "system", "content": [{"type": "text", "text": prompts["compare"]}]},
+                        {"role": "user", "content": _compare_content(
+                            sub_task, {"reaching_for": held, "candidates": [held], "held": "yes"})}]
+                    cv = parse_json_object(generate(
+                        model, processor, cmp_msgs, max_new_tokens=MONITOR_MAX_NEW_TOKENS,
+                        temperature=temperature)) or {}
+                    if str(cv.get("action", "")).upper() == "CONTINUE":
+                        print(f"  [grasp verify] wrist at close@{verify_close} holds "
+                              f"'{held}' ({seen}) = target — STOP VETOED, committing.")
+                        timeline.append((span, "VETOED",
+                                         f"vetoed: wrist held '{held}' ({seen}); reach said: "
+                                         f"{verdict.get('reason', '')}", "reach"))
+                        committed, held_object = True, held
+                        continue
+                    note = f"wrist held '{held}' ({seen}), not the target"
+            print(f"  [grasp verify] STOP stands — {note}.")
+            verdict["reason"] = f"[verify: {note}] {verdict.get('reason', '')}"
 
         timeline.append((span, action, verdict.get("reason", "") if verdict else "",
                          "reach"))
@@ -1065,6 +1729,10 @@ Commands:
                       object (retire the check) only once the aperture is this far
                       below the widest opening seen so far (fingers closed on the
                       object). 0 disables. (current: {gclose})
+  /imminent <value>   Grasp-imminent gate for /scan: ask the VLM only while the
+                      queued action chunk plans to close the open gripper by at
+                      least this much (first grasp only). Replaces the motion gate.
+                      0 disables. (current: {imminent})
   /fps <value>        Clip playback fps for video timestamps (current: {fps})
   /jstart <value>     JOINT startup gate: L2 of the current pose from the EPISODE-START
                       pose; below it the arm is still near home -> gate. 0 disables.
@@ -1097,7 +1765,16 @@ def interactive_loop(model, processor, prompts, source,
                      start_thresh=DEFAULT_JOINT_START_THRESH,
                      still_thresh=DEFAULT_JOINT_STILL_THRESH,
                      grasp_close_margin=DEFAULT_GRASP_CLOSE_MARGIN,
-                     wrist_rotate=DEFAULT_WRIST_ROTATE_CCW):
+                     wrist_rotate=DEFAULT_WRIST_ROTATE_CCW,
+                     grasp_imminent_margin=DEFAULT_GRASP_IMMINENT_MARGIN,
+                     grasp_verify=False, grasp_verify_match="scene",
+                     approach_gate_margin=DEFAULT_APPROACH_GATE_MARGIN,
+                     approach_gate_tail=DEFAULT_APPROACH_GATE_TAIL,
+                     approach_gate_trigger="open",
+                     approach_gate_horizon=DEFAULT_APPROACH_GATE_HORIZON,
+                     ground_compare=False,
+                     grasp_fallback_frames=DEFAULT_GRASP_FALLBACK_FRAMES,
+                     unclear_wrist_decides=False):
     print(f"\n{'='*60}")
     print("MONITOR TUNING MODE — model loaded, type a sub-task to run a check.")
     print(f"Source: {source_label(source)}")
@@ -1127,6 +1804,7 @@ def interactive_loop(model, processor, prompts, source,
                 jstill=still_thresh,
                 motion=motion_thresh,
                 gclose=grasp_close_margin,
+                imminent=grasp_imminent_margin,
                 temp=temp,
                 pfile=prompt_file or "none",
             ))
@@ -1156,7 +1834,30 @@ def interactive_loop(model, processor, prompts, source,
             run_scan(model, processor, prompts, source, task, temp,
                      fps=fps, win=clip_window, step=1, motion_thresh=motion_thresh,
                      start_thresh=start_thresh, still_thresh=still_thresh,
-                     grasp_close_margin=grasp_close_margin)
+                     grasp_close_margin=grasp_close_margin,
+                     grasp_imminent_margin=grasp_imminent_margin,
+                     grasp_verify=grasp_verify, grasp_verify_match=grasp_verify_match,
+                     approach_gate_margin=approach_gate_margin,
+                     approach_gate_tail=approach_gate_tail,
+                     approach_gate_trigger=approach_gate_trigger,
+                     approach_gate_horizon=approach_gate_horizon,
+                     ground_compare=ground_compare,
+                     grasp_fallback_frames=grasp_fallback_frames,
+                     unclear_wrist_decides=unclear_wrist_decides)
+
+        elif user_input.startswith("/imminent"):
+            parts = user_input.split(maxsplit=1)
+            if len(parts) == 1:
+                print(f"Grasp-imminent gate is {grasp_imminent_margin} "
+                      f"({'off' if grasp_imminent_margin <= 0 else 'on'}). "
+                      "Set with /imminent <float> (0 disables).")
+                continue
+            try:
+                grasp_imminent_margin = float(parts[1].strip())
+                print(f"Grasp-imminent gate set to {grasp_imminent_margin} "
+                      f"({'off' if grasp_imminent_margin <= 0 else 'on'})")
+            except ValueError:
+                print("Usage: /imminent <float>  (e.g. /imminent 6, or /imminent 0 to disable)")
 
         elif user_input.startswith("/gclose"):
             parts = user_input.split(maxsplit=1)
@@ -1394,6 +2095,64 @@ def main():
              f"(VLM-only commit). Default: {DEFAULT_GRASP_CLOSE_MARGIN}",
     )
     parser.add_argument(
+        "--grasp-verify", action="store_true",
+        help="Hybrid: confirm each STOP on the grasp itself — a wrist-only 'what is "
+             "held' probe at the first gripper close vetoes the STOP when it shows the "
+             "sub-task's target (see HELD_PROBE_OBJECTS).",
+    )
+    parser.add_argument(
+        "--approach-gate-margin", type=float, default=DEFAULT_APPROACH_GATE_MARGIN,
+        help="Approach gate: ask the VLM only from the queued gripper opening (aperture "
+             ">= this above the start) until --approach-gate-tail frames after the first "
+             "grasp close; replaces the motion gate. 0 disables. "
+             f"Default: {DEFAULT_APPROACH_GATE_MARGIN}",
+    )
+    parser.add_argument(
+        "--approach-gate-tail", type=int, default=DEFAULT_APPROACH_GATE_TAIL,
+        help=f"Frames after the first grasp close the approach gate stays open. "
+             f"Default: {DEFAULT_APPROACH_GATE_TAIL}",
+    )
+    parser.add_argument(
+        "--approach-gate-trigger", choices=["open", "close", "grasp"], default="open",
+        help="Approach gate trigger: 'open' = queued gripper opening (needs "
+             "--approach-gate-margin > 0); 'close' = the grasp close queued within "
+             "--approach-gate-horizon steps (enables the gate on its own).",
+    )
+    parser.add_argument(
+        "--unclear-wrist-decides", action="store_true",
+        help="Grasp trigger: when the single look-back check is 'unclear', the wrist probe "
+             "decides (a clearly different scene object -> STOP).",
+    )
+    parser.add_argument(
+        "--grasp-fallback-frames", type=int, default=DEFAULT_GRASP_FALLBACK_FRAMES,
+        help="Grasp trigger: if no close is observed, check once this many frames after "
+             f"the gripper opened. Default: {DEFAULT_GRASP_FALLBACK_FRAMES}",
+    )
+    parser.add_argument(
+        "--approach-gate-horizon", type=int, default=DEFAULT_APPROACH_GATE_HORIZON,
+        help=f"Look-ahead (control steps) for the close trigger. "
+             f"Default: {DEFAULT_APPROACH_GATE_HORIZON}",
+    )
+    parser.add_argument(
+        "--ground-compare", action="store_true",
+        help="Give pass 2 the sub-task's object grounded on the initial scene (per "
+             "--grasp-verify-match: scene list or inventory) instead of the task wording.",
+    )
+    parser.add_argument(
+        "--grasp-verify-match", choices=["scene", "inventory", "text", "open"], default="scene",
+        help="How --grasp-verify decides the wrist's object is the target: 'scene' "
+             "grounds the sub-task's object on the initial scene and compares objects "
+             "(default); 'text' uses the compare pass on the sub-task wording.",
+    )
+    parser.add_argument(
+        "--grasp-imminent-margin", type=float, default=DEFAULT_GRASP_IMMINENT_MARGIN,
+        help="Grasp-imminent gate for --scan / /scan: ask the VLM only while the "
+             "queued action chunk (act_gripper in actions.csv) plans to close the "
+             "still-open gripper by at least this much, on the first grasp only. "
+             "Replaces the start/still/pixel motion gate. 0 disables. "
+             f"Default: {DEFAULT_GRASP_IMMINENT_MARGIN}",
+    )
+    parser.add_argument(
         "--prompt-file", default=None,
         help="Load prompt overrides from this file (editable, reloadable with /reload)",
     )
@@ -1446,7 +2205,17 @@ def main():
                      start_thresh=args.joint_start_thresh,
                      still_thresh=args.joint_still_thresh,
                      grasp_memory=not args.no_grasp_memory,
-                     grasp_close_margin=args.grasp_close_margin)
+                     grasp_close_margin=args.grasp_close_margin,
+                     grasp_imminent_margin=args.grasp_imminent_margin,
+                     grasp_verify=args.grasp_verify,
+                     grasp_verify_match=args.grasp_verify_match,
+                     approach_gate_margin=args.approach_gate_margin,
+                     approach_gate_tail=args.approach_gate_tail,
+                     approach_gate_trigger=args.approach_gate_trigger,
+                     approach_gate_horizon=args.approach_gate_horizon,
+                     ground_compare=args.ground_compare,
+                     grasp_fallback_frames=args.grasp_fallback_frames,
+                     unclear_wrist_decides=args.unclear_wrist_decides)
 
     interactive_loop(model, processor, prompts, source,
                      prompt_file, args.temp, fps=args.fps, clip_window=args.window,
@@ -1454,7 +2223,17 @@ def main():
                      start_thresh=args.joint_start_thresh,
                      still_thresh=args.joint_still_thresh,
                      grasp_close_margin=args.grasp_close_margin,
-                     wrist_rotate=args.wrist_rotate)
+                     wrist_rotate=args.wrist_rotate,
+                     grasp_imminent_margin=args.grasp_imminent_margin,
+                     grasp_verify=args.grasp_verify,
+                     grasp_verify_match=args.grasp_verify_match,
+                     approach_gate_margin=args.approach_gate_margin,
+                     approach_gate_tail=args.approach_gate_tail,
+                     approach_gate_trigger=args.approach_gate_trigger,
+                     approach_gate_horizon=args.approach_gate_horizon,
+                     ground_compare=args.ground_compare,
+                     grasp_fallback_frames=args.grasp_fallback_frames,
+                     unclear_wrist_decides=args.unclear_wrist_decides)
 
 
 if __name__ == "__main__":
