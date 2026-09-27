@@ -55,6 +55,7 @@ import io
 import json
 import logging
 import queue
+import re
 import threading
 import time
 from dataclasses import asdict, dataclass, field
@@ -277,6 +278,24 @@ class TappedClient(LoopRobotClient):
         return out
 
 
+# Inventory entries describing the robot or scene fixtures rather than a pickable object.
+# The inventory prompt already excludes them, but the VLM still lists e.g. "orange device
+# (orange plastic with wires and label 'KUMQUAT')" — the arm — and grounding can then map
+# the task onto it (trial 17). Matched as whole words in the name or appearance; colours
+# are deliberately not used (a real orange object must survive).
+_FIXTURE_RE = re.compile(r"\b(robot\w*|arm|gripper|servo|motor|device|machine|wires?|cables?|"
+                         r"kumquat|tray|container|table|surface)\b", re.IGNORECASE)
+
+
+def split_fixtures(inventory: list[dict]) -> tuple[list[dict], list[dict]]:
+    """(objects, dropped): inventory entries minus robot / fixture entries."""
+    keep, drop = [], []
+    for o in inventory:
+        (drop if _FIXTURE_RE.search(f"{o.get('name', '')} {o.get('appearance', '')}")
+         else keep).append(o)
+    return keep, drop
+
+
 # ---------------------------------------------------------------------------
 # Live monitor: the offline run_scan decision flow, causal
 # ---------------------------------------------------------------------------
@@ -291,8 +310,9 @@ class LiveMonitor:
         self._active = threading.Event()
 
     # -- per-episode state ----------------------------------------------------
-    def start(self, sub_task: str):
+    def start(self, sub_task: str, tag: str | None = None):
         self.sub_task = sub_task
+        self.tag = tag                    # e.g. "trial_022": names the saved freeze frames
         self.front, self.wrist, self.joints, self.meta = [], [], [], []
         self.timeline = []
         self.reach_windows = 0            # two-pass reach checks run (2 VLM calls each)
@@ -306,6 +326,8 @@ class LiveMonitor:
         self.verify_info = {}
         self.stopped = None               # final STOP record
         self.grasp_decided = False        # gate=grasp: the single check has run
+        self.inventory_dropped = []       # inventory entries dropped as robot / fixtures
+        self.freeze_images = []           # saved grasp-freeze frames (paths)
         self.last_check_s = None          # wall time of the latest VLM check
         self.check_started_at = None      # episode time the latest check paused the arm
         self.stale_skipped = 0            # pre-pause frames that did not trigger a check
@@ -572,6 +594,8 @@ class LiveMonitor:
         watch's fresh still frames when given). Then the monitor retires."""
         cfg = self.cfg
         self.grasp_decided = True
+        if fresh is not None:
+            self._save_freeze(fresh)
         src = self._source(max(0, idx - cfg.window + 1), idx + 1)
         self._pause()
         try:
@@ -630,14 +654,40 @@ class LiveMonitor:
         finally:
             self._resume()
 
+    def _save_freeze(self, fresh: dict):
+        """Write the grasp-freeze frames (front + wrist, wrist rotated as the VLM sees it)
+        to <results_dir>/freeze/ for review. Never raises."""
+        if self.freeze_images:
+            return
+        try:
+            out = Path(self.cfg.results_dir) / "freeze"
+            out.mkdir(parents=True, exist_ok=True)
+            tag = self.tag or datetime.now().strftime("%Y%m%d_%H%M%S")
+            for i, f in enumerate(fresh.get("frames", [])):
+                for cam, arr in f.get("frames", {}).items():
+                    im = Image.fromarray(arr).convert("RGB")
+                    if cam == self.cfg.wrist_key and self.cfg.wrist_rotate % 360:
+                        im = im.rotate(self.cfg.wrist_rotate, expand=True)
+                    path = out / f"{tag}_{cam}_{i}.png"
+                    im.save(path)
+                    self.freeze_images.append(str(path))
+            print(f"  [monitor] saved {len(self.freeze_images)} freeze frames to {out}/",
+                  flush=True)
+        except Exception as e:  # noqa: BLE001 - review output must never break a run
+            logging.warning(f"[monitor] could not save freeze frames: {e}")
+
     def _vocab(self) -> list[str]:
         if self.cfg.match == "inventory":
             if self.inventory is None:
-                self.inventory = T.scene_inventory(self.model, self.processor, self.front[0],
-                                                   self.cfg.temperature)
+                raw_inv = T.scene_inventory(self.model, self.processor, self.front[0],
+                                            self.cfg.temperature)
                 self.verify_calls += 1
+                self.inventory, self.inventory_dropped = split_fixtures(raw_inv)
                 print("  [monitor] scene inventory: " + "; ".join(
-                    f"{o['name']} ({o['appearance']})" for o in self.inventory), flush=True)
+                    f"{o['name']} ({o['appearance']})" for o in self.inventory)
+                    + (("  | dropped as robot/fixture: " + "; ".join(
+                        o["name"] for o in self.inventory_dropped)) if self.inventory_dropped else ""),
+                    flush=True)
             return [o["name"] for o in self.inventory]
         return list(self.cfg.objects)
 
@@ -668,6 +718,7 @@ class LiveMonitor:
         try:
             full = self._source()
             if fresh is not None:
+                self._save_freeze(fresh)
                 wr = []
                 for f in fresh["frames"]:
                     im = f["frames"].get(cfg.wrist_key)
@@ -819,7 +870,7 @@ def main_repl(cfg: LiveMonitorConfig):
                 trial_n += 1
                 print(f"\n--- trial {trial_n}: VLA '{vla_task}' | monitor '{vlm_task}' "
                       f"(Enter aborts) ---")
-                monitor.start(vlm_task)
+                monitor.start(vlm_task, tag=f"trial_{trial_n:03d}")
                 t0 = time.time()
                 result = client.run_episode(vla_task, enable_abort_listener=True)
                 monitor.stop()
@@ -848,6 +899,8 @@ def main_repl(cfg: LiveMonitorConfig):
                        "verify_calls": monitor.verify_calls, "n_frames": len(monitor.front),
                        "first_close": monitor.first_close, "gate_open_at": monitor.gate_open_at,
                        "verify": monitor.verify_info, "timeline": monitor.timeline,
+                       "freeze_images": monitor.freeze_images,
+                       "inventory_dropped": monitor.inventory_dropped,
                        "episode": {"dir": str(client._vla_input_dir), **asdict(result)},
                        "wall_s": round(time.time() - t0, 1), "note": note,
                        "config": {k: getattr(cfg, k) for k in (
