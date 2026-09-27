@@ -114,6 +114,12 @@ class LiveMonitorConfig(LoopClientConfig):
     # starves the VLM check — a 2 s check stretched to ~20 s on the robot. One refresh
     # keeps the queue current for the resume.
     pause_refreshes: int = 1
+    # After the monitor resumes the arm, the client's convergence / stall detectors are
+    # held off for this many seconds and the convergence window is cleared. The first
+    # chunk after a long freeze starts very gently (steps < 1.0), which the convergence
+    # detector read as "policy finished" and ended the episode right after a veto
+    # (trial 32: resumed at 53.3 s, 'converged' 0.9 s later with 23 actions queued).
+    post_pause_grace_s: float = 5.0
     # End-of-episode release: after ANY termination (monitor STOP, timeout, convergence,
     # abort) the gripper is opened to this position (gripper.pos is 0-100 % of its
     # calibrated range; the policy opens to ~28-38 when grasping) over release_steps
@@ -171,9 +177,27 @@ class TappedClient(LoopRobotClient):
         super().__init__(config)
         self.monitor_inbox: "queue.Queue | None" = None
         self._pause_sends = 0
+        self._base_grace = config.convergence_grace_period
         # Armed by the monitor while a pre-grasp STOP is pending (see _watch_tick).
         self.grasp_watch: "dict | None" = None
         self._watch_lock = threading.Lock()
+
+    def run_episode(self, task, enable_abort_listener=True):
+        self.config.convergence_grace_period = self._base_grace  # undo any post-pause grace
+        return super().run_episode(task, enable_abort_listener=enable_abort_listener)
+
+    def resume_after_pause(self):
+        """Reopen the execution gate after a monitor freeze, holding off the convergence /
+        stall detectors for post_pause_grace_s (they key on episode time vs the grace
+        period) and clearing the convergence window, so the gentle first actions after a
+        long freeze are not taken as the policy having finished."""
+        start = getattr(self, "_episode_start_perf", None)
+        if start is not None:
+            elapsed = time.perf_counter() - start
+            self.config.convergence_grace_period = max(
+                self._base_grace, elapsed + getattr(self.config, "post_pause_grace_s", 5.0))
+        self._action_history = []
+        self.execution_gate.set()
 
     def send_observation(self, obs):
         # While the monitor holds the arm, send at most `pause_refreshes` observations
@@ -434,7 +458,10 @@ class LiveMonitor:
 
     def _resume(self):
         if self.stopped is None:
-            self.client.execution_gate.set()
+            if hasattr(self.client, "resume_after_pause"):
+                self.client.resume_after_pause()
+            else:
+                self.client.execution_gate.set()
 
     # Timeline entries that ARE a VLM check (the others — COMMIT, RETIRED, FALLBACK — are
     # outcomes/notes of a check and must not read as extra checks).
@@ -963,7 +990,8 @@ def main_repl(cfg: LiveMonitorConfig):
                            "ground_compare", "unclear_wrist_decides", "grasp_fallback_frames",
                            "freeze_stall_eps", "freeze_settle_s", "verify_frame_gap_s",
                            "min_hold_aperture",
-                           "pause_refreshes", "chunk_size_threshold", "pretrained_name_or_path",
+                           "pause_refreshes", "post_pause_grace_s", "chunk_size_threshold",
+                           "pretrained_name_or_path",
                            "temperature", "episode_duration", "vlm_model")}}
                 path = results / f"trial_{trial_n:03d}.json"
                 path.write_text(json.dumps(out, indent=2, default=str))
