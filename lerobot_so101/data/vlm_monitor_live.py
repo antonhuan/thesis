@@ -139,6 +139,12 @@ class LiveMonitorConfig(LoopClientConfig):
     gripper_open_pos: float = 40.0
     release_steps: int = 15
     release_dwell_s: float = 0.5
+    # After the release, lift away before homing so the object is left behind: the
+    # shoulder-lift joint moves this many degrees TOWARD its home value (raises the arm and
+    # draws it back; never past home) over release_lift_steps, other joints held, gripper
+    # kept open. 0 disables.
+    release_lift_deg: float = 20.0
+    release_lift_steps: int = 15
     results_dir: str = "live_monitor_trials"
     # Episodes are saved in the offline format here (frames + actions.csv).
     vla_input_dir: str = "live_monitor_trials/episodes"
@@ -273,10 +279,33 @@ class TappedClient(LoopRobotClient):
             time.sleep(cfg.home_step_dt)
         time.sleep(cfg.release_dwell_s)
 
+    def lift_away(self):
+        """Raise the arm in place after the release (gripper stays open), so the object
+        is left on the table before homing: the shoulder-lift joint moves up to
+        release_lift_deg toward its home value, other joints held."""
+        cfg = self.config
+        if cfg.release_lift_deg <= 0:
+            return
+        lift = next((k for k in self.robot.action_features
+                     if k.split(".")[0] == "shoulder_lift"), None)
+        if lift is None or lift not in self.home_position:
+            self.logger.warning("No shoulder_lift joint / home value; skipping lift-away.")
+            return
+        current = self._capture_current_position()
+        start, home = current.get(lift, 0.0), self.home_position[lift]
+        delta = max(-cfg.release_lift_deg, min(cfg.release_lift_deg, home - start))
+        self.logger.info(f"Lifting away: {lift} {start:.1f} -> {start + delta:.1f}")
+        for step in range(1, cfg.release_lift_steps + 1):
+            target = dict(current)
+            target[lift] = start + step / cfg.release_lift_steps * delta
+            self.robot.send_action(target)
+            time.sleep(cfg.home_step_dt)
+
     def release_and_home(self):
-        """End-of-episode sequence: open the gripper, then return to home."""
+        """End-of-episode sequence: open the gripper, lift away, then return home."""
         self.execution_gate.set()
         self.release_gripper()
+        self.lift_away()
         self.go_home()
 
     def queued_gripper(self, horizon: int) -> list[float]:
@@ -811,9 +840,9 @@ HELP = """Commands:
   /gate grasp|close|distance   /horizon <steps>   /tail <frames>
   /unclear on|off    (grasp gate: the wrist decides when the look-back check is unclear)
   /verify on|off     /match scene|inventory   /objects a, b, c   /ground on|off
-  /duration <s>      /home     /release (open gripper, then home)
+  /duration <s>      /home     /release (open gripper, lift away, then home)
   /config     /stats     /help     /quit
-  (every episode ends with: open gripper -> home)"""
+  (every episode ends with: open gripper -> lift away -> home)"""
 
 
 def main_repl(cfg: LiveMonitorConfig):
