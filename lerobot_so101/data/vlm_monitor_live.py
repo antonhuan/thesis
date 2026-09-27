@@ -364,12 +364,19 @@ class LiveMonitor:
         if self.stopped is None:
             self.client.execution_gate.set()
 
+    # Timeline entries that ARE a VLM check (the others — COMMIT, RETIRED, FALLBACK — are
+    # outcomes/notes of a check and must not read as extra checks).
+    _CHECK_ACTIONS = {"CONTINUE", "STOP", "SUSPECT", "UNCLEAR", "VETOED", "PARSE_FAIL"}
+
     def _log(self, idx, action, reason, **extra):
+        is_check = action in self._CHECK_ACTIONS
         rec = {"frame": idx, "t": round(self.meta[idx]["elapsed"], 2), "action": action,
-               "reason": reason, "check_s": getattr(self, "last_check_s", None), **extra}
+               "reason": reason,
+               "check_s": getattr(self, "last_check_s", None) if is_check else None, **extra}
         self.timeline.append(rec)
-        print(f"  [monitor] frame {idx:3d} t={rec['t']:5.1f}s  {action:9s} "
-              f"(check {rec['check_s']}s) {reason[:150]}", flush=True)
+        took = f"(check {rec['check_s']}s) " if is_check else ""
+        print(f"  [monitor] frame {idx:3d} t={rec['t']:5.1f}s  {action:9s} {took}{reason[:150]}",
+              flush=True)
 
     def _do_stop(self, idx, reason, verify_note):
         self.stopped = {"frame": idx, "t": round(self.meta[idx]["elapsed"], 2),
