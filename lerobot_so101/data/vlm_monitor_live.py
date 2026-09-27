@@ -470,8 +470,12 @@ class LiveMonitor:
         if self.first_close is None:
             c = T.first_grasp_close(self._source())
             if c is not None:
+                # Still recorded after the monitor retires (saved as first_close for
+                # comparison with offline), but only printed while the monitor is active:
+                # with gate=grasp the per-tick watch has usually caught the grasp already.
                 self.first_close = c
-                print(f"  [monitor] first grasp close observed at frame {c}", flush=True)
+                if not (self.grasp_decided or self.committed or self.stopped):
+                    print(f"  [monitor] first grasp close observed at frame {c}", flush=True)
 
     def _step(self, idx: int):
         cfg = self.cfg
