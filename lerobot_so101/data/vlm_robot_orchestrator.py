@@ -10,14 +10,15 @@
 #        |
 #        v
 #   [VLA: policy server + LoopRobotClient]  -- one episode per sub-task
-#        |
+#        |      [VLM monitor: at the grasp, is the arm going for the RIGHT object?
+#        |       (vlm_monitor_live.LiveMonitor) -- STOP ends the episode]
 #        v
 #   [VLM: success evaluation]  -- retry on failure, replan if retries exhausted
 #        |
 #        v
 #   [VLM: final whole-task evaluation]  -- if it judges the high-level prompt
-#        incomplete, decompose again against the current scene and run the whole
-#        loop over (up to --max_final_retries rounds)
+#        incomplete, plan again over the objects its scene survey found not yet
+#        on the tray and run the whole loop over (up to --max_final_retries rounds)
 #
 # Usage:
 #   Terminal 1 (policy server, stays running):
@@ -29,7 +30,7 @@
 #     python vlm_robot_orchestrator.py \
 #       --robot.type=so101_follower \
 #       --robot.port=/dev/ttyACM0 \
-#       --robot.cameras="{ front: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30} }" \
+#       --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, front: {type: intelrealsense, serial_number_or_name: 342222071104, width: 640, height: 480, fps: 30}}" \
 #       --task="idle" \
 #       --server_address=127.0.0.1:8080 \
 #       --policy_type=smolvla \
@@ -37,8 +38,8 @@
 #       --policy_device=cuda \
 #       --actions_per_chunk=50 \
 #       --chunk_size_threshold=0.7 \
-#       --episode_duration=30 \
-#       --vlm_model=Qwen/Qwen3-VL-4B-Instruct \
+#       --episode_duration=100 \
+#       --vlm_model=Qwen/Qwen3-VL-8B-Instruct \
 #       --evaluate_subtasks=true \
 #       --vlm_eval_use_video=true \
 #       --vlm_eval_num_frames=16 \
@@ -55,8 +56,10 @@
 # VLM replans the remaining sequence given the current scene state.
 #
 # Once the queue empties, the VLM judges the ORIGINAL instruction against the
-# final scene. If that verdict is a failure, the prompt is decomposed again —
-# against the current scene, with the evaluator's reason as context — and the
+# final scene. If that verdict is a failure, the prompt is planned again — over
+# only the objects the final evaluation's scene survey found not yet on the tray,
+# with the evaluator's reason and the verified-completed sub-tasks as context
+# (--targeted_retry_decompose; stops if the survey finds nothing left) — and the
 # whole queue/execute/evaluate loop runs again, for up to --max_final_retries
 # extra rounds. All rounds of one prompt share a single task folder and log.
 #
@@ -92,11 +95,13 @@ import draccus
 
 from robot_client_loop import LoopClientConfig, LoopRobotClient
 from vlm_core import generate, load_model
+from vlm_monitor_live import LiveMonitor, MonitorSettings, TappedClient
 from vlm import (
     DECOMPOSITION_SYSTEM_PROMPT,
     REFINEMENT_SYSTEM_PROMPT,
     identify_objects,
     survey_scene,
+    survey_scene_change,
     decompose_from_objects,
 )
 from datetime import datetime
@@ -105,19 +110,31 @@ from datetime import datetime
 # Config: extends the loop client config with VLM parameters
 # ---------------------------------------------------------------------------
 @dataclass
-class OrchestratorConfig(LoopClientConfig):
+class OrchestratorConfig(MonitorSettings, LoopClientConfig):
     # Keep one actions.log per high-level task (written beside task.log by
     # run_task via start_action_log), which parse_episodes.py splits by episode
     # markers -- rather than one per VLA episode directory.
     action_log_per_episode: bool = True
     # HuggingFace model name or local path for the VLM planner
-    vlm_model: str = "Qwen/Qwen3-VL-4B-Instruct"
+    vlm_model: str = "Qwen/Qwen3-VL-8B-Instruct"
     # Sampling temperature for VLM generation
     vlm_temperature: float = 0.1
     # Split decomposition into two model calls against the same frame:
     # (1) identify visible objects, then (2) decompose given that object list.
     # Set false to use the single-call DECOMPOSITION_SYSTEM_PROMPT instead.
     vlm_two_pass_decompose: bool = True
+    # Re-ask the planner once when it lists an object in allowed_objects but gives
+    # it no sub-task. Off by default: on first-round plans it never recovered a
+    # dropped object and turned every count-limited instruction ("put one object
+    # on the tray") into moving everything (see vlm_decompose_test.py).
+    vlm_reask_uncovered: bool = False
+    # Two-pass decompose: the identified objects reach the planner the way a targeted
+    # retry round's do — fixtures (SURVEY_FIXTURE_WORDS: the arm, its wires and label,
+    # ...) removed, the tray and table kept as destinations — and any sub-task that would
+    # move a fixture is dropped. The identify prompt already says the arm is not an
+    # object; on the decompose test it still drew 27 "put the robot arm/wire on the
+    # tray" sub-tasks in 195 cases.
+    vlm_filter_fixtures: bool = True
     # Use the dedicated top-down RealSense D435 for VLM input.
     # If false (or the camera fails to start), falls back to the robot's own
     # camera observation, then to text-only.
@@ -134,6 +151,30 @@ class OrchestratorConfig(LoopClientConfig):
     # queue -> execute -> evaluate loop runs again. 0 disables the behaviour
     # (final eval stays log-only). Requires evaluate_final.
     max_final_retries: int = 1
+    # Judge the final scene against the scene before the robot started (the round-1
+    # decompose frame): a BEFORE/AFTER survey names every object from the start state
+    # (so stacked and hidden objects keep their row), stacks are resolved in code, a
+    # call that sees only the instruction, the object names and the BEFORE frame —
+    # never the final locations — decides which objects must / must not end on the
+    # tray, and code compares. False keeps the single-image survey -> judge path.
+    # Measured on the 200-case vlm_final_eval_test sample: 0.71 -> 0.90 correct.
+    final_eval_before_after: bool = True
+    # When the arm did not move (no_movement), check before the sub-task evaluator
+    # whether the sub-task's object already rests on the tray: the same BEFORE/AFTER
+    # survey (the clip's first and last frames, no instruction), stacks resolved in
+    # code, the requirements call to pick out the object the sub-task means, code
+    # decides. If it is on the tray the sub-task counts as done and the evaluator is
+    # skipped — the evaluator fails such an attempt as "the arm did not move". Only on
+    # no-movement attempts: run on every attempt, survey misreads (an object beside
+    # the tray, or held over it) became false passes (vlm_subtask_eval_test: 13 vs 5).
+    subtask_done_precheck: bool = True
+    # On a retry round, plan from the final evaluation's scene survey instead of a
+    # fresh identify pass: the planner is handed only the objects the survey found
+    # NOT yet at a destination (plus the destinations), so it re-plans the work
+    # that remains and cannot invent sub-tasks for the robot arm, table or tray.
+    # If the survey finds nothing off a destination, the task stops. Falls back to
+    # a full re-decompose when there is no survey (single-call final eval).
+    targeted_retry_decompose: bool = True
     # Show the evaluator a short video clip of the episode (buffered during
     # execution) instead of a single still frame. Falls back to a still if the
     # clip buffer is empty (e.g. a very short / no-movement episode).
@@ -152,63 +193,27 @@ class OrchestratorConfig(LoopClientConfig):
     # Save every frame sent to the VLM under ./frames/
     save_frames: bool = False
     # Enable the background stdin listener that lets the user skip/replan
-    # mid-execution (Enter/'s' to skip, 'r'+Enter to replan). On by default so
-    # skip works out of the box; pass --enable_interjection=false to disable.
+    # mid-execution (Enter/'s' to skip, 'r'+Enter to replan). Off by default;
+    # pass --enable_interjection=true to enable. 'q'+Enter aborts either way.
     enable_interjection: bool = False
-    # If the peak L2 displacement from the first action stays below this
-    # threshold in a converged episode, the robot effectively did not move
-    # — i.e. the VLA did not understand the instruction.
-    # Real movement produces peak displacements of ~150-220; non-movement ~1-3.
-    no_movement_threshold: float = 10.0
     # --- Vocabulary refinement (closed-loop failure classification) ---
     enable_vocab_refinement: bool = True
-    # --- Continuous VLM monitoring during VLA execution ---
+    # --- VLM monitor during VLA execution (vlm_monitor_live.LiveMonitor) ---
+    # Is the arm going for the RIGHT object? One check per episode at the grasp: the
+    # client freezes the arm the instant the gripper closes on an object, a two-pass
+    # identify -> compare check judges the look-back window over the approach (front +
+    # wrist), and a STOP — or an unclear reach — is confirmed or vetoed by a wrist probe
+    # against the sub-task's object grounded on the episode's first frame. A STOP ends
+    # the episode as a failure (no evaluator call): the same instruction is retried
+    # once, and a second STOP skips the sub-task (no replan). Needs a wrist camera
+    # (`wrist_key`). Its settings (gate, window, verify, match, grasp freeze, release
+    # ...) are inherited from vlm_monitor_live.MonitorSettings, with the defaults
+    # measured on the robot (50 live trials: 92% specificity, 100% recall).
     enable_vlm_monitor: bool = True
-    # Number of frames sampled (evenly in time, across the recent monitor window
-    # `vlm_monitor_window_s`) from the clip buffer for each mid-episode monitor
-    # check, giving the VLM temporal continuity over the recent trajectory.
-    vlm_monitor_num_frames: int = 4
-    # Seconds of recent trajectory each monitor check judges. The monitor samples
-    # only the last `vlm_monitor_window_s` seconds of the episode (not the whole,
-    # growing episode) so its judgement tracks what the arm is doing now rather
-    # than being diluted by old history as the episode lengthens.
-    vlm_monitor_window_s: float = 6.0
-    # Debug: on every monitor check, save the exact frames the monitor saw as an
-    # annotated contact-sheet grid (same layout as the episode recap.png) into the
-    # current task dir. Independent of --save_frames; off by default.
-    vlm_monitor_debug_images: bool = True
-    # Gate VLA execution on the monitor's judgement (propose-verify rhythm): the
-    # arm executes for `vlm_monitor_interval` seconds, then execution is paused
-    # while the VLM inspects the recent frames, resuming on CONTINUE (STOP still
-    # ends the episode). While paused the observation->action-queue pipeline stays
-    # live, so the arm resumes on a queue that reflects the latest observation.
-    # Off by default: the monitor stays interrupt-only. Requires enable_vlm_monitor.
-    vlm_gate_execution: bool = True
-    # Seconds the arm executes (execution gate open) between gated VLM checks.
-    # Only used when vlm_gate_execution is True.
-    vlm_monitor_interval: float = 5.0
-    # After closing the gate, the monitor BLOCKS until a clip frame captured under
-    # the closed gate has actually landed in the buffer, then samples + infers.
-    # Without this the monitor samples the instant the gate closes, but the newest
-    # buffered frame still predates the pause (while the gate is open frames are
-    # buffered only at the queue-drain cadence, and the control loop has not yet
-    # run an iteration under the closed gate); the arm has physically moved past
-    # that frame, so inference judges a scene that lags the arm's actual state.
-    # Waiting for a genuinely fresh frame guarantees the sampled window ends at the
-    # true current, settled state. This value is the TIMEOUT ceiling on that wait:
-    # if no fresh frame lands within it (e.g. the camera pipeline stalled) the
-    # monitor proceeds anyway rather than hanging. Only used when
-    # vlm_gate_execution is True.
-    vlm_monitor_gate_settle_s: float = 1.0
-
-    def __post_init__(self):
-        super().__post_init__()
-        if self.vlm_gate_execution and not self.enable_vlm_monitor:
-            raise ValueError(
-                "vlm_gate_execution requires enable_vlm_monitor=True: the gate is "
-                "opened/closed by the VLM monitor, which is not built when "
-                "enable_vlm_monitor is False."
-            )
+    # Episode timeout. It counts wall time, including the monitor's freezes (the reach
+    # check and the wrist verify hold the arm for ~15-30 s each), so it has to be well
+    # above the VLA's own run time; the live monitor trials used 100 s.
+    episode_duration: float = 100.0
 
 
 # ---------------------------------------------------------------------------
@@ -242,133 +247,6 @@ Example:
 {"success": false, "failure_type": "RETRY", "reason": "The arm reached the banana but the gripper closed on air and did not grasp it."}
 {"success": false, "failure_type": "VOCAB", "reason": "The arm moved aggressively toward the pouch instead of the banana."}
 """
-
-
-# ---------------------------------------------------------------------------
-# System prompt for continuous mid-episode monitoring
-# ---------------------------------------------------------------------------
-MONITOR_SYSTEM_PROMPT = """You are a real-time robot trajectory monitor. You watch a robot arm execute a sub-task and catch it going wrong *before* it finishes on a bad premise. You are NOT the success judge — deciding "did it succeed" is a separate module that fires at the end. Never call the task complete; your only job is "is this going wrong?".
-
-WHAT YOU RECEIVE EACH LOOK
-- The sub-task the arm is attempting.
-- The expected PHASE ARC for this kind of sub-task: the ordered stages a correct
-  attempt passes through. Anomalies are illegal jumps in this arc, not vague
-  "looks off" impressions.
-- A short video clip of the last few seconds. Its frames are in time order:
-  Frame 1 is the EARLIEST, the final frame is the LATEST. Read the direction of
-  motion across the frames — do not treat them as an unordered set.
-- The CURRENT FRAME on its own, in full detail: the single still that shows the
-  scene RIGHT NOW (it is the same moment as the clip's last frame, at higher
-  resolution).
-- A PRIOR ASSESSMENT from your previous look (the phase/status you reported last
-  time). Your last look was the moment just before Frame 1, so it stitches
-  directly onto the first frame of this clip.
-
-GROUND YOUR DESCRIPTION IN THE CURRENT FRAME
-Read `phase`, `object_status` and `gripper_status` off the CURRENT FRAME — it is
-the true present state. Do not describe an averaged or earlier moment from the
-clip. Use the video ONLY to judge the direction of motion and the transition since
-your prior look. Where the current frame is clear, prefer it; name only what you
-can actually see in it (object positions, whether the gripper holds anything),
-never what the sub-task implies should be there.
-
-THE PRIOR IS A HYPOTHESIS TO CHECK, NOT GROUND TRUTH
-Verify it against the frames. If the frames contradict it, believe the frames and
-say so — a grasp you reported "complete" but that actually slipped is exactly the
-fault you exist to catch. If you cannot contradict the prior, threading it makes
-you blind.
-
-VERDICT — binary
-- "CONTINUE": the attempt is progressing legally through the arc, OR you are
-  unsure. Default here.
-- "STOP" (fault): a CLEAR expectation-violation — an illegal transition or
-  sustained wrong-direction motion. STOP preempts the arm, so a spurious STOP
-  aborts a good run. Raise it ONLY on a clear violation, never on momentary
-  ambiguity or a single flickery frame. Prefer to miss a marginal case and let
-  the end-of-task judge catch it over aborting a good run.
-
-WHAT COUNTS AS A FAULT (illegal transitions — make the concern concrete)
-- transit -> approach / object no longer held: dropped or lost grip.
-- repeated grasp -> approach with nothing acquired: failed grasps.
-- place -> transit with the object still held: failed release.
-- arm moving AWAY from the sub-task target for a sustained stretch: drift.
-- committing to the WRONG object (not the one the sub-task names).
-- knocking over / pushing away the target, or erratic motion that could damage.
-
-NOT a fault: slow or indirect reaching, still starting up (little motion yet),
-being mid-grasp or mid-transit, brief ambiguity you cannot resolve.
-
-Scene context: the tray in the scene is the destination ("the tray" always means
-it). The orange arm is part of the setup.
-
-OUTPUT — OBSERVE FIRST, LABEL AFTER
-Return ONLY one JSON object. The field order is deliberate: you must describe what
-you literally see in the CURRENT FRAME *before* you name the phase, and the phase
-must follow from what you described. Do NOT decide the phase first and then
-back-fill the observations to match it.
-{
-  "gripper_visible": "<what the gripper is doing in the CURRENT FRAME: open, or closed on something>",
-  "object_held": "<yes/no — is the target object clamped in the gripper jaws right now? Look at the current frame>",
-  "object_status": "<where the target object is: on the table / in the gripper / on the tray>",
-  "gripper_status": "<open | closed | transitioning>",
-  "last_transition": "<the phase change since your prior look, and whether it was legal>",
-  "phase": "<current stage, using the arc vocab — it MUST be consistent with the fields above>",
-  "concern": "<none, or the specific expectation-violation>",
-  "action": "CONTINUE" or "STOP",
-  "reason": "<brief, concrete evidence from the current frame>"
-}
-
-CONSISTENCY RULES (the phase cannot contradict what you observed)
-- object_held = yes  =>  you are AT LEAST at "grasp", and if the arm is moving the
-  held object you are in "transit". You are NOT in "approach" — approach ends the
-  moment the object is held.
-- gripper closed on the object  =>  the grasp already happened; do not report
-  "approach" or "nothing held".
-- object_held = no AND gripper open AND arm reaching  =>  "approach".
-
-Examples:
-{"gripper_visible": "closed on the pouch", "object_held": "yes", "object_status": "pouch clamped in the gripper, lifted off the table", "gripper_status": "closed", "last_transition": "grasp -> transit (legal)", "phase": "transit", "concern": "none", "action": "CONTINUE", "reason": "Current frame shows the pouch held in the closed gripper and lifting; the grasp is done."}
-{"gripper_visible": "open, descending toward the banana", "object_held": "no", "object_status": "banana on the table under the gripper", "gripper_status": "open", "last_transition": "approach -> approach (legal)", "phase": "approach", "concern": "none", "action": "CONTINUE", "reason": "Open gripper still lowering onto the banana; not yet grasped."}
-{"gripper_visible": "open, empty", "object_held": "no", "object_status": "banana back on the table, short of the tray", "gripper_status": "open", "last_transition": "transit -> approach with object no longer held (illegal: dropped)", "phase": "approach", "concern": "grip lost in transit; banana fell short of the tray", "action": "STOP", "reason": "Prior look reported transit holding the banana, but the current frame shows an empty open gripper and the banana back on the table."}
-"""
-
-
-# Expected phase arcs per primitive. The monitor threads `phase` through these
-# stages, so an anomaly is a concrete illegal jump in the arc rather than a vague
-# "looks off". The arc is chosen from the sub-task text (which primitive it is)
-# and injected into the monitor's user message. Pick-and-place is the default —
-# nearly every sub-task in this setup is "put X on the tray".
-_PHASE_ARCS = {
-    "pick_and_place": (
-        "approach -> grasp -> transit -> place -> retreat",
-        "The arm approaches the target, grasps it (gripper closes on it), carries "
-        "it in transit toward the destination, places it (gripper opens to release "
-        "over the destination), then retreats. Legal progress moves forward through "
-        "these stages; jumping backward (e.g. transit -> approach with the object no "
-        "longer held) is a fault.",
-    ),
-    "wipe": (
-        "in_progress -> covered_region_grew -> (repeat) ",
-        "The arm sweeps across a region; there is no grasp/place/retreat. Legal "
-        "progress is the covered region growing over time. A sustained stall "
-        "(motion stopped with the region not yet covered) is the fault to watch.",
-    ),
-}
-
-
-def monitor_phase_arc(sub_task: str) -> tuple[str, str]:
-    """Pick the expected phase arc (vocab, description) for a sub-task's primitive.
-
-    The primitive is read from the sub-task text: 'wipe'/'clean'/'sweep' select the
-    wipe arc, everything else defaults to pick-and-place (the overwhelming majority
-    of sub-tasks here are "put X on the tray"). Kept deliberately simple — a keyword
-    switch, not a classifier — because the arc only needs to be right at the
-    primitive level.
-    """
-    t = sub_task.lower()
-    if any(w in t for w in ("wipe", "clean", "sweep", "scrub")):
-        return _PHASE_ARCS["wipe"]
-    return _PHASE_ARCS["pick_and_place"]
 
 
 # ---------------------------------------------------------------------------
@@ -620,232 +498,6 @@ class InterjectionManager:
 
 
 # ---------------------------------------------------------------------------
-# Continuous VLM monitoring during VLA execution
-# ---------------------------------------------------------------------------
-class VLMMonitor:
-    """Background thread that periodically asks the VLM whether the robot's
-    trajectory looks correct and interrupts the episode if it doesn't.
-
-    Mirrors the InterjectionManager pattern: sets client.episode_done to
-    cleanly stop the control loop.
-    """
-
-    logger = logging.getLogger("vlm_monitor")
-
-    def __init__(self, client: "LoopRobotClient", planner: "VLMPlanner",
-                 cfg: "OrchestratorConfig", frames: "VLMFrameSource | None" = None):
-        self._client = client
-        self._planner = planner
-        self._cfg = cfg
-        # Frame source, used only to render/save the debug grids (reuses its
-        # _render_clip_recap and per-task output dir); None disables saving.
-        self._frames = frames
-        self._active = threading.Event()
-        self._result: dict | None = None
-        self._result_lock = threading.Lock()
-        self._thread: threading.Thread | None = None
-        self._sub_task = ""
-        self._check_count = 0
-        # The baton: the single threaded state record, overwritten each check and
-        # fed back into the next monitor() call as its prior. None before the first
-        # look of a sub-task. Not an append log — one record, no accumulation.
-        self._state: dict | None = None
-
-    def start(self, sub_task: str):
-        """Call before run_episode. Launches the monitoring daemon."""
-        with self._result_lock:
-            self._result = None
-        self._sub_task = sub_task
-        self._check_count = 0
-        self._state = None
-        self._active.set()
-        self._thread = threading.Thread(target=self._monitor_loop, daemon=True)
-        self._thread.start()
-
-    def stop(self) -> dict | None:
-        """Call after run_episode. Returns the STOP result if the monitor
-        interrupted the episode, else None."""
-        self._active.clear()
-        if self._thread is not None:
-            self._thread.join(timeout=5.0)
-            self._thread = None
-        self.logger.info(f"Monitor completed {self._check_count} check(s) "
-                         f"for '{self._sub_task}'")
-        with self._result_lock:
-            return self._result
-
-    def _sleep_interruptible(self, seconds: float):
-        """Sleep in small increments so we respond quickly to _active.clear()."""
-        waited = 0.0
-        while self._active.is_set() and waited < seconds:
-            time.sleep(0.2)
-            waited += 0.2
-
-    def _wait_for_fresh_frame(self, timeout_s: float) -> bool:
-        """Block until a clip frame captured *after this call* lands in the buffer.
-
-        Called right after closing the execution gate: it ensures the frame the
-        monitor is about to sample reflects the settled current scene, not a
-        pre-pause frame the arm has already moved past. Polls the client's newest
-        buffered-frame timestamp (a perf_counter, same clock) until it advances
-        past the moment of the call, or `timeout_s` elapses (camera stalled — we
-        proceed rather than hang). Returns True if a fresh frame arrived, False on
-        timeout. Responsive to _active.clear() so shutdown is not delayed."""
-        t_gate = time.perf_counter()
-        get_ts = getattr(self._client, "latest_clip_frame_time", None)
-        if get_ts is None:
-            # Older client without the accessor: fall back to a plain settle.
-            self._sleep_interruptible(timeout_s)
-            return False
-        deadline = t_gate + timeout_s
-        while self._active.is_set() and time.perf_counter() < deadline:
-            ts = get_ts()
-            if ts is not None and ts > t_gate:
-                return True
-            time.sleep(0.02)
-        return False
-
-    def _save_debug_grid(self, clip: "list[Image.Image]", span: float,
-                         action: str) -> None:
-        """When --vlm_monitor_debug_images is on, save the exact frames this check
-        saw as an annotated contact-sheet grid (reusing VLMFrameSource's renderer,
-        the same layout as recap.png) into the current task dir. The filename
-        carries the check number and the resulting verdict. Never raises."""
-        if not self._cfg.vlm_monitor_debug_images or self._frames is None:
-            return
-        try:
-            self._frames.task_dir.mkdir(parents=True, exist_ok=True)
-            ts = time.strftime("%Y%m%d_%H%M%S")
-            name = f"monitor_{ts}_chk{self._check_count:03d}_{action}.png"
-            self._frames._render_clip_recap(
-                clip, span, self._frames.task_dir / name)
-            self.logger.info(
-                f"[VLM MONITOR] saved debug grid ({len(clip)} frames): {name}")
-        except Exception as e:  # noqa: BLE001 - debug output must never break a run
-            self.logger.error(f"Failed to save monitor debug grid: {e}")
-
-    def _sample_episode_frames(self, n: int) -> tuple[list[Image.Image], float]:
-        """Get N frames sampled evenly in time across the recent monitor window
-        (`vlm_monitor_window_s`) as PIL images, oldest-first, plus the time span
-        they cover.
-
-        Delegates to the client's even-in-time sampler (the same one the final
-        evaluator uses), but restricted to the recent window so the VLM tracks what
-        the arm is doing now rather than the whole (growing) trajectory. Returns
-        ([], 0.0) if fewer than 2 frames were buffered in the window, so the
-        _monitor_loop guard skips the check cleanly."""
-        arrays, span = self._client.get_episode_clip(
-            n, window_s=self._cfg.vlm_monitor_window_s)
-        frames = [Image.fromarray(arr.astype(np.uint8)) for arr in arrays
-                  if isinstance(arr, np.ndarray) and arr.ndim == 3 and arr.shape[-1] == 3]
-        if len(frames) < 2:
-            return [], 0.0
-        return frames, span
-
-    def _run_check(self) -> str | None:
-        """Sample the recent trajectory and ask the VLM for a verdict.
-
-        Returns the verdict action ("STOP" / "CONTINUE"), or None when there were
-        too few frames to judge. On STOP, records the result under lock (for the
-        orchestrator to consume as the interrupt reason) and sets the client's
-        episode_done to end the episode. Inference errors default to CONTINUE
-        (fail-safe).
-        """
-        clip, span = self._sample_episode_frames(self._cfg.vlm_monitor_num_frames)
-        if len(clip) < 2:
-            return None
-
-        fps = (len(clip) - 1) / span if span > 0 else None
-        try:
-            result = self._planner.monitor(
-                self._sub_task, clip, fps=fps, prior_state=self._state)
-        except Exception as e:
-            self.logger.warning(f"Monitor inference failed ({e}); "
-                                "defaulting to CONTINUE")
-            # Carry the baton forward on an inference error, same as a parse
-            # failure — a transient error must not reset progress to "first look".
-            result = dict(self._state or {})
-            result.update({"action": "CONTINUE",
-                           "reason": f"(inference error) {e}"})
-
-        self._check_count += 1
-        action = result.get("action", "CONTINUE").upper()
-        reason = result.get("reason", "")
-        phase = result.get("phase", "?")
-        concern = result.get("concern", "none")
-        # Overwrite the baton with this look's assessment (drop the verdict fields;
-        # only the progress state is threaded forward as the next call's prior).
-        self._state = {k: result.get(k) for k in
-                       ("phase", "object_status", "gripper_status",
-                        "last_transition", "concern")
-                       if result.get(k) is not None}
-        self._save_debug_grid(clip, span, action)
-
-        if action == "STOP":
-            with self._result_lock:
-                self._result = result
-            self.logger.warning(
-                f"[VLM MONITOR] STOP after {self._check_count} check(s) "
-                f"[phase={phase}]: {concern or reason}")
-            self._client.episode_done.set()
-        else:
-            self.logger.info(
-                f"[VLM MONITOR] CONTINUE (check {self._check_count}) "
-                f"[phase={phase}]: {reason}")
-        return action
-
-    def _monitor_loop(self):
-        grace = self._cfg.convergence_grace_period
-        self._sleep_interruptible(grace)
-        gating = self._cfg.vlm_gate_execution
-
-        # The finally guarantees the gate is left open no matter how the loop
-        # exits (STOP, a manual abort setting episode_done, stop(), or an
-        # unexpected error) so the arm is never stranded paused after the monitor
-        # thread ends.
-        try:
-            while self._active.is_set():
-                if gating:
-                    # Propose-verify: the arm executes freely for the interval
-                    # (gate open), then we hold it while the VLM judges the recent
-                    # window (the queue keeps refreshing during the held inference).
-                    self._sleep_interruptible(self._cfg.vlm_monitor_interval)
-                    if not self._active.is_set():
-                        break
-                    # Gate FIRST, then infer. Close the gate and block until a frame
-                    # captured under the closed gate actually lands before sampling —
-                    # otherwise the sampled window ends on a pre-pause frame and
-                    # inference judges a scene that lags the arm's actual state (see
-                    # vlm_monitor_gate_settle_s).
-                    self._client.execution_gate.clear()
-                    fresh = self._wait_for_fresh_frame(
-                        self._cfg.vlm_monitor_gate_settle_s)
-                    if not self._active.is_set():
-                        break
-                    if not fresh:
-                        self.logger.warning(
-                            "[VLM MONITOR] no fresh frame within "
-                            f"{self._cfg.vlm_monitor_gate_settle_s}s of gating; "
-                            "sampling anyway (frame may lag the arm)")
-                    action = self._run_check()
-                    if action == "STOP":
-                        return  # episode ending; finally reopens the gate
-                    # CONTINUE (or too few frames to judge): resume the arm.
-                    self._client.execution_gate.set()
-                else:
-                    # Interrupt-only monitor: judge back-to-back, never gate.
-                    action = self._run_check()
-                    if action == "STOP":
-                        return
-                    if action is None:
-                        # No frames yet — brief sleep to avoid busy-waiting
-                        time.sleep(0.2)
-        finally:
-            if gating:
-                self._client.execution_gate.set()
-
-
-# ---------------------------------------------------------------------------
 # Output parsing helpers
 # ---------------------------------------------------------------------------
 def _strip_code_fences(text: str) -> str:
@@ -854,6 +506,35 @@ def _strip_code_fences(text: str) -> str:
     text = re.sub(r"^```(?:json)?\s*", "", text)
     text = re.sub(r"\s*```$", "", text)
     return text.strip()
+
+
+def is_fixture(name: str) -> bool:
+    """A name for part of the setup (tray, table, robot arm, wires, label, ...) rather than
+    something to move — SURVEY_FIXTURE_WORDS, as remaining_from_survey uses."""
+    return any(re.search(rf"\b{w}", str(name).lower()) for w in SURVEY_FIXTURE_WORDS)
+
+
+def planner_objects(names: list[str]) -> tuple[list[str], list[str]]:
+    """(objects for the planner, dropped fixture names) from an identified-object list.
+
+    Same shape as a targeted retry round hands the planner (remaining + destinations +
+    ["table"]): fixtures are removed, then the tray(s) and the table come back as
+    destinations, so the arm, its wires or its label can never be planned as objects.
+    """
+    objects = [n for n in names if not is_fixture(n)]
+    trays = [n for n in names if is_fixture(n) and "tray" in str(n).lower()] or ["tray"]
+    dropped = [n for n in names if is_fixture(n) and n not in trays and str(n).lower() != "table"]
+    return objects + trays + ["table"], dropped
+
+
+def drop_fixture_subtasks(tasks: list[str]) -> tuple[list[str], list[str]]:
+    """(kept, dropped): sub-tasks whose moved object is a fixture (the tray, the table, a
+    robot part). The moved object is the text before the destination ("put the tray on
+    the table" -> "put the tray"), so "put the banana on the tray" is kept."""
+    def moved(task: str) -> str:
+        return re.split(r"\s+(?:on|onto|in|into|inside|next to|to)\s+", task.lower(), maxsplit=1)[0]
+    bad = [t for t in tasks if is_fixture(moved(t))]
+    return [t for t in tasks if t not in bad], bad
 
 
 def parse_decomposition(output: str) -> tuple[list[str], dict]:
@@ -930,12 +611,23 @@ class VLMPlanner:
     """Holds the loaded VLM and exposes decompose(), evaluate(), and replan()."""
 
     def __init__(self, model_name: str, temperature: float = 0.7,
-                 eval_fps: float = 2.0, two_pass: bool = True):
+                 eval_fps: float = 2.0, two_pass: bool = True,
+                 reask_uncovered: bool = False, filter_fixtures: bool = True):
         self.model, self.processor = load_model(model_name)
         self.temperature = temperature
         self.eval_fps = eval_fps
         # Two-pass decomposition: identify objects, then decompose given the list.
         self.two_pass = two_pass
+        # Re-ask the planner once when allowed_objects has an object with no
+        # sub-task. Off by default: on first-round plans it never recovered a
+        # dropped object and inflated every count-limited instruction ("put one
+        # object on the tray") into moving everything (vlm_decompose_test, 39
+        # scenes: 79 re-asks, 70 broke a correct plan, 0 clean fixes).
+        self.reask_uncovered = reask_uncovered
+        # Two-pass only: fixtures (SURVEY_FIXTURE_WORDS) leave the identified objects
+        # before planning — the tray and table come back as destinations, as in a
+        # targeted retry — and any sub-task that would move a fixture is dropped.
+        self.filter_fixtures = filter_fixtures
 
     def _user_content(self, frame: Image.Image | None, text: str) -> list[dict]:
         content = []
@@ -954,7 +646,8 @@ class VLMPlanner:
         ]
 
     def decompose(self, prompt: str, frame: Image.Image | None,
-                  extra_context: str = "") -> list[str]:
+                  extra_context: str = "",
+                  objects: list[str] | None = None) -> list[str]:
         """High-level prompt + observation -> ordered list of sub-tasks.
 
         Two-pass (default) identifies the visible objects first, then decomposes
@@ -964,16 +657,28 @@ class VLMPlanner:
 
         `extra_context` is appended after the instruction — used on a re-decompose
         to tell the planner why the previous attempt was judged incomplete.
+
+        `objects`, when given, replaces the identification pass: the planner is
+        told these are the visible objects (a targeted retry round passes the
+        final-eval survey's objects that are not yet at a destination).
         """
         if self.two_pass and frame is not None:
             image_content = [
                 {"type": "text", "text": "[top-down camera]"},
                 {"type": "image", "image": frame},
             ]
-            visible = identify_objects(
-                self.model, self.processor, image_content, self.temperature
-            )
-            logging.info(f"Identified objects ({len(visible)}): {visible}")
+            if objects is not None:
+                visible = list(objects)
+                logging.info(f"Objects given to the planner ({len(visible)}): {visible}")
+            else:
+                visible = identify_objects(
+                    self.model, self.processor, image_content, self.temperature
+                )
+                logging.info(f"Identified objects ({len(visible)}): {visible}")
+                if self.filter_fixtures:
+                    visible, dropped = planner_objects(visible)
+                    if dropped:
+                        logging.info(f"Fixtures removed from the object list: {dropped}")
             output = decompose_from_objects(
                 self.model, self.processor, image_content, prompt, visible,
                 self.temperature, extra_context=extra_context,
@@ -981,12 +686,12 @@ class VLMPlanner:
             logging.debug(f"Raw VLM decomposition output ({len(output)} chars): {output!r}")
             tasks, parsed = parse_decomposition(output)
 
-            # The planner is required to give every object in allowed_objects a
-            # sub-task. When it does not, the plan silently drops real work — so
-            # name the gap and give it one chance to fix it. Re-asking rather
+            # Optional (reask_uncovered): the planner is required to give every
+            # object in allowed_objects a sub-task. When it does not, name the gap
+            # and give it one chance to fix it. Re-asking rather
             # than synthesising "put the X on the tray" keeps destination
             # inference in the model, which arrangement tasks depend on.
-            missing = uncovered_allowed_objects(tasks, parsed)
+            missing = uncovered_allowed_objects(tasks, parsed) if self.reask_uncovered else []
             if missing:
                 logging.warning(
                     f"Decomposition left {len(missing)} allowed object(s) with no "
@@ -1009,6 +714,10 @@ class VLMPlanner:
                         f"Re-ask still left {still_missing} uncovered; proceeding "
                         f"with {len(tasks)} sub-task(s)."
                     )
+            if self.filter_fixtures:
+                tasks, dropped = drop_fixture_subtasks(tasks)
+                if dropped:
+                    logging.warning(f"Dropped sub-task(s) moving a fixture: {dropped}")
             return tasks
         else:
             text = f"\nInstruction: {prompt}"
@@ -1072,112 +781,11 @@ class VLMPlanner:
         logging.debug(f"Raw eval output: {output}")
         return parse_evaluation(output)
 
-    def monitor(
-        self,
-        sub_task: str,
-        clip: "list[Image.Image]",
-        fps: float | None = None,
-        prior_state: dict | None = None,
-    ) -> dict:
-        """Mid-episode trajectory check (the baton recurrence).
-
-        Returns the full threaded state overwritten this look:
-        {'phase', 'object_status', 'gripper_status', 'last_transition',
-         'concern', 'action': 'CONTINUE'|'STOP', 'reason'}. The caller threads the
-        state fields back in as `prior_state` on the next call — one record,
-        overwritten, never an append log.
-
-        `prior_state` is the previous look's assessment, presented to the model as
-        a hypothesis to verify against the frames (it must be able to overturn it).
-        None on the first look of a sub-task.
-
-        Fail-safe: returns CONTINUE on parse failure so a broken check never stops
-        a potentially-good episode.
-        """
-        arc_vocab, arc_desc = monitor_phase_arc(sub_task)
-        n = len(clip)
-        if prior_state:
-            prior_block = (
-                "PRIOR ASSESSMENT (your previous look, the moment just before "
-                "Frame 1). This is very likely STALE — the arm has moved since. It "
-                "is only context for the transition; the CURRENT FRAME overrides it "
-                "in every case of disagreement. Do NOT repeat 'approach' or 'not "
-                "held' from here if the current frame shows the object grasped:\n"
-                f"  phase: {prior_state.get('phase', '?')}\n"
-                f"  object_status: {prior_state.get('object_status', '?')}\n"
-                f"  gripper_status: {prior_state.get('gripper_status', '?')}\n"
-                f"  concern: {prior_state.get('concern', 'none')}\n"
-            )
-        else:
-            prior_block = (
-                "PRIOR ASSESSMENT: none — this is the FIRST look at this sub-task. "
-                "The arm may still be starting up; report the phase you observe and "
-                "default to CONTINUE unless there is already a clear fault.\n"
-            )
-        text = (
-            f'\nThe robot is currently attempting this sub-task: "{sub_task}"\n\n'
-            f"EXPECTED PHASE ARC for this sub-task:\n  {arc_vocab}\n  {arc_desc}\n\n"
-            f"{prior_block}\n"
-            f"The clip has {n} frames in time order: Frame 1 is the earliest, "
-            f"Frame {n} is the latest. Read the direction of motion across them, "
-            "then ground phase/object_status/gripper_status in the CURRENT FRAME "
-            "(shown separately, full detail).\n"
-            "Fill every field of the JSON. Is the attempt progressing legally "
-            "through the arc (CONTINUE), or is there a clear expectation-violation "
-            "(STOP)?"
-        )
-        # Video for motion, plus the latest frame on its own as a full-detail still
-        # so the state fields are grounded in the true present scene rather than a
-        # downsampled/averaged read of the clip.
-        content = [
-            {"type": "text", "text": "[top-down camera, video of the last few seconds]"},
-            {"type": "video", "video": clip, "fps": fps or self.eval_fps},
-            {"type": "text", "text": "[CURRENT FRAME — the scene right now, full detail]"},
-            {"type": "image", "image": clip[-1]},
-            {"type": "text", "text": text},
-        ]
-        messages = [
-            {"role": "system", "content": [{"type": "text", "text": MONITOR_SYSTEM_PROMPT}]},
-            {"role": "user", "content": content},
-        ]
-        output = generate(
-            self.model, self.processor, messages,
-            max_new_tokens=384, temperature=self.temperature,
-        )
-        logging.debug(f"Raw monitor output: {output}")
-        try:
-            parsed = json.loads(_strip_code_fences(output))
-            if isinstance(parsed, dict) and "action" in parsed:
-                return parsed
-        except (json.JSONDecodeError, ValueError):
-            pass
-        # Try extracting JSON substring
-        text = output.strip()
-        start, end = text.find("{"), text.rfind("}")
-        if start != -1 and end > start:
-            try:
-                parsed = json.loads(text[start : end + 1])
-                if isinstance(parsed, dict) and "action" in parsed:
-                    return parsed
-            except (json.JSONDecodeError, ValueError):
-                pass
-        logging.warning(f"Could not parse monitor output — defaulting to CONTINUE: {output}")
-        # Carry the prior phase forward so a single unparseable look does not wipe
-        # the baton (a missing phase would bias the next look toward "first look").
-        return {
-            "phase": (prior_state or {}).get("phase", "unknown"),
-            "object_status": (prior_state or {}).get("object_status", "unknown"),
-            "gripper_status": (prior_state or {}).get("gripper_status", "unknown"),
-            "last_transition": "(parse failure — prior carried forward)",
-            "concern": "none",
-            "action": "CONTINUE",
-            "reason": f"(parse failure) {output[:200]}",
-        }
-
     def evaluate_final(
         self,
         original_prompt: str,
         frame: "Image.Image | None",
+        initial_frame: "Image.Image | None" = None,
     ) -> dict:
         """Final scene + original instruction -> {'success': bool, 'reason': str}.
 
@@ -1191,7 +799,17 @@ class VLMPlanner:
         writes the location it judges against. Falls back to the single-call
         prompt when there is no frame, two-pass is off, or the survey comes back
         empty.
+
+        With `initial_frame` (the scene before the robot started) the BEFORE/AFTER
+        path runs instead — see _evaluate_final_before_after — falling back to the
+        paths above if its survey comes back empty.
         """
+        if self.two_pass and frame is not None and initial_frame is not None:
+            verdict = self._evaluate_final_before_after(original_prompt, frame, initial_frame)
+            if verdict is not None:
+                return verdict
+            logging.warning("BEFORE/AFTER survey returned no rows — falling back to the "
+                            "single-image final evaluation.")
         if self.two_pass and frame is not None:
             image_content = [
                 {"type": "text", "text": "[top-down camera]"},
@@ -1208,7 +826,10 @@ class VLMPlanner:
                 for row in surveyed:
                     logging.info(f"  {row.get('object')} -> {row.get('support')} "
                                  f"({row.get('evidence')})")
-                return self._judge_final(original_prompt, surveyed)
+                verdict = self._judge_final(original_prompt, surveyed)
+                # Handed back so a retry round can plan from what the survey saw.
+                verdict["surveyed"] = surveyed
+                return verdict
             logging.warning(
                 "Final-eval scene survey returned no rows — falling back to the "
                 "single-call final evaluation."
@@ -1227,6 +848,86 @@ class VLMPlanner:
         )
         logging.debug(f"Raw final-eval output: {output}")
         return parse_evaluation(output)
+
+    def _requirements(self, instruction: str, findings: list[dict],
+                      before: "Image.Image") -> dict:
+        """Which listed objects the instruction requires on / off the tray. Sees the
+        instruction, the object names and the BEFORE frame — never where anything ended
+        up. ValueError if the output does not parse."""
+        text = (f"Objects on the table: {json.dumps([f['object'] for f in findings])}"
+                f'\nInstruction: "{instruction}"')
+        content = [
+            {"type": "text", "text": "[BEFORE — the table before the robot started. Use it only "
+                                     "to see what each listed object is (colour, material, kind); "
+                                     "it does not show where anything is now.]"},
+            {"type": "image", "image": before},
+            {"type": "text", "text": text},
+        ]
+        messages = [
+            {"role": "system", "content": [{"type": "text", "text": FINAL_REQUIREMENTS_SYSTEM_PROMPT}]},
+            {"role": "user", "content": content},
+        ]
+        output = generate(self.model, self.processor, messages, temperature=self.temperature)
+        logging.debug(f"Raw requirements output: {output}")
+        return parse_requirements(output)
+
+    def precheck_subtask_done(self, sub_task: str, before: "Image.Image",
+                              after: "Image.Image") -> dict:
+        """Is the sub-task's object on the tray at the end of the attempt?
+
+        BEFORE/AFTER survey of the clip's first and last frames (no instruction), stacks
+        resolved in code, the requirements call on the sub-task text to find which
+        listed object it means, then code checks that object's resolved location.
+        Returns {done, reason, targets, findings, surveyed, requirements}. `done` is
+        False whenever the object cannot be identified — the evaluator then decides.
+        """
+        surveyed = survey_scene_change(self.model, self.processor, before, after,
+                                       self.temperature)
+        out = dict(done=False, targets=[], findings=[], surveyed=surveyed, requirements=None)
+        if not surveyed:
+            return dict(out, reason="survey returned no rows")
+        findings = resolve_findings(surveyed)
+        req = self._requirements(sub_task, findings, before)
+        sets = compare_requirements(req, findings)["sets"]
+        where = {f["object"].lower(): f["support"].split(" (")[0] for f in findings}
+        targets = sets["must_be_on_tray"] + sets["choose_from"]
+        out.update(findings=findings, requirements=req, targets=targets)
+        if not targets:
+            return dict(out, reason=f"no listed object matches the sub-task ({list(where)})")
+        placed = [t for t in targets if where[t] == "tray"]
+        need = sets["choose_count"] if sets["choose_from"] and not sets["must_be_on_tray"] \
+            else len(targets)
+        done = len(placed) >= max(need, 1)
+        return dict(out, done=done,
+                    reason=(f"{', '.join(placed)} already on the tray" if done else
+                            f"{', '.join(f'{t} ({where[t]})' for t in targets)} not on the tray"))
+
+    def _evaluate_final_before_after(self, original_prompt: str, frame: "Image.Image",
+                                     initial_frame: "Image.Image") -> dict | None:
+        """BEFORE/AFTER survey -> stacks resolved in code -> requirements from the
+        instruction + object names + BEFORE frame -> code comparison.
+
+        Returns {success, reason, surveyed, findings, requirements, sets}, or None when
+        the survey has no rows. Raises ValueError if the requirements do not parse
+        (the caller then has no verdict, as for any unparseable final evaluation).
+        """
+        surveyed = survey_scene_change(self.model, self.processor, initial_frame, frame,
+                                       self.temperature)
+        if not surveyed:
+            return None
+        findings = resolve_findings(surveyed)
+        logging.info(f"Final-eval BEFORE/AFTER survey, {len(findings)} object(s):")
+        for f in findings:
+            logging.info(f"  {f['object']}: {f['before']} -> {f['support']}")
+        req = self._requirements(original_prompt, findings, initial_frame)
+        verdict = compare_requirements(req, findings)
+        s = verdict["sets"]
+        logging.info(f"Final-eval requirements: on tray {s['must_be_on_tray']}, off tray "
+                     f"{s['must_not_be_on_tray']}"
+                     + (f", {s['choose_count']} of {s['choose_from']}" if s["choose_from"] else "")
+                     + (f" | unmatched names {s['unmatched']}" if s["unmatched"] else ""))
+        verdict.update(surveyed=surveyed, findings=findings, requirements=req)
+        return verdict
 
     def _judge_final(self, original_prompt: str, located: list[dict]) -> dict:
         """Judging half of the two-pass final evaluation.
@@ -1473,6 +1174,12 @@ class RoundResult:
     # the planner which work is already done instead of re-deriving it from the
     # image alone.
     completed: list[str] = field(default_factory=list)
+    # The final evaluation's scene survey rows ({object, support, evidence});
+    # empty when the single-call final eval ran or the survey came back empty.
+    final_survey: list[dict] = field(default_factory=list)
+    # The scene before the robot started (round 1's decompose frame), handed to every
+    # later round's final evaluation as its BEFORE image.
+    initial_frame: "Image.Image | None" = None
 
 
 # Handed to the planner when re-decomposing after a failed final evaluation.
@@ -1496,6 +1203,200 @@ The objects they name are already at their destinations. Put those objects in co
 NOTHING_COMPLETED_CONTEXT = """
 No sub-task from the previous attempt completed successfully, so treat none of the work as done on that basis. Judge from the image alone which objects, if any, are already at their destination.
 """
+
+
+# Appended to the retry context when a targeted retry round hands the planner the
+# survey's objects instead of a fresh identify pass.
+TARGETED_RETRY_NOTE = """The visible_objects list for this attempt comes from a survey of the current scene. It contains ONLY the objects that are NOT yet at a destination, plus the destinations themselves. Decide which of these objects the original instruction still requires moving, and plan only those. Objects the instruction says to leave go in excluded_objects. If none of them needs moving, return empty allowed_objects and an empty subtasks list — that is a valid answer here."""
+
+
+# Survey rows that name part of the setup rather than something to move. The
+# survey prompt already forbids these, but it still emits them now and then
+# ("pink tray", "orange robot arm", "hand").
+SURVEY_FIXTURE_WORDS = ("tray", "table", "robot", "arm", "gripper", "hand", "wire",
+                        "cable", "label", "surface", "camera", "cord")
+
+
+# ---------------------------------------------------------------------------
+# BEFORE/AFTER final evaluation: requirements from the instruction, compared in code
+# ---------------------------------------------------------------------------
+# The requirements call never sees where anything ended up (only the instruction, the
+# object names and the BEFORE frame). Given the final locations, a judge fits "what
+# was required" to the scene it sees; this split is what stops that.
+FINAL_REQUIREMENTS_SYSTEM_PROMPT = """You decide what a tabletop robot instruction requires. You receive the instruction and the names of the objects on the table. You do NOT see the scene and are not told where anything is — decide only what the instruction asks for.
+
+The tray is the destination: "the tray" and "away" always mean the tray. The robot arm, the table and the tray are not objects.
+
+Sort every listed object into exactly one group:
+- must_be_on_tray: the instruction asks for it to end up on the tray.
+- must_not_be_on_tray: the instruction asks to leave it, skip it, keep it or not touch it — or simply does not ask for it to be moved. An object the instruction does not ask to move must stay off the tray.
+- choose_from, with choose_count: only when the instruction lets the robot choose ("put one object on the tray", "put two of the brown objects on the tray") — the objects it may choose from, and exactly how many it must place.
+
+Rules:
+- Names may differ from the instruction's words: the instruction's "pouch" may be listed as a "brown cylinder" or "brown roll", its "toy" as a "stuffed animal". Match by what each object plausibly is. For words about colour, material or kind ("brown", "soft", "edible", "fruit"), decide from what each named object is.
+- Words about order — first, then, next, last, after, starting with — only describe the order of placement. Ignore order: an object that "goes last" is placed after the others, so it must still end up on the tray.
+- Conditions ("if there is an apple on the table ...") are decided from the list: an object that is not listed is not on the table.
+- Use the names exactly as listed, and put every listed object in exactly one group.
+
+Return ONLY JSON:
+{"must_be_on_tray": ["<name>", ...], "must_not_be_on_tray": ["<name>", ...], "choose_from": ["<name>", ...], "choose_count": <number>}
+
+Examples, for the objects ["apple", "red cup", "banana"]:
+Instruction: "put everything on the tray except the banana"
+{"must_be_on_tray": ["apple", "red cup"], "must_not_be_on_tray": ["banana"], "choose_from": [], "choose_count": 0}
+Instruction: "put one of the red objects on the tray"
+{"must_be_on_tray": [], "must_not_be_on_tray": ["banana"], "choose_from": ["apple", "red cup"], "choose_count": 1}
+Instruction: "put the fruit on the tray, the banana first"
+{"must_be_on_tray": ["apple", "banana"], "must_not_be_on_tray": ["red cup"], "choose_from": [], "choose_count": 0}
+Instruction: "put everything on the tray, but the red cup goes last"
+{"must_be_on_tray": ["apple", "red cup", "banana"], "must_not_be_on_tray": [], "choose_from": [], "choose_count": 0}
+"""
+
+
+def resolve_findings(rows: list[dict]) -> list[dict]:
+    """Survey rows -> {object, before, support} with each support resolved to where the
+    object ends up.
+
+    A support naming another surveyed object (by the same, a shorter or a longer
+    name) is followed down the stack to a surface, so the toy on the banana in the
+    tray becomes "tray (on top of the banana)". One finding per object: a repeated
+    object (the survey sometimes lists BEFORE rows, then AFTER rows) keeps its last row.
+    """
+    names = [str(r.get("object", "")).strip() for r in rows]
+    support = {n.lower(): str(r.get("support", "")).strip().lower()
+               for n, r in zip(names, rows) if n}
+
+    def as_object(sup: str, me: str) -> str | None:
+        if not sup or "tray" in sup or "table" in sup:
+            return None  # a surface, never another object
+        if sup in support and sup != me:
+            return sup
+        hits = [k for k in support if k != me and (sup in k or k in sup)]
+        return max(hits, key=len) if hits else None
+
+    def settle(key: str) -> str:
+        seen = {key}
+        while (under := as_object(support[key], key)) and under not in seen:
+            seen.add(under)
+            key = under
+        sup = support[key]
+        return "tray" if "tray" in sup else "table" if "table" in sup else sup or "unknown"
+
+    findings, last = [], {n.lower(): i for i, n in enumerate(names) if n}
+    for i, (n, r) in enumerate(zip(names, rows)):
+        if not n or last[n.lower()] != i:
+            continue
+        under = as_object(support[n.lower()], n.lower())
+        how = "hidden under" if "hidden" in str(r.get("evidence", "")).lower() else "on top of"
+        findings.append({"object": n, "before": str(r.get("before")),
+                         "support": settle(n.lower()) + (f" ({how} the {under})" if under else "")})
+    return findings
+
+
+def parse_requirements(output: str) -> dict:
+    """The requirements call's JSON object; ValueError if there is none."""
+    text = _strip_code_fences(output)
+    for cand in (text, text[text.find("{"): text.rfind("}") + 1]):
+        try:
+            parsed = json.loads(cand)
+            if isinstance(parsed, dict):
+                return parsed
+        except json.JSONDecodeError:
+            continue
+    raise ValueError(f"Could not parse final-eval requirements from VLM output:\n{output}")
+
+
+def compare_requirements(req: dict, findings: list[dict]) -> dict:
+    """Code verdict: the required sets against the resolved locations.
+
+    Names snap onto the findings (exact, then containment). An object the call listed
+    nowhere must stay off the tray (not asked to move -> leave it). If it listed an
+    object both as allowed and as must-not, the allowed group wins — "put one object"
+    tends to come back with every object in both. Returns {success, reason, sets}.
+    """
+    names = [f["object"] for f in findings]
+    where = {f["object"].lower(): f["support"].split(" (")[0] for f in findings}
+
+    def snap(n: str) -> str | None:
+        n = str(n).strip().lower()
+        if n in where:
+            return n
+        hits = [k for k in where if n and (n in k or k in n)]
+        return max(hits, key=len) if hits else None
+
+    groups, unmatched = {}, []
+    for key in ("must_be_on_tray", "must_not_be_on_tray", "choose_from"):
+        vals = req.get(key) or []
+        if not isinstance(vals, list):
+            raise ValueError(f"requirements field {key} is not a list: {vals!r}")
+        groups[key] = []
+        for v in vals:
+            k = snap(v)
+            (groups[key].append(k) if k else unmatched.append(str(v)))
+    allowed = set(groups["must_be_on_tray"]) | set(groups["choose_from"])
+    groups["must_not_be_on_tray"] = [k for k in groups["must_not_be_on_tray"] if k not in allowed]
+    listed = {k for g in groups.values() for k in g}
+    unlisted = [n for n in names if n.lower() not in listed]
+    groups["must_not_be_on_tray"] += [n.lower() for n in unlisted]
+    count = int(req.get("choose_count") or 0)
+
+    problems = [f"{k} should be on the tray (now: {where[k]})"
+                for k in groups["must_be_on_tray"] if where[k] != "tray"]
+    problems += [f"{k} should not be on the tray" for k in groups["must_not_be_on_tray"]
+                 if where[k] == "tray"]
+    if groups["choose_from"]:
+        placed = [k for k in groups["choose_from"] if where[k] == "tray"]
+        if len(placed) != count:
+            problems.append(f"{len(placed)} of {groups['choose_from']} on the tray, "
+                            f"expected exactly {count}")
+    return {"success": not problems,
+            "reason": "; ".join(problems) or "every object is where the instruction requires",
+            "sets": {**groups, "choose_count": count, "unlisted": unlisted, "unmatched": unmatched}}
+
+
+def remaining_from_survey(rows: list[dict]) -> tuple[list[str], list[str]]:
+    """Split a final-eval survey into (objects not at a destination, destinations).
+
+    Each row names an object and what it rests on. A support that is not itself a
+    surveyed object is a surface or container (table, tray, box). An object counts
+    as placed when its support chain ends on a container other than the table —
+    a banana lying on the pouch that sits in the tray is placed. Everything else
+    still rests on the table (or on something that does) and is returned for the
+    planner to decide on. Fixture rows are dropped.
+    """
+    support = {}
+    for r in rows:
+        name = str(r.get("object", "")).strip()
+        if name and not is_fixture(name):
+            support[name.lower()] = (name, str(r.get("support", "")).strip().lower())
+
+    def as_object(sup: str) -> str:
+        """A support naming a surveyed object, possibly by a shorter or longer
+        name ("pouch" for the "brown pouch" row), resolves to that object."""
+        if sup in support:
+            return sup
+        return next((k for k in support if sup and (sup in k or k in sup)), sup)
+
+    support = {k: (name, as_object(sup)) for k, (name, sup) in support.items()}
+    # "missing" (the BEFORE/AFTER survey's answer for an object it cannot find) is not
+    # a container: that object is not placed.
+    containers = sorted({sup for _, sup in support.values()
+                         if sup and sup not in support and "table" not in sup
+                         and sup not in ("missing", "unknown")})
+
+    def placed(key: str) -> bool:
+        seen = set()
+        while key in support and key not in seen:
+            seen.add(key)
+            key = support[key][1]
+        return bool(key) and key in containers
+
+    remaining = [name for key, (name, _) in support.items() if not placed(key)]
+    # The tray is this setup's fixed destination; an empty tray supports nothing,
+    # so the survey never names it — add it so the planner still has somewhere
+    # to put things.
+    destinations = containers if any("tray" in c for c in containers) else containers + ["tray"]
+    return remaining, destinations
 
 
 def _format_completed_context(completed: list[str]) -> str:
@@ -1529,10 +1430,13 @@ def run_high_level_task(
         retries_left = max(cfg.max_final_retries, 0)
         round_num = 0
         retry_context = ""
+        retry_objects: list[str] | None = None
         # Union of every round's completed sub-tasks, in first-completed order.
         # Accumulated rather than taken from the last round alone so that with
         # --max_final_retries > 1 round 3 still knows what round 1 finished.
         completed_all: list[str] = []
+        # Round 1's decompose frame: the BEFORE image for every round's final eval.
+        initial_frame = None
 
         while True:
             round_num += 1
@@ -1546,7 +1450,10 @@ def run_high_level_task(
             result = _run_high_level_task_body(
                 client, planner, frames, cfg, prompt, interjection, logger,
                 round_num=round_num, retry_context=retry_context,
+                retry_objects=retry_objects, initial_frame=initial_frame,
             )
+            if initial_frame is None:
+                initial_frame = result.initial_frame
 
             if result.stopped:
                 return
@@ -1588,6 +1495,24 @@ def run_high_level_task(
                 reason=reason,
                 completed=_format_completed_context(completed_all),
             )
+            retry_objects = None
+            if cfg.targeted_retry_decompose and result.final_survey:
+                remaining, destinations = remaining_from_survey(result.final_survey)
+                if not remaining:
+                    # The judge says incomplete, but its own survey puts every
+                    # object on a destination: there is nothing to re-plan, and a
+                    # forced plan would only invent work (arm, table, tray).
+                    logger.info(
+                        f"High-level task '{prompt}' judged INCOMPLETE, but the "
+                        f"final-eval survey finds no object off a destination "
+                        f"({destinations}) — nothing to re-plan, stopping. Final "
+                        f"evaluator said: {result.final_reason}"
+                    )
+                    return
+                retry_objects = remaining + destinations + ["table"]
+                retry_context += "\n\n" + TARGETED_RETRY_NOTE
+                logger.info(f"Targeted retry: survey found {remaining} not at a "
+                            f"destination; planning over {retry_objects}.")
             logger.info(f"Carrying {len(completed_all)} completed sub-task(s) into "
                         f"the re-decompose: {completed_all}")
             logger.info(f"Retry context passed to the planner:\n{retry_context}")
@@ -1649,6 +1574,8 @@ def _run_high_level_task_body(
     logger,
     round_num: int = 1,
     retry_context: str = "",
+    retry_objects: list[str] | None = None,
+    initial_frame: "Image.Image | None" = None,
 ) -> RoundResult:
     def abort(where: str):
         """Park the arm and report that the operator abandoned the task."""
@@ -1663,8 +1590,11 @@ def _run_high_level_task_body(
     tag = "decompose" if round_num == 1 else f"decompose_round{round_num}"
     logger.info(f"Decomposing high-level prompt (round {round_num}): '{prompt}'")
     frame = frames.capture(tag=tag)
+    if initial_frame is None:
+        initial_frame = frame  # round 1: the scene before the robot started
     try:
-        subtasks = planner.decompose(prompt, frame, extra_context=retry_context)
+        subtasks = planner.decompose(prompt, frame, extra_context=retry_context,
+                                     objects=retry_objects)
     except ValueError as e:
         logger.error(str(e))
         logger.error("Decomposition failed — skipping this prompt.")
@@ -1710,11 +1640,14 @@ def _run_high_level_task_body(
             logger.info(f"  {i}. {st}")
         return new_queue
 
-    # Create the VLM monitor (reused across subtasks)
-    monitor = (VLMMonitor(client, planner, cfg, frames)
+    # The VLM monitor (reused across sub-tasks); it shares the planner's model.
+    monitor = (LiveMonitor(client, planner.model, planner.processor, cfg,
+                           temperature=planner.temperature,
+                           freeze_dir=frames.task_dir / "monitor_freeze")
                if cfg.enable_vlm_monitor else None)
 
     # 2. Work through the sub-task queue
+    episode_count = 0  # names this round's per-episode monitor records uniquely
     while pending:
         sub_task = pending.pop(0)
         task_num = len(completed) + 1
@@ -1727,6 +1660,8 @@ def _run_high_level_task_body(
         reason = ""  # last failure reason, passed to replan
         current_instruction = sub_task
         vocab_refinement_used = False
+        monitor_stops = 0         # VLM monitor STOPs on this sub-task
+        monitor_skipped = False   # second STOP: the sub-task is skipped, no replan
 
         while attempts_left > 0:
             attempts_left -= 1
@@ -1738,11 +1673,37 @@ def _run_high_level_task_body(
                         f"({attempts_left} retries left)"
                         + (f" [original: '{sub_task}']"
                            if current_instruction != sub_task else ""))
+            episode_count += 1
+            attempt_tag = (f"round{round_num}_ep{episode_count:02d}_task{task_num:02d}"
+                           f"_attempt{(1 + max(cfg.max_retries, 0)) - attempts_left}")
             if monitor is not None:
-                monitor.start(current_instruction)
+                monitor.freeze_dir = frames.task_dir / "monitor_freeze"
+                monitor.start(current_instruction, tag=attempt_tag)
             ep_result = client.run_episode(current_instruction,
                                            enable_abort_listener=False)
-            monitor_result = monitor.stop() if monitor is not None else None
+            monitor_result = None
+            if monitor is not None:
+                monitor.stop()
+                summary = monitor.summary()
+                try:
+                    (frames.task_dir / f"monitor_{attempt_tag}.json").write_text(
+                        json.dumps(summary, indent=2, default=str))
+                except OSError as e:
+                    logger.warning(f"Could not save the monitor record: {e}")
+                if monitor.stopped:
+                    # The reach check's reason plus what the wrist probe saw at the grasp.
+                    monitor_result = {"reason": f"{monitor.stopped['reason']} (wrist check: "
+                                                f"{monitor.stopped['verify']})"}
+                logger.info(f"VLM monitor: {summary['outcome']}"
+                            + (f" — committed to '{monitor.held_object}'"
+                               if monitor.committed else "")
+                            + f" | {monitor.reach_windows} reach check(s), "
+                              f"{monitor.verify_calls} verify call(s)")
+
+            # Open the gripper (an object held when the episode ended is let go here,
+            # not dragged home), lift away, and return home so the arm is out of frame
+            # and the next episode starts from a consistent pose.
+            client.release_and_home()
 
             # --- Interjection check: after episode ---
             itype, _ = interjection.check_and_consume()
@@ -1755,11 +1716,9 @@ def _run_high_level_task_body(
                 reason = "The user skipped this episode."
                 logger.info(f"User skipped sub-task: '{sub_task}' "
                             f"({attempts_left} attempt(s) left)")
-                client.go_home()
                 continue
             elif itype == InterjectionType.REPLAN:
                 logger.info("User requested replan — stopping and replanning...")
-                client.go_home()
                 new_queue = do_replan(sub_task, "The user requested a replan.",
                                       "user_replan")
                 if new_queue is not None:
@@ -1767,11 +1726,7 @@ def _run_high_level_task_body(
                 user_replanned = True
                 break
 
-            # Return home so the arm is out of frame and the next episode
-            # starts from a consistent pose
-            client.go_home()
-
-            # --- Interjection check: after go_home ---
+            # --- Interjection check: after the release and homing ---
             itype, _ = interjection.check_and_consume()
             if itype == InterjectionType.ABORT:
                 abort(f"during sub-task '{sub_task}'")
@@ -1805,26 +1760,36 @@ def _run_high_level_task_body(
                 )
 
             # --- VLM monitor stopped the episode ---
-            # A monitor STOP ends the episode (episode_done) but does NOT skip the
-            # success evaluation: we re-judge the attempt with the monitor's STOP
-            # reason as extra context, so the evaluator's verdict (success /
-            # failure_type) drives the retry/refine/replan logic below.
-            monitor_context = (
-                monitor_result.get("reason", "") if monitor_result is not None else None
-            )
+            # A STOP means the monitor caught the arm going for the wrong object at the
+            # grasp, so the attempt is a known failure and is not sent to the evaluator.
+            # The first STOP retries the same instruction once (even when the normal
+            # retries are used up); a second STOP on the sub-task skips it, with no
+            # label refinement or replan.
             if monitor_result is not None:
-                logger.info(f"VLM monitor stopped the episode: {monitor_context}")
+                monitor_stops += 1
+                reason = monitor_result["reason"]
+                logger.info(f"VLM monitor stopped the episode ({monitor_stops}): {reason}")
+                log_attempt(
+                    logger,
+                    attempt=(1 + max(cfg.max_retries, 0)) - attempts_left,
+                    original_instruction=sub_task,
+                    current_instruction=current_instruction,
+                    success=False,
+                    failure_type="MONITOR_STOP",
+                    reason=reason,
+                    refinement_applied=(current_instruction != sub_task),
+                )
+                if monitor_stops == 1:
+                    attempts_left = max(attempts_left, 1)
+                    logger.info(f"Monitor STOP — retrying '{current_instruction}' once.")
+                    continue
+                logger.warning(f"Second monitor STOP on '{sub_task}' — skipping it.")
+                monitor_skipped = True
+                break
 
             if not cfg.evaluate_subtasks:
-                if monitor_result is not None:
-                    # No success evaluator configured — cannot re-judge; treat the
-                    # monitor interrupt as a plain failure and fall through to retry.
-                    success = False
-                    reason = monitor_context or "VLM monitor triggered early stop"
-                    failure_type = "VLM_INTERRUPT"
-                else:
-                    succeeded = True
-                    break
+                succeeded = True
+                break
             else:
                 # 3. Judge success — from a video clip of the attempt if available,
                 #    otherwise a fresh still frame.
@@ -1852,23 +1817,38 @@ def _run_high_level_task_body(
                     observation = frames.capture(tag=f"eval_task{task_num}")
                     logger.info("Evaluation observation: static image "
                                 "(vlm_eval_use_video disabled).")
-                try:
-                    eval_result = planner.evaluate(current_instruction, observation,
-                                                   fps=clip_fps,
-                                                   extra_context=monitor_context)
-                except ValueError as e:
-                    logger.warning(f"Could not parse VLM evaluation ({e}); "
-                                   "assuming success and moving on.")
-                    succeeded = True
-                    break
-                except Exception as e:
-                    logger.exception(
-                        f"VLM evaluation errored ({e}); abandoning high-level task "
-                        f"'{prompt}' — sub-task success can no longer be verified. "
-                        f"Completed and verified before the failure: {completed}"
-                    )
-                    return RoundResult(stopped=True, planned=len(subtasks),
-                                       completed=list(completed))
+                eval_result = None
+                if (cfg.subtask_done_precheck and no_movement
+                        and isinstance(observation, list) and len(observation) >= 2):
+                    # The arm did not move: is the object already on the tray? Then
+                    # the attempt is done (the evaluator would call it "no attempt").
+                    try:
+                        pre = planner.precheck_subtask_done(
+                            current_instruction, observation[0], observation[-1])
+                        logger.info(f"Sub-task pre-check: done={pre['done']} | {pre['reason']}")
+                        if pre["done"]:
+                            eval_result = {"success": True,
+                                           "reason": f"Pre-check: {pre['reason']}."}
+                    except Exception as e:
+                        logger.warning(f"Sub-task pre-check failed ({e}); running the "
+                                       "evaluator.")
+                if eval_result is None:
+                    try:
+                        eval_result = planner.evaluate(current_instruction, observation,
+                                                       fps=clip_fps)
+                    except ValueError as e:
+                        logger.warning(f"Could not parse VLM evaluation ({e}); "
+                                       "assuming success and moving on.")
+                        succeeded = True
+                        break
+                    except Exception as e:
+                        logger.exception(
+                            f"VLM evaluation errored ({e}); abandoning high-level task "
+                            f"'{prompt}' — sub-task success can no longer be verified. "
+                            f"Completed and verified before the failure: {completed}"
+                        )
+                        return RoundResult(stopped=True, planned=len(subtasks),
+                                           completed=list(completed))
 
                 itype, _ = interjection.check_and_consume()
                 if itype == InterjectionType.ABORT:
@@ -1942,6 +1922,13 @@ def _run_high_level_task_body(
             completed.append(sub_task)
             continue
 
+        # --- Monitor STOPped the sub-task twice ---
+        # Counts as failed (never added to `completed`); no replan.
+        if monitor_skipped:
+            logger.warning(f"Sub-task '{sub_task}' skipped after two monitor STOPs — "
+                           f"counting as failed and moving on.")
+            continue
+
         # --- User skipped the final attempt ---
         # Counts as failed (never added to `completed`) but does not trigger a
         # replan: the user asked to move on, not to revise the plan.
@@ -1976,15 +1963,19 @@ def _run_high_level_task_body(
     #    when the queue empties normally — every abort / early return above skips
     #    this. A failed verdict is returned to the caller, which decomposes the
     #    prompt again and runs another round (up to --max_final_retries).
-    result = RoundResult(planned=len(subtasks), completed=list(completed))
+    result = RoundResult(planned=len(subtasks), completed=list(completed),
+                         initial_frame=initial_frame)
     if cfg.evaluate_final:
         logger.info("Running final evaluation against the original prompt...")
         final_frame = frames.capture(
             tag="final_eval" if round_num == 1 else f"final_eval_round{round_num}"
         )
         try:
-            final = planner.evaluate_final(prompt, final_frame)
+            final = planner.evaluate_final(
+                prompt, final_frame,
+                initial_frame if cfg.final_eval_before_after else None)
             result.final_success = bool(final.get("success"))
+            result.final_survey = final.get("surveyed") or []
             result.final_reason = final.get("reason", "")
             logger.info(f"FINAL VLM judgement for '{prompt}' (round {round_num}): "
                         f"success={result.final_success} | {result.final_reason}")
@@ -2111,7 +2102,14 @@ def main(cfg: OrchestratorConfig):
     logging.info(pformat(asdict(cfg)))
 
     # 1. Robot + policy server (VLA layer)
-    client = LoopRobotClient(cfg)
+    # TappedClient: the base client plus the monitor's frame tap, per-tick grasp
+    # watch, pause throttling and the end-of-episode release.
+    if cfg.enable_vlm_monitor:
+        cfg.log_vla_inputs = True  # the monitor's frame tap relies on the input capture
+        if cfg.wrist_key not in (getattr(cfg.robot, "cameras", None) or {}):
+            logging.warning(f"VLM monitor: no '{cfg.wrist_key}' camera in --robot.cameras — "
+                            "the wrist verify will be blind and its STOPs will stand.")
+    client = TappedClient(cfg)
     if not client.connect_server():
         client.logger.error("Could not connect to policy server. Exiting.")
         client.stop()
@@ -2119,7 +2117,9 @@ def main(cfg: OrchestratorConfig):
     # 2. VLM planner (reasoning layer)
     planner = VLMPlanner(cfg.vlm_model, temperature=cfg.vlm_temperature,
                          eval_fps=cfg.vlm_eval_fps,
-                         two_pass=cfg.vlm_two_pass_decompose)
+                         two_pass=cfg.vlm_two_pass_decompose,
+                         reask_uncovered=cfg.vlm_reask_uncovered,
+                         filter_fixtures=cfg.vlm_filter_fixtures)
     # 3. Frame source for the VLM. session_dir is the per-run root (shared with
     #    the task logs); each high-level task gets its own sub-folder underneath
     #    (see start_task). Frame PNGs are saved only when --save_frames is on.

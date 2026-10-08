@@ -121,6 +121,21 @@ class LoopClientConfig(RobotClientConfig):
     convergence_grace_period: float = 6
     # Seconds with no new actions before declaring a stall (policy stopped sending)
     action_stall_timeout: float = 2.0
+    # If the peak L2 displacement from the first action stays below this
+    # threshold in a converged episode, the robot effectively did not move
+    # — i.e. the VLA did not understand the instruction.
+    # Real movement produces peak displacements of ~150-220; non-movement ~1-3.
+    # Also the "back at the start pose" distance for the home-return stop below.
+    no_movement_threshold: float = 10.0
+    # Home-return stop: once the arm has moved at least this far (L2 from the first
+    # action) AND opened the gripper (a grasp was attempted), the episode ends the
+    # first time an action is back within no_movement_threshold of the first action —
+    # the arm went out and came home. The gripper condition skips the small
+    # out-and-back moves some episodes start with (9 of 302 recorded episodes).
+    # pi05 can sit at home swinging the base for a minute after the task (the run of
+    # 2026-10-08: back at 29.5 s, converged at 87.6 s), and the swing keeps the
+    # convergence and stall checks from firing. Reaches are ~150-220. 0 disables.
+    home_return_excursion: float = 50.0
     # Buffer per-episode camera frames so the VLM can be shown a short video clip
     # of the attempt (used by the evaluation step).
     enable_clip_buffer: bool = True
@@ -189,6 +204,10 @@ class LoopRobotClient:
       5. Returns the arm to home
       6. Goes back to step 3
     """
+
+    # Gripper opening (above the first action's aperture, % of range) that marks a grasp
+    # attempt for the home-return stop; same value as the monitor's GRIPPER_OPEN_MIN.
+    HOME_RETURN_GRIPPER_OPEN = 10.0
 
     prefix = "loop_client"
     logger = get_logger(prefix)
@@ -301,6 +320,8 @@ class LoopRobotClient:
         self._action_history = []
         self._first_action = None
         self._max_displacement = 0.0
+        self._first_gripper = None
+        self._gripper_opened = False
         self._converged = False
         self._total_actions = 0
         self._last_action_time = 0.0
@@ -593,6 +614,8 @@ class LoopRobotClient:
         self._action_history = []
         self._first_action = None
         self._max_displacement = 0.0
+        self._first_gripper = None
+        self._gripper_opened = False
         self._converged = False
         self._total_actions = 0
         self._last_action_time = 0.0
@@ -771,11 +794,33 @@ class LoopRobotClient:
 
                     if self._first_action is None:
                         self._first_action = action_np.copy()
+                    gripper = next((v for k, v in action_dict.items()
+                                    if k.split(".")[0] == "gripper"), None)
+                    if gripper is not None:
+                        if self._first_gripper is None:
+                            self._first_gripper = gripper
+                        if gripper - self._first_gripper >= self.HOME_RETURN_GRIPPER_OPEN:
+                            self._gripper_opened = True
 
                     # Track max displacement from first action
                     displacement = float(np.linalg.norm(action_np - self._first_action))
                     if displacement > self._max_displacement:
                         self._max_displacement = displacement
+
+                    # Home-return stop: out and back to the start pose.
+                    if (self.config.home_return_excursion > 0
+                            and self._gripper_opened
+                            and self._max_displacement >= self.config.home_return_excursion
+                            and displacement < self.config.no_movement_threshold):
+                        self._converged = True
+                        self.logger.info(
+                            f"Arm back at the start pose at {elapsed:.1f}s "
+                            f"(displacement {displacement:.1f} < "
+                            f"{self.config.no_movement_threshold}, after a peak of "
+                            f"{self._max_displacement:.1f}) — ending the episode."
+                        )
+                        self.episode_done.set()
+                        break
 
                     # Rolling window for convergence check
                     self._action_history.append(action_np)

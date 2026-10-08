@@ -1,0 +1,546 @@
+{
+ "help": "Ground truth for vlm_final_eval_test.py: where each object rests in the final-eval frame. tray = inside the tray's rim (possibly on another object that is), table = anywhere else, partial = straddles the rim (cases whose verdict hinges on it are not scored), absent = not in this scene. occluded lists objects whose location is true but not visible in the frame. Labelled by eye from the images on 2026-09-28; verify before trusting the numbers.",
+ "scenes": [
+  {
+   "name": "2026-08-19_03-51-37_01",
+   "path": "runs/run_2026-08-19_03-51-37/01/final_eval_20260819_040001.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-19_04-10-27_01",
+   "path": "runs/run_2026-08-19_04-10-27/01/final_eval_20260819_041612.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": "banana lies along the tray's back rim"
+  },
+  {
+   "name": "2026-08-19_04-21-15_04",
+   "path": "runs/run_2026-08-19_04-21-15/04/final_eval_20260819_043248.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": "pouch end touches the tray rim, body on the table"
+  },
+  {
+   "name": "2026-08-19_04-21-15_07",
+   "path": "runs/run_2026-08-19_04-21-15/07/final_eval_20260819_044038.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "table",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": "toy on the table behind the pouch"
+  },
+  {
+   "name": "2026-08-19_04-21-15_07_r2",
+   "path": "runs/run_2026-08-19_04-21-15/07/final_eval_round2_20260819_044102.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "table",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": "toy on the table behind the pouch"
+  },
+  {
+   "name": "2026-08-19_04-44-51_01",
+   "path": "runs/run_2026-08-19_04-44-51/01/final_eval_20260819_044925.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": "toy lying on the pouch inside the tray"
+  },
+  {
+   "name": "2026-08-19_04-44-51_01_r2",
+   "path": "runs/run_2026-08-19_04-44-51/01/final_eval_round2_20260819_044947.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": "toy lying on the pouch inside the tray"
+  },
+  {
+   "name": "2026-08-19_05-50-13_01",
+   "path": "runs/run_2026-08-19_05-50-13/01/final_eval_20260819_060153.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-19_05-50-13_01_r2",
+   "path": "runs/run_2026-08-19_05-50-13/01/final_eval_round2_20260819_060206.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": "toy overhangs the tray's back rim"
+  },
+  {
+   "name": "2026-08-19_05-50-13_02",
+   "path": "runs/run_2026-08-19_05-50-13/02/final_eval_20260819_060657.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-19_05-50-13_04",
+   "path": "runs/run_2026-08-19_05-50-13/04/final_eval_20260819_061215.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-19_05-50-13_04_r2",
+   "path": "runs/run_2026-08-19_05-50-13/04/final_eval_round2_20260819_061237.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-19_06-31-10_01",
+   "path": "runs/run_2026-08-19_06-31-10/01/final_eval_20260819_063630.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-19_06-57-56_02",
+   "path": "runs/run_2026-08-19_06-57-56/02/final_eval_20260819_070300.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-19_06-57-56_02_r2",
+   "path": "runs/run_2026-08-19_06-57-56/02/final_eval_round2_20260819_070419.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": "pouch across the front of the tray, toy behind it"
+  },
+  {
+   "name": "2026-08-19_07-17-03_01",
+   "path": "runs/run_2026-08-19_07-17-03/01/final_eval_20260819_072113.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-19_07-17-03_01_r2",
+   "path": "runs/run_2026-08-19_07-17-03/01/final_eval_round2_20260819_072213.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "partial"
+   },
+   "occluded": [],
+   "notes": "pouch straddles the tray's left rim"
+  },
+  {
+   "name": "2026-08-20_06-23-01_01",
+   "path": "runs/run_2026-08-20_06-23-01/01/final_eval_20260820_062446.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-20_06-23-01_02",
+   "path": "runs/run_2026-08-20_06-23-01/02/final_eval_20260820_062710.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-20_06-23-01_02_r2",
+   "path": "runs/run_2026-08-20_06-23-01/02/final_eval_round2_20260820_062803.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": "toy on top of the pouch, overhanging the back rim"
+  },
+  {
+   "name": "2026-08-20_06-23-01_03",
+   "path": "runs/run_2026-08-20_06-23-01/03/final_eval_20260820_063507.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-20_06-49-37_01",
+   "path": "runs/run_2026-08-20_06-49-37/01/final_eval_20260820_065224.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-20_07-24-04_01",
+   "path": "runs/run_2026-08-20_07-24-04/01/final_eval_20260820_072547.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-20_07-24-04_01_r2",
+   "path": "runs/run_2026-08-20_07-24-04/01/final_eval_round2_20260820_072636.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-20_07-24-04_03",
+   "path": "runs/run_2026-08-20_07-24-04/03/final_eval_20260820_073310.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": "banana partly under the pouch"
+  },
+  {
+   "name": "2026-08-20_08-03-31_02",
+   "path": "runs/run_2026-08-20_08-03-31/02/final_eval_20260820_080845.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-08-20_08-03-31_03",
+   "path": "runs/run_2026-08-20_08-03-31/03/final_eval_20260820_081142.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": "pouch partly hidden behind the arm"
+  },
+  {
+   "name": "2026-09-02_09-11-20_02",
+   "path": "runs/run_2026-09-02_09-11-20/02/final_eval_20260902_091700.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-09-02_09-41-46_03",
+   "path": "runs/run_2026-09-02_09-41-46/03/final_eval_20260902_095614.png",
+   "locations": {
+    "banana": "table",
+    "toy": "table",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": "operator's hand in frame; banana resting on the pouch; tray empty"
+  },
+  {
+   "name": "2026-09-02_09-41-46_04",
+   "path": "runs/run_2026-09-02_09-41-46/04/final_eval_20260902_095949.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-09-02_10-25-12_01",
+   "path": "runs/run_2026-09-02_10-25-12/01/final_eval_20260902_102938.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-09-02_10-37-10_01",
+   "path": "runs/run_2026-09-02_10-37-10/01/final_eval_20260902_103910.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-09-03_06-00-35_01",
+   "path": "runs/run_2026-09-03_06-00-35/01/final_eval_20260903_060534.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-09-03_06-00-35_01_r2",
+   "path": "runs/run_2026-09-03_06-00-35/01/final_eval_round2_20260903_060551.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-09-03_07-09-01_01",
+   "path": "runs/run_2026-09-03_07-09-01/01/final_eval_20260903_071407.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-09-03_07-09-01_02",
+   "path": "runs/run_2026-09-03_07-09-01/02/final_eval_20260903_072442.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": "toy partly out of frame"
+  },
+  {
+   "name": "2026-09-06_05-50-19_01",
+   "path": "runs/run_2026-09-06_05-50-19/01/final_eval_20260906_055231.png",
+   "locations": {
+    "banana": "absent",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": "two-object run (no banana)"
+  },
+  {
+   "name": "2026-09-06_05-53-28_01",
+   "path": "runs/run_2026-09-06_05-53-28/01/final_eval_20260906_055524.png",
+   "locations": {
+    "banana": "absent",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": "two-object run (no banana)"
+  },
+  {
+   "name": "2026-09-09_02-42-03_01",
+   "path": "runs/run_2026-09-09_02-42-03/01/final_eval_20260909_024803.png",
+   "locations": {
+    "banana": "absent",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": "two-object run (no banana)"
+  },
+  {
+   "name": "2026-09-09_07-16-05_01",
+   "path": "runs/run_2026-09-09_07-16-05/01/final_eval_20260909_071901.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-09-10_02-49-37_01",
+   "path": "runs/run_2026-09-10_02-49-37/01/final_eval_20260910_025356.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-09-10_03-02-18_01",
+   "path": "runs/run_2026-09-10_03-02-18/01/final_eval_20260910_030731.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "partial"
+   },
+   "occluded": [],
+   "notes": "pouch's right end over the tray rim, most of it on the table"
+  },
+  {
+   "name": "2026-09-10_04-41-17_01",
+   "path": "runs/run_2026-09-10_04-41-17/01/final_eval_20260910_044500.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-09-16_08-18-24_01",
+   "path": "runs/run_2026-09-16_08-18-24/01/final_eval_20260916_082307.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-09-16_08-18-24_01_r2",
+   "path": "runs/run_2026-09-16_08-18-24/01/final_eval_round2_20260916_082607.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": "banana under the pouch, only its ends visible"
+  },
+  {
+   "name": "2026-09-16_08-31-16_01",
+   "path": "runs/run_2026-09-16_08-31-16/01/final_eval_20260916_083550.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": "banana on top of the toy"
+  },
+  {
+   "name": "2026-09-16_08-31-16_02",
+   "path": "runs/run_2026-09-16_08-31-16/02/final_eval_20260916_084629.png",
+   "locations": {
+    "banana": "tray",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [
+    "banana"
+   ],
+   "notes": "banana placed first, fully hidden under the pouch/toy"
+  },
+  {
+   "name": "2026-09-17_06-54-19_01",
+   "path": "runs/run_2026-09-17_06-54-19/01/final_eval_20260917_065606.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "table"
+   },
+   "occluded": [],
+   "notes": ""
+  },
+  {
+   "name": "2026-09-17_06-54-19_01_r2",
+   "path": "runs/run_2026-09-17_06-54-19/01/final_eval_round2_20260917_065932.png",
+   "locations": {
+    "banana": "table",
+    "toy": "tray",
+    "pouch": "tray"
+   },
+   "occluded": [],
+   "notes": "toy on top of the pouch"
+  }
+ ]
+}

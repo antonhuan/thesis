@@ -75,13 +75,10 @@ import vlm_monitor_tune as T
 
 
 @dataclass
-class LiveMonitorConfig(LoopClientConfig):
-    vlm_model: str = "Qwen/Qwen3-VL-8B-Instruct"
-    temperature: float = 0.1
-    # Initial task strings (change them in the REPL with /vla, /vlm, /both).
-    vla_task: str = "put the pouch on the tray"
-    vlm_task: str = "put the pouch on the tray"
-    # Monitor settings — defaults are the best offline configuration.
+class MonitorSettings:
+    """Monitor + client settings shared by this REPL and vlm_robot_orchestrator.py (both
+    configs inherit them, so the robot runs the configuration measured here). Defaults
+    are the best live configuration (gate=grasp, match=inventory)."""
     window: int = 4
     gate: str = "grasp"            # grasp (one check per run) | close | distance
     # gate=grasp: stay gated until the grasp, freeze ONCE (per-tick grasp watch), judge the
@@ -133,6 +130,13 @@ class LiveMonitorConfig(LoopClientConfig):
     # verify_frame_gap_s apart) instead of the next chunk frame, which arrives ~1 s later
     # with the object already lifting.
     freeze_stall_eps: float = 0.5
+    # How far (gripper.pos, % of range) the aperture must have come in from its open
+    # peak before the watch freezes the arm. The policy sometimes dips the gripper
+    # mid-approach and reopens it: run 2026-10-08_07-46-25, plush toy, 31.8 -> 25.5
+    # (6.3) at 5.3 s, then reopened to 37 and grasped at ~36 s. Real grasps that day
+    # closed 8.8-27.9 from the peak. (The grasp-commit gate keeps
+    # DEFAULT_GRASP_CLOSE_MARGIN = 6.)
+    freeze_close_margin: float = 8.0
     # A grasp must close ON an object: the stalled aperture has to be at least this far
     # above the episode-start aperture (gripper.pos, % of range). The policy sometimes
     # opens and snaps shut mid-approach (trials 24, 27, 29: closed to 0.5-4.4); that
@@ -151,6 +155,15 @@ class LiveMonitorConfig(LoopClientConfig):
     # kept open. 0 disables.
     release_lift_deg: float = 20.0
     release_lift_steps: int = 15
+
+
+@dataclass
+class LiveMonitorConfig(MonitorSettings, LoopClientConfig):
+    vlm_model: str = "Qwen/Qwen3-VL-8B-Instruct"
+    temperature: float = 0.1
+    # Initial task strings (change them in the REPL with /vla, /vlm, /both).
+    vla_task: str = "put the pouch on the tray"
+    vlm_task: str = "put the pouch on the tray"
     results_dir: str = "live_monitor_trials"
     # Episodes are saved in the offline format here (frames + actions.csv).
     vla_input_dir: str = "live_monitor_trials/episodes"
@@ -243,7 +256,7 @@ class TappedClient(LoopRobotClient):
                 w["peak"] = max(w["peak"], g)
                 w["hist"] = (w["hist"] + [g])[-4:]
                 opened = w["peak"] - w["start"] >= T.GRIPPER_OPEN_MIN
-                closed = g <= w["peak"] - T.DEFAULT_GRASP_CLOSE_MARGIN
+                closed = g <= w["peak"] - cfg.freeze_close_margin
                 stalled = (len(w["hist"]) >= 4
                            and max(w["hist"]) - min(w["hist"]) < cfg.freeze_stall_eps)
                 if opened and closed and stalled and g - w["start"] < cfg.min_hold_aperture:
@@ -372,8 +385,12 @@ def split_fixtures(inventory: list[dict]) -> tuple[list[dict], list[dict]]:
 
 
 class LiveMonitor:
-    def __init__(self, client: TappedClient, model, processor, cfg: LiveMonitorConfig):
+    def __init__(self, client: TappedClient, model, processor, cfg: MonitorSettings,
+                 temperature: float, freeze_dir: "str | Path"):
         self.client, self.model, self.processor, self.cfg = client, model, processor, cfg
+        self.temperature = temperature
+        # Where the grasp-freeze frames are saved (the orchestrator repoints it per task).
+        self.freeze_dir = Path(freeze_dir)
         self.prompts = T.default_prompts()
         self.inbox: queue.Queue = queue.Queue()
         self._thread = None
@@ -413,11 +430,35 @@ class LiveMonitor:
         self._disarm_watch()
         self.client.monitor_inbox = None
         if self._thread is not None:
-            self._thread.join(timeout=30)
+            # Wait for a check in progress to finish (reach + wrist verify can take ~60 s;
+            # the arm stays frozen meanwhile). Giving up early would leave the thread
+            # calling the VLM alongside the next caller, and a late STOP could end the
+            # next episode.
+            waited = 0
+            while self._thread.is_alive():
+                self._thread.join(timeout=10)
+                waited += 10
+                if self._thread.is_alive():
+                    print(f"  [monitor] waiting for the current check to finish ({waited} s)",
+                          flush=True)
+            self._thread = None
         # Pending STOP never verified (episode ended first) -> it stands, unverified.
         if self.pending is not None and self.stopped is None:
             self.stopped = dict(self.pending, verify="unverified: episode ended before the close")
         self.client.execution_gate.set()
+
+    def summary(self) -> dict:
+        """What the monitor decided this episode and why (call after stop())."""
+        return {"monitor_task": self.sub_task,
+                "outcome": "STOP" if self.stopped else "CONTINUE",
+                "stop": self.stopped, "committed": self.committed,
+                "held_object": self.held_object, "reach_windows": self.reach_windows,
+                "stale_skipped": self.stale_skipped, "verify_calls": self.verify_calls,
+                "n_frames": len(self.front), "first_close": self.first_close,
+                "gate_open_at": self.gate_open_at, "verify": self.verify_info,
+                "timeline": self.timeline, "freeze_images": self.freeze_images,
+                "empty_closes": self.empty_closes,
+                "inventory_dropped": self.inventory_dropped}
 
     # -- helpers ----------------------------------------------------------------
     def _source(self, lo: int = 0, hi: int | None = None) -> T.ClipSource:
@@ -481,7 +522,10 @@ class LiveMonitor:
         self.stopped = {"frame": idx, "t": round(self.meta[idx]["elapsed"], 2),
                         "reason": reason, "verify": verify_note}
         self._log(idx, "STOP", f"[verify: {verify_note}] {reason}")
-        self.client.episode_done.set()
+        # Only end the episode while the monitor is attached to it: a STOP decided
+        # after stop() was called is recorded but must not touch the client.
+        if self._active.is_set():
+            self.client.episode_done.set()
 
     # -- main loop --------------------------------------------------------------
     def _loop(self):
@@ -490,6 +534,7 @@ class LiveMonitor:
             if self.pending is not None and w is not None and w.get("ready") \
                     and self.stopped is None:
                 try:
+                    self._drain_inbox()
                     self._verify_and_decide(len(self.front) - 1, self.pending["reason"],
                                             fresh=w)
                 except Exception as e:  # noqa: BLE001
@@ -499,6 +544,10 @@ class LiveMonitor:
             if (self.cfg.gate == "grasp" and not self.grasp_decided and self.pending is None
                     and w is not None and w.get("ready") and self.stopped is None):
                 try:
+                    # Frames that queued up while the monitor was busy must be in the
+                    # history, or the look-back window can be just the first frame and the
+                    # reach check sees no trajectory (run 2026-10-08_07-46-25).
+                    self._drain_inbox()
                     self._single_check(len(self.front) - 1, fresh=w)
                 except Exception as e:  # noqa: BLE001
                     logging.exception(f"[monitor] grasp check error: {e}")
@@ -531,6 +580,15 @@ class LiveMonitor:
             except Exception as e:  # noqa: BLE001 - a monitor error must never strand the arm
                 logging.exception(f"[monitor] error: {e}")
                 self._resume()
+
+    def _drain_inbox(self):
+        """Ingest every frame waiting in the inbox (no check is triggered)."""
+        while True:
+            try:
+                rec = self.inbox.get_nowait()
+            except queue.Empty:
+                return
+            self._ingest(rec)
 
     def _ingest(self, rec):
         front = rec["frames"].get(self.cfg.vlm_camera_key)
@@ -625,7 +683,7 @@ class LiveMonitor:
             t_check = time.perf_counter()
             with contextlib.redirect_stdout(buf):
                 verdict = T.run_check(self.model, self.processor, self.prompts, src,
-                                      self.sub_task, cfg.temperature,
+                                      self.sub_task, self.temperature,
                                       gripper_closed=closed, target_object=target_object,
                                       **gates)
             self.last_check_s = round(time.perf_counter() - t_check, 2)
@@ -685,7 +743,7 @@ class LiveMonitor:
             t_check = time.perf_counter()
             with contextlib.redirect_stdout(buf):
                 verdict = T.run_check(self.model, self.processor, self.prompts, src,
-                                      self.sub_task, cfg.temperature,
+                                      self.sub_task, self.temperature,
                                       gripper_closed=True if (fresh or self.first_close is not None) else None,
                                       target_object=target_object,
                                       motion_thresh=0, start_thresh=0, still_thresh=0)
@@ -737,11 +795,11 @@ class LiveMonitor:
 
     def _save_freeze(self, fresh: dict):
         """Write the grasp-freeze frames (front + wrist, wrist rotated as the VLM sees it)
-        to <results_dir>/freeze/ for review. Never raises."""
+        to freeze_dir for review. Never raises."""
         if self.freeze_images:
             return
         try:
-            out = Path(self.cfg.results_dir) / "freeze"
+            out = self.freeze_dir
             out.mkdir(parents=True, exist_ok=True)
             tag = self.tag or datetime.now().strftime("%Y%m%d_%H%M%S")
             for i, f in enumerate(fresh.get("frames", [])):
@@ -761,7 +819,7 @@ class LiveMonitor:
         if self.cfg.match == "inventory":
             if self.inventory is None:
                 raw_inv = T.scene_inventory(self.model, self.processor, self.front[0],
-                                            self.cfg.temperature)
+                                            self.temperature)
                 self.verify_calls += 1
                 self.inventory, self.inventory_dropped = split_fixtures(raw_inv)
                 print("  [monitor] scene inventory: " + "; ".join(
@@ -779,7 +837,7 @@ class LiveMonitor:
         if self.grounded is None and vocab:
             raw = T.match_task_object(self.model, self.processor, self.front[0],
                                       self.sub_task, objects=vocab,
-                                      temperature=self.cfg.temperature)["object"]
+                                      temperature=self.temperature)["object"]
             self.verify_calls += 1
             self.grounded = raw if raw in ("none", "ambiguous") else (T.match_name(raw, vocab) or raw)
             print(f"  [monitor] sub-task object grounded on initial scene: '{self.grounded}'",
@@ -819,7 +877,7 @@ class LiveMonitor:
                 T.HELD_PROBE_OBJECTS = list(cfg.objects)
                 self.verify_cache = T.verify_held(
                     self.model, self.processor, probe_src,
-                    0 if fresh is not None else c, cfg.temperature,
+                    0 if fresh is not None else c, self.temperature,
                     choices=self.inventory if cfg.match == "inventory" else None)
                 self.verify_calls += 2
             held, answers = self.verify_cache
@@ -883,7 +941,8 @@ def main_repl(cfg: LiveMonitorConfig):
         client.stop()
         return
     model, processor = T.load_model(cfg.vlm_model)
-    monitor = LiveMonitor(client, model, processor, cfg)
+    monitor = LiveMonitor(client, model, processor, cfg, temperature=cfg.temperature,
+                          freeze_dir=results / "freeze")
     vla_task, vlm_task = cfg.vla_task, cfg.vlm_task
     tally = {"correct": [], "wrong": []}
     trial_n = len(list(results.glob("trial_*.json")))
@@ -972,24 +1031,14 @@ def main_repl(cfg: LiveMonitorConfig):
                     print(f"  -> {'OK' if ok else ('FALSE ALARM' if label == 'correct' else 'MISS')}")
                 note = input("Note (optional): ").strip()
                 out = {"trial": trial_n, "time": datetime.now().isoformat(timespec="seconds"),
-                       "vla_task": vla_task, "monitor_task": vlm_task, "label": label,
-                       "outcome": outcome, "stop": monitor.stopped,
-                       "committed": monitor.committed, "held_object": monitor.held_object,
-                       "reach_windows": monitor.reach_windows,
-                       "stale_skipped": monitor.stale_skipped,
-                       "verify_calls": monitor.verify_calls, "n_frames": len(monitor.front),
-                       "first_close": monitor.first_close, "gate_open_at": monitor.gate_open_at,
-                       "verify": monitor.verify_info, "timeline": monitor.timeline,
-                       "freeze_images": monitor.freeze_images,
-                       "empty_closes": monitor.empty_closes,
-                       "inventory_dropped": monitor.inventory_dropped,
+                       "vla_task": vla_task, "label": label, **monitor.summary(),
                        "episode": {"dir": str(client._vla_input_dir), **asdict(result)},
                        "wall_s": round(time.time() - t0, 1), "note": note,
                        "config": {k: getattr(cfg, k) for k in (
                            "gate", "horizon", "tail", "verify", "match", "objects", "window",
                            "ground_compare", "unclear_wrist_decides", "grasp_fallback_frames",
                            "freeze_stall_eps", "freeze_settle_s", "verify_frame_gap_s",
-                           "min_hold_aperture",
+                           "min_hold_aperture", "freeze_close_margin",
                            "pause_refreshes", "post_pause_grace_s", "chunk_size_threshold",
                            "pretrained_name_or_path",
                            "temperature", "episode_duration", "vlm_model")}}

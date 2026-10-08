@@ -468,6 +468,61 @@ def survey_scene(model, processor, image_content,
     return rows
 
 
+# Survey variant for the final evaluation: the scene before the robot started next to
+# the scene now. Objects are named from BEFORE, where they are spread out, so a stack or
+# a hidden object in AFTER still gets a row. Still no instruction, as survey_scene.
+SCENE_CHANGE_SURVEY_SYSTEM_PROMPT = """You are a perception module for an orange tabletop robot arm (SO-101, 6-DOF). You receive two camera observations of the same workspace from the same camera: BEFORE, taken before the robot started, and AFTER, taken now. Your ONLY job is to list every object and report what it was RESTING ON in BEFORE and what it is RESTING ON in AFTER.
+
+You MUST respond in the following JSON format exactly:
+
+{
+  "object_locations": [
+    {"object": "<name>", "before": "<what it rested on in BEFORE>", "evidence": "<what you see in AFTER>", "support": "<what it rests on in AFTER>"}
+  ]
+}
+
+What counts as an object:
+- Find the objects in BEFORE first: they are usually spread out there and easiest to tell apart. Every object in BEFORE gets EXACTLY ONE row, under the name you gave it in BEFORE. Add a row for any object that appears only in AFTER.
+- Surfaces and containers — the table, the tray, a bowl, a box — are SUPPORTS, not objects. Name them in "before" and "support", but never give them a row of their own.
+- The orange robot arm is part of the robot, not an object. Do not give it a row. Ignore any text or label printed on it; that is not an object either.
+- STACKED AND TOUCHING OBJECTS: an object resting ON TOP of another object is a separate object. Give it a row AND give the object beneath it a row. Never merge a stack into one entry.
+- Use simple, concrete names for what you see (e.g. "cup", "banana", "pouch"). If you are unsure what something is, name it by its most obvious visual feature (colour or shape).
+
+How to report where it is in AFTER:
+- Fill in "evidence" BEFORE "support". Describe where the object actually sits in AFTER relative to the tray — inside its rim, touching its edge, or clear of it on the bare table, and roughly which side. Then, and only then, name the support.
+- An object is on the tray ONLY if it lies inside the tray's rim. An object that is beside the tray, in front of it, behind it, or merely near it is on the table, not on the tray.
+- If an object rests on top of another object rather than directly on a surface, name that object as its support.
+- An object from BEFORE that you cannot see in AFTER has most likely ended up underneath another object. Name the object it is most likely hidden under as its support, and say in "evidence" that it is hidden. Only if it cannot be under anything, use "missing" as its support.
+- Report what you SEE. Do not guess where an object ought to be, and do not assume anything has been moved, tidied, or put away.
+
+Examples:
+{"object_locations": [{"object": "apple", "before": "table", "evidence": "sitting inside the tray's rim, in the middle of the tray", "support": "tray"}, {"object": "banana", "before": "table", "evidence": "on the bare table to the left of the tray, not touching it", "support": "table"}]}
+A pouch that was on the table and is now in the tray under a plush toy is two rows, and the toy rests on the pouch:
+{"object_locations": [{"object": "pouch", "before": "table", "evidence": "inside the tray's rim, partly covered by the plush toy", "support": "tray"}, {"object": "plush toy", "before": "table", "evidence": "lying on top of the pouch, inside the tray", "support": "pouch"}]}
+"""
+
+
+def survey_scene_change(model, processor, before: Image.Image, after: Image.Image,
+                        temperature: float = 0.7) -> list[dict]:
+    """BEFORE + AFTER frames -> rows {object, before, evidence, support}; [] on parse failure."""
+    content = [
+        {"type": "text", "text": "[BEFORE — top-down camera, before the robot started]"},
+        {"type": "image", "image": before},
+        {"type": "text", "text": "[AFTER — top-down camera, now]"},
+        {"type": "image", "image": after},
+        {"type": "text", "text": "\nList every object, what it rested on in BEFORE, "
+                                 "and what it rests on in AFTER."},
+    ]
+    messages = [
+        {"role": "system", "content": [{"type": "text", "text": SCENE_CHANGE_SURVEY_SYSTEM_PROMPT}]},
+        {"role": "user", "content": content},
+    ]
+    output = generate(model, processor, messages, temperature=temperature)
+    rows = parse_object_locations(output)
+    if not rows:
+        print("[WARNING] Scene-change survey produced no rows (parse failed or empty).")
+    return rows
+
 def decompose_from_objects(model, processor, image_content, prompt: str,
                            visible_objects: list[str],
                            temperature: float = 0.7,
