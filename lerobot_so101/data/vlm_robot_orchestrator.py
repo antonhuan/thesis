@@ -44,8 +44,8 @@
 #       --vlm_eval_use_video=true \
 #       --vlm_eval_num_frames=16 \
 #       --clip_buffer_maxlen=128 \
-#       --max_retries=3 \
-#       --max_replans=1 \
+#       --max_retries=1 \
+#       --max_replans=0 \
 #       --max_final_retries=1 \
 #       --enable_interjection=true
 #
@@ -58,16 +58,16 @@
 # Once the queue empties, the VLM judges the ORIGINAL instruction against the
 # final scene. If that verdict is a failure, the prompt is planned again — over
 # only the objects the final evaluation's scene survey found not yet on the tray,
-# with the evaluator's reason and the verified-completed sub-tasks as context
-# (--targeted_retry_decompose; stops if the survey finds nothing left) — and the
+# with the verified-completed sub-tasks as neutral context (no verdict or reason)
+# (--targeted_retry_decompose; stops if the survey finds nothing left), sub-tasks
+# for objects the instruction keeps off the tray dropped in code — and the
 # whole queue/execute/evaluate loop runs again, for up to --max_final_retries
 # extra rounds. All rounds of one prompt share a single task folder and log.
 #
-# Every replan pauses and asks you for additional context to pass to the VLM
-# (e.g. "the toy is behind the cup"). Press Enter alone to replan without it.
-# Note this blocks: an unattended run waits at a replan until someone responds.
+# For a browser front-end (prompt box, skip/abort buttons, live plan, log and
+# cameras) run orchestrator_gui.py with the same flags.
 #
-# Press 'q'+Enter at any point during execution (or at a replan prompt) to ABORT
+# Press 'q'+Enter at any point during execution to ABORT
 # the whole high-level task: the current episode stops, the arm returns home, and
 # you are asked for a new high-level prompt. This works regardless of
 # --enable_interjection.
@@ -147,7 +147,7 @@ class OrchestratorConfig(MonitorSettings, LoopClientConfig):
     evaluate_final: bool = True
     # How many extra rounds to run when the final evaluation judges the whole
     # high-level task a failure: the prompt is decomposed again against the
-    # current scene (with the final evaluator's reason as context) and the entire
+    # current scene (with the completed sub-tasks as context) and the entire
     # queue -> execute -> evaluate loop runs again. 0 disables the behaviour
     # (final eval stays log-only). Requires evaluate_final.
     max_final_retries: int = 1
@@ -186,10 +186,15 @@ class OrchestratorConfig(MonitorSettings, LoopClientConfig):
     # is captured at the control loop's observation rate, not a fixed fps).
     vlm_eval_fps: float = 2.0
     # How many times to re-run a sub-task the VLM judged as failed
-    max_retries: int = 3
+    max_retries: int = 1
     # How many times to replan the remaining sequence after a sub-task fails
-    # all retries. Set to 0 to disable replanning.
-    max_replans: int = 1
+    # all retries. 0 (default) disables replanning: a sub-task that fails all its
+    # attempts is skipped and the final evaluation's retry round re-plans what is left.
+    # Off since 2026-10-10: in the preference eval every replan followed a false fail,
+    # re-queued the failed sub-task with a fresh retry budget, and on conditional
+    # prompts added objects the instruction excluded (REPLAN_SYSTEM_PROMPT only treats
+    # "leave/skip" wording as an exclusion).
+    max_replans: int = 0
     # Save every frame sent to the VLM under ./frames/
     save_frames: bool = False
     # Enable the background stdin listener that lets the user skip/replan
@@ -449,6 +454,15 @@ class InterjectionManager:
             self._replan_context = ""
         self.client.episode_done.set()
 
+    def request_skip(self):
+        """Skip the running sub-task (ends its episode). A queued, not yet consumed
+        abort is never downgraded to a skip."""
+        with self._lock:
+            if self._type is InterjectionType.ABORT:
+                return
+            self._type = InterjectionType.SKIP
+        self.client.episode_done.set()
+
     def _listener(self):
         if self._abort_only:
             print(f"\n[INTERJECT] Press '{ABORT_KEY}'+Enter to ABORT the whole task")
@@ -491,10 +505,8 @@ class InterjectionManager:
                     self.client.episode_done.set()
                 else:
                     # 's', bare Enter, or anything else → skip
-                    with self._lock:
-                        self._type = InterjectionType.SKIP
                     print("[INTERJECT] SKIP requested — stopping current action...")
-                    self.client.episode_done.set()
+                    self.request_skip()
 
 
 # ---------------------------------------------------------------------------
@@ -1088,7 +1100,9 @@ class VLMFrameSource:
     def capture_clip(self, tag: str = "clip",
                      num_frames: int = 8) -> tuple[list[Image.Image], float]:
         """Return the buffered episode clip as PIL frames (oldest-first, evenly
-        spaced in time across the whole episode) plus the wall-clock span they cover.
+        spaced in time across the whole episode) plus the span they cover. Monitor
+        freezes are cut out of both: the buffer keeps one frame per freeze and the
+        span is the time the arm was running.
 
         The span comes from the client's frame timestamps. The buffer decimates
         rather than dropping its head, so it spans the full episode and the span is
@@ -1177,37 +1191,51 @@ class RoundResult:
     # The final evaluation's scene survey rows ({object, support, evidence});
     # empty when the single-call final eval ran or the survey came back empty.
     final_survey: list[dict] = field(default_factory=list)
+    # The BEFORE/AFTER final eval's requirement sets (compare_requirements) and resolved
+    # findings; None on the single-image paths. A retry round's count cap reads them.
+    final_sets: dict | None = None
+    final_findings: list[dict] | None = None
     # The scene before the robot started (round 1's decompose frame), handed to every
     # later round's final evaluation as its BEFORE image.
     initial_frame: "Image.Image | None" = None
 
 
-# Handed to the planner when re-decomposing after a failed final evaluation.
-RETRY_DECOMPOSE_CONTEXT = """A previous attempt at this same instruction was judged INCOMPLETE by the evaluator, who reported:
-{reason}
+# Handed to the planner when re-decomposing after a failed final evaluation. Neutral
+# on purpose: no "judged INCOMPLETE", no evaluator reason, no invariant. That framing
+# pushed the planner to find SOMETHING to do — on the 19 saved round-2 frames
+# (_r2replay/) it re-added excluded objects and ignored counts: 8/19 correct vs 14/19
+# with this text and the targeted object list (16/19 with the requirements guard and
+# count cap in code).
+RETRY_DECOMPOSE_CONTEXT = """Part of this instruction may already have been carried out.
 {completed}
-The camera image shows the CURRENT scene, after that attempt. The image is GROUND TRUTH: where the evaluator's report and the image disagree, believe the image.
-
-Plan only the work that still REMAINS to satisfy the original instruction. If an object is already at its destination in the image, list it in completed_objects — do not put it in allowed_objects and do not give it a sub-task. Do not move any object the instruction says to leave alone; those go in excluded_objects.
-
-Remember the invariant: every object in allowed_objects gets exactly one sub-task. Never return an empty subtasks list while allowed_objects is non-empty — an object that needs no action belongs in completed_objects."""
-
-
-# Slotted into RETRY_DECOMPOSE_CONTEXT's {completed}.
-COMPLETED_CONTEXT = """
-These sub-tasks were already executed and verified complete in the previous attempt:
-{lines}
-The objects they name are already at their destinations. Put those objects in completed_objects, NOT in allowed_objects, and do not plan any sub-task for them.
-"""
-
-NOTHING_COMPLETED_CONTEXT = """
-No sub-task from the previous attempt completed successfully, so treat none of the work as done on that basis. Judge from the image alone which objects, if any, are already at their destination.
-"""
+The camera image shows the CURRENT scene. Plan the ORIGINAL instruction against this scene from scratch:
+- An object the instruction wants on the tray that is already on the tray needs no sub-task — list it in completed_objects.
+- An object the instruction does not select (excluded, does not match its description, or beyond the number it asks for, counting objects already on the tray) gets no sub-task.
+- If nothing remains to do, return empty allowed_objects and an empty subtasks list. That is a valid and common answer."""
 
 
-# Appended to the retry context when a targeted retry round hands the planner the
-# survey's objects instead of a fresh identify pass.
-TARGETED_RETRY_NOTE = """The visible_objects list for this attempt comes from a survey of the current scene. It contains ONLY the objects that are NOT yet at a destination, plus the destinations themselves. Decide which of these objects the original instruction still requires moving, and plan only those. Objects the instruction says to leave go in excluded_objects. If none of them needs moving, return empty allowed_objects and an empty subtasks list — that is a valid answer here."""
+# Appended to the retry context when the instruction is count-limited ("put two
+# objects on the tray"): the count is a TOTAL, so objects already on the tray use it
+# up. Without this, round 2 of "put two objects" with one already placed planned two
+# more (runs/run_2026-10-08_07-46-25/04). The cap is also enforced in code.
+COUNT_RETRY_NOTE = """The instruction allows exactly {count} object(s) from {choose_from} on the tray IN TOTAL. Already on the tray: {placed}. Objects already on the tray count toward that total, so plan sub-tasks for exactly {more} more of them — no more than {more}."""
+
+
+def count_cap(sets: dict | None, findings: list[dict] | None) -> dict | None:
+    """For a count-limited instruction, how many sub-tasks a retry round may plan.
+
+    From the final eval's requirement sets: `more` = choose_count minus the
+    choose_from objects already on the tray (floored at 0), and `cap` = `more` plus
+    the must_be_on_tray objects not yet on it. None when the instruction has no
+    count (or the final eval produced no sets)."""
+    if not sets or not findings or not sets.get("choose_from") or not sets.get("choose_count"):
+        return None
+    where = {f["object"].lower(): f["support"].split(" (")[0] for f in findings}
+    placed = [k for k in sets["choose_from"] if where.get(k) == "tray"]
+    more = max(sets["choose_count"] - len(placed), 0)
+    missing = [k for k in sets.get("must_be_on_tray", []) if where.get(k) != "tray"]
+    return {"count": sets["choose_count"], "choose_from": list(sets["choose_from"]),
+            "placed": placed, "more": more, "cap": more + len(missing)}
 
 
 # Survey rows that name part of the setup rather than something to move. The
@@ -1399,12 +1427,26 @@ def remaining_from_survey(rows: list[dict]) -> tuple[list[str], list[str]]:
     return remaining, destinations
 
 
+def excluded_subtasks(tasks: list[str], excluded: list[str]) -> tuple[list[str], list[str]]:
+    """Split sub-tasks into (kept, dropped): dropped are those whose object is one of
+    `excluded`, by the same, a shorter or a longer name ("pouch" / "brown pouch").
+    Fixture names (the requirements call sometimes lists the tray) are ignored."""
+    names = [e.lower() for e in excluded if e and not is_fixture(e)]
+
+    def is_excluded(task: str) -> bool:
+        obj = extract_object_name(task).lower()
+        return any(obj == n or obj in n or n in obj for n in names)
+
+    kept = [t for t in tasks if not is_excluded(t)]
+    return kept, [t for t in tasks if is_excluded(t)]
+
+
 def _format_completed_context(completed: list[str]) -> str:
     """Render the completed sub-tasks as the {completed} block of the retry context."""
     if not completed:
-        return NOTHING_COMPLETED_CONTEXT
+        return "No sub-task is known to have been completed."
     lines = "\n".join(f"- {st}" for st in completed)
-    return COMPLETED_CONTEXT.format(lines=lines)
+    return "These sub-tasks were already executed and verified:\n" + lines
 
 
 def run_high_level_task(
@@ -1415,7 +1457,17 @@ def run_high_level_task(
     prompt: str,
     interjection: InterjectionManager,
     log_sink: "TaskLogSink",
-):
+    on_trace=None,
+) -> dict:
+    """Run one high-level prompt to the end and return its trace: the task folder,
+    every round (plan, replans, completed sub-tasks, final verdict), every VLA
+    episode (sub-task, episode directory, result, monitor outcome, judgement) and
+    the overall `outcome` — what an eval driver (vlm_preference_eval_live.py)
+    saves per trial.
+
+    `on_trace`, if given, is called once with the trace dict as soon as it exists;
+    the dict is then filled in place as the task runs (orchestrator_gui.py reads it
+    live)."""
     logger = client.logger
 
     # Route this task's saved frames into a fresh session/<task> sub-folder, and
@@ -1426,11 +1478,25 @@ def run_high_level_task(
     task_dir = frames.start_task()
     log_sink.open(task_dir / "task.log")
     client.start_action_log(task_dir / "actions.log")
+    trace = {"prompt": prompt, "task_dir": str(task_dir), "outcome": None,
+             "final_success": None, "final_reason": "", "rounds": [], "episodes": []}
+    if on_trace is not None:
+        on_trace(trace)
+
+    def finish(outcome: str, result: "RoundResult | None" = None) -> dict:
+        trace["outcome"] = outcome
+        if result is not None:
+            trace["final_success"] = result.final_success
+            trace["final_reason"] = result.final_reason
+        return trace
+
     try:
         retries_left = max(cfg.max_final_retries, 0)
         round_num = 0
         retry_context = ""
         retry_objects: list[str] | None = None
+        max_subtasks: int | None = None  # count cap for a retry round (count_cap)
+        excluded: list[str] = []  # objects a retry round must not move (requirements guard)
         # Union of every round's completed sub-tasks, in first-completed order.
         # Accumulated rather than taken from the last round alone so that with
         # --max_final_retries > 1 round 3 still knows what round 1 finished.
@@ -1451,27 +1517,28 @@ def run_high_level_task(
                 client, planner, frames, cfg, prompt, interjection, logger,
                 round_num=round_num, retry_context=retry_context,
                 retry_objects=retry_objects, initial_frame=initial_frame,
+                trace=trace, max_subtasks=max_subtasks, excluded=excluded,
             )
             if initial_frame is None:
                 initial_frame = result.initial_frame
 
             if result.stopped:
-                return
+                return finish("stopped", result)
             if result.final_success is None:
                 # No verdict to act on (final eval disabled, unparseable, or it
                 # errored) — the round's own logging already said why.
-                return
+                return finish("no_verdict", result)
             if result.final_success:
                 logger.info(f"High-level task '{prompt}' judged COMPLETE "
                             f"after {round_num} round(s).")
-                return
+                return finish("complete", result)
             if retries_left <= 0:
                 logger.warning(
                     f"High-level task '{prompt}' judged INCOMPLETE after "
                     f"{round_num} round(s) and no retry rounds remain: "
                     f"{result.final_reason}"
                 )
-                return
+                return finish("incomplete", result)
             if round_num > 1 and result.planned == 0:
                 # The re-decompose saw the completed list and found nothing left
                 # to do, so the final evaluator and the planner disagree. Another
@@ -1483,18 +1550,15 @@ def run_high_level_task(
                     f"current scene — stopping. Final evaluator said: "
                     f"{result.final_reason}"
                 )
-                return
+                return finish("incomplete_nothing_left", result)
 
             for st in result.completed:
                 if st not in completed_all:
                     completed_all.append(st)
 
             retries_left -= 1
-            reason = result.final_reason or "(no reason given)"
             retry_context = RETRY_DECOMPOSE_CONTEXT.format(
-                reason=reason,
-                completed=_format_completed_context(completed_all),
-            )
+                completed=_format_completed_context(completed_all))
             retry_objects = None
             if cfg.targeted_retry_decompose and result.final_survey:
                 remaining, destinations = remaining_from_survey(result.final_survey)
@@ -1508,11 +1572,28 @@ def run_high_level_task(
                         f"({destinations}) — nothing to re-plan, stopping. Final "
                         f"evaluator said: {result.final_reason}"
                     )
-                    return
+                    return finish("incomplete_nothing_left", result)
                 retry_objects = remaining + destinations + ["table"]
-                retry_context += "\n\n" + TARGETED_RETRY_NOTE
                 logger.info(f"Targeted retry: survey found {remaining} not at a "
                             f"destination; planning over {retry_objects}.")
+            excluded = list((result.final_sets or {}).get("must_not_be_on_tray") or [])
+            cap = count_cap(result.final_sets, result.final_findings)
+            max_subtasks = cap["cap"] if cap else None
+            if cap:
+                if cap["cap"] == 0:
+                    logger.info(
+                        f"High-level task '{prompt}' judged INCOMPLETE, but the count "
+                        f"is already met or exceeded ({len(cap['placed'])} of "
+                        f"{cap['choose_from']} on the tray, {cap['count']} allowed) — "
+                        f"placing more cannot fix it, stopping. Final evaluator said: "
+                        f"{result.final_reason}")
+                    return finish("incomplete_count_exceeded", result)
+                retry_context += "\n\n" + COUNT_RETRY_NOTE.format(
+                    count=cap["count"], choose_from=cap["choose_from"],
+                    placed=cap["placed"] or "none", more=cap["more"])
+                logger.info(f"Count cap: {len(cap['placed'])} of {cap['count']} already "
+                            f"on the tray — this round may plan at most {cap['cap']} "
+                            f"sub-task(s).")
             logger.info(f"Carrying {len(completed_all)} completed sub-task(s) into "
                         f"the re-decompose: {completed_all}")
             logger.info(f"Retry context passed to the planner:\n{retry_context}")
@@ -1576,11 +1657,22 @@ def _run_high_level_task_body(
     retry_context: str = "",
     retry_objects: list[str] | None = None,
     initial_frame: "Image.Image | None" = None,
+    trace: dict | None = None,
+    max_subtasks: int | None = None,
+    excluded: list[str] | None = None,
 ) -> RoundResult:
+    # This round's record in the task trace (see run_high_level_task).
+    trace = trace if trace is not None else {"rounds": [], "episodes": []}
+    round_rec = {"round": round_num, "planned": None, "replans": [], "completed": [],
+                 "final_success": None, "final_reason": "", "aborted": False,
+                 "max_subtasks": max_subtasks}
+    trace["rounds"].append(round_rec)
+
     def abort(where: str):
         """Park the arm and report that the operator abandoned the task."""
         logger.warning(f"ABORT requested {where} — abandoning high-level task "
                        f"'{prompt}' and returning to the prompt.")
+        round_rec["aborted"] = True
         client.go_home()
 
     # 1. Decompose with a fresh observation. On a retry round `retry_context`
@@ -1609,6 +1701,22 @@ def _run_high_level_task_body(
         logger.info(f"Ignoring {itype.value} requested during decomposition "
                     f"— no sub-task has run yet.")
 
+    # Requirements guard (retry rounds): the final eval's requirements call decided,
+    # from the instruction alone, which objects must stay off the tray. A retry plan
+    # that moves one of them would break the instruction, so drop that sub-task.
+    if excluded:
+        kept, dropped = excluded_subtasks(subtasks, excluded)
+        if dropped:
+            logger.warning(f"Requirements guard: dropping {dropped} — the instruction "
+                           f"keeps {excluded} off the tray.")
+            subtasks = kept
+            round_rec["guard_dropped"] = dropped
+    if max_subtasks is not None and len(subtasks) > max_subtasks:
+        logger.warning(f"Count cap: the plan has {len(subtasks)} sub-tasks but the "
+                       f"instruction allows only {max_subtasks} more — dropping "
+                       f"{subtasks[max_subtasks:]}.")
+        subtasks = subtasks[:max_subtasks]
+    round_rec["planned"] = list(subtasks)
     logger.info(f"Sub-task queue ({len(subtasks)}):")
     for i, st in enumerate(subtasks, 1):
         logger.info(f"  {i}. {st}")
@@ -1635,6 +1743,14 @@ def _run_high_level_task_body(
         except ValueError as e:
             logger.error(f"Replan failed ({e}) — continuing with remaining queue.")
             return None
+        if max_subtasks is not None:
+            room = max(max_subtasks - len(completed), 0)
+            if len(new_queue) > room:
+                logger.warning(f"Count cap: the replan has {len(new_queue)} sub-tasks but "
+                               f"only {room} more are allowed — dropping {new_queue[room:]}.")
+                new_queue = new_queue[:room]
+        round_rec["replans"].append({"failed": failed_subtask, "reason": failure_reason,
+                                     "queue": list(new_queue)})
         logger.info(f"Replanned queue ({len(new_queue)}):")
         for i, st in enumerate(new_queue, 1):
             logger.info(f"  {i}. {st}")
@@ -1681,10 +1797,19 @@ def _run_high_level_task_body(
                 monitor.start(current_instruction, tag=attempt_tag)
             ep_result = client.run_episode(current_instruction,
                                            enable_abort_listener=False)
+            ep_rec = {"round": round_num, "task_num": task_num, "sub_task": sub_task,
+                      "instruction": current_instruction, "tag": attempt_tag,
+                      "dir": str(client._vla_input_dir), "result": asdict(ep_result),
+                      "monitor": None, "judgement": None}
+            trace["episodes"].append(ep_rec)
             monitor_result = None
             if monitor is not None:
                 monitor.stop()
                 summary = monitor.summary()
+                ep_rec["monitor"] = {"outcome": summary["outcome"],
+                                     "committed_to": (monitor.held_object
+                                                      if monitor.committed else None),
+                                     "stopped": monitor.stopped}
                 try:
                     (frames.task_dir / f"monitor_{attempt_tag}.json").write_text(
                         json.dumps(summary, indent=2, default=str))
@@ -1700,10 +1825,14 @@ def _run_high_level_task_body(
                             + f" | {monitor.reach_windows} reach check(s), "
                               f"{monitor.verify_calls} verify call(s)")
 
-            # Open the gripper (an object held when the episode ended is let go here,
-            # not dragged home), lift away, and return home so the arm is out of frame
-            # and the next episode starts from a consistent pose.
-            client.release_and_home()
+            # Return home so the arm is out of frame and the next episode starts from a
+            # consistent pose. After a monitor STOP the arm is frozen holding the wrong
+            # object, so open the gripper and lift away first to leave it on the table;
+            # any other ending goes straight home.
+            if monitor is not None and monitor.stopped:
+                client.release_and_home()
+            else:
+                client.go_home()
 
             # --- Interjection check: after episode ---
             itype, _ = interjection.check_and_consume()
@@ -1726,7 +1855,7 @@ def _run_high_level_task_body(
                 user_replanned = True
                 break
 
-            # --- Interjection check: after the release and homing ---
+            # --- Interjection check: after homing ---
             itype, _ = interjection.check_and_consume()
             if itype == InterjectionType.ABORT:
                 abort(f"during sub-task '{sub_task}'")
@@ -1839,6 +1968,8 @@ def _run_high_level_task_body(
                     except ValueError as e:
                         logger.warning(f"Could not parse VLM evaluation ({e}); "
                                        "assuming success and moving on.")
+                        ep_rec["judgement"] = {"success": True, "failure_type": None,
+                                               "reason": f"unparseable evaluation: {e}"}
                         succeeded = True
                         break
                     except Exception as e:
@@ -1847,6 +1978,7 @@ def _run_high_level_task_body(
                             f"'{prompt}' — sub-task success can no longer be verified. "
                             f"Completed and verified before the failure: {completed}"
                         )
+                        round_rec["completed"] = list(completed)
                         return RoundResult(stopped=True, planned=len(subtasks),
                                            completed=list(completed))
 
@@ -1864,6 +1996,8 @@ def _run_high_level_task_body(
                 failure_type = eval_result.get("failure_type", "RETRY")
                 if no_movement and not success:
                     failure_type = "VOCAB"
+                ep_rec["judgement"] = {"success": success, "failure_type": failure_type,
+                                       "reason": reason}
                 logger.info(f"VLM judgement: success={success} | "
                             f"failure_type={failure_type} | {reason}")
 
@@ -1912,6 +2046,7 @@ def _run_high_level_task_body(
 
         if user_aborted:
             logger.info(f"  Completed before the abort: {completed}")
+            round_rec["completed"] = list(completed)
             return RoundResult(stopped=True, planned=len(subtasks),
                                completed=list(completed))
 
@@ -1965,6 +2100,7 @@ def _run_high_level_task_body(
     #    prompt again and runs another round (up to --max_final_retries).
     result = RoundResult(planned=len(subtasks), completed=list(completed),
                          initial_frame=initial_frame)
+    round_rec["completed"] = list(completed)
     if cfg.evaluate_final:
         logger.info("Running final evaluation against the original prompt...")
         final_frame = frames.capture(
@@ -1976,7 +2112,11 @@ def _run_high_level_task_body(
                 initial_frame if cfg.final_eval_before_after else None)
             result.final_success = bool(final.get("success"))
             result.final_survey = final.get("surveyed") or []
+            result.final_sets = final.get("sets")
+            result.final_findings = final.get("findings")
             result.final_reason = final.get("reason", "")
+            round_rec["final_success"] = result.final_success
+            round_rec["final_reason"] = result.final_reason
             logger.info(f"FINAL VLM judgement for '{prompt}' (round {round_num}): "
                         f"success={result.final_success} | {result.final_reason}")
         except ValueError as e:
@@ -2040,20 +2180,23 @@ class TaskLogSink:
 
 
 class _Tee:
-    """Duplicate a text stream to a swappable sink (the active per-task log)."""
+    """Duplicate a text stream to swappable sinks (the active per-task log, plus
+    any extra mirror such as the GUI's log buffer)."""
 
-    def __init__(self, primary, sink: "TaskLogSink"):
+    def __init__(self, primary, *sinks):
         self._primary = primary   # original sys.stdout / sys.stderr
-        self._sink = sink         # shared TaskLogSink (per-task mirror)
+        self._sinks = sinks       # shared TaskLogSink (per-task mirror), extras
 
     def write(self, data):
         self._primary.write(data)
-        self._sink.write(data)
+        for sink in self._sinks:
+            sink.write(data)
         return len(data)
 
     def flush(self):
         self._primary.flush()
-        self._sink.flush()
+        for sink in self._sinks:
+            sink.flush()
 
     def isatty(self):
         return self._primary.isatty()
@@ -2068,10 +2211,49 @@ class _Tee:
 # ---------------------------------------------------------------------------
 # Main entry point
 # ---------------------------------------------------------------------------
-@draccus.wrap()
-def main(cfg: OrchestratorConfig):
-    logging.basicConfig(level=logging.INFO)
+@dataclass
+class Session:
+    """Everything one orchestrator run holds open: the run folder, the terminal
+    tees into the per-task log, the robot client, the VLM planner, the frame source
+    and the interjection manager. Built by open_session; close() parks the arm and
+    restores the terminal."""
+    cfg: OrchestratorConfig
+    run_dir: Path
+    log_sink: TaskLogSink
+    client: LoopRobotClient
+    planner: "VLMPlanner"
+    frames: VLMFrameSource
+    interjection: InterjectionManager
+    _orig_streams: tuple
 
+    def run(self, prompt: str, abort_only: bool, on_trace=None) -> dict:
+        """Run one high-level prompt with the stdin listener up (so 'q'+Enter in the
+        terminal always aborts) and return its trace."""
+        self.interjection.start(abort_only=abort_only)
+        try:
+            return run_high_level_task(self.client, self.planner, self.frames, self.cfg,
+                                       prompt, self.interjection, self.log_sink,
+                                       on_trace=on_trace)
+        finally:
+            self.interjection.stop()
+
+    def close(self):
+        try:
+            self.client.go_home()
+            self.frames.stop()
+            self.client.stop()
+        finally:
+            sys.stdout, sys.stderr = self._orig_streams
+            # Close any task log still open (e.g. interrupted mid-task).
+            self.log_sink.close()
+
+
+def open_session(cfg: OrchestratorConfig, client_cls=TappedClient,
+                 mirrors: tuple = ()) -> "Session | None":
+    """Set up an orchestrator run. `client_cls` lets a front-end subclass the
+    robot client (orchestrator_gui.py taps its camera frames); `mirrors` are extra
+    sinks that receive every byte written to the terminal. Returns None (terminal
+    restored) if the policy server cannot be reached."""
     # Single per-run root holding one sub-folder per high-level task; each
     # sub-folder gets that task's log (task.log) and, when --save_frames is on,
     # its saved frames. One timestamp for the whole run.
@@ -2088,9 +2270,9 @@ def main(cfg: OrchestratorConfig):
     # is swapped at each task boundary (see run_high_level_task); between tasks
     # nothing is mirrored.
     log_sink = TaskLogSink()
-    _orig_stdout, _orig_stderr = sys.stdout, sys.stderr
-    sys.stdout = _Tee(_orig_stdout, log_sink)
-    sys.stderr = _Tee(_orig_stderr, log_sink)
+    orig_streams = (sys.stdout, sys.stderr)
+    sys.stdout = _Tee(orig_streams[0], log_sink, *mirrors)
+    sys.stderr = _Tee(orig_streams[1], log_sink, *mirrors)
 
     # The root logger's console handler grabbed the ORIGINAL sys.stderr at import
     # time, so re-point it at the tee'd stderr; leave file handlers untouched.
@@ -2103,17 +2285,18 @@ def main(cfg: OrchestratorConfig):
 
     # 1. Robot + policy server (VLA layer)
     # TappedClient: the base client plus the monitor's frame tap, per-tick grasp
-    # watch, pause throttling and the end-of-episode release.
+    # watch, pause throttling and the release after a monitor STOP.
     if cfg.enable_vlm_monitor:
         cfg.log_vla_inputs = True  # the monitor's frame tap relies on the input capture
         if cfg.wrist_key not in (getattr(cfg.robot, "cameras", None) or {}):
             logging.warning(f"VLM monitor: no '{cfg.wrist_key}' camera in --robot.cameras — "
                             "the wrist verify will be blind and its STOPs will stand.")
-    client = TappedClient(cfg)
+    client = client_cls(cfg)
     if not client.connect_server():
         client.logger.error("Could not connect to policy server. Exiting.")
         client.stop()
-        return
+        sys.stdout, sys.stderr = orig_streams
+        return None
     # 2. VLM planner (reasoning layer)
     planner = VLMPlanner(cfg.vlm_model, temperature=cfg.vlm_temperature,
                          eval_fps=cfg.vlm_eval_fps,
@@ -2127,6 +2310,18 @@ def main(cfg: OrchestratorConfig):
                             session_dir=run_dir, save_frames=cfg.save_frames)
     # 4. Interjection manager (user can skip/replan mid-execution)
     interjection = InterjectionManager(client)
+    return Session(cfg, run_dir, log_sink, client, planner, frames, interjection,
+                   orig_streams)
+
+
+@draccus.wrap()
+def main(cfg: OrchestratorConfig):
+    logging.basicConfig(level=logging.INFO)
+
+    session = open_session(cfg)
+    if session is None:
+        return
+    client = session.client
 
     client.logger.info("=" * 60)
     client.logger.info("Dual-system ready: VLM planner + VLA policy loaded.")
@@ -2141,12 +2336,10 @@ def main(cfg: OrchestratorConfig):
     elif cfg.max_final_retries:
         client.logger.warning("--max_final_retries is set but --evaluate_final is "
                               "off; no final verdict, so no retry rounds will run.")
-    client.logger.info("Replans pause for operator context — type guidance and press "
-                       "Enter, or Enter alone to skip.")
     client.logger.info("Type an instruction and press Enter to execute.")
     if cfg.enable_interjection:
         client.logger.info("During execution: 's'+Enter to skip, 'r'+Enter to replan.")
-    client.logger.info(f"At any point during execution (and at any replan prompt): "
+    client.logger.info(f"At any point during execution: "
                        f"'{ABORT_KEY}'+Enter aborts the whole task and returns here.")
     client.logger.info("Type 'quit' or 'exit' to shut down.")
     client.logger.info("=" * 60)
@@ -2166,23 +2359,13 @@ def main(cfg: OrchestratorConfig):
 
             # The listener always runs so 'q'+Enter can abort at any time; with
             # --enable_interjection=false it honours nothing else.
-            interjection.start(abort_only=not cfg.enable_interjection)
-            try:
-                run_high_level_task(client, planner, frames, cfg, prompt,
-                                    interjection, log_sink)
-            finally:
-                interjection.stop()
+            session.run(prompt, abort_only=not cfg.enable_interjection)
 
     except KeyboardInterrupt:
         client.logger.info("\nInterrupted by user.")
 
     finally:
-        client.go_home()
-        frames.stop()
-        client.stop()
-        sys.stdout, sys.stderr = _orig_stdout, _orig_stderr
-        # Close any task log still open (e.g. interrupted mid-task).
-        log_sink.close()
+        session.close()
 
 
 if __name__ == "__main__":
