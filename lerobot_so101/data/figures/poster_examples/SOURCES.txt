@@ -1,0 +1,6 @@
+Matched pairs (same prompt + layout). Baseline = preference_eval_trials, system = preference_eval_system_trials (replan-OFF set).
+fruit          "put the fruit on the tray" (tbp)                    baseline trial_048 frames 0/27/32 (placed toy)    | system trial_048 frames e0:0/e0:14 + final_eval (banana)
+furry          "put the furry object on the tray" (ptb)             baseline trial_035 frames 0/10/16 (placed pouch)  | system trial_009 frames e0:0/e0:13 + final_eval (toy)
+except_banana  "put everything on the tray except the banana" (tbp) baseline trial_006 frames 0/14/19 (placed banana) | system trial_037 frames e0:0/e0:10 + final_eval (toy+pouch)
+except_toy     "put everything on the tray except the toy" (bpt)    baseline trial_034 frames 0/15/22 (placed toy)    | system trial_026 frames e0:0/e1:12 + final_eval (pouch+banana)
+Each folder also has the matching wrist-camera frame. Regenerate: python3 figures/poster_examples/make_panels.py (from data/).
