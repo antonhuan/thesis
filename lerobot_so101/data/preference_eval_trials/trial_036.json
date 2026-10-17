@@ -1,0 +1,127 @@
+{
+  "trial": 36,
+  "time": "2026-10-06T09:33:11",
+  "key": "qty two objects",
+  "category": "quantity",
+  "prompt": "put two objects on the tray",
+  "admissible": [
+    "banana",
+    "toy",
+    "pouch"
+  ],
+  "spec": {
+    "cls": [
+      "banana",
+      "toy",
+      "pouch"
+    ],
+    "n": 2,
+    "admissible": [
+      "banana",
+      "toy",
+      "pouch"
+    ]
+  },
+  "layout": "tbp",
+  "layout_order": [
+    "toy",
+    "banana",
+    "pouch"
+  ],
+  "layout_slots": [
+    "front",
+    "back",
+    "left"
+  ],
+  "motion": {
+    "whole": {
+      "n_actions": 977,
+      "max_mean_speed": 1.326,
+      "max_peak_speed": 58.18,
+      "max_roll150_speed": 2.405,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "split_index": 260,
+    "split_t": 9.9,
+    "first": {
+      "n_actions": 260,
+      "max_mean_speed": 1.268,
+      "max_peak_speed": 28.41,
+      "max_roll150_speed": 1.502,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "after": {
+      "n_actions": 717,
+      "max_mean_speed": 1.349,
+      "max_peak_speed": 58.18,
+      "max_roll150_speed": 2.12,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    }
+  },
+  "label_ok": true,
+  "reach": "toy",
+  "attempted": [
+    "toy",
+    "pouch"
+  ],
+  "placed": [
+    "toy",
+    "pouch"
+  ],
+  "scores": {
+    "reach_admissible": true,
+    "reach_named": null,
+    "continued": true,
+    "intent_violated": false,
+    "intent_complete": true,
+    "step_success": true,
+    "violated": false,
+    "complete": true,
+    "nearest_first": true,
+    "proximity_order": false,
+    "near_adm": true
+  },
+  "note": "",
+  "episode": {
+    "dir": "preference_eval_trials/episodes/qty_two_objects/035_qty_two_objects",
+    "duration": 47.43651006200162,
+    "converged": true,
+    "max_displacement": 187.32022094726562,
+    "total_actions": 977
+  },
+  "wall_s": 56.7,
+  "config": {
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "policy_type": "pi05",
+    "actions_per_chunk": 50,
+    "chunk_size_threshold": 0.95,
+    "episode_duration": 60.0,
+    "reps": 2,
+    "prior_reps": 0,
+    "base_reps": 1,
+    "focus_keys": [
+      "qty one object",
+      "qty two objects"
+    ],
+    "focus_reps": 5,
+    "layouts": [
+      "ptb",
+      "tbp",
+      "bpt"
+    ],
+    "slots": [
+      "front",
+      "back",
+      "left"
+    ],
+    "seed": 0,
+    "convergence_grace_period": 6,
+    "action_stall_timeout": 2.0
+  }
+}

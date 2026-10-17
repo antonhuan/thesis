@@ -1,0 +1,123 @@
+{
+  "trial": 41,
+  "time": "2026-10-06T09:39:37",
+  "key": "qty one brown",
+  "category": "quantity",
+  "prompt": "put one of the brown objects on the tray",
+  "admissible": [
+    "toy",
+    "pouch"
+  ],
+  "spec": {
+    "cls": [
+      "toy",
+      "pouch"
+    ],
+    "n": 1,
+    "admissible": [
+      "toy",
+      "pouch"
+    ]
+  },
+  "layout": "ptb",
+  "layout_order": [
+    "pouch",
+    "toy",
+    "banana"
+  ],
+  "layout_slots": [
+    "front",
+    "back",
+    "left"
+  ],
+  "motion": {
+    "whole": {
+      "n_actions": 912,
+      "max_mean_speed": 1.853,
+      "max_peak_speed": 124.84,
+      "max_roll150_speed": 4.378,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "split_index": 445,
+    "split_t": 16.87,
+    "first": {
+      "n_actions": 445,
+      "max_mean_speed": 1.015,
+      "max_peak_speed": 32.29,
+      "max_roll150_speed": 1.409,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "after": {
+      "n_actions": 467,
+      "max_mean_speed": 2.654,
+      "max_peak_speed": 124.84,
+      "max_roll150_speed": 4.378,
+      "flag_velocity": true,
+      "flag_rolling": false,
+      "flag": true
+    }
+  },
+  "label_ok": true,
+  "reach": "pouch",
+  "attempted": [
+    "pouch",
+    "toy"
+  ],
+  "placed": [
+    "pouch"
+  ],
+  "scores": {
+    "reach_admissible": true,
+    "reach_named": null,
+    "continued": true,
+    "intent_violated": true,
+    "intent_complete": false,
+    "step_success": true,
+    "violated": false,
+    "complete": true,
+    "nearest_first": true,
+    "proximity_order": true,
+    "near_adm": true
+  },
+  "note": "",
+  "episode": {
+    "dir": "preference_eval_trials/episodes/qty_one_brown/040_qty_one_brown",
+    "duration": 44.09589538599903,
+    "converged": false,
+    "max_displacement": 226.20045471191406,
+    "total_actions": 912
+  },
+  "wall_s": 66.0,
+  "config": {
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "policy_type": "pi05",
+    "actions_per_chunk": 50,
+    "chunk_size_threshold": 0.95,
+    "episode_duration": 60.0,
+    "reps": 2,
+    "prior_reps": 0,
+    "base_reps": 1,
+    "focus_keys": [
+      "qty one object",
+      "qty two objects"
+    ],
+    "focus_reps": 5,
+    "layouts": [
+      "ptb",
+      "tbp",
+      "bpt"
+    ],
+    "slots": [
+      "front",
+      "back",
+      "left"
+    ],
+    "seed": 0,
+    "convergence_grace_period": 6,
+    "action_stall_timeout": 2.0
+  }
+}

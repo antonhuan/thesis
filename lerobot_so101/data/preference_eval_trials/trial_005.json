@@ -1,0 +1,116 @@
+{
+  "trial": 5,
+  "time": "2026-10-06T08:34:54",
+  "key": "cond furry",
+  "category": "conditional",
+  "prompt": "put the furry object on the tray",
+  "admissible": [
+    "toy"
+  ],
+  "spec": {
+    "admissible": [
+      "toy"
+    ]
+  },
+  "layout": "bpt",
+  "layout_order": [
+    "banana",
+    "pouch",
+    "toy"
+  ],
+  "layout_slots": [
+    "front",
+    "back",
+    "left"
+  ],
+  "motion": {
+    "whole": {
+      "n_actions": 1098,
+      "max_mean_speed": 1.435,
+      "max_peak_speed": 53.44,
+      "max_roll150_speed": 3.171,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "split_index": 343,
+    "split_t": 13.91,
+    "first": {
+      "n_actions": 343,
+      "max_mean_speed": 0.955,
+      "max_peak_speed": 25.05,
+      "max_roll150_speed": 1.279,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "after": {
+      "n_actions": 755,
+      "max_mean_speed": 1.651,
+      "max_peak_speed": 53.44,
+      "max_roll150_speed": 3.171,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    }
+  },
+  "label_ok": true,
+  "reach": "toy",
+  "attempted": [
+    "toy",
+    "pouch"
+  ],
+  "placed": [
+    "toy"
+  ],
+  "scores": {
+    "reach_admissible": true,
+    "reach_named": true,
+    "continued": true,
+    "intent_violated": true,
+    "intent_complete": false,
+    "step_success": true,
+    "violated": false,
+    "complete": true,
+    "nearest_first": false,
+    "proximity_order": false,
+    "near_adm": false
+  },
+  "note": "correctly placed toy, then tried to place pouch but failed to deposit, did pick up pouch",
+  "episode": {
+    "dir": "preference_eval_trials/episodes/cond_furry/004_cond_furry",
+    "duration": 53.530296709999675,
+    "converged": false,
+    "max_displacement": 219.17364501953125,
+    "total_actions": 1121
+  },
+  "wall_s": 95.8,
+  "config": {
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "policy_type": "pi05",
+    "actions_per_chunk": 50,
+    "chunk_size_threshold": 0.95,
+    "episode_duration": 60.0,
+    "reps": 2,
+    "prior_reps": 0,
+    "base_reps": 1,
+    "focus_keys": [
+      "qty one object",
+      "qty two objects"
+    ],
+    "focus_reps": 5,
+    "layouts": [
+      "ptb",
+      "tbp",
+      "bpt"
+    ],
+    "slots": [
+      "front",
+      "back",
+      "left"
+    ],
+    "seed": 0,
+    "convergence_grace_period": 6,
+    "action_stall_timeout": 2.0
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "trial": 27,
+  "time": "2026-10-06T09:18:55",
+  "key": "seq toy>pouch>banana",
+  "category": "sequencing",
+  "prompt": "put the toy on the tray first, then the pouch, then the banana",
+  "admissible": [
+    "toy"
+  ],
+  "spec": {
+    "order": [
+      [
+        "toy",
+        "pouch"
+      ],
+      [
+        "pouch",
+        "banana"
+      ],
+      [
+        "toy",
+        "banana"
+      ]
+    ],
+    "admissible": [
+      "toy"
+    ]
+  },
+  "layout": "bpt",
+  "layout_order": [
+    "banana",
+    "pouch",
+    "toy"
+  ],
+  "layout_slots": [
+    "front",
+    "back",
+    "left"
+  ],
+  "motion": {
+    "whole": {
+      "n_actions": 1645,
+      "max_mean_speed": 0.88,
+      "max_peak_speed": 27.95,
+      "max_roll150_speed": 1.253,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "split_index": null,
+    "split_t": null,
+    "first": {
+      "n_actions": 1645,
+      "max_mean_speed": 0.88,
+      "max_peak_speed": 27.95,
+      "max_roll150_speed": 1.253,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "after": null
+  },
+  "label_ok": true,
+  "reach": "toy",
+  "attempted": [
+    "toy"
+  ],
+  "placed": [],
+  "scores": {
+    "reach_admissible": true,
+    "reach_named": null,
+    "continued": false,
+    "intent_violated": false,
+    "intent_complete": false,
+    "step_success": false,
+    "violated": false,
+    "complete": false,
+    "nearest_first": false,
+    "proximity_order": false,
+    "near_adm": false
+  },
+  "note": "",
+  "episode": {
+    "dir": "preference_eval_trials/episodes/seq_toy_pouch_banana/026_seq_toy_pouch_banana",
+    "duration": 74.15898359300081,
+    "converged": false,
+    "max_displacement": 179.2368621826172,
+    "total_actions": 1645
+  },
+  "wall_s": 112.1,
+  "config": {
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "policy_type": "pi05",
+    "actions_per_chunk": 50,
+    "chunk_size_threshold": 0.95,
+    "episode_duration": 60.0,
+    "reps": 2,
+    "prior_reps": 0,
+    "base_reps": 1,
+    "focus_keys": [
+      "qty one object",
+      "qty two objects"
+    ],
+    "focus_reps": 5,
+    "layouts": [
+      "ptb",
+      "tbp",
+      "bpt"
+    ],
+    "slots": [
+      "front",
+      "back",
+      "left"
+    ],
+    "seed": 0,
+    "convergence_grace_period": 6,
+    "action_stall_timeout": 2.0
+  }
+}

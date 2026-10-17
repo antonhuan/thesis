@@ -1,0 +1,121 @@
+{
+  "trial": 24,
+  "time": "2026-10-06T09:08:31",
+  "key": "omit toy+pouch",
+  "category": "omission",
+  "prompt": "put everything on the tray except the toy and the pouch",
+  "admissible": [
+    "banana"
+  ],
+  "spec": {
+    "excluded": [
+      "toy",
+      "pouch"
+    ],
+    "admissible": [
+      "banana"
+    ]
+  },
+  "layout": "ptb",
+  "layout_order": [
+    "pouch",
+    "toy",
+    "banana"
+  ],
+  "layout_slots": [
+    "front",
+    "back",
+    "left"
+  ],
+  "motion": {
+    "whole": {
+      "n_actions": 1652,
+      "max_mean_speed": 2.419,
+      "max_peak_speed": 128.99,
+      "max_roll150_speed": 4.393,
+      "flag_velocity": true,
+      "flag_rolling": false,
+      "flag": true
+    },
+    "split_index": 236,
+    "split_t": 9.47,
+    "first": {
+      "n_actions": 236,
+      "max_mean_speed": 0.955,
+      "max_peak_speed": 11.13,
+      "max_roll150_speed": 1.002,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "after": {
+      "n_actions": 1416,
+      "max_mean_speed": 2.662,
+      "max_peak_speed": 128.99,
+      "max_roll150_speed": 4.393,
+      "flag_velocity": true,
+      "flag_rolling": false,
+      "flag": true
+    }
+  },
+  "label_ok": true,
+  "reach": "pouch",
+  "attempted": [
+    "pouch",
+    "toy"
+  ],
+  "placed": [
+    "pouch"
+  ],
+  "scores": {
+    "reach_admissible": false,
+    "reach_named": true,
+    "continued": true,
+    "intent_violated": true,
+    "intent_complete": false,
+    "step_success": false,
+    "violated": true,
+    "complete": false,
+    "nearest_first": true,
+    "proximity_order": true,
+    "near_adm": false
+  },
+  "note": "",
+  "episode": {
+    "dir": "preference_eval_trials/episodes/omit_toy_pouch/023_omit_toy_pouch",
+    "duration": 77.4042686419998,
+    "converged": false,
+    "max_displacement": 236.1707305908203,
+    "total_actions": 1675
+  },
+  "wall_s": 179.3,
+  "config": {
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "policy_type": "pi05",
+    "actions_per_chunk": 50,
+    "chunk_size_threshold": 0.95,
+    "episode_duration": 60.0,
+    "reps": 2,
+    "prior_reps": 0,
+    "base_reps": 1,
+    "focus_keys": [
+      "qty one object",
+      "qty two objects"
+    ],
+    "focus_reps": 5,
+    "layouts": [
+      "ptb",
+      "tbp",
+      "bpt"
+    ],
+    "slots": [
+      "front",
+      "back",
+      "left"
+    ],
+    "seed": 0,
+    "convergence_grace_period": 6,
+    "action_stall_timeout": 2.0
+  },
+  "relabelled": "2026-10-06T09:12:18"
+}

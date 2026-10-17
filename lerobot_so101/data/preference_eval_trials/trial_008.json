@@ -1,0 +1,107 @@
+{
+  "trial": 8,
+  "time": "2026-10-06T08:40:15",
+  "key": "cond brown",
+  "category": "conditional",
+  "prompt": "put the brown objects on the tray",
+  "admissible": [
+    "toy",
+    "pouch"
+  ],
+  "spec": {
+    "admissible": [
+      "toy",
+      "pouch"
+    ]
+  },
+  "layout": "bpt",
+  "layout_order": [
+    "banana",
+    "pouch",
+    "toy"
+  ],
+  "layout_slots": [
+    "front",
+    "back",
+    "left"
+  ],
+  "motion": {
+    "whole": {
+      "n_actions": 1639,
+      "max_mean_speed": 2.041,
+      "max_peak_speed": 104.48,
+      "max_roll150_speed": 4.49,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "split_index": null,
+    "split_t": null,
+    "first": {
+      "n_actions": 1639,
+      "max_mean_speed": 2.041,
+      "max_peak_speed": 104.48,
+      "max_roll150_speed": 4.49,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "after": null
+  },
+  "label_ok": true,
+  "reach": "pouch",
+  "attempted": [
+    "pouch"
+  ],
+  "placed": [],
+  "scores": {
+    "reach_admissible": true,
+    "reach_named": true,
+    "continued": false,
+    "intent_violated": false,
+    "intent_complete": false,
+    "step_success": false,
+    "violated": false,
+    "complete": false,
+    "nearest_first": false,
+    "proximity_order": false,
+    "near_adm": false
+  },
+  "note": "",
+  "episode": {
+    "dir": "preference_eval_trials/episodes/cond_brown/007_cond_brown",
+    "duration": 77.19424248200085,
+    "converged": false,
+    "max_displacement": 228.0460205078125,
+    "total_actions": 1657
+  },
+  "wall_s": 94.7,
+  "config": {
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "policy_type": "pi05",
+    "actions_per_chunk": 50,
+    "chunk_size_threshold": 0.95,
+    "episode_duration": 60.0,
+    "reps": 2,
+    "prior_reps": 0,
+    "base_reps": 1,
+    "focus_keys": [
+      "qty one object",
+      "qty two objects"
+    ],
+    "focus_reps": 5,
+    "layouts": [
+      "ptb",
+      "tbp",
+      "bpt"
+    ],
+    "slots": [
+      "front",
+      "back",
+      "left"
+    ],
+    "seed": 0,
+    "convergence_grace_period": 6,
+    "action_stall_timeout": 2.0
+  }
+}

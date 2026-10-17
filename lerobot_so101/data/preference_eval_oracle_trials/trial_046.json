@@ -1,0 +1,297 @@
+{
+  "trial": 46,
+  "time": "2026-10-17T06:21:54",
+  "key": "qty two objects",
+  "category": "quantity",
+  "prompt": "put two objects on the tray",
+  "admissible": [
+    "banana",
+    "toy",
+    "pouch"
+  ],
+  "spec": {
+    "cls": [
+      "banana",
+      "toy",
+      "pouch"
+    ],
+    "n": 2,
+    "admissible": [
+      "banana",
+      "toy",
+      "pouch"
+    ]
+  },
+  "layout": "tbp",
+  "layout_order": [
+    "toy",
+    "banana",
+    "pouch"
+  ],
+  "layout_slots": [
+    "front",
+    "back",
+    "left"
+  ],
+  "label_ok": true,
+  "reach": "toy",
+  "attempted": [
+    "toy",
+    "pouch"
+  ],
+  "placed": [
+    "toy",
+    "pouch"
+  ],
+  "scores": {
+    "reach_admissible": true,
+    "reach_named": null,
+    "continued": true,
+    "intent_violated": false,
+    "intent_complete": true,
+    "step_success": true,
+    "violated": false,
+    "complete": true,
+    "nearest_first": true,
+    "proximity_order": false,
+    "near_adm": true
+  },
+  "motion": {
+    "whole": {
+      "n_actions": 1311,
+      "max_mean_speed": 1.317,
+      "max_peak_speed": 41.94,
+      "max_roll150_speed": 1.942,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "split_index": null,
+    "split_t": null,
+    "first": {
+      "n_actions": 336,
+      "max_mean_speed": 1.091,
+      "max_peak_speed": 23.41,
+      "max_roll150_speed": 1.514,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "after": {
+      "n_actions": 975,
+      "max_mean_speed": 1.317,
+      "max_peak_speed": 41.94,
+      "max_roll150_speed": 1.942,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "n_episodes": 4
+  },
+  "note": "",
+  "oracle": {
+    "episodes": [
+      {
+        "instruction": "put the toy on the tray",
+        "base": "toy",
+        "dir": "preference_eval_oracle_trials/episodes/toy/091_toy",
+        "result": {
+          "duration": 18.474373982055113,
+          "converged": true,
+          "max_displacement": 172.6098175048828,
+          "total_actions": 336
+        },
+        "wall_s": 22.3,
+        "motion": {
+          "whole": {
+            "n_actions": 336,
+            "max_mean_speed": 1.091,
+            "max_peak_speed": 23.41,
+            "max_roll150_speed": 1.514,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": 239,
+          "split_t": 8.63,
+          "first": {
+            "n_actions": 239,
+            "max_mean_speed": 0.859,
+            "max_peak_speed": 15.56,
+            "max_roll150_speed": 0.887,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": {
+            "n_actions": 97,
+            "max_mean_speed": 1.671,
+            "max_peak_speed": 23.41,
+            "max_roll150_speed": 1.671,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          }
+        }
+      },
+      {
+        "instruction": "put the banana on the tray",
+        "base": "banana",
+        "dir": "preference_eval_oracle_trials/episodes/banana/092_banana",
+        "result": {
+          "duration": 16.911577182938345,
+          "converged": false,
+          "max_displacement": 217.33058166503906,
+          "total_actions": 310
+        },
+        "wall_s": 20.7,
+        "motion": {
+          "whole": {
+            "n_actions": 310,
+            "max_mean_speed": 1.116,
+            "max_peak_speed": 20.52,
+            "max_roll150_speed": 1.768,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 310,
+            "max_mean_speed": 1.116,
+            "max_peak_speed": 20.52,
+            "max_roll150_speed": 1.768,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      },
+      {
+        "instruction": "put the banana on the tray",
+        "base": "banana",
+        "dir": "preference_eval_oracle_trials/episodes/banana/093_banana",
+        "result": {
+          "duration": 12.651226061978377,
+          "converged": false,
+          "max_displacement": 197.93919372558594,
+          "total_actions": 207
+        },
+        "wall_s": 16.5,
+        "motion": {
+          "whole": {
+            "n_actions": 207,
+            "max_mean_speed": 1.118,
+            "max_peak_speed": 16.25,
+            "max_roll150_speed": 1.431,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 207,
+            "max_mean_speed": 1.118,
+            "max_peak_speed": 16.25,
+            "max_roll150_speed": 1.431,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      },
+      {
+        "instruction": "put the pouch on the tray",
+        "base": "pouch",
+        "dir": "preference_eval_oracle_trials/episodes/pouch/094_pouch",
+        "result": {
+          "duration": 23.712282604072243,
+          "converged": true,
+          "max_displacement": 191.16470336914062,
+          "total_actions": 458
+        },
+        "wall_s": 27.5,
+        "motion": {
+          "whole": {
+            "n_actions": 458,
+            "max_mean_speed": 1.317,
+            "max_peak_speed": 41.94,
+            "max_roll150_speed": 1.942,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": 371,
+          "split_t": 13.21,
+          "first": {
+            "n_actions": 371,
+            "max_mean_speed": 1.146,
+            "max_peak_speed": 41.94,
+            "max_roll150_speed": 1.942,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": {
+            "n_actions": 87,
+            "max_mean_speed": 2.086,
+            "max_peak_speed": 31.56,
+            "max_roll150_speed": 2.086,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          }
+        }
+      }
+    ],
+    "instructions": [
+      "put the toy on the tray",
+      "put the banana on the tray",
+      "put the banana on the tray",
+      "put the pouch on the tray"
+    ],
+    "n_episodes": 4,
+    "n_repeats": 1,
+    "only_base": true
+  },
+  "episode": {
+    "dir": "preference_eval_oracle_trials/episodes/toy/091_toy",
+    "duration": 18.474373982055113,
+    "converged": true,
+    "max_displacement": 172.6098175048828,
+    "total_actions": 336
+  },
+  "wall_s": 126.9,
+  "config": {
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "policy_type": "pi05",
+    "actions_per_chunk": 50,
+    "chunk_size_threshold": 0.95,
+    "episode_duration": 60,
+    "reps": 2,
+    "prior_reps": 6,
+    "base_reps": 1,
+    "focus_keys": [
+      "qty one object",
+      "qty two objects"
+    ],
+    "focus_reps": 5,
+    "layouts": [
+      "ptb",
+      "tbp",
+      "bpt"
+    ],
+    "slots": [
+      "front",
+      "back",
+      "left"
+    ],
+    "seed": 0,
+    "convergence_grace_period": 6,
+    "action_stall_timeout": 2.0
+  }
+}

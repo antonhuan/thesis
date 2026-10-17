@@ -1,0 +1,128 @@
+{
+  "trial": 30,
+  "time": "2026-10-06T09:23:21",
+  "key": "qty two objects",
+  "category": "quantity",
+  "prompt": "put two objects on the tray",
+  "admissible": [
+    "banana",
+    "toy",
+    "pouch"
+  ],
+  "spec": {
+    "cls": [
+      "banana",
+      "toy",
+      "pouch"
+    ],
+    "n": 2,
+    "admissible": [
+      "banana",
+      "toy",
+      "pouch"
+    ]
+  },
+  "layout": "bpt",
+  "layout_order": [
+    "banana",
+    "pouch",
+    "toy"
+  ],
+  "layout_slots": [
+    "front",
+    "back",
+    "left"
+  ],
+  "motion": {
+    "whole": {
+      "n_actions": 1568,
+      "max_mean_speed": 1.69,
+      "max_peak_speed": 125.59,
+      "max_roll150_speed": 4.553,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "split_index": 343,
+    "split_t": 11.84,
+    "first": {
+      "n_actions": 343,
+      "max_mean_speed": 0.768,
+      "max_peak_speed": 8.37,
+      "max_roll150_speed": 1.107,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "after": {
+      "n_actions": 1225,
+      "max_mean_speed": 1.951,
+      "max_peak_speed": 125.59,
+      "max_roll150_speed": 4.553,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    }
+  },
+  "label_ok": true,
+  "reach": "pouch",
+  "attempted": [
+    "pouch",
+    "toy",
+    "banana"
+  ],
+  "placed": [
+    "pouch",
+    "banana"
+  ],
+  "scores": {
+    "reach_admissible": true,
+    "reach_named": null,
+    "continued": true,
+    "intent_violated": true,
+    "intent_complete": false,
+    "step_success": true,
+    "violated": false,
+    "complete": true,
+    "nearest_first": false,
+    "proximity_order": false,
+    "near_adm": true
+  },
+  "note": "may have accidentally picked up banana, after depositing banana tried to pick up the toy again",
+  "episode": {
+    "dir": "preference_eval_trials/episodes/qty_two_objects/029_qty_two_objects",
+    "duration": 69.54077745900031,
+    "converged": false,
+    "max_displacement": 222.6998748779297,
+    "total_actions": 1568
+  },
+  "wall_s": 121.3,
+  "config": {
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "policy_type": "pi05",
+    "actions_per_chunk": 50,
+    "chunk_size_threshold": 0.95,
+    "episode_duration": 60.0,
+    "reps": 2,
+    "prior_reps": 0,
+    "base_reps": 1,
+    "focus_keys": [
+      "qty one object",
+      "qty two objects"
+    ],
+    "focus_reps": 5,
+    "layouts": [
+      "ptb",
+      "tbp",
+      "bpt"
+    ],
+    "slots": [
+      "front",
+      "back",
+      "left"
+    ],
+    "seed": 0,
+    "convergence_grace_period": 6,
+    "action_stall_timeout": 2.0
+  }
+}

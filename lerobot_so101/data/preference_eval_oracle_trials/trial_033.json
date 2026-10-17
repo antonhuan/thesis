@@ -1,0 +1,253 @@
+{
+  "trial": 33,
+  "time": "2026-10-17T05:50:16",
+  "key": "cond not edible",
+  "category": "conditional",
+  "prompt": "put everything that is not edible on the tray",
+  "admissible": [
+    "toy",
+    "pouch"
+  ],
+  "spec": {
+    "admissible": [
+      "toy",
+      "pouch"
+    ]
+  },
+  "layout": "bpt",
+  "layout_order": [
+    "banana",
+    "pouch",
+    "toy"
+  ],
+  "layout_slots": [
+    "front",
+    "back",
+    "left"
+  ],
+  "label_ok": true,
+  "reach": "toy",
+  "attempted": [
+    "toy",
+    "pouch"
+  ],
+  "placed": [
+    "toy",
+    "pouch"
+  ],
+  "scores": {
+    "reach_admissible": true,
+    "reach_named": true,
+    "continued": true,
+    "intent_violated": false,
+    "intent_complete": true,
+    "step_success": true,
+    "violated": false,
+    "complete": true,
+    "nearest_first": false,
+    "proximity_order": false,
+    "near_adm": false
+  },
+  "motion": {
+    "whole": {
+      "n_actions": 1364,
+      "max_mean_speed": 2.202,
+      "max_peak_speed": 134.86,
+      "max_roll150_speed": 4.639,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "split_index": null,
+    "split_t": null,
+    "first": {
+      "n_actions": 489,
+      "max_mean_speed": 1.115,
+      "max_peak_speed": 27.15,
+      "max_roll150_speed": 1.71,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "after": {
+      "n_actions": 875,
+      "max_mean_speed": 2.202,
+      "max_peak_speed": 134.86,
+      "max_roll150_speed": 4.639,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "n_episodes": 3
+  },
+  "note": "",
+  "oracle": {
+    "episodes": [
+      {
+        "instruction": "put the toy on the tray",
+        "base": "toy",
+        "dir": "preference_eval_oracle_trials/episodes/toy/060_toy",
+        "result": {
+          "duration": 25.830210970016196,
+          "converged": true,
+          "max_displacement": 164.51206970214844,
+          "total_actions": 489
+        },
+        "wall_s": 29.6,
+        "motion": {
+          "whole": {
+            "n_actions": 489,
+            "max_mean_speed": 1.115,
+            "max_peak_speed": 27.15,
+            "max_roll150_speed": 1.71,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": 393,
+          "split_t": 13.98,
+          "first": {
+            "n_actions": 393,
+            "max_mean_speed": 0.886,
+            "max_peak_speed": 22.72,
+            "max_roll150_speed": 1.241,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": {
+            "n_actions": 96,
+            "max_mean_speed": 2.063,
+            "max_peak_speed": 27.15,
+            "max_roll150_speed": 2.063,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          }
+        }
+      },
+      {
+        "instruction": "put the pouch on the tray",
+        "base": "pouch",
+        "dir": "preference_eval_oracle_trials/episodes/pouch/061_pouch",
+        "result": {
+          "duration": 24.920217890059575,
+          "converged": false,
+          "max_displacement": 223.93017578125,
+          "total_actions": 464
+        },
+        "wall_s": 28.7,
+        "motion": {
+          "whole": {
+            "n_actions": 464,
+            "max_mean_speed": 2.202,
+            "max_peak_speed": 134.86,
+            "max_roll150_speed": 4.639,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 464,
+            "max_mean_speed": 2.202,
+            "max_peak_speed": 134.86,
+            "max_roll150_speed": 4.639,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      },
+      {
+        "instruction": "put the pouch on the tray",
+        "base": "pouch",
+        "dir": "preference_eval_oracle_trials/episodes/pouch/062_pouch",
+        "result": {
+          "duration": 22.897363933967426,
+          "converged": true,
+          "max_displacement": 206.82875061035156,
+          "total_actions": 411
+        },
+        "wall_s": 26.7,
+        "motion": {
+          "whole": {
+            "n_actions": 411,
+            "max_mean_speed": 1.274,
+            "max_peak_speed": 26.56,
+            "max_roll150_speed": 1.518,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": 312,
+          "split_t": 11.71,
+          "first": {
+            "n_actions": 312,
+            "max_mean_speed": 1.104,
+            "max_peak_speed": 24.83,
+            "max_roll150_speed": 1.42,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": {
+            "n_actions": 99,
+            "max_mean_speed": 1.915,
+            "max_peak_speed": 26.56,
+            "max_roll150_speed": 1.915,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          }
+        }
+      }
+    ],
+    "instructions": [
+      "put the toy on the tray",
+      "put the pouch on the tray",
+      "put the pouch on the tray"
+    ],
+    "n_episodes": 3,
+    "n_repeats": 1,
+    "only_base": true
+  },
+  "episode": {
+    "dir": "preference_eval_oracle_trials/episodes/toy/060_toy",
+    "duration": 25.830210970016196,
+    "converged": true,
+    "max_displacement": 164.51206970214844,
+    "total_actions": 489
+  },
+  "wall_s": 145.2,
+  "config": {
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "policy_type": "pi05",
+    "actions_per_chunk": 50,
+    "chunk_size_threshold": 0.95,
+    "episode_duration": 60,
+    "reps": 2,
+    "prior_reps": 6,
+    "base_reps": 1,
+    "focus_keys": [
+      "qty one object",
+      "qty two objects"
+    ],
+    "focus_reps": 5,
+    "layouts": [
+      "ptb",
+      "tbp",
+      "bpt"
+    ],
+    "slots": [
+      "front",
+      "back",
+      "left"
+    ],
+    "seed": 0,
+    "convergence_grace_period": 6,
+    "action_stall_timeout": 2.0
+  }
+}

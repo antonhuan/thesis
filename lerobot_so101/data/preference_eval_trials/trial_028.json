@@ -1,0 +1,127 @@
+{
+  "trial": 28,
+  "time": "2026-10-06T09:20:31",
+  "key": "seq pouch last",
+  "category": "sequencing",
+  "prompt": "put the pouch on the tray last",
+  "admissible": [
+    "banana",
+    "toy"
+  ],
+  "spec": {
+    "order": [
+      [
+        "banana",
+        "pouch"
+      ],
+      [
+        "toy",
+        "pouch"
+      ]
+    ],
+    "admissible": [
+      "banana",
+      "toy"
+    ]
+  },
+  "layout": "bpt",
+  "layout_order": [
+    "banana",
+    "pouch",
+    "toy"
+  ],
+  "layout_slots": [
+    "front",
+    "back",
+    "left"
+  ],
+  "motion": {
+    "whole": {
+      "n_actions": 490,
+      "max_mean_speed": 1.211,
+      "max_peak_speed": 37.24,
+      "max_roll150_speed": 1.791,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "split_index": 330,
+    "split_t": 12.54,
+    "first": {
+      "n_actions": 330,
+      "max_mean_speed": 1.064,
+      "max_peak_speed": 21.94,
+      "max_roll150_speed": 1.573,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "after": {
+      "n_actions": 160,
+      "max_mean_speed": 1.529,
+      "max_peak_speed": 37.24,
+      "max_roll150_speed": 1.609,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    }
+  },
+  "label_ok": true,
+  "reach": "pouch",
+  "attempted": [
+    "pouch"
+  ],
+  "placed": [
+    "pouch"
+  ],
+  "scores": {
+    "reach_admissible": false,
+    "reach_named": true,
+    "continued": false,
+    "intent_violated": true,
+    "intent_complete": false,
+    "step_success": false,
+    "violated": true,
+    "complete": false,
+    "nearest_first": false,
+    "proximity_order": false,
+    "near_adm": true
+  },
+  "note": "",
+  "episode": {
+    "dir": "preference_eval_trials/episodes/seq_pouch_last/027_seq_pouch_last",
+    "duration": 26.03022021599827,
+    "converged": true,
+    "max_displacement": 219.5703887939453,
+    "total_actions": 490
+  },
+  "wall_s": 45.4,
+  "config": {
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "policy_type": "pi05",
+    "actions_per_chunk": 50,
+    "chunk_size_threshold": 0.95,
+    "episode_duration": 60.0,
+    "reps": 2,
+    "prior_reps": 0,
+    "base_reps": 1,
+    "focus_keys": [
+      "qty one object",
+      "qty two objects"
+    ],
+    "focus_reps": 5,
+    "layouts": [
+      "ptb",
+      "tbp",
+      "bpt"
+    ],
+    "slots": [
+      "front",
+      "back",
+      "left"
+    ],
+    "seed": 0,
+    "convergence_grace_period": 6,
+    "action_stall_timeout": 2.0
+  }
+}
