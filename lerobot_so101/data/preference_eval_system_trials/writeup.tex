@@ -1,0 +1,380 @@
+% Preference-conditioned pick-and-place: VLA baseline vs. full VLM--VLA system.
+% Fragment for \input{} into the thesis. Needs: booktabs, tabularx (both standard).
+% writeup_standalone.tex wraps it for compiling on its own.
+
+\section{Preference-conditioned pick-and-place: VLA baseline vs.\ full VLM--VLA system}
+\label{sec:pref-eval}
+
+\subsection{Aim}
+
+A VLA policy fine-tuned on single-object instructions (``put the banana on the tray'') is
+given instructions that carry a \emph{preference}: an exclusion, an order, a condition on
+the objects, or a count. This experiment measures whether the VLA can follow such
+preferences on its own. It then measures how much is gained by placing it inside the full
+system, where a VLM decomposes the preference into the base sub-tasks the VLA was trained
+on, monitors each grasp, evaluates every sub-task and the final scene, and retries.
+
+The experiment asks four questions:
+\begin{enumerate}
+  \item \textbf{Intent:} does the system go for the objects the preference allows, in the
+    order it requires, and stop where it should?
+  \item \textbf{Execution:} does the final tray match the preference?
+  \item \textbf{Failure sources:} which component causes the remaining failures?
+  \item \textbf{Ablation:} does in-round replanning after a failed sub-task help?
+\end{enumerate}
+
+\subsection{Method}
+
+\subsubsection{Setup}
+\begin{itemize}
+  \item \textbf{Robot:} SO-101 arm, a wrist camera, and a top-down RealSense camera. The
+    VLA is \texttt{ant0nh/pi05\_500\_30k} in both conditions.
+  \item \textbf{Scene:} a pink tray and three objects: a banana, a brown plush moose toy
+    and a brown cylindrical pouch.
+  \item \textbf{Layouts:} objects sit in three slots, ordered nearest-first (front, back,
+    left). Three layouts (\texttt{ptb}, \texttt{tbp}, \texttt{bpt}) make each object the
+    nearest once, so a pure ``take the nearest object'' policy can be separated from
+    following the instruction.
+\end{itemize}
+
+\subsubsection{Prompt set and worklist}
+The baseline's prompt set is summarised in Table~\ref{tab:pref-prompts}. It gives
+\textbf{57 trials}. Each prompt cycles through the layouts, and the ``one object'' and
+``two objects'' prompts get five runs each. The queue is shuffled with seed~0. The full
+system ran the \emph{same} 57 (prompt, layout) items as the baseline, so every system
+trial is paired with a baseline trial.
+
+\begin{table}[t]
+  \centering
+  \caption{Prompt set and number of trials per category.}
+  \label{tab:pref-prompts}
+  \begin{tabularx}{\linewidth}{lrrX}
+    \toprule
+    Category & Prompts & Trials & Example \\
+    \midrule
+    Omission        & 6 & 12 & ``put everything on the tray except the banana and the toy'' \\
+    Sequencing      & 5 & 10 & ``put the toy on the tray first, then the pouch, then the banana'' \\
+    Conditional     & 6 & 12 & ``put everything that is not edible on the tray'' \\
+    Quantity        & 4 & 14 & ``put two objects on the tray'' \\
+    Prior (control) & 1 &  6 & ``put everything on the tray'' \\
+    Base (control)  & 3 &  3 & ``put the pouch on the tray'' \\
+    \midrule
+    Total           & 25 & 57 & \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsubsection{Conditions}
+\paragraph{Baseline.} The raw preference prompt is sent straight to the VLA, with no VLM
+and no monitor, for one 60\,s episode.
+
+\paragraph{Full system.} Each prompt runs through the orchestrator. The VLM is
+Qwen3-VL-8B at temperature 0.1.
+\begin{enumerate}
+  \item \textbf{Decompose:} a two-pass planner identifies the visible objects, filters out
+    fixtures, then decomposes the prompt into ``put the X on the tray'' sub-tasks.
+  \item \textbf{Execute:} one VLA episode per sub-task, up to 100\,s.
+  \item \textbf{Live monitor:} at the grasp, the arm is frozen; a two-pass reach check
+    runs, and the wrist camera verifies the held object. A confirmed stop ends the
+    episode; the same sub-task is retried once, and a second stop skips it.
+  \item \textbf{Sub-task evaluation:} a 32-frame clip of the episode is judged by the VLM.
+    If the arm did not move, a before/after pre-check runs first. One retry is allowed.
+  \item \textbf{Final evaluation:} a before/after scene survey, the instruction's
+    requirements (objects on or off the tray, counts), and a comparison in code. If the
+    verdict is incomplete, one retry round re-plans over the objects not yet on the tray,
+    with a count cap for count prompts.
+\end{enumerate}
+
+\paragraph{Replanning ablation.} In-round replanning after a sub-task fails all its
+attempts was enabled for the first pass through the worklist. The replan fired in 11
+trials. Those 11 (prompt, layout) items were re-run with replanning disabled, which is the
+final configuration.
+\begin{itemize}
+  \item \textbf{Replan ON} is the first pass.
+  \item \textbf{Replan OFF} is the 46 first-pass trials that never replanned (equivalent
+    to replanning off) plus the 11 re-runs.
+\end{itemize}
+
+\subsubsection{Labels and metrics}
+After every trial the operator recorded two sequences over the whole task, all episodes
+included:
+\begin{itemize}
+  \item \textbf{attempted:} the objects the arm went for, in order (a real approach and
+    grasp attempt, held or not);
+  \item \textbf{placed:} the objects on the tray at the end, in order.
+\end{itemize}
+Both conditions are scored with the same scoring function; the VLM's own verdicts are
+never the score.
+\begin{itemize}
+  \item \textbf{Intent} (from \emph{attempted}): \emph{reach admissible}, the first attempt
+    is allowed by the preference; \emph{intent complete}, the attempted sequence satisfies
+    the whole preference; \emph{intent violated}, it attempts an excluded or unselected
+    object, breaks the order, or exceeds the count.
+  \item \textbf{Execution} (from \emph{placed}): \emph{first placement admissible},
+    \emph{complete} (the placed sequence satisfies the preference), and \emph{violated}.
+  \item \textbf{Prior lift:} reach admissible minus what the prior (``put everything'')
+    trials' first-attempt distribution predicts for the same allowed set, by proximity
+    rank.
+\end{itemize}
+Paired comparisons use McNemar's exact test; intervals are 95\% Wilson intervals.
+
+\subsection{Results}
+
+\subsubsection{Headline}
+Table~\ref{tab:pref-headline} gives the results over all 57 paired trials, controls
+included. On the 48 preference trials alone (the 9 prior and base controls excluded), task
+complete is 10/48 (21\%), 31/48 (65\%) and 38/48 (79\%) for the baseline, replan ON and
+replan OFF, and violated is 26/48 (54\%), 12/48 (25\%) and 7/48 (15\%). These are the
+sums of the four preference rows of Table~\ref{tab:pref-category}; the headline table adds
+the controls (3, 8 and 8 complete).
+
+\begin{table}[t]
+  \centering
+  \caption{Results over all 57 paired trials, controls included. Brackets give 95\%
+    Wilson intervals.}
+  \label{tab:pref-headline}
+  \begin{tabular}{lccc}
+    \toprule
+    Metric & Baseline & System, replan ON & System, replan OFF \\
+    \midrule
+    First attempt admissible   & 33 (58\%) & 55 (96\%) & 55 (96\%) \\
+    Intent complete            & 10 (18\%) & 43 (75\%) & \textbf{49 (86\%)} \\
+    Intent violated            & 34 (60\%) & 13 (23\%) & \textbf{8 (14\%)} \\
+    First placement admissible & 27 (47\%) & 53 (93\%) & 54 (95\%) \\
+    \midrule
+    Task complete & 13 (23\%) [14--35] & 39 (68\%) [56--79] & \textbf{46 (81\%) [69--89]} \\
+    Violated      & 26 (46\%) [33--58] & 13 (23\%) [14--35] & \textbf{8 (14\%) [7--25]} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Paired against the baseline (replan OFF):
+\begin{itemize}
+  \item \textbf{Complete:} 35 trials only the system completed, 2 only the baseline
+    completed ($p \approx 10^{-8}$).
+  \item \textbf{Violated:} 22 trials only the baseline violated, 4 only the system
+    violated ($p \approx 5 \times 10^{-4}$).
+  \item \textbf{Intent complete:} 40 vs.\ 1 ($p \approx 4 \times 10^{-11}$).
+\end{itemize}
+
+\paragraph{Operator aborts.} Three replan-OFF trials were aborted by the operator. In both
+``put the yellow object on the tray'' trials (\#54, \#58) the planner selected all three
+objects; the operator aborted after the banana was placed, which left a ``complete''
+tray. Scored on what the system planned, these two are failures. Counted that way, replan
+OFF completes 44/57 (77\%) overall and 36/48 (75\%) of the preference trials.
+
+\subsubsection{By category}
+Table~\ref{tab:pref-category} breaks the results down by category.
+
+\begin{table}[t]
+  \centering
+  \caption{Results by category. Complete and violated are given as
+    baseline\,/\,replan ON\,/\,replan OFF; intent complete as baseline\,/\,replan OFF.}
+  \label{tab:pref-category}
+  \begin{tabular}{lrccc}
+    \toprule
+    Category & $n$ & Complete & Violated & Intent complete \\
+    \midrule
+    Omission    & 12 & 0\,/\,10\,/\,11 & 12\,/\,2\,/\,1 & 0\,/\,11 \\
+    Sequencing  & 10 & 0\,/\,3\,/\,5   & 6\,/\,4\,/\,3  & 0\,/\,8 \\
+    Conditional & 12 & 2\,/\,7\,/\,10  & 6\,/\,5\,/\,2  & 2\,/\,9 \\
+    Quantity    & 14 & 8\,/\,11\,/\,12 & 2\,/\,1\,/\,1  & 5\,/\,13 \\
+    Prior       &  6 & 0\,/\,6\,/\,6   & 0\,/\,0\,/\,0  & 0\,/\,6 \\
+    Base        &  3 & 3\,/\,2\,/\,2   & 0\,/\,1\,/\,1  & 3\,/\,2 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{Did the VLA respond to the preference?}
+\begin{itemize}
+  \item \textbf{Baseline:} the first attempt was admissible in 24 of 48 preference
+    trials (50\%; 58\% over all 57 trials including controls), against 53\% predicted from the prior's proximity-rank distribution: a lift of
+    $-3$ points. Its first attempt was the nearest object in 65\% of trials. When the
+    prompt named an object, the first attempt was that object in 79\% of trials (keyword
+    latching), including the excluded object on omission prompts. All 12 baseline
+    omission trials were violations.
+  \item \textbf{Full system:} 96\% admissible first attempts, a $+32$-point lift over the
+    same prior. Nearest-first dropped to 21\%, so the choice of object no longer follows
+    proximity.
+\end{itemize}
+
+\subsubsection{Cost}
+Table~\ref{tab:pref-cost} compares the cost of the conditions. Oscillation, as measured
+by the baseline's motion metric, was flagged in 2 of 153 system episodes and in about 4\%
+of baseline preference trials.
+
+\begin{table}[t]
+  \centering
+  \caption{Cost per trial.}
+  \label{tab:pref-cost}
+  \begin{tabular}{lccc}
+    \toprule
+     & Baseline & Replan ON & Replan OFF \\
+    \midrule
+    Wall time per trial (mean)    & 71\,s & 185\,s & 155\,s (median 144\,s) \\
+    VLA episodes per trial (mean) & 1     & 3.25   & 2.68 \\
+    Trials with a retry round     & --    & 19     & 16 \\
+    Monitor stops                 & --    & 18     & 13 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{Replanning ablation}
+With replanning on, the replan fired in 11 of 57 trials, each after a sub-task was judged
+failed on both attempts:
+\begin{itemize}
+  \item 4 times on the pouch, which was already on the tray (sub-task evaluator false
+    fails);
+  \item 5 times on an object name the VLA does not respond to, or on an invented object
+    (``cylinder'', ``case'', ``pen case'', ``black object'');
+  \item 2 times after a genuine grasp failure.
+\end{itemize}
+It never clearly recovered a trial. Six of the 11 ended violated:
+\begin{itemize}
+  \item on conditional prompts it added the unselected banana (\#15, \#22, \#41);
+  \item it kept an invented or unknown name, which the VLA or the monitor then grounded to
+    the wrong object (\#29 ``black object'', \#46 ``case'');
+  \item \#47 broke the order.
+\end{itemize}
+It also planned three objects for ``one object'' (\#36), which ended incomplete.
+
+With replanning off, 9 of the 11 re-runs completed. Only 3 of the 11 re-runs reached a
+point where a replan would have fired. Of those, one changed (\#47, violated
+$\rightarrow$ complete); \#44 completed and \#15 was violated in both conditions. The
+overall ON $\rightarrow$ OFF gain (39 $\rightarrow$ 46 complete) is therefore mostly
+variance from re-running the episodes, not a measured effect of replanning. The direct
+evidence is that the replan caused six violations and recovered nothing.
+
+\subsubsection{Component diagnostics (replan OFF)}
+\begin{itemize}
+  \item \textbf{Sub-task evaluator:} 35 of 137 judged attempts were failed. The
+    no-movement pre-check rescued 21 attempts: the arm did not move because the object was
+    already on the tray, nearly always the pouch after a false fail on the previous
+    attempt (the pouch placed onto an occupied tray). The monitor's grasp freeze takes up
+    most of the evaluation clip, and the placement appears only in the last few frames,
+    brown on brown. Each pouch false fail costs a retry episode.
+  \item \textbf{Final evaluator:} its verdict agreed with the labels in 41 of 54 trials
+    (76\%). There were 10 false ``incomplete'' verdicts: a banana hidden under the stack
+    read as ``missing'', or the pouch on a stack. Each triggers an unnecessary retry round.
+    The 3 false ``complete'' verdicts are all sequencing prompts (\#12, \#32, \#52): the
+    final evaluation ignores order by design.
+  \item \textbf{Live monitor:} 13 stops in 6 trials. Correct wrong-object catches: \#13,
+    \#35, \#49, and the banana stops in \#39. False stops: \#39's pouch, where it could not
+    match ``pouch'' with ``pencil case'', and \#12, confused by the banana lying on the
+    toy. \#45 was a wrong stop that happened to prevent a planned violation.
+  \item \textbf{Retry rounds:} replaying the 19 saved round-2 frames offline, the live
+    round-2 plans were correct in 9 of 19 and broke the prompt in 6. When told the task
+    was ``judged incomplete'', the planner planned the leftover objects even when the
+    prompt excluded them.
+\end{itemize}
+
+\subsubsection{Remaining failures}
+Table~\ref{tab:pref-failures} lists the 11 replan-OFF trials that were not complete, 8 of
+them violated, plus the two aborted ``yellow object'' trials, which are labelled complete
+but count as failures under the stricter scoring. In \#15 the final evaluation's requirements decided the toy is not brown,
+and in \#50 they did not recognise the ``pencil case'' as the excluded pouch.
+
+\begin{table}[t]
+  \centering
+  \caption{Remaining failures with replanning off.}
+  \label{tab:pref-failures}
+  \begin{tabularx}{\linewidth}{Xlr}
+    \toprule
+    Source & Trials & Violated \\
+    \midrule
+    \multicolumn{3}{l}{\textit{Round-1 planner error}} \\
+    \quad ``put the banana on the tray after the toy'' became one malformed sub-task
+      (``put the banana after the moose toy on the tray''); only the banana was placed
+      & \#32, \#52 & 2 \\
+    \quad Two objects planned for ``one of the brown objects'' & \#20 & 1 \\
+    \quad All three objects selected for ``the yellow object'' (operator aborted; labelled
+      complete, not among the 11) & \#54, \#58 & (0) \\
+    \midrule
+    Final-evaluation misread; the retry round planned an excluded or unselected object
+      & \#14, \#15, \#40, \#50 & 4 \\
+    \midrule
+    Grasp failure in a sequencing task; the object was placed later and the order broke
+      & \#12 & 1 \\
+    \midrule
+    \multicolumn{3}{l}{\textit{Incomplete, nothing violated}} \\
+    \quad Banana grasp failed; operator aborted & \#11 & 0 \\
+    \quad Monitor repeatedly stopped the pouch grasp (``pouch'' vs.\ ``pencil case'')
+      & \#39 & 0 \\
+    \quad Round 2 planned nothing; the survey missed the toy & \#53 & 0 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Discussion}
+
+\paragraph{The system's gain comes from decomposition, not from better motor control.}
+Both conditions use the same VLA. On the single-object base instructions it was trained
+on, the VLA alone succeeds (3/3). On preference prompts it ignores the preference (lift
+$-3$) and follows proximity or keyword latching. Omission makes this clearest: every
+baseline omission trial placed an excluded object, while the system completed 11 of 12.
+Decomposing the preference into the trained base instructions turns a
+preference-following problem into one the VLA was trained to solve.
+
+\paragraph{Where the system still fails, the cause is VLM perception, and the closed loop
+amplifies it.} The sub-task evaluator's false fails, the final evaluator's false
+``incomplete'' verdicts, and the monitor's stack confusion all come from the same
+weakness: objects stacked or lying on each other in the tray, especially brown on brown.
+Each error alone is mostly harmless; the no-movement pre-check absorbs most sub-task false
+fails. They become violations when a corrective step acts on them. The replan and the
+retry round were both triggered by false verdicts, and both then re-planned without
+keeping the prompt's constraint. Of the 8 replan-OFF violations, 4 are this chain: a
+final-evaluation misread followed by a retry round that planned an object the prompt
+excluded.
+
+\paragraph{Round-1 planning is reliable but not complete.} The other remaining violations
+come from the first decomposition: ``after the toy'' was copied into the sub-task text
+(2/2 trials of that prompt), ``one of the brown objects'' got two sub-tasks, and ``the
+yellow object'' selected all three objects. These are language-understanding failures of
+the planner, not perception failures. They concentrate on phrasings that differ from the
+planner's examples, which suggests targeted prompt examples or a code-side check of the
+sub-task format and count.
+
+\paragraph{Corrective loops need to be conservative.} Turning off in-round replanning
+removed a source of violations without losing recoveries. The same holds for retry rounds:
+offline, round-2 plans improved from 9/19 to 14/19 correct when the ``judged incomplete''
+framing was replaced with a neutral one (``these sub-tasks are done; plan the instruction
+against the current scene; nothing left is a valid answer''). Adding a requirements guard
+and a count cap gave 16/19. A fresh identify pass did \emph{worse} (6/19): it brought back
+invented objects. That retry-round change is not part of the measured system. It is the
+obvious next step, and it targets 4 of the 8 remaining violations.
+
+\paragraph{Naming is a hidden interface between the VLM and the VLA.} The VLM calls the
+pouch ``case'', ``pencil case'', ``cylinder'' or ``brown tube''. The VLA was trained on one
+vocabulary and does not move for unfamiliar names. The planner's exclusion check misses
+``case'' for ``except the pouch'' (\#45), and the final-evaluation survey renames objects
+between rounds (\#50). A single object list per task, shared by the planner, monitor and
+evaluator, would remove a class of errors that never shows up as a perception failure.
+
+\paragraph{Limitations.}
+\begin{itemize}
+  \item One scene and three objects. 57 trials, mostly one run per (prompt, layout), so
+    the per-category numbers are small.
+  \item One operator labelled every trial, from live observation.
+  \item The replan-OFF set combines first-pass trials with 11 re-runs recorded later in
+    the same session.
+  \item Configuration settled during the run: trial \#1 used three sub-task retries and
+    16-frame clips, and 34 trials ran with replanning enabled but never triggered it.
+  \item Two ``complete'' outcomes depend on operator aborts (\#54, \#58).
+  \item The baseline gets one 60\,s episode while the system gets several. The comparison
+    is between the policy alone and the policy as deployed in the system, not at matched
+    compute; the system takes about $2.2\times$ the baseline's wall time.
+\end{itemize}
+
+\paragraph{Next steps.}
+\begin{enumerate}
+  \item Neutral retry-round framing with the requirements guard and count cap; it is
+    validated offline (16/19) and targets the retry-round violations.
+  \item One object vocabulary per task, shared across the planner, monitor and evaluator.
+  \item A post-homing still for the sub-task evaluator, or removing frozen frames from its
+    clip, to cut pouch false fails.
+  \item Check round-1 plans in code: one object per sub-task in the standard ``put the X on
+    the tray'' form, and the number of sub-tasks within any count in the prompt (\#20,
+    \#32, \#52).
+  \item Guard vocabulary refinement against swapping in another object's name (\#17,
+    \#34).
+\end{enumerate}

@@ -1,0 +1,468 @@
+[
+ {
+  "trial": 12,
+  "prompt": "put the banana on the tray first, then the toy, then the pouch",
+  "logged": [
+   "put the banana on the tray"
+  ],
+  "T": [
+   "put the banana on the tray"
+  ],
+  "T_trace": "Visible: ['banana', 'plush toy', 'brown pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy', 'brown pouch']\nAllowed: ['banana']",
+  "F": [
+   "put the banana on the tray"
+  ],
+  "F_trace": "Visible: ['banana', 'toy', 'tray', 'table']\nExcluded: []\nCompleted: ['toy']\nAllowed: ['banana']",
+  "FN": [
+   "put the banana on the tray"
+  ],
+  "FN_trace": "Visible: ['banana', 'toy', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy', 'pouch']\nAllowed: ['banana']",
+  "NF": [
+   "put the banana on the tray"
+  ],
+  "NF_trace": "Visible: ['banana', 'toy', 'tray', 'table']\nExcluded: []\nCompleted: ['toy', 'pouch']\nAllowed: ['banana']",
+  "NT": [
+   "put the banana on the tray"
+  ],
+  "NT_trace": "Visible: ['banana', 'plush toy', 'brown pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy', 'brown pouch']\nAllowed: ['banana']"
+ },
+ {
+  "trial": 14,
+  "prompt": "put the cylindrical object on the tray",
+  "logged": [
+   "put the plush toy on the tray",
+   "put the banana on the tray"
+  ],
+  "T": [
+   "put the plush toy on the tray",
+   "put the banana on the tray"
+  ],
+  "T_trace": "Visible: ['banana', 'plush toy', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['pouch']\nAllowed: ['plush toy', 'banana']",
+  "F": [
+   "put the chocolate bar on the tray"
+  ],
+  "F_trace": "Visible: ['banana', 'plush toy', 'chocolate bar', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['chocolate bar']",
+  "FN": [
+   "put the chocolate bar on the tray"
+  ],
+  "FN_trace": "Visible: ['banana', 'plush toy', 'chocolate bar', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['chocolate bar']",
+  "NF": [
+   "put the chocolate bar on the tray"
+  ],
+  "NF_trace": "Visible: ['banana', 'plush toy', 'chocolate bar', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['chocolate bar']",
+  "NT": [
+   "put the plush toy on the tray",
+   "put the banana on the tray"
+  ],
+  "NT_trace": "Visible: ['banana', 'plush toy', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['pouch']\nAllowed: ['plush toy', 'banana']"
+ },
+ {
+  "trial": 16,
+  "prompt": "put everything on the tray except the pouch",
+  "logged": [],
+  "T": [],
+  "T_trace": "Visible: ['banana', 'plush toy', 'pouch', 'tray', 'table']\nExcluded: ['pouch']\nCompleted: ['banana', 'plush toy']\nAllowed: []",
+  "F": [],
+  "F_trace": "Visible: ['plush toy', 'pouch', 'banana', 'tray', 'table']\nExcluded: ['pouch']\nCompleted: ['plush toy', 'banana']\nAllowed: []",
+  "FN": [],
+  "FN_trace": "Visible: ['plush toy', 'pouch', 'banana', 'tray', 'table']\nExcluded: ['pouch']\nCompleted: ['plush toy', 'banana']\nAllowed: []",
+  "NF": [],
+  "NF_trace": "Visible: ['plush toy', 'pouch', 'banana', 'tray', 'table']\nExcluded: ['pouch']\nCompleted: ['plush toy', 'banana']\nAllowed: []",
+  "NT": [],
+  "NT_trace": "Visible: ['banana', 'plush toy', 'pouch', 'tray', 'table']\nExcluded: ['pouch']\nCompleted: ['banana', 'plush toy']\nAllowed: []"
+ },
+ {
+  "trial": 17,
+  "prompt": "put everything on the tray",
+  "logged": [
+   "put the banana on the tray"
+  ],
+  "T": [
+   "put the banana on the tray"
+  ],
+  "T_trace": "Visible: ['banana', 'tray', 'table']\nExcluded: []\nCompleted: []\nAllowed: ['banana']",
+  "F": [
+   "put the cylinder on the tray"
+  ],
+  "F_trace": "Visible: ['plush toy', 'cylinder', 'wall', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['cylinder']",
+  "FN": [
+   "put the cylinder on the tray",
+   "put the wall on the tray",
+   "put the black object on the tray"
+  ],
+  "FN_trace": "Visible: ['plush toy', 'cylinder', 'wall', 'black object', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['cylinder', 'wall', 'black object']",
+  "NF": [
+   "put the cylinder on the tray"
+  ],
+  "NF_trace": "Visible: ['plush toy', 'cylinder', 'wall', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['cylinder']",
+  "NT": [],
+  "NT_trace": "Visible: ['banana', 'tray', 'table']\nExcluded: []\nCompleted: ['banana']\nAllowed: []"
+ },
+ {
+  "trial": 20,
+  "prompt": "put one of the brown objects on the tray",
+  "logged": [
+   "put the brown pouch on the tray"
+  ],
+  "T": [
+   "put the brown pouch on the tray"
+  ],
+  "T_trace": "Visible: ['brown pouch', 'banana', 'tray', 'table']\nExcluded: ['banana']\nCompleted: []\nAllowed: ['brown pouch']",
+  "F": [
+   "put the pouch on the tray"
+  ],
+  "F_trace": "Visible: ['banana', 'pouch', 'toy', 'tray', 'table']\nExcluded: []\nCompleted: ['toy']\nAllowed: ['pouch']",
+  "FN": [
+   "put the pouch on the tray"
+  ],
+  "FN_trace": "Visible: ['banana', 'pouch', 'toy', 'tray', 'table']\nExcluded: []\nCompleted: ['toy']\nAllowed: ['pouch']",
+  "NF": [
+   "put the pouch on the tray"
+  ],
+  "NF_trace": "Visible: ['banana', 'pouch', 'toy', 'black object', 'tray', 'table']\nExcluded: []\nCompleted: ['toy']\nAllowed: ['pouch']",
+  "NT": [
+   "put the brown pouch on the tray"
+  ],
+  "NT_trace": "Visible: ['brown pouch', 'banana', 'tray', 'table']\nExcluded: []\nCompleted: []\nAllowed: ['brown pouch']"
+ },
+ {
+  "trial": 24,
+  "prompt": "put the pouch on the tray last",
+  "logged": [
+   "put the brown pouch on the tray"
+  ],
+  "T": [
+   "put the brown pouch on the tray"
+  ],
+  "T_trace": "Visible: ['brown pouch', 'tray', 'table']\nExcluded: []\nCompleted: []\nAllowed: ['brown pouch']",
+  "F": [
+   "put the orange object on the tray",
+   "put the brown object on the tray"
+  ],
+  "F_trace": "Visible: ['banana', 'plush toy', 'orange object', 'brown object', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy', 'banana']\nAllowed: ['orange object', 'brown object']",
+  "FN": [
+   "put the orange object on the tray",
+   "put the brown object on the tray"
+  ],
+  "FN_trace": "Visible: ['banana', 'plush toy', 'orange object', 'brown object', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy', 'banana']\nAllowed: ['orange object', 'brown object']",
+  "NF": [
+   "put the orange object on the tray",
+   "put the brown object on the tray"
+  ],
+  "NF_trace": "Visible: ['banana', 'plush toy', 'orange object', 'brown object', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy', 'banana']\nAllowed: ['orange object', 'brown object']",
+  "NT": [
+   "put the brown pouch on the tray"
+  ],
+  "NT_trace": "Visible: ['brown pouch', 'tray', 'table']\nExcluded: []\nCompleted: []\nAllowed: ['brown pouch']"
+ },
+ {
+  "trial": 28,
+  "prompt": "put everything on the tray except the banana and the pouch",
+  "logged": [],
+  "T": [],
+  "T_trace": "Visible: ['banana', 'pouch', 'tray', 'table']\nExcluded: ['banana', 'pouch']\nCompleted: []\nAllowed: []",
+  "F": [],
+  "F_trace": "Visible: ['banana', 'pouch', 'toy', 'tray', 'table']\nExcluded: ['banana', 'pouch']\nCompleted: ['toy']\nAllowed: []",
+  "FN": [],
+  "FN_trace": "Visible: ['banana', 'pouch', 'toy', 'tray', 'table']\nExcluded: ['banana', 'pouch']\nCompleted: ['toy']\nAllowed: []",
+  "NF": [],
+  "NF_trace": "Visible: ['banana', 'pouch', 'toy', 'tray', 'table']\nExcluded: ['banana', 'pouch']\nCompleted: ['toy']\nAllowed: []",
+  "NT": [],
+  "NT_trace": "Visible: ['banana', 'pouch', 'tray', 'table']\nExcluded: ['banana', 'pouch']\nCompleted: ['plush toy']\nAllowed: []"
+ },
+ {
+  "trial": 29,
+  "prompt": "put everything on the tray except the banana and the toy",
+  "logged": [],
+  "T": [],
+  "T_trace": "Visible: ['banana', 'tray', 'table']\nExcluded: ['banana']\nCompleted: []\nAllowed: []",
+  "F": [
+   "put the brown object on the tray"
+  ],
+  "F_trace": "Visible: ['banana', 'toy', 'brown object', 'tray', 'table']\nExcluded: ['banana', 'toy']\nCompleted: ['pouch', 'black object']\nAllowed: ['brown object']",
+  "FN": [
+   "put the brown object on the tray"
+  ],
+  "FN_trace": "Visible: ['banana', 'toy', 'brown object', 'tray', 'table']\nExcluded: ['banana', 'toy']\nCompleted: ['pouch', 'black object']\nAllowed: ['brown object']",
+  "NF": [],
+  "NF_trace": "Visible: ['banana', 'plush toy', 'tray', 'table']\nExcluded: ['banana', 'plush toy']\nCompleted: []\nAllowed: []",
+  "NT": [],
+  "NT_trace": "Visible: ['banana', 'tray', 'table']\nExcluded: ['banana']\nCompleted: []\nAllowed: []"
+ },
+ {
+  "trial": 34,
+  "prompt": "put everything on the tray",
+  "logged": [
+   "put the banana on the tray"
+  ],
+  "T": [
+   "put the banana on the tray"
+  ],
+  "T_trace": "Visible: ['banana', 'tray', 'table']\nExcluded: []\nCompleted: []\nAllowed: ['banana']",
+  "F": [
+   "put the case on the tray"
+  ],
+  "F_trace": "Visible: ['plush toy', 'case', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['case']",
+  "FN": [
+   "put the case on the tray"
+  ],
+  "FN_trace": "Visible: ['plush toy', 'case', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['case']",
+  "NF": [
+   "put the case on the tray"
+  ],
+  "NF_trace": "Visible: ['plush toy', 'case', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['case']",
+  "NT": [],
+  "NT_trace": "Visible: ['banana', 'tray', 'table']\nExcluded: []\nCompleted: ['banana']\nAllowed: []"
+ },
+ {
+  "trial": 39,
+  "prompt": "put two objects on the tray",
+  "logged": [
+   "put the pencil case on the tray"
+  ],
+  "T": [
+   "put the pencil case on the tray",
+   "put the banana on the tray"
+  ],
+  "T_trace": "Visible: ['pencil case', 'banana', 'tray', 'table']\nExcluded: []\nCompleted: []\nAllowed: ['pencil case', 'banana']",
+  "F": [
+   "put the banana on the tray",
+   "put the pouch on the tray"
+  ],
+  "F_trace": "Visible: ['banana', 'pouch', 'toy', 'tray', 'table']\nExcluded: []\nCompleted: ['toy']\nAllowed: ['banana', 'pouch']",
+  "FN": [
+   "put the pouch on the tray",
+   "put the banana on the tray"
+  ],
+  "FN_trace": "Visible: ['banana', 'pouch', 'toy', 'tray', 'table']\nExcluded: []\nCompleted: ['toy']\nAllowed: ['pouch', 'banana']",
+  "NF": [
+   "put the pouch on the tray"
+  ],
+  "NF_trace": "Visible: ['banana', 'pouch', 'toy', 'tray', 'table']\nExcluded: []\nCompleted: ['toy']\nAllowed: ['pouch']",
+  "NT": [
+   "put the pencil case on the tray",
+   "put the banana on the tray"
+  ],
+  "NT_trace": "Visible: ['pencil case', 'banana', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['pencil case', 'banana']"
+ },
+ {
+  "trial": 40,
+  "prompt": "put the banana on the tray",
+  "logged": [
+   "put the brown pouch on the tray"
+  ],
+  "T": [
+   "put the brown pouch on the tray"
+  ],
+  "T_trace": "Visible: ['brown pouch', 'tray', 'table']\nExcluded: []\nCompleted: []\nAllowed: ['brown pouch']",
+  "F": [
+   "put the plush toy on the tray",
+   "put the pouch on the tray"
+  ],
+  "F_trace": "Visible: ['banana', 'plush toy', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['banana']\nAllowed: ['plush toy', 'pouch']",
+  "FN": [
+   "put the plush toy on the tray",
+   "put the pouch on the tray"
+  ],
+  "FN_trace": "Visible: ['banana', 'plush toy', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['banana']\nAllowed: ['plush toy', 'pouch']",
+  "NF": [
+   "put the plush toy on the tray",
+   "put the pouch on the tray"
+  ],
+  "NF_trace": "Visible: ['banana', 'plush toy', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['banana']\nAllowed: ['plush toy', 'pouch']",
+  "NT": [],
+  "NT_trace": "Visible: ['brown pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['banana']\nAllowed: []"
+ },
+ {
+  "trial": 43,
+  "prompt": "put the pouch on the tray",
+  "logged": [
+   "put the pouch on the tray"
+  ],
+  "T": [
+   "put the pouch on the tray"
+  ],
+  "T_trace": "Visible: ['banana', 'plush toy', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['pouch']",
+  "F": [
+   "put the banana on the tray",
+   "put the plush toy on the tray"
+  ],
+  "F_trace": "Visible: ['banana', 'plush toy', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['pouch']\nAllowed: ['banana', 'plush toy']",
+  "FN": [
+   "put the banana on the tray",
+   "put the plush toy on the tray"
+  ],
+  "FN_trace": "Visible: ['banana', 'plush toy', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['pouch']\nAllowed: ['banana', 'plush toy']",
+  "NF": [],
+  "NF_trace": "Visible: ['banana', 'plush toy', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['pouch']\nAllowed: []",
+  "NT": [],
+  "NT_trace": "Visible: ['banana', 'plush toy', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['pouch']\nAllowed: []"
+ },
+ {
+  "trial": 44,
+  "prompt": "put two objects on the tray",
+  "logged": [
+   "put the plush toy on the tray"
+  ],
+  "T": [
+   "put the pouch on the tray"
+  ],
+  "T_trace": "Visible: ['plush toy', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['pouch']",
+  "F": [
+   "put the toy on the tray",
+   "put the pouch on the tray"
+  ],
+  "F_trace": "Visible: ['toy', 'pouch', 'banana', 'tray', 'table']\nExcluded: []\nCompleted: ['banana']\nAllowed: ['toy', 'pouch']",
+  "FN": [
+   "put the toy on the tray",
+   "put the pouch on the tray"
+  ],
+  "FN_trace": "Visible: ['toy', 'pouch', 'banana', 'tray', 'table']\nExcluded: []\nCompleted: ['banana']\nAllowed: ['toy', 'pouch']",
+  "NF": [
+   "put the toy on the tray",
+   "put the pouch on the tray"
+  ],
+  "NF_trace": "Visible: ['toy', 'pouch', 'banana', 'tray', 'table']\nExcluded: []\nCompleted: ['banana']\nAllowed: ['toy', 'pouch']",
+  "NT": [
+   "put the pouch on the tray"
+  ],
+  "NT_trace": "Visible: ['plush toy', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['pouch']"
+ },
+ {
+  "trial": 45,
+  "prompt": "put everything on the tray except the pouch",
+  "logged": [
+   "put the banana on the tray"
+  ],
+  "T": [
+   "put the banana on the tray"
+  ],
+  "T_trace": "Visible: ['brown pouch', 'banana', 'tray', 'table']\nExcluded: ['brown pouch']\nCompleted: []\nAllowed: ['banana']",
+  "F": [
+   "put the banana on the tray",
+   "put the chocolate bar on the tray"
+  ],
+  "F_trace": "Visible: ['banana', 'chocolate bar', 'plush toy', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['banana', 'chocolate bar']",
+  "FN": [
+   "put the banana on the tray",
+   "put the chocolate bar on the tray"
+  ],
+  "FN_trace": "Visible: ['banana', 'chocolate bar', 'plush toy', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['banana', 'chocolate bar']",
+  "NF": [
+   "put the banana on the tray",
+   "put the chocolate bar on the tray"
+  ],
+  "NF_trace": "Visible: ['banana', 'chocolate bar', 'plush toy', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['banana', 'chocolate bar']",
+  "NT": [
+   "put the banana on the tray"
+  ],
+  "NT_trace": "Visible: ['brown pouch', 'banana', 'tray', 'table']\nExcluded: ['brown pouch']\nCompleted: []\nAllowed: ['banana']"
+ },
+ {
+  "trial": 46,
+  "prompt": "put the cylindrical object on the tray",
+  "logged": [
+   "put the banana on the tray"
+  ],
+  "T": [
+   "put the banana on the tray"
+  ],
+  "T_trace": "Visible: ['banana', 'tray', 'table']\nExcluded: []\nCompleted: []\nAllowed: ['banana']",
+  "F": [
+   "put the banana on the tray"
+  ],
+  "F_trace": "Visible: ['banana', 'plush toy', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['banana']",
+  "FN": [
+   "put the banana on the tray"
+  ],
+  "FN_trace": "Visible: ['banana', 'plush toy', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['banana']",
+  "NF": [
+   "put the banana on the tray"
+  ],
+  "NF_trace": "Visible: ['banana', 'plush toy', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: ['banana']",
+  "NT": [],
+  "NT_trace": "Visible: ['banana', 'tray', 'table']\nExcluded: []\nCompleted: ['cylindrical object']\nAllowed: []"
+ },
+ {
+  "trial": 47,
+  "prompt": "put the toy on the tray first, then the pouch, then the banana",
+  "logged": [
+   "put the brown pouch on the tray"
+  ],
+  "T": [
+   "put the brown pouch on the tray"
+  ],
+  "T_trace": "Visible: ['brown pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy', 'banana']\nAllowed: ['brown pouch']",
+  "F": [
+   "put the pouch on the tray"
+  ],
+  "F_trace": "Visible: ['banana', 'stuffed animal', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['stuffed animal', 'banana']\nAllowed: ['pouch']",
+  "FN": [
+   "put the pouch on the tray"
+  ],
+  "FN_trace": "Visible: ['banana', 'stuffed animal', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['stuffed animal', 'banana']\nAllowed: ['pouch']",
+  "NF": [
+   "put the pouch on the tray"
+  ],
+  "NF_trace": "Visible: ['banana', 'stuffed animal', 'pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['stuffed animal', 'banana']\nAllowed: ['pouch']",
+  "NT": [
+   "put the brown pouch on the tray"
+  ],
+  "NT_trace": "Visible: ['brown pouch', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy', 'banana']\nAllowed: ['brown pouch']"
+ },
+ {
+  "trial": 50,
+  "prompt": "put everything on the tray except the banana and the pouch",
+  "logged": [
+   "put the pencil case on the tray"
+  ],
+  "T": [
+   "put the pencil case on the tray"
+  ],
+  "T_trace": "Visible: ['pencil case', 'banana', 'tray', 'table']\nExcluded: ['banana']\nCompleted: []\nAllowed: ['pencil case']",
+  "F": [],
+  "F_trace": "Visible: ['banana', 'pouch', 'toy', 'tray', 'table']\nExcluded: ['banana', 'pouch']\nCompleted: ['toy']\nAllowed: []",
+  "FN": [],
+  "FN_trace": "Visible: ['banana', 'pouch', 'toy', 'tray', 'table']\nExcluded: ['banana', 'pouch']\nCompleted: ['toy']\nAllowed: []",
+  "NF": [],
+  "NF_trace": "Visible: ['banana', 'pouch', 'toy', 'tray', 'table']\nExcluded: ['banana', 'pouch']\nCompleted: ['toy']\nAllowed: []",
+  "NT": [],
+  "NT_trace": "Visible: ['pencil case', 'banana', 'tray', 'table']\nExcluded: ['banana', 'pencil case']\nCompleted: ['toy']\nAllowed: []"
+ },
+ {
+  "trial": 53,
+  "prompt": "put the pouch on the tray first, then the banana, then the toy",
+  "logged": [],
+  "T": [],
+  "T_trace": "Visible: ['plush toy', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: []",
+  "F": [
+   "put the hot dog on the tray"
+  ],
+  "F_trace": "Visible: ['plush toy', 'banana', 'hot dog', 'tray', 'table']\nExcluded: []\nCompleted: ['banana', 'plush toy']\nAllowed: ['hot dog']",
+  "FN": [
+   "put the hot dog on the tray"
+  ],
+  "FN_trace": "Visible: ['plush toy', 'banana', 'hot dog', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy', 'banana']\nAllowed: ['hot dog']",
+  "NF": [
+   "put the hot dog on the tray"
+  ],
+  "NF_trace": "Visible: ['plush toy', 'banana', 'hot dog', 'tray', 'table']\nExcluded: []\nCompleted: ['banana', 'plush toy']\nAllowed: ['hot dog']",
+  "NT": [],
+  "NT_trace": "Visible: ['plush toy', 'tray', 'table']\nExcluded: []\nCompleted: ['plush toy']\nAllowed: []"
+ },
+ {
+  "trial": 55,
+  "prompt": "put the pouch on the tray first, then the banana, then the toy",
+  "logged": [],
+  "T": [],
+  "T_trace": "Visible: ['banana', 'tray', 'table']\nExcluded: []\nCompleted: ['banana']\nAllowed: []",
+  "F": [],
+  "F_trace": "Visible: ['stuffed animal', 'wall', 'tag', 'tray', 'table']\nExcluded: []\nCompleted: ['stuffed animal', 'banana', 'pouch']\nAllowed: []",
+  "FN": [],
+  "FN_trace": "Visible: ['stuffed animal', 'wall', 'tag', 'tray', 'table']\nExcluded: []\nCompleted: ['stuffed animal']\nAllowed: []",
+  "NF": [],
+  "NF_trace": "Visible: ['stuffed animal', 'wall', 'tag', 'tray', 'table']\nExcluded: []\nCompleted: ['stuffed animal']\nAllowed: []",
+  "NT": [],
+  "NT_trace": "Visible: ['banana', 'tray', 'table']\nExcluded: []\nCompleted: ['banana']\nAllowed: []"
+ }
+]

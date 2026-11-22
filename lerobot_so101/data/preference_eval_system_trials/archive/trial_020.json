@@ -1,0 +1,438 @@
+{
+  "trial": 20,
+  "time": "2026-10-10T08:47:16",
+  "key": "qty one brown",
+  "category": "quantity",
+  "prompt": "put one of the brown objects on the tray",
+  "admissible": [
+    "toy",
+    "pouch"
+  ],
+  "spec": {
+    "cls": [
+      "toy",
+      "pouch"
+    ],
+    "n": 1,
+    "admissible": [
+      "toy",
+      "pouch"
+    ]
+  },
+  "layout": "bpt",
+  "layout_order": [
+    "banana",
+    "pouch",
+    "toy"
+  ],
+  "layout_slots": [
+    "front",
+    "back",
+    "left"
+  ],
+  "label_ok": true,
+  "reach": "toy",
+  "attempted": [
+    "toy",
+    "pouch"
+  ],
+  "placed": [
+    "toy",
+    "pouch"
+  ],
+  "scores": {
+    "reach_admissible": true,
+    "reach_named": null,
+    "continued": true,
+    "intent_violated": true,
+    "intent_complete": false,
+    "step_success": true,
+    "violated": true,
+    "complete": false,
+    "nearest_first": false,
+    "proximity_order": false,
+    "near_adm": false
+  },
+  "motion": {
+    "whole": {
+      "n_actions": 2842,
+      "max_mean_speed": 1.466,
+      "max_peak_speed": 50.4,
+      "max_roll150_speed": 2.035,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "split_index": null,
+    "split_t": null,
+    "first": {
+      "n_actions": 486,
+      "max_mean_speed": 1.073,
+      "max_peak_speed": 26.93,
+      "max_roll150_speed": 1.539,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "after": {
+      "n_actions": 2356,
+      "max_mean_speed": 1.466,
+      "max_peak_speed": 50.4,
+      "max_roll150_speed": 2.035,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "n_episodes": 5
+  },
+  "system": {
+    "prompt": "put one of the brown objects on the tray",
+    "task_dir": "preference_eval_system_trials/archive/runs/run_2026-10-10_06-58-38/18",
+    "outcome": "complete",
+    "final_success": true,
+    "final_reason": "every object is where the instruction requires",
+    "rounds": [
+      {
+        "round": 1,
+        "planned": [
+          "put the toy on the tray"
+        ],
+        "replans": [],
+        "completed": [
+          "put the toy on the tray"
+        ],
+        "final_success": false,
+        "final_reason": "plush toy should not be on the tray; 0 of ['brown pouch'] on the tray, expected exactly 1",
+        "aborted": false,
+        "max_subtasks": null
+      },
+      {
+        "round": 2,
+        "planned": [
+          "put the brown pouch on the tray"
+        ],
+        "replans": [
+          {
+            "failed": "put the brown pouch on the tray",
+            "reason": "The arm reached the brown pouch but did not grasp or move it to the tray.",
+            "queue": [
+              "put the brown pouch on the tray"
+            ]
+          }
+        ],
+        "completed": [],
+        "final_success": true,
+        "final_reason": "every object is where the instruction requires",
+        "aborted": false,
+        "max_subtasks": 1
+      }
+    ],
+    "episodes": [
+      {
+        "round": 1,
+        "task_num": 1,
+        "sub_task": "put the toy on the tray",
+        "instruction": "put the toy on the tray",
+        "tag": "round1_ep01_task01_attempt1",
+        "dir": "preference_eval_system_trials/archive/episodes/toy/057_toy",
+        "result": {
+          "duration": 41.23997426102869,
+          "converged": true,
+          "max_displacement": 166.8031463623047,
+          "total_actions": 486
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": "plush toy",
+          "stopped": null
+        },
+        "judgement": {
+          "success": true,
+          "failure_type": "RETRY",
+          "reason": "The toy is now on the tray as instructed."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 486,
+            "max_mean_speed": 1.073,
+            "max_peak_speed": 26.93,
+            "max_roll150_speed": 1.539,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": 391,
+          "split_t": 29.25,
+          "first": {
+            "n_actions": 391,
+            "max_mean_speed": 0.829,
+            "max_peak_speed": 19.01,
+            "max_roll150_speed": 1.373,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": {
+            "n_actions": 95,
+            "max_mean_speed": 2.095,
+            "max_peak_speed": 26.93,
+            "max_roll150_speed": 2.095,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          }
+        }
+      },
+      {
+        "round": 2,
+        "task_num": 1,
+        "sub_task": "put the brown pouch on the tray",
+        "instruction": "put the brown pouch on the tray",
+        "tag": "round2_ep01_task01_attempt1",
+        "dir": "preference_eval_system_trials/archive/episodes/brown/058_brown",
+        "result": {
+          "duration": 61.14568622101797,
+          "converged": true,
+          "max_displacement": 205.59878540039062,
+          "total_actions": 436
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": "brown pouch",
+          "stopped": null
+        },
+        "judgement": {
+          "success": false,
+          "failure_type": "RETRY",
+          "reason": "The arm reached the brown pouch but did not grasp it, and the pouch remains on the table."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 436,
+            "max_mean_speed": 1.466,
+            "max_peak_speed": 50.4,
+            "max_roll150_speed": 2.035,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": 337,
+          "split_t": 49.86,
+          "first": {
+            "n_actions": 337,
+            "max_mean_speed": 1.212,
+            "max_peak_speed": 20.4,
+            "max_roll150_speed": 1.747,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": {
+            "n_actions": 99,
+            "max_mean_speed": 2.664,
+            "max_peak_speed": 50.4,
+            "max_roll150_speed": 2.664,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          }
+        }
+      },
+      {
+        "round": 2,
+        "task_num": 1,
+        "sub_task": "put the brown pouch on the tray",
+        "instruction": "put the brown pouch on the tray",
+        "tag": "round2_ep02_task01_attempt2",
+        "dir": "preference_eval_system_trials/archive/episodes/brown/059_brown",
+        "result": {
+          "duration": 29.230374233040493,
+          "converged": true,
+          "max_displacement": 38.0911750793457,
+          "total_actions": 611
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": null,
+          "stopped": null
+        },
+        "judgement": {
+          "success": false,
+          "failure_type": "RETRY",
+          "reason": "The arm reached the brown pouch but did not grasp or move it to the tray."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 611,
+            "max_mean_speed": 0.66,
+            "max_peak_speed": 20.56,
+            "max_roll150_speed": 0.949,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 611,
+            "max_mean_speed": 0.66,
+            "max_peak_speed": 20.56,
+            "max_roll150_speed": 0.949,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      },
+      {
+        "round": 2,
+        "task_num": 1,
+        "sub_task": "put the brown pouch on the tray",
+        "instruction": "put the brown pouch on the tray",
+        "tag": "round2_ep03_task01_attempt1",
+        "dir": "preference_eval_system_trials/archive/episodes/brown/060_brown",
+        "result": {
+          "duration": 46.867378952971194,
+          "converged": true,
+          "max_displacement": 45.97486877441406,
+          "total_actions": 1024
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": null,
+          "stopped": null
+        },
+        "judgement": {
+          "success": false,
+          "failure_type": "RETRY",
+          "reason": "The arm reached the brown pouch but did not grasp or move it to the tray."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 1024,
+            "max_mean_speed": 0.722,
+            "max_peak_speed": 38.23,
+            "max_roll150_speed": 1.6,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 1024,
+            "max_mean_speed": 0.722,
+            "max_peak_speed": 38.23,
+            "max_roll150_speed": 1.6,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      },
+      {
+        "round": 2,
+        "task_num": 1,
+        "sub_task": "put the brown pouch on the tray",
+        "instruction": "put the brown pouch on the tray",
+        "tag": "round2_ep04_task01_attempt2",
+        "dir": "preference_eval_system_trials/archive/episodes/brown/061_brown",
+        "result": {
+          "duration": 15.356998990988359,
+          "converged": true,
+          "max_displacement": 52.60008239746094,
+          "total_actions": 285
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": null,
+          "stopped": null
+        },
+        "judgement": {
+          "success": false,
+          "failure_type": "RETRY",
+          "reason": "The arm reached the brown pouch but did not grasp or move it to the tray."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 285,
+            "max_mean_speed": 0.889,
+            "max_peak_speed": 31.23,
+            "max_roll150_speed": 1.193,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 285,
+            "max_mean_speed": 0.889,
+            "max_peak_speed": 31.23,
+            "max_roll150_speed": 1.193,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      }
+    ],
+    "n_rounds": 2,
+    "n_episodes": 5,
+    "n_replans": 1,
+    "n_monitor_stops": 0,
+    "vlm_agrees": false
+  },
+  "note": "orchestrator got latched on a false subtask eval loop",
+  "episode": {
+    "dir": "preference_eval_system_trials/archive/episodes/toy/057_toy",
+    "duration": 41.23997426102869,
+    "converged": true,
+    "max_displacement": 166.8031463623047,
+    "total_actions": 486
+  },
+  "wall_s": 283.0,
+  "config": {
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "policy_type": "pi05",
+    "actions_per_chunk": 50,
+    "chunk_size_threshold": 0.95,
+    "episode_duration": 100.0,
+    "reps": 2,
+    "prior_reps": 6,
+    "base_reps": 1,
+    "focus_keys": [
+      "qty one object",
+      "qty two objects"
+    ],
+    "focus_reps": 5,
+    "layouts": [
+      "ptb",
+      "tbp",
+      "bpt"
+    ],
+    "slots": [
+      "front",
+      "back",
+      "left"
+    ],
+    "seed": 0,
+    "convergence_grace_period": 6,
+    "action_stall_timeout": 2.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct",
+    "vlm_temperature": 0.1,
+    "evaluate_subtasks": true,
+    "evaluate_final": true,
+    "max_retries": 1,
+    "max_replans": 1,
+    "max_final_retries": 1,
+    "final_eval_before_after": true,
+    "targeted_retry_decompose": true,
+    "subtask_done_precheck": true,
+    "enable_vocab_refinement": true,
+    "enable_vlm_monitor": true
+  }
+}

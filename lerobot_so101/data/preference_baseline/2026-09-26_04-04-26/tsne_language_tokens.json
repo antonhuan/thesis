@@ -1,0 +1,2598 @@
+{
+ "kl": 0.29116584769616644,
+ "perplexity": 30.0,
+ "points": [
+  {
+   "prompt": "banana",
+   "scene": "001_banana",
+   "outcome": "base",
+   "nearest": "banana",
+   "category": "base",
+   "x": 15.93902227702639,
+   "y": -5.767182527503884
+  },
+  {
+   "prompt": "banana",
+   "scene": "002_banana",
+   "outcome": "base",
+   "nearest": "banana",
+   "category": "base",
+   "x": -14.034526741711815,
+   "y": -7.977832437101034
+  },
+  {
+   "prompt": "banana",
+   "scene": "003_banana",
+   "outcome": "base",
+   "nearest": "banana",
+   "category": "base",
+   "x": 12.25972650712027,
+   "y": -4.407706750108783
+  },
+  {
+   "prompt": "banana",
+   "scene": "016_banana",
+   "outcome": "base",
+   "nearest": "banana",
+   "category": "base",
+   "x": 12.930505255948583,
+   "y": -5.579103080457959
+  },
+  {
+   "prompt": "banana",
+   "scene": "004_pouch",
+   "outcome": "base",
+   "nearest": "banana",
+   "category": "base",
+   "x": -12.432085464392511,
+   "y": -6.72834563534635
+  },
+  {
+   "prompt": "banana",
+   "scene": "009_pouch",
+   "outcome": "base",
+   "nearest": "banana",
+   "category": "base",
+   "x": 14.942359070639487,
+   "y": -6.374580958706478
+  },
+  {
+   "prompt": "banana",
+   "scene": "010_pouch",
+   "outcome": "base",
+   "nearest": "banana",
+   "category": "base",
+   "x": 15.305752612200449,
+   "y": -4.62738709772491
+  },
+  {
+   "prompt": "banana",
+   "scene": "011_pouch",
+   "outcome": "base",
+   "nearest": "banana",
+   "category": "base",
+   "x": -14.004596676125217,
+   "y": -7.25422811553992
+  },
+  {
+   "prompt": "banana",
+   "scene": "012_toy",
+   "outcome": "base",
+   "nearest": "banana",
+   "category": "base",
+   "x": 13.814764727610065,
+   "y": -4.862552889560355
+  },
+  {
+   "prompt": "banana",
+   "scene": "013_toy",
+   "outcome": "base",
+   "nearest": "banana",
+   "category": "base",
+   "x": -14.06430334070471,
+   "y": -8.211391555693083
+  },
+  {
+   "prompt": "banana",
+   "scene": "014_toy",
+   "outcome": "base",
+   "nearest": "banana",
+   "category": "base",
+   "x": 15.054476757282366,
+   "y": -5.706047083657326
+  },
+  {
+   "prompt": "banana",
+   "scene": "015_toy",
+   "outcome": "base",
+   "nearest": "banana",
+   "category": "base",
+   "x": 14.26939548575867,
+   "y": -5.8778222410531935
+  },
+  {
+   "prompt": "toy",
+   "scene": "001_banana",
+   "outcome": "base",
+   "nearest": "toy",
+   "category": "base",
+   "x": -8.782564765634856,
+   "y": 17.23091554019008
+  },
+  {
+   "prompt": "toy",
+   "scene": "002_banana",
+   "outcome": "base",
+   "nearest": "toy",
+   "category": "base",
+   "x": 12.322757581238559,
+   "y": -15.246879724541342
+  },
+  {
+   "prompt": "toy",
+   "scene": "003_banana",
+   "outcome": "base",
+   "nearest": "toy",
+   "category": "base",
+   "x": 12.072539162595767,
+   "y": -14.175910261728585
+  },
+  {
+   "prompt": "toy",
+   "scene": "016_banana",
+   "outcome": "base",
+   "nearest": "toy",
+   "category": "base",
+   "x": 13.019318689145413,
+   "y": -13.65598714987647
+  },
+  {
+   "prompt": "toy",
+   "scene": "004_pouch",
+   "outcome": "base",
+   "nearest": "toy",
+   "category": "base",
+   "x": 10.770241476197972,
+   "y": -15.636342069724034
+  },
+  {
+   "prompt": "toy",
+   "scene": "009_pouch",
+   "outcome": "base",
+   "nearest": "toy",
+   "category": "base",
+   "x": 10.113289561755353,
+   "y": -14.940959191657196
+  },
+  {
+   "prompt": "toy",
+   "scene": "010_pouch",
+   "outcome": "base",
+   "nearest": "toy",
+   "category": "base",
+   "x": -8.989748310543858,
+   "y": 17.02334792045058
+  },
+  {
+   "prompt": "toy",
+   "scene": "011_pouch",
+   "outcome": "base",
+   "nearest": "toy",
+   "category": "base",
+   "x": 13.60475502272833,
+   "y": -13.969456489533341
+  },
+  {
+   "prompt": "toy",
+   "scene": "012_toy",
+   "outcome": "base",
+   "nearest": "toy",
+   "category": "base",
+   "x": 10.334332294337829,
+   "y": -14.573837024526945
+  },
+  {
+   "prompt": "toy",
+   "scene": "013_toy",
+   "outcome": "base",
+   "nearest": "toy",
+   "category": "base",
+   "x": 12.707035788970472,
+   "y": -14.947198972270172
+  },
+  {
+   "prompt": "toy",
+   "scene": "014_toy",
+   "outcome": "base",
+   "nearest": "toy",
+   "category": "base",
+   "x": -8.420171872398182,
+   "y": 17.625250117248186
+  },
+  {
+   "prompt": "toy",
+   "scene": "015_toy",
+   "outcome": "base",
+   "nearest": "toy",
+   "category": "base",
+   "x": 10.016737388926291,
+   "y": -14.03487923212475
+  },
+  {
+   "prompt": "pouch",
+   "scene": "001_banana",
+   "outcome": "base",
+   "nearest": "pouch",
+   "category": "base",
+   "x": 21.46584488154186,
+   "y": -2.8801075435585437
+  },
+  {
+   "prompt": "pouch",
+   "scene": "002_banana",
+   "outcome": "base",
+   "nearest": "pouch",
+   "category": "base",
+   "x": 22.340760667769477,
+   "y": 3.409845204787345
+  },
+  {
+   "prompt": "pouch",
+   "scene": "003_banana",
+   "outcome": "base",
+   "nearest": "pouch",
+   "category": "base",
+   "x": -10.215455551405142,
+   "y": -1.7994720399113164
+  },
+  {
+   "prompt": "pouch",
+   "scene": "016_banana",
+   "outcome": "base",
+   "nearest": "pouch",
+   "category": "base",
+   "x": -11.152102049328803,
+   "y": -2.777645604249627
+  },
+  {
+   "prompt": "pouch",
+   "scene": "004_pouch",
+   "outcome": "base",
+   "nearest": "pouch",
+   "category": "base",
+   "x": 19.345522986017894,
+   "y": -1.3304538361086224
+  },
+  {
+   "prompt": "pouch",
+   "scene": "009_pouch",
+   "outcome": "base",
+   "nearest": "pouch",
+   "category": "base",
+   "x": -8.691546655530006,
+   "y": -3.2013697255062024
+  },
+  {
+   "prompt": "pouch",
+   "scene": "010_pouch",
+   "outcome": "base",
+   "nearest": "pouch",
+   "category": "base",
+   "x": 21.647117554263687,
+   "y": -0.1990155825155618
+  },
+  {
+   "prompt": "pouch",
+   "scene": "011_pouch",
+   "outcome": "base",
+   "nearest": "pouch",
+   "category": "base",
+   "x": 24.264908521447378,
+   "y": 2.0122732162819488
+  },
+  {
+   "prompt": "pouch",
+   "scene": "012_toy",
+   "outcome": "base",
+   "nearest": "pouch",
+   "category": "base",
+   "x": -9.088918978432506,
+   "y": -2.6987471255234565
+  },
+  {
+   "prompt": "pouch",
+   "scene": "013_toy",
+   "outcome": "base",
+   "nearest": "pouch",
+   "category": "base",
+   "x": 22.513920247618277,
+   "y": 1.8134596322107885
+  },
+  {
+   "prompt": "pouch",
+   "scene": "014_toy",
+   "outcome": "base",
+   "nearest": "pouch",
+   "category": "base",
+   "x": 20.90515907307289,
+   "y": 2.1546061829311043
+  },
+  {
+   "prompt": "pouch",
+   "scene": "015_toy",
+   "outcome": "base",
+   "nearest": "pouch",
+   "category": "base",
+   "x": -9.256416093809378,
+   "y": -3.1629741635996846
+  },
+  {
+   "prompt": "omit banana",
+   "scene": "001_banana",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "omission",
+   "x": 8.045643928134261,
+   "y": -6.9103758078734465
+  },
+  {
+   "prompt": "omit banana",
+   "scene": "002_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -13.37330794066829,
+   "y": 17.477362584437262
+  },
+  {
+   "prompt": "omit banana",
+   "scene": "003_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -13.414751039639164,
+   "y": 18.74567158198525
+  },
+  {
+   "prompt": "omit banana",
+   "scene": "016_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -5.630683603508795,
+   "y": 14.10269759632978
+  },
+  {
+   "prompt": "omit banana",
+   "scene": "004_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -13.074359048387418,
+   "y": 16.39610279680326
+  },
+  {
+   "prompt": "omit banana",
+   "scene": "009_pouch",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "omission",
+   "x": 7.388201748049801,
+   "y": -5.2853336199968295
+  },
+  {
+   "prompt": "omit banana",
+   "scene": "010_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": 8.60906267784972,
+   "y": -6.451222328891895
+  },
+  {
+   "prompt": "omit banana",
+   "scene": "011_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -15.261303615332618,
+   "y": 16.61634115792867
+  },
+  {
+   "prompt": "omit banana",
+   "scene": "012_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": 6.938720021048672,
+   "y": -4.982330190533516
+  },
+  {
+   "prompt": "omit banana",
+   "scene": "013_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -13.813210311855936,
+   "y": 16.98107339867503
+  },
+  {
+   "prompt": "omit banana",
+   "scene": "014_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": 8.963898242857118,
+   "y": -6.014665941891261
+  },
+  {
+   "prompt": "omit banana",
+   "scene": "015_toy",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "omission",
+   "x": 6.662031094243337,
+   "y": -4.798731462619295
+  },
+  {
+   "prompt": "omit toy",
+   "scene": "001_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -13.695680528671407,
+   "y": 14.676493868828844
+  },
+  {
+   "prompt": "omit toy",
+   "scene": "002_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -3.5963057728518297,
+   "y": 10.763352630911122
+  },
+  {
+   "prompt": "omit toy",
+   "scene": "003_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -1.7172246138556977,
+   "y": 10.966348218474678
+  },
+  {
+   "prompt": "omit toy",
+   "scene": "016_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -1.8962013966908002,
+   "y": 10.385354664097003
+  },
+  {
+   "prompt": "omit toy",
+   "scene": "004_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -3.920556549214928,
+   "y": 12.503910663951649
+  },
+  {
+   "prompt": "omit toy",
+   "scene": "009_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -2.4046376888055123,
+   "y": 12.683244916911235
+  },
+  {
+   "prompt": "omit toy",
+   "scene": "010_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -14.374113569839379,
+   "y": 14.207813390212317
+  },
+  {
+   "prompt": "omit toy",
+   "scene": "011_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -3.536624787204739,
+   "y": 9.58961833794671
+  },
+  {
+   "prompt": "omit toy",
+   "scene": "012_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -1.85049935275781,
+   "y": 12.443929573164235
+  },
+  {
+   "prompt": "omit toy",
+   "scene": "013_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -3.2488266448545002,
+   "y": 10.75347584010576
+  },
+  {
+   "prompt": "omit toy",
+   "scene": "014_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -14.110232501953988,
+   "y": 13.52001138862824
+  },
+  {
+   "prompt": "omit toy",
+   "scene": "015_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -1.2316096079538053,
+   "y": 12.239648086400399
+  },
+  {
+   "prompt": "omit pouch",
+   "scene": "001_banana",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -9.711483711159524,
+   "y": 12.471825262336136
+  },
+  {
+   "prompt": "omit pouch",
+   "scene": "002_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -6.572220650358522,
+   "y": 10.278764104055355
+  },
+  {
+   "prompt": "omit pouch",
+   "scene": "003_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -11.80858371398489,
+   "y": 14.23661424071924
+  },
+  {
+   "prompt": "omit pouch",
+   "scene": "016_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -7.2037121317079835,
+   "y": 13.218147021311788
+  },
+  {
+   "prompt": "omit pouch",
+   "scene": "004_pouch",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -7.052195101312538,
+   "y": 11.823851618586188
+  },
+  {
+   "prompt": "omit pouch",
+   "scene": "009_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -12.449677086100156,
+   "y": 13.625208466899855
+  },
+  {
+   "prompt": "omit pouch",
+   "scene": "010_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -8.595191134308019,
+   "y": 12.03076113559902
+  },
+  {
+   "prompt": "omit pouch",
+   "scene": "011_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -6.022388216083448,
+   "y": 11.100626378523042
+  },
+  {
+   "prompt": "omit pouch",
+   "scene": "012_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -12.332210046203436,
+   "y": 13.109780957810244
+  },
+  {
+   "prompt": "omit pouch",
+   "scene": "013_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -7.582380840955228,
+   "y": 11.01257495598025
+  },
+  {
+   "prompt": "omit pouch",
+   "scene": "014_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -8.556713770351896,
+   "y": 11.239377525865265
+  },
+  {
+   "prompt": "omit pouch",
+   "scene": "015_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -11.734676463780746,
+   "y": 13.121503563804355
+  },
+  {
+   "prompt": "omit banana+toy",
+   "scene": "001_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -19.66589591014113,
+   "y": 14.60183805607086
+  },
+  {
+   "prompt": "omit banana+toy",
+   "scene": "002_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -19.68102788740285,
+   "y": 12.007174175480813
+  },
+  {
+   "prompt": "omit banana+toy",
+   "scene": "003_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -5.729447375773973,
+   "y": 4.342897341406168
+  },
+  {
+   "prompt": "omit banana+toy",
+   "scene": "016_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -5.658128140380527,
+   "y": 4.29724054736832
+  },
+  {
+   "prompt": "omit banana+toy",
+   "scene": "004_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -18.719643053552673,
+   "y": 13.032027486831101
+  },
+  {
+   "prompt": "omit banana+toy",
+   "scene": "009_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -23.02838965680083,
+   "y": 16.032585996907542
+  },
+  {
+   "prompt": "omit banana+toy",
+   "scene": "010_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -20.52024922769671,
+   "y": 13.868058667386181
+  },
+  {
+   "prompt": "omit banana+toy",
+   "scene": "011_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -20.76167381707855,
+   "y": 11.855200335814308
+  },
+  {
+   "prompt": "omit banana+toy",
+   "scene": "012_toy",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -22.531016057252504,
+   "y": 15.908777941679753
+  },
+  {
+   "prompt": "omit banana+toy",
+   "scene": "013_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -19.435126725080927,
+   "y": 12.050116015662622
+  },
+  {
+   "prompt": "omit banana+toy",
+   "scene": "014_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -21.606096234943124,
+   "y": 15.108720461216546
+  },
+  {
+   "prompt": "omit banana+toy",
+   "scene": "015_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -23.305147745828947,
+   "y": 16.454553542937266
+  },
+  {
+   "prompt": "omit banana+pouch",
+   "scene": "001_banana",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -20.608940407334917,
+   "y": 20.81351088248668
+  },
+  {
+   "prompt": "omit banana+pouch",
+   "scene": "002_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -17.516339611714233,
+   "y": 14.722357223736502
+  },
+  {
+   "prompt": "omit banana+pouch",
+   "scene": "003_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -17.792173022382062,
+   "y": 15.884984875003381
+  },
+  {
+   "prompt": "omit banana+pouch",
+   "scene": "016_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -18.080716993442937,
+   "y": 17.837147911089247
+  },
+  {
+   "prompt": "omit banana+pouch",
+   "scene": "004_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -17.091203216154017,
+   "y": 13.674403316876287
+  },
+  {
+   "prompt": "omit banana+pouch",
+   "scene": "009_pouch",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -19.711921384520267,
+   "y": 18.92278287126463
+  },
+  {
+   "prompt": "omit banana+pouch",
+   "scene": "010_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -20.74258845233652,
+   "y": 21.022744199111354
+  },
+  {
+   "prompt": "omit banana+pouch",
+   "scene": "011_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -16.678448709776088,
+   "y": 15.744646028191111
+  },
+  {
+   "prompt": "omit banana+pouch",
+   "scene": "012_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -19.54945146131742,
+   "y": 17.956702411879867
+  },
+  {
+   "prompt": "omit banana+pouch",
+   "scene": "013_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "omission",
+   "x": -16.83583712764121,
+   "y": 14.661507181201085
+  },
+  {
+   "prompt": "omit banana+pouch",
+   "scene": "014_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -21.052839028938862,
+   "y": 19.190441103957536
+  },
+  {
+   "prompt": "omit banana+pouch",
+   "scene": "015_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -20.05932182174472,
+   "y": 18.65655199238973
+  },
+  {
+   "prompt": "omit toy+pouch",
+   "scene": "001_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -15.869883061282847,
+   "y": 12.831717251359894
+  },
+  {
+   "prompt": "omit toy+pouch",
+   "scene": "002_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -10.589225076622963,
+   "y": 7.931487093398772
+  },
+  {
+   "prompt": "omit toy+pouch",
+   "scene": "003_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -11.140121348532706,
+   "y": 9.242014018151027
+  },
+  {
+   "prompt": "omit toy+pouch",
+   "scene": "016_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -12.182942498730823,
+   "y": 9.305227319034055
+  },
+  {
+   "prompt": "omit toy+pouch",
+   "scene": "004_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -11.217386235573523,
+   "y": 10.42473901865808
+  },
+  {
+   "prompt": "omit toy+pouch",
+   "scene": "009_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -12.911791878934205,
+   "y": 10.958620478694504
+  },
+  {
+   "prompt": "omit toy+pouch",
+   "scene": "010_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -16.366568490082063,
+   "y": 11.383345623468937
+  },
+  {
+   "prompt": "omit toy+pouch",
+   "scene": "011_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -12.454663100074548,
+   "y": 8.332991794011509
+  },
+  {
+   "prompt": "omit toy+pouch",
+   "scene": "012_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -13.46758711042803,
+   "y": 10.527963868438304
+  },
+  {
+   "prompt": "omit toy+pouch",
+   "scene": "013_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -10.209993471667525,
+   "y": 8.49992169919646
+  },
+  {
+   "prompt": "omit toy+pouch",
+   "scene": "014_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "omission",
+   "x": -15.232115057491226,
+   "y": 11.5724389635923
+  },
+  {
+   "prompt": "omit toy+pouch",
+   "scene": "015_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "omission",
+   "x": -13.755250045536075,
+   "y": 10.240502375855337
+  },
+  {
+   "prompt": "seq banana>toy>pouch",
+   "scene": "001_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "sequencing",
+   "x": -26.242509802207557,
+   "y": -0.8450035339565359
+  },
+  {
+   "prompt": "seq banana>toy>pouch",
+   "scene": "002_banana",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -25.937892079359937,
+   "y": 5.778602392889874
+  },
+  {
+   "prompt": "seq banana>toy>pouch",
+   "scene": "003_banana",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -26.31114779556016,
+   "y": 4.198687263092542
+  },
+  {
+   "prompt": "seq banana>toy>pouch",
+   "scene": "016_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -21.71949987162955,
+   "y": 2.5326527453092527
+  },
+  {
+   "prompt": "seq banana>toy>pouch",
+   "scene": "004_pouch",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -27.241119476375864,
+   "y": 5.073856043127957
+  },
+  {
+   "prompt": "seq banana>toy>pouch",
+   "scene": "009_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "sequencing",
+   "x": -24.83835912766682,
+   "y": -2.4557274633739747
+  },
+  {
+   "prompt": "seq banana>toy>pouch",
+   "scene": "010_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -25.317384804504663,
+   "y": -0.5451988692827278
+  },
+  {
+   "prompt": "seq banana>toy>pouch",
+   "scene": "011_pouch",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -25.232300354960543,
+   "y": 6.651808181865442
+  },
+  {
+   "prompt": "seq banana>toy>pouch",
+   "scene": "012_toy",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -24.244275917655948,
+   "y": -1.9358648780435546
+  },
+  {
+   "prompt": "seq banana>toy>pouch",
+   "scene": "013_toy",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -25.17642939079061,
+   "y": 5.775738302487352
+  },
+  {
+   "prompt": "seq banana>toy>pouch",
+   "scene": "014_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "sequencing",
+   "x": -23.675169358193326,
+   "y": -0.2175355089028664
+  },
+  {
+   "prompt": "seq banana>toy>pouch",
+   "scene": "015_toy",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -24.825888109100926,
+   "y": -2.8127301222710948
+  },
+  {
+   "prompt": "seq toy>pouch>banana",
+   "scene": "001_banana",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "sequencing",
+   "x": -23.684822624101823,
+   "y": 7.32443967455236
+  },
+  {
+   "prompt": "seq toy>pouch>banana",
+   "scene": "002_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -20.840790065431737,
+   "y": 5.527301947809538
+  },
+  {
+   "prompt": "seq toy>pouch>banana",
+   "scene": "003_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -21.073558006563,
+   "y": 4.155248723660919
+  },
+  {
+   "prompt": "seq toy>pouch>banana",
+   "scene": "016_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -20.38065551520879,
+   "y": 4.222040759517493
+  },
+  {
+   "prompt": "seq toy>pouch>banana",
+   "scene": "004_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -22.66403185620339,
+   "y": 7.106198795755202
+  },
+  {
+   "prompt": "seq toy>pouch>banana",
+   "scene": "009_pouch",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "sequencing",
+   "x": -19.374759748230403,
+   "y": 3.51203714640627
+  },
+  {
+   "prompt": "seq toy>pouch>banana",
+   "scene": "010_pouch",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "sequencing",
+   "x": -19.513632011592495,
+   "y": 5.72946119792024
+  },
+  {
+   "prompt": "seq toy>pouch>banana",
+   "scene": "011_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -22.370446425487568,
+   "y": 5.730777014149428
+  },
+  {
+   "prompt": "seq toy>pouch>banana",
+   "scene": "012_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -19.826975375278316,
+   "y": 2.9722970565178133
+  },
+  {
+   "prompt": "seq toy>pouch>banana",
+   "scene": "013_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -21.533520004316006,
+   "y": 5.786630967215435
+  },
+  {
+   "prompt": "seq toy>pouch>banana",
+   "scene": "014_toy",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "sequencing",
+   "x": -19.313732079391766,
+   "y": 4.936615153819603
+  },
+  {
+   "prompt": "seq toy>pouch>banana",
+   "scene": "015_toy",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "sequencing",
+   "x": -19.449156190692868,
+   "y": 2.235632534831745
+  },
+  {
+   "prompt": "seq pouch>banana>toy",
+   "scene": "001_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "sequencing",
+   "x": -26.321148439212458,
+   "y": 0.7095241297066804
+  },
+  {
+   "prompt": "seq pouch>banana>toy",
+   "scene": "002_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -23.94413931229876,
+   "y": 4.0523549762302515
+  },
+  {
+   "prompt": "seq pouch>banana>toy",
+   "scene": "003_banana",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -25.323305985034903,
+   "y": 3.6123924581400066
+  },
+  {
+   "prompt": "seq pouch>banana>toy",
+   "scene": "016_banana",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -22.850210461547384,
+   "y": 3.6876507547171977
+  },
+  {
+   "prompt": "seq pouch>banana>toy",
+   "scene": "004_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -27.530689250246056,
+   "y": 0.2617695173850148
+  },
+  {
+   "prompt": "seq pouch>banana>toy",
+   "scene": "009_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -27.613539426349753,
+   "y": 1.660560754789379
+  },
+  {
+   "prompt": "seq pouch>banana>toy",
+   "scene": "010_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -25.547179555018648,
+   "y": 1.4103580064390815
+  },
+  {
+   "prompt": "seq pouch>banana>toy",
+   "scene": "011_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -23.782073579376593,
+   "y": 5.40074130384912
+  },
+  {
+   "prompt": "seq pouch>banana>toy",
+   "scene": "012_toy",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -26.592275938457448,
+   "y": 2.4090944783331283
+  },
+  {
+   "prompt": "seq pouch>banana>toy",
+   "scene": "013_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -23.399231676251013,
+   "y": 4.619565510540617
+  },
+  {
+   "prompt": "seq pouch>banana>toy",
+   "scene": "014_toy",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -23.262321908758555,
+   "y": 2.3414570054841657
+  },
+  {
+   "prompt": "seq pouch>banana>toy",
+   "scene": "015_toy",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -27.110642136626538,
+   "y": 2.2582865012032483
+  },
+  {
+   "prompt": "seq banana after toy",
+   "scene": "001_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": 15.001948746461292,
+   "y": -2.1723161654247987
+  },
+  {
+   "prompt": "seq banana after toy",
+   "scene": "002_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -12.466070027537016,
+   "y": -9.167288704362887
+  },
+  {
+   "prompt": "seq banana after toy",
+   "scene": "003_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -15.600759002393406,
+   "y": 5.221870706433023
+  },
+  {
+   "prompt": "seq banana after toy",
+   "scene": "016_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -15.000710685983607,
+   "y": 3.7197094427198323
+  },
+  {
+   "prompt": "seq banana after toy",
+   "scene": "004_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -11.89642951530546,
+   "y": -7.927528315701346
+  },
+  {
+   "prompt": "seq banana after toy",
+   "scene": "009_pouch",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "sequencing",
+   "x": -13.690737329561674,
+   "y": 3.9494572924810387
+  },
+  {
+   "prompt": "seq banana after toy",
+   "scene": "010_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": 14.674508658278256,
+   "y": -1.5543075674683777
+  },
+  {
+   "prompt": "seq banana after toy",
+   "scene": "011_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -12.264090713822736,
+   "y": -9.811452705916013
+  },
+  {
+   "prompt": "seq banana after toy",
+   "scene": "012_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -14.052545969108438,
+   "y": 4.645586083438293
+  },
+  {
+   "prompt": "seq banana after toy",
+   "scene": "013_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": -12.746624060658911,
+   "y": -9.686805790878761
+  },
+  {
+   "prompt": "seq banana after toy",
+   "scene": "014_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "sequencing",
+   "x": 14.184163477572737,
+   "y": -2.0181681545988366
+  },
+  {
+   "prompt": "seq banana after toy",
+   "scene": "015_toy",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "sequencing",
+   "x": -14.10075402248059,
+   "y": 4.262435876730024
+  },
+  {
+   "prompt": "seq pouch last",
+   "scene": "001_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": 21.56281316983617,
+   "y": -2.7036157892184787
+  },
+  {
+   "prompt": "seq pouch last",
+   "scene": "002_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": 22.464063477458133,
+   "y": 3.1453695809729596
+  },
+  {
+   "prompt": "seq pouch last",
+   "scene": "003_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -10.7106469274129,
+   "y": -0.7419946410781445
+  },
+  {
+   "prompt": "seq pouch last",
+   "scene": "016_banana",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -11.531625373407204,
+   "y": -2.079469601099378
+  },
+  {
+   "prompt": "seq pouch last",
+   "scene": "004_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": 19.36897938579593,
+   "y": -1.1690640709454914
+  },
+  {
+   "prompt": "seq pouch last",
+   "scene": "009_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -9.294241527564004,
+   "y": -0.5685792798977494
+  },
+  {
+   "prompt": "seq pouch last",
+   "scene": "010_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": 21.840519061788946,
+   "y": -0.5298914120729301
+  },
+  {
+   "prompt": "seq pouch last",
+   "scene": "011_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": 24.238788139311676,
+   "y": 2.377626109589135
+  },
+  {
+   "prompt": "seq pouch last",
+   "scene": "012_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -9.68123022975414,
+   "y": -0.23023558811735315
+  },
+  {
+   "prompt": "seq pouch last",
+   "scene": "013_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": 22.75352026499291,
+   "y": 2.1162494437190458
+  },
+  {
+   "prompt": "seq pouch last",
+   "scene": "014_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": 20.578676179470914,
+   "y": 2.9260491778592983
+  },
+  {
+   "prompt": "seq pouch last",
+   "scene": "015_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "sequencing",
+   "x": -10.090631748701286,
+   "y": 0.09405549648594924
+  },
+  {
+   "prompt": "cond yellow",
+   "scene": "001_banana",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 16.007670161905487,
+   "y": -11.234630607754834
+  },
+  {
+   "prompt": "cond yellow",
+   "scene": "002_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 13.510346163987133,
+   "y": -9.99226569243019
+  },
+  {
+   "prompt": "cond yellow",
+   "scene": "003_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 16.9393540274261,
+   "y": -9.27845024235358
+  },
+  {
+   "prompt": "cond yellow",
+   "scene": "016_banana",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 16.28755864098632,
+   "y": -8.329253986270556
+  },
+  {
+   "prompt": "cond yellow",
+   "scene": "004_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 11.78294133138863,
+   "y": -10.051371497571509
+  },
+  {
+   "prompt": "cond yellow",
+   "scene": "009_pouch",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 15.911608911944263,
+   "y": -9.34139056871791
+  },
+  {
+   "prompt": "cond yellow",
+   "scene": "010_pouch",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 15.090296108642793,
+   "y": -10.911400632076553
+  },
+  {
+   "prompt": "cond yellow",
+   "scene": "011_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 17.434170364616183,
+   "y": -10.680353627286085
+  },
+  {
+   "prompt": "cond yellow",
+   "scene": "012_toy",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 16.35863933188317,
+   "y": -9.72816509724833
+  },
+  {
+   "prompt": "cond yellow",
+   "scene": "013_toy",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 12.703491318032073,
+   "y": -9.980288447592276
+  },
+  {
+   "prompt": "cond yellow",
+   "scene": "014_toy",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 15.159980306679936,
+   "y": -10.147601575971125
+  },
+  {
+   "prompt": "cond yellow",
+   "scene": "015_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 15.011632468738252,
+   "y": -8.998628903610774
+  },
+  {
+   "prompt": "cond fruit",
+   "scene": "001_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 2.719047468756411,
+   "y": 6.056000962916098
+  },
+  {
+   "prompt": "cond fruit",
+   "scene": "002_banana",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 5.479828654777154,
+   "y": 5.369775815050176
+  },
+  {
+   "prompt": "cond fruit",
+   "scene": "003_banana",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 9.00856196854571,
+   "y": 2.4818245608971705
+  },
+  {
+   "prompt": "cond fruit",
+   "scene": "016_banana",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 8.314029744277226,
+   "y": 2.7880701343973473
+  },
+  {
+   "prompt": "cond fruit",
+   "scene": "004_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 8.419768529901582,
+   "y": 4.2422541631497745
+  },
+  {
+   "prompt": "cond fruit",
+   "scene": "009_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 9.833635470364197,
+   "y": 4.076156989552831
+  },
+  {
+   "prompt": "cond fruit",
+   "scene": "010_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 2.9998154030406887,
+   "y": 6.069068109128888
+  },
+  {
+   "prompt": "cond fruit",
+   "scene": "011_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 7.4067844420953675,
+   "y": 3.2095395976769665
+  },
+  {
+   "prompt": "cond fruit",
+   "scene": "012_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 9.811106028678843,
+   "y": 3.679958324425643
+  },
+  {
+   "prompt": "cond fruit",
+   "scene": "013_toy",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 4.385976487574125,
+   "y": 5.716740672472591
+  },
+  {
+   "prompt": "cond fruit",
+   "scene": "014_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 6.819144184357519,
+   "y": 4.787767907697458
+  },
+  {
+   "prompt": "cond fruit",
+   "scene": "015_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 9.325451327977841,
+   "y": 3.674830661984551
+  },
+  {
+   "prompt": "cond furry",
+   "scene": "001_banana",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 30.42129238982585,
+   "y": -11.21383656953066
+  },
+  {
+   "prompt": "cond furry",
+   "scene": "002_banana",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 28.995096092609042,
+   "y": -10.775732741781344
+  },
+  {
+   "prompt": "cond furry",
+   "scene": "003_banana",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 24.73563357045734,
+   "y": -10.980434191448046
+  },
+  {
+   "prompt": "cond furry",
+   "scene": "016_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 26.955668269344375,
+   "y": -10.498118885401
+  },
+  {
+   "prompt": "cond furry",
+   "scene": "004_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 28.133388835037014,
+   "y": -11.001846206567393
+  },
+  {
+   "prompt": "cond furry",
+   "scene": "009_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 27.585548364819427,
+   "y": -12.651104049390778
+  },
+  {
+   "prompt": "cond furry",
+   "scene": "010_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 29.673328684153386,
+   "y": -11.620737798673144
+  },
+  {
+   "prompt": "cond furry",
+   "scene": "011_pouch",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 25.88435831717289,
+   "y": -10.52685946903516
+  },
+  {
+   "prompt": "cond furry",
+   "scene": "012_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 26.68904614729765,
+   "y": -11.795617765508752
+  },
+  {
+   "prompt": "cond furry",
+   "scene": "013_toy",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 29.244053097124272,
+   "y": -10.28693951267127
+  },
+  {
+   "prompt": "cond furry",
+   "scene": "014_toy",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 28.46333292414581,
+   "y": -12.338970758435908
+  },
+  {
+   "prompt": "cond furry",
+   "scene": "015_toy",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 27.165276063009106,
+   "y": -11.746446977786452
+  },
+  {
+   "prompt": "cond cylindrical",
+   "scene": "001_banana",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 22.329147357157936,
+   "y": -7.46821106970812
+  },
+  {
+   "prompt": "cond cylindrical",
+   "scene": "002_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 19.68972614858272,
+   "y": -8.25777978429988
+  },
+  {
+   "prompt": "cond cylindrical",
+   "scene": "003_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 18.58754371423914,
+   "y": -8.869888200067052
+  },
+  {
+   "prompt": "cond cylindrical",
+   "scene": "016_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 20.233802127602974,
+   "y": -8.895714678798464
+  },
+  {
+   "prompt": "cond cylindrical",
+   "scene": "004_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 20.445688360003285,
+   "y": -6.893643768427782
+  },
+  {
+   "prompt": "cond cylindrical",
+   "scene": "009_pouch",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 18.992342406812842,
+   "y": -7.41945308123766
+  },
+  {
+   "prompt": "cond cylindrical",
+   "scene": "010_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 22.466178017260162,
+   "y": -8.380072032223941
+  },
+  {
+   "prompt": "cond cylindrical",
+   "scene": "011_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 20.147593967975688,
+   "y": -9.997521331402847
+  },
+  {
+   "prompt": "cond cylindrical",
+   "scene": "012_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 18.398936570359485,
+   "y": -7.616302379281965
+  },
+  {
+   "prompt": "cond cylindrical",
+   "scene": "013_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 19.15206094571126,
+   "y": -9.336347728322695
+  },
+  {
+   "prompt": "cond cylindrical",
+   "scene": "014_toy",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 21.536091890935726,
+   "y": -8.194272791868613
+  },
+  {
+   "prompt": "cond cylindrical",
+   "scene": "015_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 19.0961312250531,
+   "y": -6.747301962441194
+  },
+  {
+   "prompt": "cond brown",
+   "scene": "001_banana",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 21.470059707227932,
+   "y": -13.801227572938943
+  },
+  {
+   "prompt": "cond brown",
+   "scene": "002_banana",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 18.410040053876088,
+   "y": -14.128700557246345
+  },
+  {
+   "prompt": "cond brown",
+   "scene": "003_banana",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 6.9990260524872125,
+   "y": -20.518966668711055
+  },
+  {
+   "prompt": "cond brown",
+   "scene": "016_banana",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 5.772245380455926,
+   "y": -20.786064599426794
+  },
+  {
+   "prompt": "cond brown",
+   "scene": "004_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 19.23190495800213,
+   "y": -12.29533852951868
+  },
+  {
+   "prompt": "cond brown",
+   "scene": "009_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 6.083742829646262,
+   "y": -19.738124830702713
+  },
+  {
+   "prompt": "cond brown",
+   "scene": "010_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 21.274411432317866,
+   "y": -13.507913296749848
+  },
+  {
+   "prompt": "cond brown",
+   "scene": "011_pouch",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 17.90963956143334,
+   "y": -13.230983352047446
+  },
+  {
+   "prompt": "cond brown",
+   "scene": "012_toy",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": 6.5195039984829455,
+   "y": -19.620048386266085
+  },
+  {
+   "prompt": "cond brown",
+   "scene": "013_toy",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": 18.537647525885532,
+   "y": -12.945354076696615
+  },
+  {
+   "prompt": "cond brown",
+   "scene": "014_toy",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 20.257158326940953,
+   "y": -13.781121745686614
+  },
+  {
+   "prompt": "cond brown",
+   "scene": "015_toy",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": 5.331984164802282,
+   "y": -19.818368049102308
+  },
+  {
+   "prompt": "cond not edible",
+   "scene": "001_banana",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": -4.673352987240034,
+   "y": 23.594390015766983
+  },
+  {
+   "prompt": "cond not edible",
+   "scene": "002_banana",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": -6.807872223198974,
+   "y": 25.302823362989873
+  },
+  {
+   "prompt": "cond not edible",
+   "scene": "003_banana",
+   "outcome": "fail",
+   "nearest": "banana",
+   "category": "conditional",
+   "x": -5.49575186196089,
+   "y": 25.475450933867403
+  },
+  {
+   "prompt": "cond not edible",
+   "scene": "016_banana",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": -4.904824037382487,
+   "y": 26.110069903782854
+  },
+  {
+   "prompt": "cond not edible",
+   "scene": "004_pouch",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": -5.233870254642249,
+   "y": 24.5598369560644
+  },
+  {
+   "prompt": "cond not edible",
+   "scene": "009_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": -6.841744412864664,
+   "y": 22.621370207867294
+  },
+  {
+   "prompt": "cond not edible",
+   "scene": "010_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": -4.05096866726876,
+   "y": 24.1855401697907
+  },
+  {
+   "prompt": "cond not edible",
+   "scene": "011_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": -7.527646821477179,
+   "y": 25.015434943568316
+  },
+  {
+   "prompt": "cond not edible",
+   "scene": "012_toy",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": -6.937236581948772,
+   "y": 23.056681052379542
+  },
+  {
+   "prompt": "cond not edible",
+   "scene": "013_toy",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": -6.602743542137802,
+   "y": 24.44755029248028
+  },
+  {
+   "prompt": "cond not edible",
+   "scene": "014_toy",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "conditional",
+   "x": -5.888025753191958,
+   "y": 23.38584141617254
+  },
+  {
+   "prompt": "cond not edible",
+   "scene": "015_toy",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "conditional",
+   "x": -6.425953478128856,
+   "y": 22.31713230597691
+  },
+  {
+   "prompt": "qty one object",
+   "scene": "001_banana",
+   "outcome": "n/a",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 15.520118790536396,
+   "y": -21.66013702274856
+  },
+  {
+   "prompt": "qty one object",
+   "scene": "002_banana",
+   "outcome": "n/a",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 15.92375890697813,
+   "y": -18.79682717478096
+  },
+  {
+   "prompt": "qty one object",
+   "scene": "003_banana",
+   "outcome": "n/a",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 15.62026504781513,
+   "y": -17.93541141683096
+  },
+  {
+   "prompt": "qty one object",
+   "scene": "016_banana",
+   "outcome": "n/a",
+   "nearest": "banana",
+   "category": "quantity",
+   "x": 14.103599979294223,
+   "y": -18.579469655636263
+  },
+  {
+   "prompt": "qty one object",
+   "scene": "004_pouch",
+   "outcome": "n/a",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 14.975370978008181,
+   "y": -19.918142265833744
+  },
+  {
+   "prompt": "qty one object",
+   "scene": "009_pouch",
+   "outcome": "n/a",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 13.266321959931249,
+   "y": -22.956264348905965
+  },
+  {
+   "prompt": "qty one object",
+   "scene": "010_pouch",
+   "outcome": "n/a",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": 15.075027289087958,
+   "y": -21.5615322796406
+  },
+  {
+   "prompt": "qty one object",
+   "scene": "011_pouch",
+   "outcome": "n/a",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": 16.91214320347745,
+   "y": -20.203723586039807
+  },
+  {
+   "prompt": "qty one object",
+   "scene": "012_toy",
+   "outcome": "n/a",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 14.822641560584158,
+   "y": -17.838433514621737
+  },
+  {
+   "prompt": "qty one object",
+   "scene": "013_toy",
+   "outcome": "n/a",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 16.002881045776856,
+   "y": -19.35785360231558
+  },
+  {
+   "prompt": "qty one object",
+   "scene": "014_toy",
+   "outcome": "n/a",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 14.308703227310966,
+   "y": -22.283061972991558
+  },
+  {
+   "prompt": "qty one object",
+   "scene": "015_toy",
+   "outcome": "n/a",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": 13.160883924266068,
+   "y": -22.992988761911224
+  },
+  {
+   "prompt": "qty two objects",
+   "scene": "001_banana",
+   "outcome": "n/a",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": 20.94290195550649,
+   "y": -17.697529990472397
+  },
+  {
+   "prompt": "qty two objects",
+   "scene": "002_banana",
+   "outcome": "n/a",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 19.276990483736903,
+   "y": -16.88983730785908
+  },
+  {
+   "prompt": "qty two objects",
+   "scene": "003_banana",
+   "outcome": "n/a",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 20.84284227697044,
+   "y": -20.24412762624218
+  },
+  {
+   "prompt": "qty two objects",
+   "scene": "016_banana",
+   "outcome": "n/a",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": 21.969507270655168,
+   "y": -20.555348152708508
+  },
+  {
+   "prompt": "qty two objects",
+   "scene": "004_pouch",
+   "outcome": "n/a",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 19.881607463998,
+   "y": -19.071847185737713
+  },
+  {
+   "prompt": "qty two objects",
+   "scene": "009_pouch",
+   "outcome": "n/a",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 22.825306814923817,
+   "y": -19.39729092493714
+  },
+  {
+   "prompt": "qty two objects",
+   "scene": "010_pouch",
+   "outcome": "n/a",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": 20.672908721952556,
+   "y": -18.037146587351366
+  },
+  {
+   "prompt": "qty two objects",
+   "scene": "011_pouch",
+   "outcome": "n/a",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": 18.72407803198865,
+   "y": -17.676873611598687
+  },
+  {
+   "prompt": "qty two objects",
+   "scene": "012_toy",
+   "outcome": "n/a",
+   "nearest": "banana",
+   "category": "quantity",
+   "x": 22.75592713757202,
+   "y": -18.97051594523008
+  },
+  {
+   "prompt": "qty two objects",
+   "scene": "013_toy",
+   "outcome": "n/a",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 19.417932710495823,
+   "y": -17.62374966891761
+  },
+  {
+   "prompt": "qty two objects",
+   "scene": "014_toy",
+   "outcome": "n/a",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": 21.524542866821164,
+   "y": -19.253240102433068
+  },
+  {
+   "prompt": "qty two objects",
+   "scene": "015_toy",
+   "outcome": "n/a",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": 23.320517731047413,
+   "y": -20.069756359445453
+  },
+  {
+   "prompt": "qty one brown",
+   "scene": "001_banana",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": -3.3604739179231227,
+   "y": -7.94107618508514
+  },
+  {
+   "prompt": "qty one brown",
+   "scene": "002_banana",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 1.822125373457334,
+   "y": -11.528995711294865
+  },
+  {
+   "prompt": "qty one brown",
+   "scene": "003_banana",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": -1.1383998681735317,
+   "y": -10.118558269684762
+  },
+  {
+   "prompt": "qty one brown",
+   "scene": "016_banana",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": -0.020841687383470104,
+   "y": -10.119842383651843
+  },
+  {
+   "prompt": "qty one brown",
+   "scene": "004_pouch",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 0.1562468411102877,
+   "y": -12.220358851446989
+  },
+  {
+   "prompt": "qty one brown",
+   "scene": "009_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": -2.691978570292773,
+   "y": -8.304648436810382
+  },
+  {
+   "prompt": "qty one brown",
+   "scene": "010_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": -0.12484001448682458,
+   "y": -11.306577871862784
+  },
+  {
+   "prompt": "qty one brown",
+   "scene": "011_pouch",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": 2.4109603870371896,
+   "y": -11.09278563224949
+  },
+  {
+   "prompt": "qty one brown",
+   "scene": "012_toy",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": -1.4524822269975313,
+   "y": -9.440519868801962
+  },
+  {
+   "prompt": "qty one brown",
+   "scene": "013_toy",
+   "outcome": "ok",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 2.968892256139311,
+   "y": -11.372595582038059
+  },
+  {
+   "prompt": "qty one brown",
+   "scene": "014_toy",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": 0.7274230903560758,
+   "y": -10.971404641458967
+  },
+  {
+   "prompt": "qty one brown",
+   "scene": "015_toy",
+   "outcome": "ok",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": -2.3695610981119133,
+   "y": -8.60842276348014
+  },
+  {
+   "prompt": "qty one fruit",
+   "scene": "001_banana",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 0.4453846802112083,
+   "y": 4.876490524293615
+  },
+  {
+   "prompt": "qty one fruit",
+   "scene": "002_banana",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "quantity",
+   "x": 1.4284875004799749,
+   "y": 2.2214218730951725
+  },
+  {
+   "prompt": "qty one fruit",
+   "scene": "003_banana",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "quantity",
+   "x": 2.1072932741138994,
+   "y": 1.4172844746674307
+  },
+  {
+   "prompt": "qty one fruit",
+   "scene": "016_banana",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "quantity",
+   "x": 2.7613385754408086,
+   "y": 0.2953999258927902
+  },
+  {
+   "prompt": "qty one fruit",
+   "scene": "004_pouch",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "quantity",
+   "x": 2.9904684327406685,
+   "y": 1.8754512005454578
+  },
+  {
+   "prompt": "qty one fruit",
+   "scene": "009_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 4.433960705269758,
+   "y": 0.6647073006135811
+  },
+  {
+   "prompt": "qty one fruit",
+   "scene": "010_pouch",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 0.8873483294103323,
+   "y": 4.303343931515018
+  },
+  {
+   "prompt": "qty one fruit",
+   "scene": "011_pouch",
+   "outcome": "fail",
+   "nearest": "pouch",
+   "category": "quantity",
+   "x": 0.36299276968652966,
+   "y": 2.2182269442683653
+  },
+  {
+   "prompt": "qty one fruit",
+   "scene": "012_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 3.806081054250054,
+   "y": 0.8432044150211944
+  },
+  {
+   "prompt": "qty one fruit",
+   "scene": "013_toy",
+   "outcome": "ok",
+   "nearest": "banana",
+   "category": "quantity",
+   "x": 0.5879606594294746,
+   "y": 3.149080477957031
+  },
+  {
+   "prompt": "qty one fruit",
+   "scene": "014_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 1.6401708988522352,
+   "y": 3.1152630938995594
+  },
+  {
+   "prompt": "qty one fruit",
+   "scene": "015_toy",
+   "outcome": "fail",
+   "nearest": "toy",
+   "category": "quantity",
+   "x": 4.2444627868380875,
+   "y": 0.3516172239790735
+  }
+ ]
+}

@@ -1,0 +1,124 @@
+{
+  "trial": 63,
+  "time": "2026-09-28T03:47:31",
+  "vla_task": "put the pouch on the tray",
+  "monitor_task": "put the pouch on the tray",
+  "label": "correct",
+  "outcome": "STOP",
+  "stop": {
+    "frame": 9,
+    "t": 8.33,
+    "reason": "The arm is going for a plush toy, which is not the target object (pouch). The perception pass has resolved the object, and it is clearly different from the sub-task's target.",
+    "verify": "wrist held 'other' (other/other), task object grounded to 'stuffed animal'"
+  },
+  "committed": false,
+  "held_object": null,
+  "reach_windows": 1,
+  "stale_skipped": 1,
+  "verify_calls": 4,
+  "n_frames": 11,
+  "first_close": 7,
+  "gate_open_at": null,
+  "verify": {
+    "close_frame": 7,
+    "probe": "grasp freeze t=9.30s",
+    "frozen_at": 9.297542164917104,
+    "frozen_aperture": 13.082191780821917,
+    "held": "other",
+    "answers": [
+      {
+        "frame": 0,
+        "object": "other",
+        "reason": "the object held between the jaws appears to be a dark, textured item that is not clearly identifiable as a banana or stuffed animal; it looks more like a piece of fabric or a tool part."
+      },
+      {
+        "frame": 1,
+        "object": "other",
+        "reason": "The object held between the jaws appears to be a dark, textured, possibly metallic or plastic item with speckles, not matching the description of a banana or stuffed animal."
+      }
+    ],
+    "grounded": "stuffed animal",
+    "inventory": [
+      {
+        "name": "banana",
+        "appearance": "yellow curved fruit with brown spots"
+      },
+      {
+        "name": "stuffed animal",
+        "appearance": "brown furry with horns and brown pillow"
+      }
+    ],
+    "verify_s": 19.19
+  },
+  "timeline": [
+    {
+      "frame": 9,
+      "t": 8.33,
+      "action": "SUSPECT",
+      "reason": "single check says STOP \u2014 verifying on the frozen wrist: The arm is going for a plush toy, which is not the target object (pouch). The perception pass has resolved the object, and it is clearly different from the sub-task's target.",
+      "check_s": 17.15
+    },
+    {
+      "frame": 9,
+      "t": 8.33,
+      "action": "STOP",
+      "reason": "[verify: wrist held 'other' (other/other), task object grounded to 'stuffed animal'] The arm is going for a plush toy, which is not the target object (pouch). The perception pass has resolved the object, and it is clearly different from the sub-task's target.",
+      "check_s": 19.19
+    }
+  ],
+  "freeze_images": [
+    "live_monitor_trials/freeze/trial_063_wrist_0.png",
+    "live_monitor_trials/freeze/trial_063_front_0.png",
+    "live_monitor_trials/freeze/trial_063_wrist_1.png",
+    "live_monitor_trials/freeze/trial_063_front_1.png"
+  ],
+  "empty_closes": [
+    {
+      "t": 6.32,
+      "aperture": 1.4,
+      "peak": 27.5
+    }
+  ],
+  "inventory_dropped": [
+    {
+      "name": "pink tray",
+      "appearance": "empty rectangular pink tray"
+    }
+  ],
+  "episode": {
+    "dir": "live_monitor_trials/episodes/pouch/064_pouch",
+    "duration": 53.71003247797489,
+    "converged": false,
+    "max_displacement": 213.22421264648438,
+    "total_actions": 227
+  },
+  "wall_s": 66.0,
+  "note": "",
+  "config": {
+    "gate": "grasp",
+    "horizon": 20,
+    "tail": 1,
+    "verify": true,
+    "match": "inventory",
+    "objects": [
+      "banana",
+      "brown pouch",
+      "plush moose toy"
+    ],
+    "window": 4,
+    "ground_compare": false,
+    "unclear_wrist_decides": true,
+    "grasp_fallback_frames": 6,
+    "freeze_stall_eps": 0.5,
+    "freeze_settle_s": 0.3,
+    "verify_frame_gap_s": 0.2,
+    "min_hold_aperture": 4.0,
+    "pause_refreshes": 1,
+    "post_pause_grace_s": 5.0,
+    "chunk_size_threshold": 0.95,
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "temperature": 0.1,
+    "episode_duration": 100.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct"
+  }
+}

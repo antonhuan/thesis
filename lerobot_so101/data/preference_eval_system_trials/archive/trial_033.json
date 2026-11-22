@@ -1,0 +1,482 @@
+{
+  "trial": 33,
+  "time": "2026-10-10T09:34:39",
+  "key": "seq pouch last",
+  "category": "sequencing",
+  "prompt": "put the pouch on the tray last",
+  "admissible": [
+    "banana",
+    "toy"
+  ],
+  "spec": {
+    "order": [
+      [
+        "banana",
+        "pouch"
+      ],
+      [
+        "toy",
+        "pouch"
+      ]
+    ],
+    "admissible": [
+      "banana",
+      "toy"
+    ]
+  },
+  "layout": "bpt",
+  "layout_order": [
+    "banana",
+    "pouch",
+    "toy"
+  ],
+  "layout_slots": [
+    "front",
+    "back",
+    "left"
+  ],
+  "label_ok": true,
+  "reach": "banana",
+  "attempted": [
+    "banana",
+    "toy"
+  ],
+  "placed": [
+    "banana",
+    "toy"
+  ],
+  "scores": {
+    "reach_admissible": true,
+    "reach_named": false,
+    "continued": true,
+    "intent_violated": false,
+    "intent_complete": false,
+    "step_success": true,
+    "violated": false,
+    "complete": false,
+    "nearest_first": true,
+    "proximity_order": false,
+    "near_adm": true
+  },
+  "motion": {
+    "whole": {
+      "n_actions": 1397,
+      "max_mean_speed": 1.359,
+      "max_peak_speed": 42.68,
+      "max_roll150_speed": 2.095,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "split_index": null,
+    "split_t": null,
+    "first": {
+      "n_actions": 463,
+      "max_mean_speed": 0.984,
+      "max_peak_speed": 16.47,
+      "max_roll150_speed": 1.32,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "after": {
+      "n_actions": 934,
+      "max_mean_speed": 1.359,
+      "max_peak_speed": 42.68,
+      "max_roll150_speed": 2.095,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "n_episodes": 6
+  },
+  "system": {
+    "prompt": "put the pouch on the tray last",
+    "task_dir": "preference_eval_system_trials/archive/runs/run_2026-10-10_06-58-38/31",
+    "outcome": "complete",
+    "final_success": true,
+    "final_reason": "every object is where the instruction requires",
+    "rounds": [
+      {
+        "round": 1,
+        "planned": [
+          "put the toy on the tray",
+          "put the banana on the tray",
+          "put the cylinder on the tray",
+          "put the black object on the tray"
+        ],
+        "replans": [
+          {
+            "failed": "put the cylinder on the tray",
+            "reason": "The arm reached the cylinder but did not grasp it, and it remained on the table.",
+            "queue": [
+              "put the cylinder on the tray"
+            ]
+          }
+        ],
+        "completed": [
+          "put the toy on the tray",
+          "put the banana on the tray"
+        ],
+        "final_success": true,
+        "final_reason": "every object is where the instruction requires",
+        "aborted": false,
+        "max_subtasks": null
+      }
+    ],
+    "episodes": [
+      {
+        "round": 1,
+        "task_num": 1,
+        "sub_task": "put the toy on the tray",
+        "instruction": "put the toy on the tray",
+        "tag": "round1_ep01_task01_attempt1",
+        "dir": "preference_eval_system_trials/archive/episodes/toy/095_toy",
+        "result": {
+          "duration": 39.23522454401245,
+          "converged": true,
+          "max_displacement": 164.87403869628906,
+          "total_actions": 463
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": "plush toy",
+          "stopped": null
+        },
+        "judgement": {
+          "success": true,
+          "failure_type": "RETRY",
+          "reason": "The toy is now on the tray as instructed."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 463,
+            "max_mean_speed": 0.984,
+            "max_peak_speed": 16.47,
+            "max_roll150_speed": 1.32,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": 357,
+          "split_t": 28.27,
+          "first": {
+            "n_actions": 357,
+            "max_mean_speed": 0.812,
+            "max_peak_speed": 6.49,
+            "max_roll150_speed": 1.166,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": {
+            "n_actions": 106,
+            "max_mean_speed": 1.572,
+            "max_peak_speed": 16.47,
+            "max_roll150_speed": 1.572,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          }
+        }
+      },
+      {
+        "round": 1,
+        "task_num": 2,
+        "sub_task": "put the banana on the tray",
+        "instruction": "put the banana on the tray",
+        "tag": "round1_ep02_task02_attempt1",
+        "dir": "preference_eval_system_trials/archive/episodes/banana/096_banana",
+        "result": {
+          "duration": 35.622757262026425,
+          "converged": true,
+          "max_displacement": 203.081298828125,
+          "total_actions": 358
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": "banana",
+          "stopped": null
+        },
+        "judgement": {
+          "success": true,
+          "failure_type": "RETRY",
+          "reason": "The banana is now on the tray as instructed."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 358,
+            "max_mean_speed": 1.359,
+            "max_peak_speed": 42.68,
+            "max_roll150_speed": 2.095,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": 256,
+          "split_t": 25.03,
+          "first": {
+            "n_actions": 256,
+            "max_mean_speed": 1.03,
+            "max_peak_speed": 14.67,
+            "max_roll150_speed": 1.235,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": {
+            "n_actions": 102,
+            "max_mean_speed": 2.451,
+            "max_peak_speed": 42.68,
+            "max_roll150_speed": 2.451,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          }
+        }
+      },
+      {
+        "round": 1,
+        "task_num": 3,
+        "sub_task": "put the cylinder on the tray",
+        "instruction": "put the cylinder on the tray",
+        "tag": "round1_ep03_task03_attempt1",
+        "dir": "preference_eval_system_trials/archive/episodes/cylinder/097_cylinder",
+        "result": {
+          "duration": 9.519401712983381,
+          "converged": true,
+          "max_displacement": 6.061087131500244,
+          "total_actions": 127
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": null,
+          "stopped": null
+        },
+        "judgement": {
+          "success": false,
+          "failure_type": "VOCAB",
+          "reason": "The arm did not move toward the cylinder or the tray; it remained stationary."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 127,
+            "max_mean_speed": 0.331,
+            "max_peak_speed": 5.28,
+            "max_roll150_speed": 0.331,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 127,
+            "max_mean_speed": 0.331,
+            "max_peak_speed": 5.28,
+            "max_roll150_speed": 0.331,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      },
+      {
+        "round": 1,
+        "task_num": 3,
+        "sub_task": "put the cylinder on the tray",
+        "instruction": "put the cylinder on the tray",
+        "tag": "round1_ep04_task03_attempt2",
+        "dir": "preference_eval_system_trials/archive/episodes/cylinder/098_cylinder",
+        "result": {
+          "duration": 10.304713113000616,
+          "converged": true,
+          "max_displacement": 7.39130973815918,
+          "total_actions": 148
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": null,
+          "stopped": null
+        },
+        "judgement": {
+          "success": false,
+          "failure_type": "VOCAB",
+          "reason": "The arm reached the cylinder but did not grasp it, and it remained on the table."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 123,
+            "max_mean_speed": 0.309,
+            "max_peak_speed": 6.29,
+            "max_roll150_speed": 0.309,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 123,
+            "max_mean_speed": 0.309,
+            "max_peak_speed": 6.29,
+            "max_roll150_speed": 0.309,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      },
+      {
+        "round": 1,
+        "task_num": 3,
+        "sub_task": "put the cylinder on the tray",
+        "instruction": "put the cylinder on the tray",
+        "tag": "round1_ep05_task03_attempt1",
+        "dir": "preference_eval_system_trials/archive/episodes/cylinder/099_cylinder",
+        "result": {
+          "duration": 11.88129361497704,
+          "converged": true,
+          "max_displacement": 5.683586597442627,
+          "total_actions": 159
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": null,
+          "stopped": null
+        },
+        "judgement": {
+          "success": false,
+          "failure_type": "VOCAB",
+          "reason": "The arm did not move toward the cylinder or the tray; it remained stationary."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 159,
+            "max_mean_speed": 0.334,
+            "max_peak_speed": 2.58,
+            "max_roll150_speed": 0.336,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 159,
+            "max_mean_speed": 0.334,
+            "max_peak_speed": 2.58,
+            "max_roll150_speed": 0.336,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      },
+      {
+        "round": 1,
+        "task_num": 3,
+        "sub_task": "put the cylinder on the tray",
+        "instruction": "put the cylinder on the tray",
+        "tag": "round1_ep06_task03_attempt2",
+        "dir": "preference_eval_system_trials/archive/episodes/cylinder/100_cylinder",
+        "result": {
+          "duration": 11.051083903992549,
+          "converged": true,
+          "max_displacement": 6.422916412353516,
+          "total_actions": 167
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": null,
+          "stopped": null
+        },
+        "judgement": {
+          "success": false,
+          "failure_type": "VOCAB",
+          "reason": "The arm did not move toward the cylinder or the tray; it remained stationary."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 167,
+            "max_mean_speed": 0.338,
+            "max_peak_speed": 3.73,
+            "max_roll150_speed": 0.338,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 167,
+            "max_mean_speed": 0.338,
+            "max_peak_speed": 3.73,
+            "max_roll150_speed": 0.338,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      }
+    ],
+    "n_rounds": 1,
+    "n_episodes": 6,
+    "n_replans": 1,
+    "n_monitor_stops": 0,
+    "vlm_agrees": false
+  },
+  "note": "pouch was called cylinder resulting in VLA not moving. Round 2 also failed",
+  "episode": {
+    "dir": "preference_eval_system_trials/archive/episodes/toy/095_toy",
+    "duration": 39.23522454401245,
+    "converged": true,
+    "max_displacement": 164.87403869628906,
+    "total_actions": 463
+  },
+  "wall_s": 254.1,
+  "config": {
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "policy_type": "pi05",
+    "actions_per_chunk": 50,
+    "chunk_size_threshold": 0.95,
+    "episode_duration": 100.0,
+    "reps": 2,
+    "prior_reps": 6,
+    "base_reps": 1,
+    "focus_keys": [
+      "qty one object",
+      "qty two objects"
+    ],
+    "focus_reps": 5,
+    "layouts": [
+      "ptb",
+      "tbp",
+      "bpt"
+    ],
+    "slots": [
+      "front",
+      "back",
+      "left"
+    ],
+    "seed": 0,
+    "convergence_grace_period": 6,
+    "action_stall_timeout": 2.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct",
+    "vlm_temperature": 0.1,
+    "evaluate_subtasks": true,
+    "evaluate_final": true,
+    "max_retries": 1,
+    "max_replans": 1,
+    "max_final_retries": 1,
+    "final_eval_before_after": true,
+    "targeted_retry_decompose": true,
+    "subtask_done_precheck": true,
+    "enable_vocab_refinement": true,
+    "enable_vlm_monitor": true
+  }
+}

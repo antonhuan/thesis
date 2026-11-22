@@ -1,0 +1,77 @@
+{
+  "trial": 13,
+  "time": "2026-09-27T05:06:18",
+  "vla_task": "put the pouch on the tray",
+  "monitor_task": "put the pouch on the tray",
+  "label": "correct",
+  "outcome": "CONTINUE",
+  "stop": null,
+  "committed": true,
+  "held_object": "pouch",
+  "reach_windows": 1,
+  "stale_skipped": 0,
+  "verify_calls": 0,
+  "n_frames": 16,
+  "first_close": 7,
+  "gate_open_at": null,
+  "verify": {},
+  "timeline": [
+    {
+      "frame": 6,
+      "t": 8.06,
+      "action": "CONTINUE",
+      "reason": "The perception pass resolved the arm is going for 'pouch', which matches the sub-task's target exactly.",
+      "check_s": 20.1,
+      "reaching_for": "pouch",
+      "held": "yes"
+    },
+    {
+      "frame": 6,
+      "t": 8.06,
+      "action": "COMMIT",
+      "reason": "grasp confirmed on 'pouch'",
+      "check_s": 20.1
+    },
+    {
+      "frame": 6,
+      "t": 8.06,
+      "action": "RETIRED",
+      "reason": "single grasp check done \u2014 monitor retired for this run",
+      "check_s": 20.1
+    }
+  ],
+  "episode": {
+    "dir": "live_monitor_trials/episodes/pouch/012_pouch",
+    "duration": 44.11333119997289,
+    "converged": true,
+    "max_displacement": 161.6926727294922,
+    "total_actions": 363
+  },
+  "wall_s": 66.7,
+  "note": "",
+  "config": {
+    "gate": "grasp",
+    "horizon": 20,
+    "tail": 1,
+    "verify": true,
+    "match": "inventory",
+    "objects": [
+      "banana",
+      "brown pouch",
+      "plush moose toy"
+    ],
+    "window": 4,
+    "ground_compare": false,
+    "unclear_wrist_decides": true,
+    "grasp_fallback_frames": 6,
+    "freeze_stall_eps": 0.5,
+    "freeze_settle_s": 0.3,
+    "verify_frame_gap_s": 0.2,
+    "pause_refreshes": 1,
+    "chunk_size_threshold": 0.95,
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "temperature": 0.1,
+    "episode_duration": 100.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct"
+  }
+}

@@ -1,0 +1,6012 @@
+{
+  "meta": {
+    "attempts_file": "vlm_subtask_eval_attempts.json",
+    "model": "Qwen/Qwen3-VL-8B-Instruct",
+    "temperature": 0.1,
+    "sample": 200,
+    "seed": 0,
+    "created": "2026-09-29T04:38:43"
+  },
+  "trials": [
+    {
+      "id": "2026-08-06_23-04-44_01_t1_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.366,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 5.08,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 5.08
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-04-44_02_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.04,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.66,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.66
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-04-44_02_t2_1",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 29,
+      "fps": 4.667,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The banana remains on the table, not on the tray."
+      },
+      "latency_s": 3.2,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 3.2
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-04-44_03_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.615,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.64,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.63
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-04-44_04_t1_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.013,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.57,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.57
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-04-44_08_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.378,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.65,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.65
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-04-44_09_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.925,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.64,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.64
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-04-44_10_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.55,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The toy is now on the tray as instructed."
+      },
+      "latency_s": 2.56,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.56
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-04-44_10_t2_0",
+      "instruction": "put the cylinder on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.133,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The robot arm did not move to grasp or place the cylinder on the tray; it remained stationary throughout the clip.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The cylinder is still on the table and has not been moved to the tray."
+      },
+      "latency_s": 4.29,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm did not move to grasp or place the cylinder on the tray; it remained stationary throughout the clip.\"}",
+          "latency_s": 4.29
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-04-44_10_t2_1",
+      "instruction": "put the cylinder on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 31,
+      "fps": 4.918,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The cylinder is not on the tray; it remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The cylinder remains on the table and has not been moved to the tray."
+      },
+      "latency_s": 3.57,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The cylinder is not on the tray; it remains on the table.\"}",
+          "latency_s": 3.57
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-31-04_01_t2_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.044,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the stuffed animal but failed to grasp it properly, and it was not placed on the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The robot arm moves towards the stuffed animal but does not grasp or place it on the tray. The stuffed animal remains on the table throughout the sequence."
+      },
+      "latency_s": 4.2,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the stuffed animal but failed to grasp it properly, and it was not placed on the tray.\"}",
+          "latency_s": 4.2
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-31-04_01_t2_1",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.902,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The stuffed animal remains on the table, not on the tray."
+      },
+      "latency_s": 2.65,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.65
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-31-04_01_t2_2",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.306,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The stuffed animal is not on the tray; it remains on the table next to the banana and the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The stuffed animal is still on the table, not on the tray."
+      },
+      "latency_s": 4.22,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The stuffed animal is not on the tray; it remains on the table next to the banana and the tray.\"}",
+          "latency_s": 4.22
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-31-04_01_t2_3",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 30,
+      "fps": 4.531,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm did not move to grasp or place the stuffed animal on the tray; it remained stationary.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The stuffed animal is still on the table, not on the tray."
+      },
+      "latency_s": 3.34,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm did not move to grasp or place the stuffed animal on the tray; it remained stationary.\"}",
+          "latency_s": 3.34
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-31-04_01_t2_4",
+      "instruction": "put the brown cylindrical object on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 29,
+      "fps": 3.636,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The brown cylindrical object is not on the tray; it remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The brown cylindrical object remains on the table and has not been moved onto the tray."
+      },
+      "latency_s": 3.06,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The brown cylindrical object is not on the tray; it remains on the table.\"}",
+          "latency_s": 3.06
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-31-04_03_t1_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.902,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.2,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.2
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-31-04_06_t2_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.123,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The toy is now on the tray as instructed."
+      },
+      "latency_s": 2.19,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.19
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-31-04_06_t3_0",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.342,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pouch is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The robot arm successfully picks up the brown pouch and places it on the tray, which is the intended destination."
+      },
+      "latency_s": 2.21,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pouch is now on the tray as instructed.\"}",
+          "latency_s": 2.21
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-31-04_07_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.23,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.26,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.26
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-31-04_08_t1_0",
+      "instruction": "put the bag on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.037,
+      "success": true,
+      "failure_type": null,
+      "reason": "The brown bag is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The brown bag is now on the tray as instructed."
+      },
+      "latency_s": 2.27,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The brown bag is now on the tray as instructed.\"}",
+          "latency_s": 2.27
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-31-04_08_t3_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.04,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but did not grasp it, and the banana remained on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The banana remains on the table and has not been moved onto the tray."
+      },
+      "latency_s": 3.32,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but did not grasp it, and the banana remained on the table.\"}",
+          "latency_s": 3.32
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-31-04_09_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.013,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is already on the tray at the start of the clip and remains there throughout the sequence.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.91,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is already on the tray at the start of the clip and remains there throughout the sequence.\"}",
+          "latency_s": 2.91
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-06_23-31-04_09_t2_0",
+      "instruction": "put the purse on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 31,
+      "fps": 4.478,
+      "success": true,
+      "failure_type": null,
+      "reason": "The purse is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The purse is still on the table, not on the tray."
+      },
+      "latency_s": 3.24,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The purse is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 3.24
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_03-51-37_01_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.685,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.66,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.66
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_03-51-37_01_t2_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.037,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but did not grasp it, and the banana remained on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The banana remains on the table and is not moved onto the tray."
+      },
+      "latency_s": 3.97,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but did not grasp it, and the banana remained on the table.\"}",
+          "latency_s": 3.97
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-10-27_01_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.615,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.64,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.64
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-10-27_01_t2_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.55,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana, grasped it, and moved it toward the tray, but the banana was dropped before being placed on the tray.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 3.97,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana, grasped it, and moved it toward the tray, but the banana was dropped before being placed on the tray.\"}",
+          "latency_s": 3.97
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-21-15_01_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.649,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.29,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.29
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-21-15_01_t2_1",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 30,
+      "fps": 4.394,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The banana remains on the table, not on the tray."
+      },
+      "latency_s": 3.25,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 3.25
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-21-15_01_t2_4",
+      "instruction": "put the brown pouch on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.925,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The robot arm moved toward the brown pouch but did not grasp it or place it on the tray; the pouch remains in its original position.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The brown pouch remains on the table and has not been moved onto the tray."
+      },
+      "latency_s": 4.74,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm moved toward the brown pouch but did not grasp it or place it on the tray; the pouch remains in its original position.\"}",
+          "latency_s": 4.74
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-21-15_02_t1_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.483,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.58,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.58
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-21-15_04_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.342,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.68,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.68
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-21-15_05_t2_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.314,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.72,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.72
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-21-15_06_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.183,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 3.04,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 3.04
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-21-15_06_t2_0",
+      "instruction": "put the purse on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.761,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the purse but did not grasp it, and the purse remained on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The purse remains on the table and has not been moved onto the tray."
+      },
+      "latency_s": 4.0,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the purse but did not grasp it, and the purse remained on the table.\"}",
+          "latency_s": 4.0
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-21-15_06_t2_1",
+      "instruction": "put the purse on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 30,
+      "fps": 4.833,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The arm did not move toward any purse; it remained stationary. The object named in the sub-task (purse) is not visible in the scene.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The purse is not on the tray; it remains on the table."
+      },
+      "latency_s": 4.12,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"VOCAB\", \"reason\": \"The arm did not move toward any purse; it remained stationary. The object named in the sub-task (purse) is not visible in the scene.\"}",
+          "latency_s": 4.12
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-21-15_06_t2_2",
+      "instruction": "put the purse on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 31,
+      "fps": 4.054,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The arm did not move toward any purse; it remained stationary. There is no purse visible in the scene.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The purse is not on the tray; it remains on the table next to the banana and chocolate bar."
+      },
+      "latency_s": 3.6,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"VOCAB\", \"reason\": \"The arm did not move toward any purse; it remained stationary. There is no purse visible in the scene.\"}",
+          "latency_s": 3.6
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-21-15_07_t1_1",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 31,
+      "fps": 4.918,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The banana is already on the tray in the final frame, indicating the sub-task was completed successfully."
+      },
+      "latency_s": 2.75,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.75
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-44-51_01_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.037,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.3,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.3
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_04-44-51_01_t1_1",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 28,
+      "fps": 4.5,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is already on the tray at the start of the video and remains there throughout the clip."
+      },
+      "latency_s": 2.69,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.69
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_05-50-13_01_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.792,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The toy is now on the tray as instructed."
+      },
+      "latency_s": 2.23,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.23
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_05-50-13_02_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.782,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The toy, which is a brown stuffed animal with antlers, is now resting inside the pink tray as instructed."
+      },
+      "latency_s": 2.21,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.21
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_05-50-13_04_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.48,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The toy is now on the tray as instructed."
+      },
+      "latency_s": 2.21,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.21
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_06-31-10_01_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.802,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The toy is now on the tray as instructed."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.22
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_06-57-56_02_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.183,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The toy, which is a brown stuffed animal, is now on the tray as instructed."
+      },
+      "latency_s": 2.2,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.2
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_06-57-56_02_t1_1",
+      "instruction": "put the cylinder on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.246,
+      "success": true,
+      "failure_type": null,
+      "reason": "The cylinder is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The cylinder is now on the tray as instructed."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The cylinder is now on the tray as instructed.\"}",
+          "latency_s": 2.22
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_07-17-03_01_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.308,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The toy is now on the tray as instructed."
+      },
+      "latency_s": 2.21,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.21
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_07-17-03_02_t1_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.378,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.23,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.23
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_07-17-03_02_t2_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.037,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The robot arm moved toward the stuffed animal but did not grasp or place it on the tray; the stuffed animal remains in its original position.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The stuffed animal remains on the table and has not been moved onto the tray."
+      },
+      "latency_s": 3.93,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm moved toward the stuffed animal but did not grasp or place it on the tray; the stuffed animal remains in its original position.\"}",
+          "latency_s": 3.93
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_07-17-03_05_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.24,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.31,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.31
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_07-36-23_02_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.067,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": null,
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.28,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.28
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-19_07-36-23_02_t2_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 30,
+      "fps": 4.028,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but did not grasp or move it to the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": null,
+        "reason": "The banana remains on the table and has not been moved onto the tray."
+      },
+      "latency_s": 3.09,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but did not grasp or move it to the tray.\"}",
+          "latency_s": 3.09
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-23-01_01_t1_0",
+      "instruction": "put the stuffed animal in the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.64,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The stuffed animal is now inside the tray as instructed."
+      },
+      "latency_s": 2.3,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.3
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-23-01_01_t1_1",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.649,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pouch is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The pouch is now on the tray as instructed."
+      },
+      "latency_s": 2.24,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pouch is now on the tray as instructed.\"}",
+          "latency_s": 2.24
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-23-01_01_t2_0",
+      "instruction": "put the banana in the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.761,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.22
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-23-01_02_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.455,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The toy is now on the tray as instructed."
+      },
+      "latency_s": 2.23,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.23
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-23-01_02_t1_1",
+      "instruction": "put the roll on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.52,
+      "success": true,
+      "failure_type": null,
+      "reason": "The roll is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The roll is now on the tray as instructed."
+      },
+      "latency_s": 2.23,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The roll is now on the tray as instructed.\"}",
+          "latency_s": 2.23
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-23-01_03_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.574,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.29,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.29
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-23-01_03_t2_0",
+      "instruction": "put the roll on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 30,
+      "fps": 4.531,
+      "success": true,
+      "failure_type": null,
+      "reason": "The roll is already on the tray at the start of the clip and remains there in the final frames.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm remains stationary and does not move toward the roll or the tray, indicating no attempt was made to complete the task."
+      },
+      "latency_s": 2.87,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The roll is already on the tray at the start of the clip and remains there in the final frames.\"}",
+          "latency_s": 2.87
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-23-01_03_t2_1",
+      "instruction": "put the roll on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 31,
+      "fps": 3.896,
+      "success": true,
+      "failure_type": null,
+      "reason": "The roll is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm remains stationary and does not move toward the roll or the tray, indicating no attempt was made to complete the task."
+      },
+      "latency_s": 2.74,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The roll is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.74
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-23-01_03_t2_2",
+      "instruction": "put the roll on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 31,
+      "fps": 4.615,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The roll was already on the tray at the start of the attempt and remains there, but the robot did not move to place it.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm remains stationary and does not move toward the roll or the tray, indicating no attempt was made to complete the task."
+      },
+      "latency_s": 3.84,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The roll was already on the tray at the start of the attempt and remains there, but the robot did not move to place it.\"}",
+          "latency_s": 3.84
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-23-01_03_t2_3",
+      "instruction": "put the roll on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.026,
+      "success": true,
+      "failure_type": null,
+      "reason": "The roll is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm remains stationary and does not move toward the roll or the tray, indicating no attempt was made to complete the task."
+      },
+      "latency_s": 2.72,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The roll is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.72
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-23-01_03_t2_4",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.925,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.25,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.24
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-49-37_01_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.574,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.29,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.29
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-49-37_01_t2_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.975,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm moved toward the banana and grasped it, but then released it without placing it on the tray. The banana ended up on the table instead of the tray."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.21
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-49-37_01_t2_1",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 3.196,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The banana was not moved from its original position on the table and remains outside the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move to grasp or place the banana on the tray; it remained stationary throughout the clip."
+      },
+      "latency_s": 3.29,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The banana was not moved from its original position on the table and remains outside the tray.\"}",
+          "latency_s": 3.29
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_06-49-37_01_t2_2",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.013,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.22
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_07-24-04_01_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.879,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.27,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.27
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_07-24-04_01_t1_1",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.834,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pouch is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The pouch is now on the tray as instructed."
+      },
+      "latency_s": 2.23,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pouch is now on the tray as instructed.\"}",
+          "latency_s": 2.23
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_07-24-04_02_t1_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.409,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.24,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.24
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_07-24-04_02_t2_0",
+      "instruction": "put the bag on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.037,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the brown bag but did not grasp it, and the bag remained on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm moved toward the brown bag but did not successfully grasp or place it on the tray; instead, it appears to have moved without effectively interacting with the bag."
+      },
+      "latency_s": 3.42,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the brown bag but did not grasp it, and the bag remained on the table.\"}",
+          "latency_s": 3.42
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_07-24-04_03_t1_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.04,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but the gripper closed on air and did not grasp it.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm moved toward the banana but did not successfully grasp or place it on the tray; it remained hovering near the banana without completing the action."
+      },
+      "latency_s": 3.29,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but the gripper closed on air and did not grasp it.\"}",
+          "latency_s": 3.29
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_07-24-04_03_t1_1",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.422,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.23,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.23
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_07-24-04_03_t2_0",
+      "instruction": "put the bag on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.623,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The robot arm reached for the brown cylindrical bag but did not grasp it successfully, and the bag remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm moved toward the brown bag but did not successfully grasp or place it on the tray; it instead moved away without completing the task."
+      },
+      "latency_s": 3.65,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm reached for the brown cylindrical bag but did not grasp it successfully, and the bag remains on the table.\"}",
+          "latency_s": 3.64
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_07-24-04_03_t2_1",
+      "instruction": "put the bag on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.206,
+      "success": true,
+      "failure_type": null,
+      "reason": "The bag is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The brown bag is now on the tray as instructed."
+      },
+      "latency_s": 2.27,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The bag is now on the tray as instructed.\"}",
+          "latency_s": 2.27
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_08-03-31_01_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.409,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.33,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.33
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_08-03-31_01_t2_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.037,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but the gripper closed on air and did not grasp it.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm extended toward the banana but did not grasp it, and the banana remained in its original position."
+      },
+      "latency_s": 3.26,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but the gripper closed on air and did not grasp it.\"}",
+          "latency_s": 3.26
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_08-03-31_02_t1_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.04,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but the gripper closed on air and did not grasp it.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm moved toward the banana but did not successfully grasp or place it on the tray; it appears to have failed to execute the placement."
+      },
+      "latency_s": 3.27,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but the gripper closed on air and did not grasp it.\"}",
+          "latency_s": 3.27
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_08-03-31_02_t1_1",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.026,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but the gripper closed on air and did not grasp it.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm extended toward the banana but did not grasp it. It moved slightly toward the banana but failed to pick it up or place it on the tray."
+      },
+      "latency_s": 3.26,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but the gripper closed on air and did not grasp it.\"}",
+          "latency_s": 3.26
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_08-03-31_02_t1_3",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 31,
+      "fps": 4.478,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The arm did not move at all during the clip, so the toy was not placed on the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot arm remains stationary and does not move toward the toy or the tray, so the task is not attempted."
+      },
+      "latency_s": 3.48,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm did not move at all during the clip, so the toy was not placed on the tray.\"}",
+          "latency_s": 3.48
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-08-20_08-03-31_02_t1_4",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.87,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The toy is not on the tray; it remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The toy (plush animal) is already on the tray, but the robot did not perform any action to place it there; it remained stationary throughout the clip."
+      },
+      "latency_s": 3.01,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The toy is not on the tray; it remains on the table.\"}",
+          "latency_s": 3.01
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-08-20_08-03-31_02_t2_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 30,
+      "fps": 4.085,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The arm did not move toward the toy or the tray; it remained stationary, indicating no attempt to complete the sub-task.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot arm is stationary and has not moved to place the toy on the tray."
+      },
+      "latency_s": 3.75,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm did not move toward the toy or the tray; it remained stationary, indicating no attempt to complete the sub-task.\"}",
+          "latency_s": 3.75
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-08-20_08-03-31_02_t2_1",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 31,
+      "fps": 4.545,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot arm is stationary and has not moved to place the toy on the tray."
+      },
+      "latency_s": 2.76,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.76
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-08-20_08-03-31_02_t2_3",
+      "instruction": "put the bar on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 31,
+      "fps": 4.918,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The robot arm did not move to grasp or place the bar on the tray; it remained stationary throughout the clip.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot arm remains stationary and does not move to grasp or place the bar on the tray."
+      },
+      "latency_s": 3.63,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm did not move to grasp or place the bar on the tray; it remained stationary throughout the clip.\"}",
+          "latency_s": 3.63
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_08-03-31_03_t2_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.058,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The stuffed animal is now on the tray as instructed."
+      },
+      "latency_s": 2.29,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.29
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-08-20_08-03-31_04_t1_0",
+      "instruction": "put the stuffed animal on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.17,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The robot arm grasped the stuffed animal but failed to place it on the tray, instead dropping it back onto the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm moved toward the stuffed animal but did not successfully grasp or place it on the tray; it remained hovering near the stuffed animal without completing the action."
+      },
+      "latency_s": 3.68,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm grasped the stuffed animal but failed to place it on the tray, instead dropping it back onto the table.\"}",
+          "latency_s": 3.68
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_09-11-20_02_t1_0",
+      "instruction": "put the stuffed animal in the box",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.498,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The stuffed animal is now inside the pink tray, which is the destination."
+      },
+      "latency_s": 2.3,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.3
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_09-11-20_02_t1_1",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.189,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot arm remains stationary and does not move toward the banana or the tray, indicating no attempt was made to complete the task."
+      },
+      "latency_s": 2.76,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.76
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-02_09-11-20_02_t2_1",
+      "instruction": "put the banana in the box",
+      "target": "banana",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.247,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is already in the box at the start of the clip and remains there in the final frames.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot did not move at all during the attempt, so the banana was never placed in the box."
+      },
+      "latency_s": 2.96,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is already in the box at the start of the clip and remains there in the final frames.\"}",
+          "latency_s": 2.96
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-02_09-11-20_02_t2_2",
+      "instruction": "put the banana in the box",
+      "target": "banana",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.921,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is already in the box at the start of the clip and remains there in the final frames.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot did not move at all; it remained stationary throughout the clip, indicating no attempt was made to grasp or place the banana in the box."
+      },
+      "latency_s": 3.59,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is already in the box at the start of the clip and remains there in the final frames.\"}",
+          "latency_s": 3.59
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-02_09-11-20_02_t2_3",
+      "instruction": "put the banana in the box",
+      "target": "banana",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.921,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is already in the box at the start of the clip and remains there in the final frames.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm remains stationary and does not move toward the banana or the box, so the task is not attempted."
+      },
+      "latency_s": 3.57,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is already in the box at the start of the clip and remains there in the final frames.\"}",
+          "latency_s": 3.57
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-02_09-41-46_01_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.462,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The toy is now on the tray as instructed."
+      },
+      "latency_s": 2.27,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.27
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_09-41-46_01_t2_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.037,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but the gripper closed on air and did not grasp it.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the banana but the gripper closed on air and did not grasp it."
+      },
+      "latency_s": 3.28,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but the gripper closed on air and did not grasp it.\"}",
+          "latency_s": 3.28
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_09-41-46_02_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.167,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the toy or the tray; it remained stationary, so the task was not attempted."
+      },
+      "latency_s": 2.75,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.75
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-02_09-41-46_03_t1_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.649,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.23,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.23
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_09-41-46_04_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.308,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.29,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.28
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_09-41-46_04_t3_0",
+      "instruction": "put the brown pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 3.605,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The brown pouch is not on the tray; it remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the brown pouch or the tray; it remained stationary."
+      },
+      "latency_s": 3.1,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The brown pouch is not on the tray; it remains on the table.\"}",
+          "latency_s": 3.1
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_09-41-46_04_t3_1",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.167,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray."
+      },
+      "latency_s": 3.83,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray.\"}",
+          "latency_s": 3.83
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_09-41-46_04_t3_2",
+      "instruction": "put the brown pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.559,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The robot arm did not move to grasp or place the brown pouch on the tray; it remained stationary throughout the clip.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the brown pouch or the tray; it remained stationary."
+      },
+      "latency_s": 3.69,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm did not move to grasp or place the brown pouch on the tray; it remained stationary throughout the clip.\"}",
+          "latency_s": 3.69
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_09-41-46_04_t3_3",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.079,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The robot arm did not move to grasp or place the pouch on the tray; it remained stationary throughout the clip.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray."
+      },
+      "latency_s": 3.61,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm did not move to grasp or place the pouch on the tray; it remained stationary throughout the clip.\"}",
+          "latency_s": 3.61
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-07-14_01_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.52,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The toy is now on the tray as instructed."
+      },
+      "latency_s": 2.26,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.26
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-07-14_01_t2_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.247,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but did not grasp it, and the banana remained in its original position.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the banana but the gripper closed on air and did not grasp it."
+      },
+      "latency_s": 3.38,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but did not grasp it, and the banana remained in its original position.\"}",
+          "latency_s": 3.38
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-07-14_01_t2_1",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.627,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The banana was already on the tray at the start of the attempt and remained there throughout the clip, indicating no action was taken to move it.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm reached the banana but did not grasp it, and the banana remained in its original position."
+      },
+      "latency_s": 4.14,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The banana was already on the tray at the start of the attempt and remained there throughout the clip, indicating no action was taken to move it.\"}",
+          "latency_s": 4.14
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-25-12_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.455,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.3,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.3
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-25-12_01_t1_1",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.493,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The pouch is not on the tray; it remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray."
+      },
+      "latency_s": 3.04,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The pouch is not on the tray; it remains on the table.\"}",
+          "latency_s": 3.04
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-25-12_01_t1_2",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.306,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The arm did not move to grasp or place the pouch on the tray; it remained stationary.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm reached the pouch but did not grasp it, and no motion toward the tray occurred."
+      },
+      "latency_s": 3.36,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm did not move to grasp or place the pouch on the tray; it remained stationary.\"}",
+          "latency_s": 3.36
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-25-12_01_t2_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.771,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.22
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-25-12_01_t3_0",
+      "instruction": "put the brown pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.167,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The brown pouch is not on the tray; it remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the brown pouch or the tray; it remained stationary."
+      },
+      "latency_s": 3.44,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The brown pouch is not on the tray; it remains on the table.\"}",
+          "latency_s": 3.44
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-25-12_01_t3_1",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 3.37,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The pouch is not on the tray; it remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm reached the pouch but did not grasp it, and the pouch remains on the table."
+      },
+      "latency_s": 2.98,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The pouch is not on the tray; it remains on the table.\"}",
+          "latency_s": 2.98
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-25-12_01_t3_2",
+      "instruction": "put the brown pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.167,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The brown pouch is not on the tray; it remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the brown pouch or the tray; it remained stationary."
+      },
+      "latency_s": 3.07,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The brown pouch is not on the tray; it remains on the table.\"}",
+          "latency_s": 3.07
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-25-12_01_t3_3",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.844,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The robot arm did not move to grasp or place the pouch on the tray; it remained stationary throughout the clip.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray."
+      },
+      "latency_s": 3.61,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm did not move to grasp or place the pouch on the tray; it remained stationary throughout the clip.\"}",
+          "latency_s": 3.61
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-37-10_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.582,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.27,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.27
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-37-10_01_t1_1",
+      "instruction": "put the kiwi on the tray",
+      "target": "toy",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.559,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The kiwi is not on the tray; it remains in its original position.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the kiwi or the tray; it remained stationary, indicating no attempt to complete the task."
+      },
+      "latency_s": 3.12,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The kiwi is not on the tray; it remains in its original position.\"}",
+          "latency_s": 3.12
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-02_10-37-10_01_t1_2",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.133,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The robot arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray."
+      },
+      "latency_s": 3.83,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray.\"}",
+          "latency_s": 3.83
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-02_10-37-10_01_t1_3",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.247,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The robot arm did not move to grasp or place the pouch on the tray; it remained stationary throughout the clip.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the pouch or the tray; it remained stationary, so the pouch was not placed on the tray."
+      },
+      "latency_s": 3.62,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm did not move to grasp or place the pouch on the tray; it remained stationary throughout the clip.\"}",
+          "latency_s": 3.62
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_06-00-35_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.429,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.28,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.28
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_06-00-35_01_t2_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.013,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.22
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_06-20-51_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.622,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the plush toy but did not grasp it successfully, and the toy remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the plush toy but the gripper closed on air and did not grasp it."
+      },
+      "latency_s": 3.44,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the plush toy but did not grasp it successfully, and the toy remains on the table.\"}",
+          "latency_s": 3.44
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_06-20-51_02_t1_0",
+      "instruction": "put the moose on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.52,
+      "success": true,
+      "failure_type": null,
+      "reason": "The moose is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The moose is now on the tray as instructed."
+      },
+      "latency_s": 2.28,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The moose is now on the tray as instructed.\"}",
+          "latency_s": 2.28
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_06-20-51_02_t3_0",
+      "instruction": "put the brown pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.429,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The robot arm did not move to grasp or place the brown pouch on the tray; it remained stationary throughout the clip.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm reached the brown pouch but did not grasp it, and it remains on the table."
+      },
+      "latency_s": 3.66,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm did not move to grasp or place the brown pouch on the tray; it remained stationary throughout the clip.\"}",
+          "latency_s": 3.66
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_07-09-01_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.409,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.33,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.33
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_07-09-01_01_t2_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.625,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but the gripper closed on air and did not grasp it.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the banana but the gripper closed on air and did not grasp it."
+      },
+      "latency_s": 3.28,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but the gripper closed on air and did not grasp it.\"}",
+          "latency_s": 3.28
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_07-09-01_01_t2_1",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.722,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but did not grasp it, and the banana remained in its original position.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the banana but the gripper closed on air and did not grasp it."
+      },
+      "latency_s": 3.39,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but did not grasp it, and the banana remained in its original position.\"}",
+          "latency_s": 3.38
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_07-09-01_01_t2_2",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.0,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The arm reached the banana but did not grasp or move it to the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm reached the banana but did not grasp it, and the banana remained in its original position."
+      },
+      "latency_s": 3.12,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but did not grasp or move it to the tray.\"}",
+          "latency_s": 3.12
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_07-09-01_01_t2_3",
+      "instruction": "put the brown pouch on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.36,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the brown pouch but did not grasp it successfully, and it remained on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the brown pouch but did not grasp it, and the pouch remained on the table."
+      },
+      "latency_s": 3.4,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the brown pouch but did not grasp it successfully, and it remained on the table.\"}",
+          "latency_s": 3.4
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_07-09-01_01_t2_4",
+      "instruction": "put the brown pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.167,
+      "success": true,
+      "failure_type": null,
+      "reason": "The brown pouch is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The brown pouch is already on the tray as instructed."
+      },
+      "latency_s": 2.83,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The brown pouch is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.83
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-03_07-09-01_02_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.921,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The robot arm moved toward the toy but did not grasp it or place it on the tray; the toy remains in its original position.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the toy but did not grasp it, and the toy remains on the table."
+      },
+      "latency_s": 3.89,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm moved toward the toy but did not grasp it or place it on the tray; the toy remains in its original position.\"}",
+          "latency_s": 3.89
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_07-09-01_02_t1_1",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 30,
+      "fps": 4.143,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the toy but did not grasp or move it to the tray; the toy remains in its original position.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the toy but did not grasp it, and the toy remains in its original position."
+      },
+      "latency_s": 3.6,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the toy but did not grasp or move it to the tray; the toy remains in its original position.\"}",
+          "latency_s": 3.6
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_07-09-01_02_t1_2",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.245,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the toy but the gripper closed on air and did not grasp it.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the toy but the gripper closed on air and did not grasp it."
+      },
+      "latency_s": 3.27,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the toy but the gripper closed on air and did not grasp it.\"}",
+          "latency_s": 3.27
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_07-09-01_02_t1_3",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.409,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.22
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_07-09-01_02_t2_0",
+      "instruction": "put the sausage on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.917,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached for the sausage but the gripper closed on air and did not grasp it.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached for the sausage but did not grasp it, and the sausage remained on the table."
+      },
+      "latency_s": 3.36,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached for the sausage but the gripper closed on air and did not grasp it.\"}",
+          "latency_s": 3.36
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-03_07-09-01_02_t2_1",
+      "instruction": "put the sausage on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.254,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The sausage is not on the tray; the robot arm did not move to place it there.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the sausage or the tray; it remained stationary, indicating no attempt to complete the task."
+      },
+      "latency_s": 3.33,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The sausage is not on the tray; the robot arm did not move to place it there.\"}",
+          "latency_s": 3.33
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-06_03-53-19_01_t1_0",
+      "instruction": "put the plush toy in the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.629,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The plush toy was not moved to the tray; it remained in its original position throughout the clip.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm did not move toward the plush toy or the tray; it remained stationary, indicating no attempt to complete the task."
+      },
+      "latency_s": 3.39,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The plush toy was not moved to the tray; it remained in its original position throughout the clip.\"}",
+          "latency_s": 3.39
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-06_05-15-21_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.622,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The plush toy was not moved to the tray; it remained in its original position throughout the clip.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm did not move toward the plush toy or the tray; it remained stationary, indicating no attempt to complete the task."
+      },
+      "latency_s": 3.41,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The plush toy was not moved to the tray; it remained in its original position throughout the clip.\"}",
+          "latency_s": 3.41
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-06_05-15-21_01_t1_1",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.622,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The plush toy is not on the tray; it remains in its original position.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm did not move toward the plush toy or the tray; it remained stationary, indicating no attempt to complete the task."
+      },
+      "latency_s": 3.15,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The plush toy is not on the tray; it remains in its original position.\"}",
+          "latency_s": 3.15
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-06_05-42-20_01_t1_0",
+      "instruction": "put the toy in the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.606,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The toy is now on the tray as instructed."
+      },
+      "latency_s": 2.23,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.23
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-06_05-42-20_01_t2_0",
+      "instruction": "put the pouch in the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.133,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pouch is already in the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the pouch or the tray; it remained stationary, indicating no attempt to complete the sub-task."
+      },
+      "latency_s": 2.8,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pouch is already in the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.8
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-06_05-50-19_01_t1_0",
+      "instruction": "put the plush toy in the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.14,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.29,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.29
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-06_05-50-19_01_t2_0",
+      "instruction": "put the pouch in the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.856,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pouch is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The pouch is now on the tray as instructed."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pouch is now on the tray as instructed.\"}",
+          "latency_s": 2.22
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-06_05-53-28_01_t1_0",
+      "instruction": "put the plush toy in the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.925,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.29,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.29
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-06_05-53-28_01_t2_0",
+      "instruction": "put the pouch in the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.372,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pouch is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The pouch is now on the tray as instructed."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pouch is now on the tray as instructed.\"}",
+          "latency_s": 2.22
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-09_02-42-03_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.632,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.3,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.3
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-09_02-42-03_01_t2_0",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.975,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pouch is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The pouch is now on the tray as instructed."
+      },
+      "latency_s": 2.2,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pouch is now on the tray as instructed.\"}",
+          "latency_s": 2.2
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-09_07-03-56_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.23,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.31,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.31
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-09_07-03-56_01_t2_0",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.751,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached for the pouch but failed to grasp it properly, and the pouch remained on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the pouch but did not grasp it, and the pouch remained on the table."
+      },
+      "latency_s": 3.47,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached for the pouch but failed to grasp it properly, and the pouch remained on the table.\"}",
+          "latency_s": 3.47
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-09_07-03-56_01_t2_1",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.697,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The arm did not move toward the pouch or the tray; it remained stationary, indicating no attempt to complete the sub-task.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the pouch or attempt to place it on the tray."
+      },
+      "latency_s": 3.74,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm did not move toward the pouch or the tray; it remained stationary, indicating no attempt to complete the sub-task.\"}",
+          "latency_s": 3.74
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-09_07-16-05_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.342,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.34,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.34
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_02-36-03_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.123,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.27,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.27
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_02-36-03_02_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.62,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.32,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.32
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_02-36-03_02_t2_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.385,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but did not grasp it, and the banana remained on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the banana but the gripper closed on air and did not grasp it."
+      },
+      "latency_s": 3.34,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but did not grasp it, and the banana remained on the table.\"}",
+          "latency_s": 3.34
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_02-36-03_02_t2_1",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 2.123,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but the gripper closed on air and did not grasp it.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the banana but the gripper closed on air and did not grasp it."
+      },
+      "latency_s": 3.26,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but the gripper closed on air and did not grasp it.\"}",
+          "latency_s": 3.26
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_02-49-37_01_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.606,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The toy is now on the tray as instructed."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.22
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_02-49-37_01_t2_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.167,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The arm reached the banana but did not grasp or move it to the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm reached the banana but did not grasp it, and the banana remained in its original position."
+      },
+      "latency_s": 3.15,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but did not grasp or move it to the tray.\"}",
+          "latency_s": 3.15
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_02-49-37_01_t2_1",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.844,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm did not move toward the banana or the tray, so the banana was not placed on the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the banana but did not grasp it, and the banana remained in its original position."
+      },
+      "latency_s": 3.52,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm did not move toward the banana or the tray, so the banana was not placed on the tray.\"}",
+          "latency_s": 3.52
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_02-49-37_01_t2_2",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.566,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.22
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_02-49-37_01_t3_0",
+      "instruction": "put the brown plush toy on the tray",
+      "target": "toy",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.167,
+      "success": true,
+      "failure_type": null,
+      "reason": "The brown plush toy is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The brown plush toy is already on the tray as instructed."
+      },
+      "latency_s": 2.91,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The brown plush toy is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.91
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-10_02-49-37_01_t4_0",
+      "instruction": "put the brown cylindrical object on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 3.298,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The brown cylindrical object is not on the tray; it remains in its original position.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the brown cylindrical object or the tray; it remained stationary."
+      },
+      "latency_s": 3.22,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The brown cylindrical object is not on the tray; it remains in its original position.\"}",
+          "latency_s": 3.22
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_03-02-18_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.566,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is already on the tray at the start of the clip and remains there throughout the sequence.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.94,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is already on the tray at the start of the clip and remains there throughout the sequence.\"}",
+          "latency_s": 2.94
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_04-41-17_01_t1_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.24,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.21,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.21
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_04-41-17_01_t1_1",
+      "instruction": "put the chocolate bar on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.844,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The chocolate bar is not on the tray; it remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the chocolate bar or the tray; it remained stationary, indicating no attempt to complete the sub-task."
+      },
+      "latency_s": 3.07,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The chocolate bar is not on the tray; it remains on the table.\"}",
+          "latency_s": 3.07
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_04-41-17_01_t1_2",
+      "instruction": "put the chocolate on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.0,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The chocolate was already on the tray at the start of the attempt and remains there, but the robot did not move to place it.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot arm did not move at all, so the chocolate was not placed on the tray."
+      },
+      "latency_s": 3.84,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The chocolate was already on the tray at the start of the attempt and remains there, but the robot did not move to place it.\"}",
+          "latency_s": 3.84
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_04-41-17_01_t2_0",
+      "instruction": "put the cylindrical object on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.962,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the cylindrical object but did not grasp it, and the object remained in its original position.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the cylindrical object but failed to grasp it properly, and it was not placed on the tray."
+      },
+      "latency_s": 3.52,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the cylindrical object but did not grasp it, and the object remained in its original position.\"}",
+          "latency_s": 3.52
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_04-41-17_01_t2_1",
+      "instruction": "put the cylindrical object on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.844,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The cylindrical object is not on the tray; it remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the cylindrical object or the tray, so the task was not attempted."
+      },
+      "latency_s": 3.07,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The cylindrical object is not on the tray; it remains on the table.\"}",
+          "latency_s": 3.07
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_04-41-17_01_t2_2",
+      "instruction": "put the cylindrical object on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.366,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The cylindrical object is not on the tray; it remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the cylindrical object or the tray, so the task was not attempted."
+      },
+      "latency_s": 3.7,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The cylindrical object is not on the tray; it remains on the table.\"}",
+          "latency_s": 3.7
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_04-41-17_01_t2_3",
+      "instruction": "put the cylinder on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.493,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The cylinder is not on the tray; it remains on the table.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the cylinder or the tray; it remained stationary."
+      },
+      "latency_s": 3.6,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The cylinder is not on the tray; it remains on the table.\"}",
+          "latency_s": 3.6
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_04-49-31_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.542,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.68,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.68
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_04-49-31_01_t2_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.771,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but did not grasp it, and the banana remained in its original position.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The arm reached the banana but did not grasp it and moved away without placing it on the tray."
+      },
+      "latency_s": 4.06,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but did not grasp it, and the banana remained in its original position.\"}",
+          "latency_s": 4.06
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_04-49-31_01_t2_1",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 3.78,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is already on the tray as instructed."
+      },
+      "latency_s": 3.23,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 3.23
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-10_04-49-31_01_t3_0",
+      "instruction": "put the cylindrical object on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.079,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The cylindrical object was not moved by the robot and remains on the table, not on the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The cylindrical object is not on the tray; it remains on the table."
+      },
+      "latency_s": 4.05,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The cylindrical object was not moved by the robot and remains on the table, not on the tray.\"}",
+          "latency_s": 4.05
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-16_07-21-11_01_t1_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.767,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is now on the tray as instructed."
+      },
+      "latency_s": 2.61,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is now on the tray as instructed.\"}",
+          "latency_s": 2.61
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-16_07-21-11_01_t2_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.342,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.26,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.26
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-16_07-21-11_01_t3_0",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.225,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pouch is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The pouch is now on the tray as instructed."
+      },
+      "latency_s": 2.24,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pouch is now on the tray as instructed.\"}",
+          "latency_s": 2.24
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-16_08-18-24_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.622,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 2.34,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is now on the tray as instructed.\"}",
+          "latency_s": 2.34
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-16_08-18-24_01_t1_2",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.559,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The arm did not move toward the pouch or the tray; it remained stationary throughout the clip.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the pouch or the tray; it remained stationary, indicating no attempt to complete the task."
+      },
+      "latency_s": 3.36,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm did not move toward the pouch or the tray; it remained stationary throughout the clip.\"}",
+          "latency_s": 3.36
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-16_08-18-24_01_t1_3",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.366,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The arm did not move at all during the clip, so the pouch was not placed on the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the pouch or the tray; it remained stationary, indicating no attempt to complete the sub-task."
+      },
+      "latency_s": 4.21,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm did not move at all during the clip, so the pouch was not placed on the tray.\"}",
+          "latency_s": 4.21
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-16_08-18-24_01_t1_4",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.366,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The robot arm did not move at all during the clip, so the pouch was not placed on the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the pouch or the tray; it remained stationary, indicating no attempt to complete the sub-task."
+      },
+      "latency_s": 4.26,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The robot arm did not move at all during the clip, so the pouch was not placed on the tray.\"}",
+          "latency_s": 4.26
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-16_08-18-24_01_t3_1",
+      "instruction": "put the pencil case on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.167,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pencil case is on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot arm did not move at all, so the pencil case remains on the table and not on the tray."
+      },
+      "latency_s": 2.21,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pencil case is on the tray as instructed.\"}",
+          "latency_s": 2.21
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-16_08-18-24_01_t3_2",
+      "instruction": "put the pencil case on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.0,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pencil case is on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot arm did not move at all, so the pencil case remains in its original position and is not on the tray."
+      },
+      "latency_s": 2.24,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pencil case is on the tray as instructed.\"}",
+          "latency_s": 2.24
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-16_08-18-24_01_t3_3",
+      "instruction": "put the pencil case on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.026,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pencil case is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The arm did not move toward the pencil case or the tray, so the object was not placed on the tray."
+      },
+      "latency_s": 2.79,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pencil case is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.79
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-16_08-31-16_01_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.735,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The toy is now on the tray as instructed."
+      },
+      "latency_s": 2.64,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.64
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-16_08-31-16_01_t2_1",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.372,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pouch is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The pouch is already on the tray at the start of the video and remains there throughout the clip."
+      },
+      "latency_s": 3.25,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pouch is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 3.25
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-16_08-31-16_02_t1_0",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.621,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The banana is already on the tray as instructed."
+      },
+      "latency_s": 2.76,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.76
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-16_08-31-16_02_t2_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.801,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The toy is already on the tray as instructed."
+      },
+      "latency_s": 3.27,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 3.27
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-16_08-31-16_02_t3_0",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.751,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pouch is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The pouch is now on the tray as instructed."
+      },
+      "latency_s": 3.26,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pouch is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 3.26
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-16_09-04-56_01_t1_0",
+      "instruction": "put the plush toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.701,
+      "success": true,
+      "failure_type": null,
+      "reason": "The plush toy is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The plush toy is now on the tray as instructed."
+      },
+      "latency_s": 3.36,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The plush toy is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 3.36
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-17_06-41-16_01_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.672,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The toy, which is a brown stuffed animal, is now on the tray as instructed."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.22
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-17_06-41-16_01_t2_0",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.621,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the pouch but did not grasp it, and the pouch remained on the table.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The pouch is now on the tray as instructed."
+      },
+      "latency_s": 4.01,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the pouch but did not grasp it, and the pouch remained on the table.\"}",
+          "latency_s": 4.01
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-17_06-41-16_01_t3_1",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.167,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot did not move at all, so it never attempted to grasp or place the banana on the tray."
+      },
+      "latency_s": 3.25,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 3.25
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-17_06-41-16_01_t3_2",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.0,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot did not move at all, so it never attempted to grasp or place the banana on the tray."
+      },
+      "latency_s": 3.24,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 3.24
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-17_06-41-16_01_t3_3",
+      "instruction": "put the banana on the tray",
+      "target": "banana",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 5.167,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot did not move at all, so the banana was never placed on the tray."
+      },
+      "latency_s": 2.76,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.76
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-17_06-54-19_01_t1_0",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.624,
+      "success": true,
+      "failure_type": null,
+      "reason": "The toy is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The toy is now on the tray as instructed."
+      },
+      "latency_s": 2.22,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The toy is now on the tray as instructed.\"}",
+          "latency_s": 2.22
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-17_06-54-19_01_t1_1",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.697,
+      "success": true,
+      "failure_type": null,
+      "reason": "The pouch is already on the tray at the start of the clip and remains there throughout.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm moved toward the pouch but did not successfully grasp or place it on the tray; it remained in a resting position without completing the action."
+      },
+      "latency_s": 2.74,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The pouch is already on the tray at the start of the clip and remains there throughout.\"}",
+          "latency_s": 2.74
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-17_06-54-19_01_t1_2",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.366,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The pouch is not on the tray; it remains in its original position.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot arm remains stationary and does not move toward the pouch or tray, indicating no attempt was made to complete the task."
+      },
+      "latency_s": 3.05,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The pouch is not on the tray; it remains in its original position.\"}",
+          "latency_s": 3.05
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-17_06-54-19_01_t1_3",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.247,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The pouch is still on the pink tray, but the robot arm did not interact with it during the attempt, suggesting no action was taken to move or place it.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot did not move at all, so it never attempted to grasp or place the pouch on the tray."
+      },
+      "latency_s": 4.24,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The pouch is still on the pink tray, but the robot arm did not interact with it during the attempt, suggesting no action was taken to move or place it.\"}",
+          "latency_s": 4.24
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-17_06-54-19_01_t1_4",
+      "instruction": "put the pouch on the tray",
+      "target": "pouch",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.769,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The pouch is still in its original position and not on the tray.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot arm did not move to grasp or place the pouch on the tray. It remained stationary throughout the clip, indicating no attempt was made to complete the task."
+      },
+      "latency_s": 2.99,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The pouch is still in its original position and not on the tray.\"}",
+          "latency_s": 2.99
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-17_06-54-19_01_t1_5",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 31,
+      "fps": 4.478,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The arm did not move toward the toy or the tray; it remained stationary, indicating no attempt to complete the sub-task.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot did not move at all, so it never attempted to place the toy on the tray. The toy remains in its original position."
+      },
+      "latency_s": 3.7,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm did not move toward the toy or the tray; it remained stationary, indicating no attempt to complete the sub-task.\"}",
+          "latency_s": 3.7
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-17_06-54-19_01_t1_6",
+      "instruction": "put the toy on the tray",
+      "target": "toy",
+      "no_movement": true,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 4.559,
+      "success": false,
+      "failure_type": "VOCAB",
+      "reason": "The arm did not move toward the toy or the tray; it remained stationary, indicating no attempt to complete the sub-task.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "VOCAB",
+        "reason": "The robot did not move at all, so it never attempted to place the toy on the tray. The toy remains in its original position."
+      },
+      "latency_s": 3.76,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm did not move toward the toy or the tray; it remained stationary, indicating no attempt to complete the sub-task.\"}",
+          "latency_s": 3.76
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": false,
+        "already_done": true
+      }
+    },
+    {
+      "id": "2026-09-17_07-24-42_01_t1_0",
+      "instruction": "put the stuffed animal in the tray",
+      "target": "toy",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.625,
+      "success": true,
+      "failure_type": null,
+      "reason": "The stuffed animal is now on the tray as instructed.",
+      "error": null,
+      "logged": {
+        "success": true,
+        "failure_type": "RETRY",
+        "reason": "The stuffed animal is now inside the tray as instructed."
+      },
+      "latency_s": 2.28,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The stuffed animal is now on the tray as instructed.\"}",
+          "latency_s": 2.28
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-17_07-24-42_01_t2_0",
+      "instruction": "put the banana in the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 0.621,
+      "success": false,
+      "failure_type": "RETRY",
+      "reason": "The arm reached the banana but did not grasp it successfully, and the banana remained in its original position.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm extended toward the banana but did not grasp it, and the banana remained in its original position."
+      },
+      "latency_s": 3.48,
+      "raw": [
+        {
+          "output": "{\"success\": false, \"failure_type\": \"RETRY\", \"reason\": \"The arm reached the banana but did not grasp it successfully, and the banana remained in its original position.\"}",
+          "latency_s": 3.48
+        }
+      ],
+      "score": {
+        "expected": false,
+        "correct": true,
+        "already_done": false
+      }
+    },
+    {
+      "id": "2026-09-17_07-24-42_01_t2_1",
+      "instruction": "put the banana in the tray",
+      "target": "banana",
+      "no_movement": false,
+      "monitor_context": null,
+      "n_frames": 32,
+      "fps": 1.095,
+      "success": true,
+      "failure_type": null,
+      "reason": "The banana is already in the tray at the start of the clip and remains there in the final frames.",
+      "error": null,
+      "logged": {
+        "success": false,
+        "failure_type": "RETRY",
+        "reason": "The robot arm moved toward the banana but did not grasp or place it in the tray; it remained stationary without completing the action."
+      },
+      "latency_s": 2.96,
+      "raw": [
+        {
+          "output": "{\"success\": true, \"reason\": \"The banana is already in the tray at the start of the clip and remains there in the final frames.\"}",
+          "latency_s": 2.96
+        }
+      ],
+      "score": {
+        "expected": true,
+        "correct": true,
+        "already_done": false
+      }
+    }
+  ]
+}

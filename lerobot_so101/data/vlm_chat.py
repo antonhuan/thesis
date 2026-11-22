@@ -33,7 +33,7 @@ Usage:
 import argparse
 from pathlib import Path
 
-from vlm import RealSenseCamera, capture_scene, build_image_content_paths
+from vlm import RealSenseCamera, capture_scene
 from vlm_core import load_model, generate
 
 
@@ -81,7 +81,7 @@ def interactive_loop(model, processor, camera, image_paths, save_dir):
                 frozen_frame = frame
             return [{"type": "image", "image": frame}]
         if image_paths:
-            return build_image_content_paths(image_paths)
+            return [{"type": "image", "image": str(p)} for p in image_paths]
         return []
 
     print(f"\n{'='*60}")

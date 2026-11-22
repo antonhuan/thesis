@@ -93,7 +93,7 @@ from lerobot.utils.import_utils import register_third_party_plugins
 
 import draccus
 
-from robot_client_loop import LoopClientConfig, LoopRobotClient
+from robot_client_loop import LoopClientConfig, LoopRobotClient, drop_file_logging
 from vlm_core import generate, load_model
 from vlm_monitor_live import LiveMonitor, MonitorSettings, TappedClient
 from vlm import (
@@ -197,6 +197,10 @@ class OrchestratorConfig(MonitorSettings, LoopClientConfig):
     max_replans: int = 0
     # Save every frame sent to the VLM under ./frames/
     save_frames: bool = False
+    # Write nothing to disk: no run folder, task.log, action logs, VLM frames,
+    # VLA-input episodes or monitor records (overrides the flags above). The
+    # terminal output is unchanged.
+    no_logging: bool = False
     # Enable the background stdin listener that lets the user skip/replan
     # mid-execution (Enter/'s' to skip, 'r'+Enter to replan). Off by default;
     # pass --enable_interjection=true to enable. 'q'+Enter aborts either way.
@@ -927,7 +931,7 @@ class VLMPlanner:
                                        self.temperature)
         if not surveyed:
             return None
-        findings = resolve_findings(surveyed)
+        findings = resolve_findings(surveyed, missing_under_stack=True)
         logging.info(f"Final-eval BEFORE/AFTER survey, {len(findings)} object(s):")
         for f in findings:
             logging.info(f"  {f['object']}: {f['before']} -> {f['support']}")
@@ -1044,7 +1048,7 @@ class VLMFrameSource:
     """Provides PIL frames for the VLM from the robot's camera observations."""
 
     def __init__(self, client: LoopRobotClient, camera_key: str,
-                 session_dir: Path, save_frames: bool):
+                 session_dir: Path, save_frames: bool, make_dirs: bool = True):
         self.client = client
         self.camera_key = camera_key
         # session_dir is the per-run root (always set). task_dir is the
@@ -1054,6 +1058,7 @@ class VLMFrameSource:
         self.session_dir = session_dir
         self.task_dir = session_dir
         self.save_frames = save_frames
+        self.make_dirs = make_dirs  # False (--no_logging): create no folders
         self._task_counter = 0
 
     def start_task(self) -> Path:
@@ -1062,7 +1067,8 @@ class VLMFrameSource:
         caller can co-locate the task log there."""
         self._task_counter += 1
         self.task_dir = self.session_dir / f"{self._task_counter:02d}"
-        self.task_dir.mkdir(parents=True, exist_ok=True)
+        if self.make_dirs:
+            self.task_dir.mkdir(parents=True, exist_ok=True)
         return self.task_dir
 
     def capture(self, tag: str = "frame") -> Image.Image | None:
@@ -1240,9 +1246,11 @@ def count_cap(sets: dict | None, findings: list[dict] | None) -> dict | None:
 
 # Survey rows that name part of the setup rather than something to move. The
 # survey prompt already forbids these, but it still emits them now and then
-# ("pink tray", "orange robot arm", "hand").
+# ("pink tray", "orange robot arm", "hand"). "black object" is the arm's black base /
+# servo seen from overhead (run_2026-09-06_05-15-21 planned "put the black object in the
+# tray"); matched as the phrase, so a real black item with a name of its own survives.
 SURVEY_FIXTURE_WORDS = ("tray", "table", "robot", "arm", "gripper", "hand", "wire",
-                        "cable", "label", "surface", "camera", "cord")
+                        "cable", "label", "surface", "camera", "cord", "black object")
 
 
 # ---------------------------------------------------------------------------
@@ -1281,7 +1289,7 @@ Instruction: "put everything on the tray, but the red cup goes last"
 """
 
 
-def resolve_findings(rows: list[dict]) -> list[dict]:
+def resolve_findings(rows: list[dict], missing_under_stack: bool = False) -> list[dict]:
     """Survey rows -> {object, before, support} with each support resolved to where the
     object ends up.
 
@@ -1289,6 +1297,12 @@ def resolve_findings(rows: list[dict]) -> list[dict]:
     name) is followed down the stack to a surface, so the toy on the banana in the
     tray becomes "tray (on top of the banana)". One finding per object: a repeated
     object (the survey sometimes lists BEFORE rows, then AFTER rows) keeps its last row.
+
+    With `missing_under_stack` (the final eval), an object that went from the table to
+    "missing" while something else ended on the tray is taken to be buried in the stack
+    there: "tray (hidden under the stack)". The survey answers "missing" for the banana
+    under the pouch and toy (preference eval, runs 2026-10-10 15, 32 and 08) instead of
+    naming what it is under. With nothing on the tray it stays missing — it fell off.
     """
     names = [str(r.get("object", "")).strip() for r in rows]
     support = {n.lower(): str(r.get("support", "")).strip().lower()
@@ -1318,6 +1332,10 @@ def resolve_findings(rows: list[dict]) -> list[dict]:
         how = "hidden under" if "hidden" in str(r.get("evidence", "")).lower() else "on top of"
         findings.append({"object": n, "before": str(r.get("before")),
                          "support": settle(n.lower()) + (f" ({how} the {under})" if under else "")})
+    if missing_under_stack and any(f["support"].startswith("tray") for f in findings):
+        for f in findings:
+            if f["support"] == "missing" and "table" in f["before"].lower():
+                f["support"] = "tray (hidden under the stack)"
     return findings
 
 
@@ -1392,11 +1410,12 @@ def remaining_from_survey(rows: list[dict]) -> tuple[list[str], list[str]]:
     still rests on the table (or on something that does) and is returned for the
     planner to decide on. Fixture rows are dropped.
     """
-    support = {}
+    support, before = {}, {}
     for r in rows:
         name = str(r.get("object", "")).strip()
         if name and not is_fixture(name):
             support[name.lower()] = (name, str(r.get("support", "")).strip().lower())
+            before[name.lower()] = str(r.get("before", "")).lower()
 
     def as_object(sup: str) -> str:
         """A support naming a surveyed object, possibly by a shorter or longer
@@ -1419,7 +1438,11 @@ def remaining_from_survey(rows: list[dict]) -> tuple[list[str], list[str]]:
             key = support[key][1]
         return bool(key) and key in containers
 
-    remaining = [name for key, (name, _) in support.items() if not placed(key)]
+    # As resolve_findings(missing_under_stack=True): table -> "missing" with something
+    # on the tray is buried in the stack there, so it is placed, not re-planned.
+    on_tray = any(placed(k) and "tray" in sup for k, (_, sup) in support.items())
+    remaining = [name for key, (name, sup) in support.items() if not placed(key)
+                 and not (on_tray and sup == "missing" and "table" in before[key])]
     # The tray is this setup's fixed destination; an empty tray supports nothing,
     # so the survey never names it — add it so the planner still has somewhere
     # to put things.
@@ -1476,8 +1499,9 @@ def run_high_level_task(
     # terminal), so they go to actions.log beside it. Every round of this task
     # shares the one folder and the one log.
     task_dir = frames.start_task()
-    log_sink.open(task_dir / "task.log")
-    client.start_action_log(task_dir / "actions.log")
+    if not cfg.no_logging:
+        log_sink.open(task_dir / "task.log")
+        client.start_action_log(task_dir / "actions.log")
     trace = {"prompt": prompt, "task_dir": str(task_dir), "outcome": None,
              "final_success": None, "final_reason": "", "rounds": [], "episodes": []}
     if on_trace is not None:
@@ -1557,11 +1581,21 @@ def run_high_level_task(
                     completed_all.append(st)
 
             retries_left -= 1
+            retry_objects = None
+            remaining, destinations = (remaining_from_survey(result.final_survey)
+                                       if result.final_survey else (None, None))
+            if remaining:
+                # A sub-task the evaluator passed whose object the final survey finds
+                # off every destination did not stick (or was a false pass). Listing it
+                # as "executed and verified" makes the planner mark that object
+                # completed and plan nothing for it, so the retry round is wasted.
+                completed_all, contradicted = excluded_subtasks(completed_all, remaining)
+                if contradicted:
+                    logger.info(f"Dropping {contradicted} from the completed list: the "
+                                f"final-eval survey finds {remaining} off a destination.")
             retry_context = RETRY_DECOMPOSE_CONTEXT.format(
                 completed=_format_completed_context(completed_all))
-            retry_objects = None
             if cfg.targeted_retry_decompose and result.final_survey:
-                remaining, destinations = remaining_from_survey(result.final_survey)
                 if not remaining:
                     # The judge says incomplete, but its own survey puts every
                     # object on a destination: there is nothing to re-plan, and a
@@ -1759,7 +1793,8 @@ def _run_high_level_task_body(
     # The VLM monitor (reused across sub-tasks); it shares the planner's model.
     monitor = (LiveMonitor(client, planner.model, planner.processor, cfg,
                            temperature=planner.temperature,
-                           freeze_dir=frames.task_dir / "monitor_freeze")
+                           freeze_dir=(None if cfg.no_logging
+                                       else frames.task_dir / "monitor_freeze"))
                if cfg.enable_vlm_monitor else None)
 
     # 2. Work through the sub-task queue
@@ -1793,7 +1828,8 @@ def _run_high_level_task_body(
             attempt_tag = (f"round{round_num}_ep{episode_count:02d}_task{task_num:02d}"
                            f"_attempt{(1 + max(cfg.max_retries, 0)) - attempts_left}")
             if monitor is not None:
-                monitor.freeze_dir = frames.task_dir / "monitor_freeze"
+                if not cfg.no_logging:
+                    monitor.freeze_dir = frames.task_dir / "monitor_freeze"
                 monitor.start(current_instruction, tag=attempt_tag)
             ep_result = client.run_episode(current_instruction,
                                            enable_abort_listener=False)
@@ -1810,11 +1846,12 @@ def _run_high_level_task_body(
                                      "committed_to": (monitor.held_object
                                                       if monitor.committed else None),
                                      "stopped": monitor.stopped}
-                try:
-                    (frames.task_dir / f"monitor_{attempt_tag}.json").write_text(
-                        json.dumps(summary, indent=2, default=str))
-                except OSError as e:
-                    logger.warning(f"Could not save the monitor record: {e}")
+                if not cfg.no_logging:
+                    try:
+                        (frames.task_dir / f"monitor_{attempt_tag}.json").write_text(
+                            json.dumps(summary, indent=2, default=str))
+                    except OSError as e:
+                        logger.warning(f"Could not save the monitor record: {e}")
                 if monitor.stopped:
                     # The reach check's reason plus what the wrist probe saw at the grasp.
                     monitor_result = {"reason": f"{monitor.stopped['reason']} (wrist check: "
@@ -2055,6 +2092,7 @@ def _run_high_level_task_body(
 
         if succeeded:
             completed.append(sub_task)
+            round_rec["completed"] = list(completed)  # live for the GUI
             continue
 
         # --- Monitor STOPped the sub-task twice ---
@@ -2258,7 +2296,11 @@ def open_session(cfg: OrchestratorConfig, client_cls=TappedClient,
     # sub-folder gets that task's log (task.log) and, when --save_frames is on,
     # its saved frames. One timestamp for the whole run.
     run_dir = Path(f"./runs/run_{datetime.now():%Y-%m-%d_%H-%M-%S}")
-    run_dir.mkdir(parents=True, exist_ok=True)
+    if cfg.no_logging:
+        cfg.save_frames = cfg.log_actions = cfg.save_vla_inputs = False
+        drop_file_logging()
+    else:
+        run_dir.mkdir(parents=True, exist_ok=True)
     # Keep the action log inside the run too; run_high_level_task then repoints
     # it at the active task's sub-folder, so this file only ever holds actions
     # sent outside a task (e.g. none in practice).
@@ -2280,7 +2322,8 @@ def open_session(cfg: OrchestratorConfig, client_cls=TappedClient,
         if isinstance(h, logging.StreamHandler) and not isinstance(h, logging.FileHandler):
             h.setStream(sys.stderr)
 
-    logging.info(f"Per-task logs will be written under {run_dir}")
+    logging.info("--no_logging: nothing will be written to disk." if cfg.no_logging
+                 else f"Per-task logs will be written under {run_dir}")
     logging.info(pformat(asdict(cfg)))
 
     # 1. Robot + policy server (VLA layer)
@@ -2307,7 +2350,8 @@ def open_session(cfg: OrchestratorConfig, client_cls=TappedClient,
     #    the task logs); each high-level task gets its own sub-folder underneath
     #    (see start_task). Frame PNGs are saved only when --save_frames is on.
     frames = VLMFrameSource(client, camera_key=cfg.vlm_camera_key,
-                            session_dir=run_dir, save_frames=cfg.save_frames)
+                            session_dir=run_dir, save_frames=cfg.save_frames,
+                            make_dirs=not cfg.no_logging)
     # 4. Interjection manager (user can skip/replan mid-execution)
     interjection = InterjectionManager(client)
     return Session(cfg, run_dir, log_sink, client, planner, frames, interjection,

@@ -96,9 +96,7 @@ def main():
         verdict = planner.evaluate_final(c["prompt"], frame)
         survey = verdict.get("surveyed") or []
         ctx = orch.RETRY_DECOMPOSE_CONTEXT.format(
-            reason=verdict.get("reason") or "(no reason given)",
-            completed=orch._format_completed_context(c["completed"]),
-        )
+            completed=orch._format_completed_context(c["completed"]))
 
         def plan(**kw):
             try:
@@ -116,7 +114,7 @@ def main():
             targeted, objects = "STOP (survey: nothing off a destination)", None
         else:
             objects = remaining + destinations + ["table"]
-            targeted = plan(extra_context=ctx + "\n\n" + orch.TARGETED_RETRY_NOTE, objects=objects)
+            targeted = plan(extra_context=ctx, objects=objects)
 
         row = dict(c, judge_success=verdict.get("success"), judge_reason=verdict.get("reason"),
                    survey=[{k: r.get(k) for k in ("object", "support")} for r in survey],

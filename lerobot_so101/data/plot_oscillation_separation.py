@@ -42,8 +42,8 @@ except ImportError:
 
 from parse_vla_failure_oscillation import PEAK_THRESHOLD_DEG, VEL_THRESHOLD_DEG
 
-DEFAULT_WORKLIST = Path("vla_failure_analysis/labeling_worklist.csv")
-DEFAULT_OUT_DIR = Path("vla_failure_analysis/plots")
+DEFAULT_WORKLIST = Path("vla_failure_analysis2/labeling_worklist.csv")
+DEFAULT_OUT_DIR = Path("vla_failure_analysis2")
 
 OSC_COLOR = "#c0392b"
 NON_COLOR = "#2a78d6"

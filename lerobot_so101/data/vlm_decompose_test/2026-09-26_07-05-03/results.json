@@ -1,0 +1,5122 @@
+{
+  "meta": {
+    "image": "runs/run_2026-09-17_07-24-42/01/decompose_20260917_072520.png",
+    "model": "Qwen/Qwen3-VL-8B-Instruct",
+    "temperature": 0.1,
+    "trials": 3,
+    "created": "2026-09-26T07:05:17",
+    "scene_objects": [
+      "banana",
+      "toy",
+      "pouch"
+    ],
+    "manual_label_help": "Set manual_label.correct to true/false (failure_mode/notes optional); re-run with --replot to rebuild the plot.",
+    "scenes": [
+      {
+        "name": "scene",
+        "path": "runs/run_2026-09-17_07-24-42/01/decompose_20260917_072520.png"
+      }
+    ]
+  },
+  "prompts": {
+    "base": {
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "expected": [
+        "banana",
+        "pouch",
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "omit banana": {
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana",
+      "expected": [
+        "pouch",
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "omit toy": {
+      "category": "omission",
+      "prompt": "put everything on the tray except the toy",
+      "expected": [
+        "banana",
+        "pouch"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "omit pouch": {
+      "category": "omission",
+      "prompt": "put everything on the tray except the pouch",
+      "expected": [
+        "banana",
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "omit banana+toy": {
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana and the toy",
+      "expected": [
+        "pouch"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "omit toy+pouch": {
+      "category": "omission",
+      "prompt": "put everything on the tray but leave the toy and the pouch",
+      "expected": [
+        "banana"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "omit don't touch": {
+      "category": "omission",
+      "prompt": "put everything on the tray, don't touch the pouch",
+      "expected": [
+        "banana",
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "seq banana>toy>pouch": {
+      "category": "sequencing",
+      "prompt": "put the banana on the tray first, then the toy, then the pouch",
+      "expected": [
+        "banana",
+        "pouch",
+        "toy"
+      ],
+      "order": [
+        [
+          "banana",
+          "toy"
+        ],
+        [
+          "toy",
+          "pouch"
+        ]
+      ],
+      "pool": null,
+      "n": null
+    },
+    "seq pouch>banana>toy": {
+      "category": "sequencing",
+      "prompt": "put the pouch on the tray first, then the banana, then the toy",
+      "expected": [
+        "banana",
+        "pouch",
+        "toy"
+      ],
+      "order": [
+        [
+          "pouch",
+          "banana"
+        ],
+        [
+          "banana",
+          "toy"
+        ]
+      ],
+      "pool": null,
+      "n": null
+    },
+    "seq toy first": {
+      "category": "sequencing",
+      "prompt": "put everything on the tray, starting with the toy",
+      "expected": [
+        "banana",
+        "pouch",
+        "toy"
+      ],
+      "order": [
+        [
+          "toy",
+          "banana"
+        ],
+        [
+          "toy",
+          "pouch"
+        ]
+      ],
+      "pool": null,
+      "n": null
+    },
+    "seq pouch last": {
+      "category": "sequencing",
+      "prompt": "put everything on the tray, but the pouch goes last",
+      "expected": [
+        "banana",
+        "pouch",
+        "toy"
+      ],
+      "order": [
+        [
+          "banana",
+          "pouch"
+        ],
+        [
+          "toy",
+          "pouch"
+        ]
+      ],
+      "pool": null,
+      "n": null
+    },
+    "seq banana after toy": {
+      "category": "sequencing",
+      "prompt": "put everything on the tray, put the banana after the toy",
+      "expected": [
+        "banana",
+        "pouch",
+        "toy"
+      ],
+      "order": [
+        [
+          "toy",
+          "banana"
+        ]
+      ],
+      "pool": null,
+      "n": null
+    },
+    "cond fruit": {
+      "category": "conditional",
+      "prompt": "put the fruit on the tray",
+      "expected": [
+        "banana"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "cond brown": {
+      "category": "conditional",
+      "prompt": "put the brown objects on the tray",
+      "expected": [
+        "pouch",
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "cond not edible": {
+      "category": "conditional",
+      "prompt": "put everything that is not edible on the tray",
+      "expected": [
+        "pouch",
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "cond soft": {
+      "category": "conditional",
+      "prompt": "put only the soft, furry things on the tray",
+      "expected": [
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "cond if banana": {
+      "category": "conditional",
+      "prompt": "if there is a banana on the table, put only the banana on the tray; otherwise put everything on the tray",
+      "expected": [
+        "banana"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "cond if apple": {
+      "category": "conditional",
+      "prompt": "if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+      "expected": [
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "qty one": {
+      "category": "quantity",
+      "prompt": "put one object on the tray",
+      "expected": null,
+      "order": [],
+      "pool": [
+        "banana",
+        "toy",
+        "pouch"
+      ],
+      "n": 1
+    },
+    "qty two": {
+      "category": "quantity",
+      "prompt": "put two objects on the tray",
+      "expected": null,
+      "order": [],
+      "pool": [
+        "banana",
+        "toy",
+        "pouch"
+      ],
+      "n": 2
+    },
+    "qty three": {
+      "category": "quantity",
+      "prompt": "put all three objects on the tray",
+      "expected": null,
+      "order": [],
+      "pool": [
+        "banana",
+        "toy",
+        "pouch"
+      ],
+      "n": 3
+    },
+    "qty one brown": {
+      "category": "quantity",
+      "prompt": "put one of the brown objects on the tray",
+      "expected": null,
+      "order": [],
+      "pool": [
+        "toy",
+        "pouch"
+      ],
+      "n": 1
+    },
+    "qty two not banana": {
+      "category": "quantity",
+      "prompt": "put two objects on the tray, but not the banana",
+      "expected": null,
+      "order": [],
+      "pool": [
+        "toy",
+        "pouch"
+      ],
+      "n": 2
+    }
+  },
+  "trials": [
+    {
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.26,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 10.47
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 5.78
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.29,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.05
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.23
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.0,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.16
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 5.84
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit banana",
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.92,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.09
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the banana",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.83
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit banana",
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.68,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 8.49
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the banana",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 5.19
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit banana",
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 14.27,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.65
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the banana",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.62
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit toy",
+      "category": "omission",
+      "prompt": "put everything on the tray except the toy",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "moose"
+      ],
+      "allowed_objects": [
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.5,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 8.95
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"moose\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"banana\", \"pouch\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.55
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit toy",
+      "category": "omission",
+      "prompt": "put everything on the tray except the toy",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "moose"
+      ],
+      "allowed_objects": [
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.48,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.31
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"moose\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"banana\", \"pouch\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 7.16
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit toy",
+      "category": "omission",
+      "prompt": "put everything on the tray except the toy",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "moose"
+      ],
+      "allowed_objects": [
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.65,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.89
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"moose\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"banana\", \"pouch\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.76
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit pouch",
+      "category": "omission",
+      "prompt": "put everything on the tray except the pouch",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "pouch"
+      ],
+      "allowed_objects": [
+        "moose",
+        "banana"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.25,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.5
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the pouch",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"pouch\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\"]\n}",
+          "latency_s": 6.74
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit pouch",
+      "category": "omission",
+      "prompt": "put everything on the tray except the pouch",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "pouch"
+      ],
+      "allowed_objects": [
+        "moose",
+        "banana"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 12.25,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.18
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the pouch",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"pouch\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\"]\n}",
+          "latency_s": 5.07
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit pouch",
+      "category": "omission",
+      "prompt": "put everything on the tray except the pouch",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "pouch"
+      ],
+      "allowed_objects": [
+        "moose",
+        "banana"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 11.96,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 6.9
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the pouch",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"pouch\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\"]\n}",
+          "latency_s": 5.06
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit banana+toy",
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana and the toy",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana",
+        "moose"
+      ],
+      "allowed_objects": [
+        "pouch"
+      ],
+      "subtasks": [
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 11.26,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 6.78
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the banana and the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\", \"moose\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"pouch\"],\n  \"subtasks\": [\"put the pouch on the tray\"]\n}",
+          "latency_s": 4.49
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit banana+toy",
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana and the toy",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana",
+        "moose"
+      ],
+      "allowed_objects": [
+        "pouch"
+      ],
+      "subtasks": [
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 11.47,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 6.84
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the banana and the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\", \"moose\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"pouch\"],\n  \"subtasks\": [\"put the pouch on the tray\"]\n}",
+          "latency_s": 4.62
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit banana+toy",
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana and the toy",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana",
+        "moose"
+      ],
+      "allowed_objects": [
+        "pouch"
+      ],
+      "subtasks": [
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 11.58,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.06
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the banana and the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\", \"moose\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"pouch\"],\n  \"subtasks\": [\"put the pouch on the tray\"]\n}",
+          "latency_s": 4.51
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit toy+pouch",
+      "category": "omission",
+      "prompt": "put everything on the tray but leave the toy and the pouch",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "moose",
+        "pouch"
+      ],
+      "allowed_objects": [
+        "banana"
+      ],
+      "subtasks": [
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 11.63,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.03
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray but leave the toy and the pouch",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"moose\", \"pouch\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"banana\"],\n  \"subtasks\": [\"put the banana on the tray\"]\n}",
+          "latency_s": 4.6
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit toy+pouch",
+      "category": "omission",
+      "prompt": "put everything on the tray but leave the toy and the pouch",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "moose",
+        "pouch"
+      ],
+      "allowed_objects": [
+        "banana"
+      ],
+      "subtasks": [
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 11.45,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 6.91
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray but leave the toy and the pouch",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"moose\", \"pouch\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"banana\"],\n  \"subtasks\": [\"put the banana on the tray\"]\n}",
+          "latency_s": 4.54
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit toy+pouch",
+      "category": "omission",
+      "prompt": "put everything on the tray but leave the toy and the pouch",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "moose",
+        "pouch"
+      ],
+      "allowed_objects": [
+        "banana"
+      ],
+      "subtasks": [
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 11.57,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 6.95
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray but leave the toy and the pouch",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"moose\", \"pouch\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"banana\"],\n  \"subtasks\": [\"put the banana on the tray\"]\n}",
+          "latency_s": 4.62
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit don't touch",
+      "category": "omission",
+      "prompt": "put everything on the tray, don't touch the pouch",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "pouch"
+      ],
+      "allowed_objects": [
+        "moose",
+        "banana"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 12.32,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.03
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, don't touch the pouch",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"pouch\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\"]\n}",
+          "latency_s": 5.28
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit don't touch",
+      "category": "omission",
+      "prompt": "put everything on the tray, don't touch the pouch",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "pouch"
+      ],
+      "allowed_objects": [
+        "moose",
+        "banana"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 12.23,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.0
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, don't touch the pouch",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"pouch\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\"]\n}",
+          "latency_s": 5.23
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "omit don't touch",
+      "category": "omission",
+      "prompt": "put everything on the tray, don't touch the pouch",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "pouch"
+      ],
+      "allowed_objects": [
+        "moose",
+        "banana"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 12.35,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.05
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, don't touch the pouch",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"pouch\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\"]\n}",
+          "latency_s": 5.31
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq banana>toy>pouch",
+      "category": "sequencing",
+      "prompt": "put the banana on the tray first, then the toy, then the pouch",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.16,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.41
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put the banana on the tray first, then the toy, then the pouch",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"banana\", \"moose\", \"pouch\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 5.75
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana",
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq banana>toy>pouch",
+      "category": "sequencing",
+      "prompt": "put the banana on the tray first, then the toy, then the pouch",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 12.88,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 6.94
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put the banana on the tray first, then the toy, then the pouch",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"banana\", \"moose\", \"pouch\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 5.94
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana",
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq banana>toy>pouch",
+      "category": "sequencing",
+      "prompt": "put the banana on the tray first, then the toy, then the pouch",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.12,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.14
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put the banana on the tray first, then the toy, then the pouch",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"banana\", \"moose\", \"pouch\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 5.98
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana",
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq pouch>banana>toy",
+      "category": "sequencing",
+      "prompt": "put the pouch on the tray first, then the banana, then the toy",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "pouch",
+        "banana",
+        "moose"
+      ],
+      "subtasks": [
+        "put the pouch on the tray",
+        "put the banana on the tray",
+        "put the moose on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.2,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.22
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put the pouch on the tray first, then the banana, then the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"pouch\", \"banana\", \"moose\"],\n  \"subtasks\": [\"put the pouch on the tray\", \"put the banana on the tray\", \"put the moose on the tray\"]\n}",
+          "latency_s": 5.98
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "pouch",
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq pouch>banana>toy",
+      "category": "sequencing",
+      "prompt": "put the pouch on the tray first, then the banana, then the toy",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "pouch",
+        "banana",
+        "moose"
+      ],
+      "subtasks": [
+        "put the pouch on the tray",
+        "put the banana on the tray",
+        "put the moose on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.15,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.2
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put the pouch on the tray first, then the banana, then the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"pouch\", \"banana\", \"moose\"],\n  \"subtasks\": [\"put the pouch on the tray\", \"put the banana on the tray\", \"put the moose on the tray\"]\n}",
+          "latency_s": 5.94
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "pouch",
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq pouch>banana>toy",
+      "category": "sequencing",
+      "prompt": "put the pouch on the tray first, then the banana, then the toy",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "pouch",
+        "banana",
+        "moose"
+      ],
+      "subtasks": [
+        "put the pouch on the tray",
+        "put the banana on the tray",
+        "put the moose on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.2,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.28
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put the pouch on the tray first, then the banana, then the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"pouch\", \"banana\", \"moose\"],\n  \"subtasks\": [\"put the pouch on the tray\", \"put the banana on the tray\", \"put the moose on the tray\"]\n}",
+          "latency_s": 5.92
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "pouch",
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq toy first",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, starting with the toy",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.18,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.26
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, starting with the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 5.93
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq toy first",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, starting with the toy",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.46,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.43
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, starting with the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.03
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq toy first",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, starting with the toy",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.36,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.35
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, starting with the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.01
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq pouch last",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, but the pouch goes last",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.5,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.35
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, but the pouch goes last",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.16
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq pouch last",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, but the pouch goes last",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.72,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.84
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, but the pouch goes last",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 5.88
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq pouch last",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, but the pouch goes last",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 14.4,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.98
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, but the pouch goes last",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.42
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq banana after toy",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, put the banana after the toy",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 14.4,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 8.0
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, put the banana after the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.39
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq banana after toy",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, put the banana after the toy",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.95,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.64
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, put the banana after the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.3
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "seq banana after toy",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, put the banana after the toy",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 14.1,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 8.01
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, put the banana after the toy",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.08
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond fruit",
+      "category": "conditional",
+      "prompt": "put the fruit on the tray",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana"
+      ],
+      "subtasks": [
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.22,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.54
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put the fruit on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"banana\"],\n  \"subtasks\": [\"put the banana on the tray\"]\n}",
+          "latency_s": 5.68
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond fruit",
+      "category": "conditional",
+      "prompt": "put the fruit on the tray",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana"
+      ],
+      "subtasks": [
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 14.74,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.45
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put the fruit on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"banana\"],\n  \"subtasks\": [\"put the banana on the tray\"]\n}",
+          "latency_s": 5.29
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond fruit",
+      "category": "conditional",
+      "prompt": "put the fruit on the tray",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana"
+      ],
+      "subtasks": [
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.52,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.55
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put the fruit on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"banana\"],\n  \"subtasks\": [\"put the banana on the tray\"]\n}",
+          "latency_s": 5.97
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond brown",
+      "category": "conditional",
+      "prompt": "put the brown objects on the tray",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.91,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.56
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put the brown objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.35
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond brown",
+      "category": "conditional",
+      "prompt": "put the brown objects on the tray",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 14.77,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 8.68
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put the brown objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.09
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond brown",
+      "category": "conditional",
+      "prompt": "put the brown objects on the tray",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.94,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.82
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put the brown objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 7.12
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond not edible",
+      "category": "conditional",
+      "prompt": "put everything that is not edible on the tray",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 18.5,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 11.06
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything that is not edible on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 7.44
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond not edible",
+      "category": "conditional",
+      "prompt": "put everything that is not edible on the tray",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.69,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 10.79
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything that is not edible on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.9
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond not edible",
+      "category": "conditional",
+      "prompt": "put everything that is not edible on the tray",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.55,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.8
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything that is not edible on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 7.75
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond soft",
+      "category": "conditional",
+      "prompt": "put only the soft, furry things on the tray",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 18.24,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 10.4
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put only the soft, furry things on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 7.84
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond soft",
+      "category": "conditional",
+      "prompt": "put only the soft, furry things on the tray",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.12,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 10.16
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put only the soft, furry things on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.96
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond soft",
+      "category": "conditional",
+      "prompt": "put only the soft, furry things on the tray",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 19.95,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 12.93
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put only the soft, furry things on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 7.02
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond if banana",
+      "category": "conditional",
+      "prompt": "if there is a banana on the table, put only the banana on the tray; otherwise put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 18.31,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 10.19
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: if there is a banana on the table, put only the banana on the tray; otherwise put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 8.11
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond if banana",
+      "category": "conditional",
+      "prompt": "if there is a banana on the table, put only the banana on the tray; otherwise put everything on the tray",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 18.86,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 10.18
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: if there is a banana on the table, put only the banana on the tray; otherwise put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 8.68
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond if banana",
+      "category": "conditional",
+      "prompt": "if there is a banana on the table, put only the banana on the tray; otherwise put everything on the tray",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.53,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.79
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: if there is a banana on the table, put only the banana on the tray; otherwise put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 7.74
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond if apple",
+      "category": "conditional",
+      "prompt": "if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose"
+      ],
+      "subtasks": [
+        "put the moose on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.71,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.68
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\"],\n  \"subtasks\": [\"put the moose on the tray\"]\n}",
+          "latency_s": 6.03
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond if apple",
+      "category": "conditional",
+      "prompt": "if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose"
+      ],
+      "subtasks": [
+        "put the moose on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.91,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 11.52
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\"],\n  \"subtasks\": [\"put the moose on the tray\"]\n}",
+          "latency_s": 6.39
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "cond if apple",
+      "category": "conditional",
+      "prompt": "if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose"
+      ],
+      "subtasks": [
+        "put the moose on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 20.92,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 13.95
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\"],\n  \"subtasks\": [\"put the moose on the tray\"]\n}",
+          "latency_s": 6.97
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty one",
+      "category": "quantity",
+      "prompt": "put one object on the tray",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": true,
+      "latency_s": 27.96,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.82
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put one object on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\"]\n}",
+          "latency_s": 8.03
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put one object on the tray\n\nYour previous answer was INVALID. You listed these objects in allowed_objects but gave them no sub-task: banana, pouch\n\nallowed_objects means \"still needs to be moved\", so every object in it MUST have exactly one sub-task. Answer again and resolve this for each of those objects, one of two ways:\n- It still needs moving: keep it in allowed_objects and give it a sub-task.\n- It needs no action (already at its destination, or the instruction says to leave it): move it to completed_objects or excluded_objects and take it OUT of allowed_objects.\n\nDo not return an empty subtasks list while allowed_objects is non-empty.",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 10.1
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning_reask"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty one",
+      "category": "quantity",
+      "prompt": "put one object on the tray",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": true,
+      "latency_s": 26.82,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 11.82
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put one object on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\"]\n}",
+          "latency_s": 6.83
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put one object on the tray\n\nYour previous answer was INVALID. You listed these objects in allowed_objects but gave them no sub-task: banana, pouch\n\nallowed_objects means \"still needs to be moved\", so every object in it MUST have exactly one sub-task. Answer again and resolve this for each of those objects, one of two ways:\n- It still needs moving: keep it in allowed_objects and give it a sub-task.\n- It needs no action (already at its destination, or the instruction says to leave it): move it to completed_objects or excluded_objects and take it OUT of allowed_objects.\n\nDo not return an empty subtasks list while allowed_objects is non-empty.",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 8.16
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning_reask"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty one",
+      "category": "quantity",
+      "prompt": "put one object on the tray",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": true,
+      "latency_s": 24.76,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.75
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put one object on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\"]\n}",
+          "latency_s": 6.62
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put one object on the tray\n\nYour previous answer was INVALID. You listed these objects in allowed_objects but gave them no sub-task: banana, pouch\n\nallowed_objects means \"still needs to be moved\", so every object in it MUST have exactly one sub-task. Answer again and resolve this for each of those objects, one of two ways:\n- It still needs moving: keep it in allowed_objects and give it a sub-task.\n- It needs no action (already at its destination, or the instruction says to leave it): move it to completed_objects or excluded_objects and take it OUT of allowed_objects.\n\nDo not return an empty subtasks list while allowed_objects is non-empty.",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 8.39
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning_reask"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty two",
+      "category": "quantity",
+      "prompt": "put two objects on the tray",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": true,
+      "latency_s": 26.93,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 10.21
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put two objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\"]\n}",
+          "latency_s": 8.25
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put two objects on the tray\n\nYour previous answer was INVALID. You listed these objects in allowed_objects but gave them no sub-task: pouch\n\nallowed_objects means \"still needs to be moved\", so every object in it MUST have exactly one sub-task. Answer again and resolve this for each of those objects, one of two ways:\n- It still needs moving: keep it in allowed_objects and give it a sub-task.\n- It needs no action (already at its destination, or the instruction says to leave it): move it to completed_objects or excluded_objects and take it OUT of allowed_objects.\n\nDo not return an empty subtasks list while allowed_objects is non-empty.",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 8.46
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning_reask"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty two",
+      "category": "quantity",
+      "prompt": "put two objects on the tray",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": true,
+      "latency_s": 27.41,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 11.64
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put two objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\"]\n}",
+          "latency_s": 7.35
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put two objects on the tray\n\nYour previous answer was INVALID. You listed these objects in allowed_objects but gave them no sub-task: pouch\n\nallowed_objects means \"still needs to be moved\", so every object in it MUST have exactly one sub-task. Answer again and resolve this for each of those objects, one of two ways:\n- It still needs moving: keep it in allowed_objects and give it a sub-task.\n- It needs no action (already at its destination, or the instruction says to leave it): move it to completed_objects or excluded_objects and take it OUT of allowed_objects.\n\nDo not return an empty subtasks list while allowed_objects is non-empty.",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 8.42
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning_reask"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty two",
+      "category": "quantity",
+      "prompt": "put two objects on the tray",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": true,
+      "latency_s": 26.32,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.59
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put two objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\"]\n}",
+          "latency_s": 8.68
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put two objects on the tray\n\nYour previous answer was INVALID. You listed these objects in allowed_objects but gave them no sub-task: pouch\n\nallowed_objects means \"still needs to be moved\", so every object in it MUST have exactly one sub-task. Answer again and resolve this for each of those objects, one of two ways:\n- It still needs moving: keep it in allowed_objects and give it a sub-task.\n- It needs no action (already at its destination, or the instruction says to leave it): move it to completed_objects or excluded_objects and take it OUT of allowed_objects.\n\nDo not return an empty subtasks list while allowed_objects is non-empty.",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 8.05
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning_reask"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty three",
+      "category": "quantity",
+      "prompt": "put all three objects on the tray",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 19.08,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 10.01
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put all three objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 9.07
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty three",
+      "category": "quantity",
+      "prompt": "put all three objects on the tray",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 18.14,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 10.11
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put all three objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 8.03
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty three",
+      "category": "quantity",
+      "prompt": "put all three objects on the tray",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 18.99,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 10.19
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put all three objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 8.79
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty one brown",
+      "category": "quantity",
+      "prompt": "put one of the brown objects on the tray",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": true,
+      "latency_s": 24.07,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 9.78
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put one of the brown objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the pouch on the tray\"]\n}",
+          "latency_s": 6.22
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put one of the brown objects on the tray\n\nYour previous answer was INVALID. You listed these objects in allowed_objects but gave them no sub-task: moose\n\nallowed_objects means \"still needs to be moved\", so every object in it MUST have exactly one sub-task. Answer again and resolve this for each of those objects, one of two ways:\n- It still needs moving: keep it in allowed_objects and give it a sub-task.\n- It needs no action (already at its destination, or the instruction says to leave it): move it to completed_objects or excluded_objects and take it OUT of allowed_objects.\n\nDo not return an empty subtasks list while allowed_objects is non-empty.",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 8.07
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning_reask"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty one brown",
+      "category": "quantity",
+      "prompt": "put one of the brown objects on the tray",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": true,
+      "latency_s": 29.58,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 10.25
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put one of the brown objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the pouch on the tray\"]\n}",
+          "latency_s": 8.39
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put one of the brown objects on the tray\n\nYour previous answer was INVALID. You listed these objects in allowed_objects but gave them no sub-task: moose\n\nallowed_objects means \"still needs to be moved\", so every object in it MUST have exactly one sub-task. Answer again and resolve this for each of those objects, one of two ways:\n- It still needs moving: keep it in allowed_objects and give it a sub-task.\n- It needs no action (already at its destination, or the instruction says to leave it): move it to completed_objects or excluded_objects and take it OUT of allowed_objects.\n\nDo not return an empty subtasks list while allowed_objects is non-empty.",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 10.94
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning_reask"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty one brown",
+      "category": "quantity",
+      "prompt": "put one of the brown objects on the tray",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose",
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": true,
+      "latency_s": 23.44,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 10.85
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put one of the brown objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the pouch on the tray\"]\n}",
+          "latency_s": 6.55
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put one of the brown objects on the tray\n\nYour previous answer was INVALID. You listed these objects in allowed_objects but gave them no sub-task: moose\n\nallowed_objects means \"still needs to be moved\", so every object in it MUST have exactly one sub-task. Answer again and resolve this for each of those objects, one of two ways:\n- It still needs moving: keep it in allowed_objects and give it a sub-task.\n- It needs no action (already at its destination, or the instruction says to leave it): move it to completed_objects or excluded_objects and take it OUT of allowed_objects.\n\nDo not return an empty subtasks list while allowed_objects is non-empty.",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"banana\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.04
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": "reasoning_reask"
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty two not banana",
+      "category": "quantity",
+      "prompt": "put two objects on the tray, but not the banana",
+      "trial": 0,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 12.48,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.09
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put two objects on the tray, but not the banana",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 5.39
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty two not banana",
+      "category": "quantity",
+      "prompt": "put two objects on the tray, but not the banana",
+      "trial": 1,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 12.42,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.15
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put two objects on the tray, but not the banana",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 5.27
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    },
+    {
+      "key": "qty two not banana",
+      "category": "quantity",
+      "prompt": "put two objects on the tray, but not the banana",
+      "trial": 2,
+      "identified": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "visible_objects": [
+        "moose",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "moose",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the moose on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 12.35,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose\", \"evidence\": \"brown plush toy with antlers on the left side\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit resting on a brown pouch\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the banana\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\"}]}",
+          "latency_s": 7.15
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"]\nInstruction: put two objects on the tray, but not the banana",
+          "output": "{\n  \"visible_objects\": [\"moose\", \"banana\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"allowed_objects\": [\"moose\", \"pouch\"],\n  \"subtasks\": [\"put the moose on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 5.2
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {},
+        "cause": null
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      },
+      "scene": "scene"
+    }
+  ]
+}

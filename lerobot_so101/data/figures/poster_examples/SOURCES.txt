@@ -4,3 +4,15 @@ furry          "put the furry object on the tray" (ptb)             baseline tri
 except_banana  "put everything on the tray except the banana" (tbp) baseline trial_006 frames 0/14/19 (placed banana) | system trial_037 frames e0:0/e0:10 + final_eval (toy+pouch)
 except_toy     "put everything on the tray except the toy" (bpt)    baseline trial_034 frames 0/15/22 (placed toy)    | system trial_026 frames e0:0/e1:12 + final_eval (pouch+banana)
 Each folder also has the matching wrist-camera frame. Regenerate: python3 figures/poster_examples/make_panels.py (from data/).
+
+Failure cases of the proposed system (make_failure_panels.py -> fail_*_panel.png + failure_cases_panel.png, all three stacked):
+fail_grasp     "put the toy on the tray first, then the pouch, then the banana" (ptb) system trial_011  toy/019 f0, banana/022 f40, banana/023 f0  (plan right; banana grasp failed twice, stopped)
+fail_plan_r1   "put one of the brown objects on the tray" (bpt)                      system trial_020  plush/192 f0, pouch/193 f13 + final_eval  (count ignored: planned toy and pouch, both placed)
+fail_plan_r2   "put the brown objects on the tray" (bpt)                              system trial_015  round-1 final_eval, banana/191 f12, round-2 final_eval  (toy + pouch placed, final eval said toy should not be on tray, round 2 planned the banana)
+Regenerate: python3 figures/poster_examples/make_failure_panels.py (from data/).
+
+Episode walkthrough (make_episode_walkthrough.py -> episode_walkthrough_panel.png): system trial_026 "put everything on the tray except the toy" (bpt),
+run folder preference_eval_system_trials/runs/run_2026-10-10_06-58-38/24. Step outputs are from its task.log and monitor_*.json:
+1 plan = decompose png; 2 execute = pouch/075 f33; 3 grasp check = monitor_freeze task01 front_0 + wrist_0; 4 sub-task check = tiles 0/15/27/31 of eval_task1 recap;
+5 sub-task 2 = banana/076 f12 + monitor_freeze task02 wrist_0; 6 final check = final_eval png. Copies of every source image are in walkthrough/.
+Regenerate: python3 figures/poster_examples/make_episode_walkthrough.py (from data/).

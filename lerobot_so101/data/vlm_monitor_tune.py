@@ -1127,6 +1127,37 @@ def match_task_object(model, processor, initial: Image.Image, task: str,
             "reason": out.get("reason", ""), "scene_objects": scene}
 
 
+RECONCILE_PROMPT = (
+    "Objects on the table (name — what it looks like):\n{listing}\n"
+    'A separate perception pass, which named objects freely, said the robot arm is '
+    'going for: "{name}".\n'
+    "The two passes often use different words for the same object (a loose or partial "
+    "name, a synonym, a near-description). Which listed object did the perception pass "
+    "mean? Judge by what kind of thing each word describes, not by the exact word; with "
+    "only a few objects on the table, the closest fit is usually right.\n"
+    "Choose exactly one of: {choices}, unclear (it fits two or more equally, or none).\n"
+    'Return ONLY JSON: {{"object": "<choice>", "reason": "<why>"}}')
+
+
+def reconcile_name(model, processor, name: str, inventory: list[dict],
+                   temperature: float = 0.1) -> tuple[str, str]:
+    """Map a free-form object name from the reach check (e.g. 'pouch') onto one entry of
+    the scene inventory (e.g. 'case'). Text only. Returns (inventory name | 'unclear',
+    how): string containment first, then one VLM call ('vlm')."""
+    names = [o["name"] for o in inventory]
+    hit = match_name(name, names)
+    if hit:
+        return hit, "string"
+    listing = "\n".join(f"- {o['name']} — {o.get('appearance') or '?'}" for o in inventory)
+    prompt = RECONCILE_PROMPT.format(listing=listing, name=name, choices=", ".join(names))
+    msgs = [{"role": "system", "content": [{"type": "text", "text": COMPARE_SYSTEM_PROMPT}]},
+            {"role": "user", "content": [{"type": "text", "text": prompt}]}]
+    out = parse_json_object(generate(model, processor, msgs, max_new_tokens=128,
+                                     temperature=temperature)) or {}
+    raw = str(out.get("object", "unclear")).strip().lower()
+    return (match_name(raw, names) or "unclear"), f"vlm: {out.get('reason', '')}"
+
+
 DIRECT_PROMPT = (
     'Command: "{task}"\n'
     "Which object in the image is this command referring to? The command may not use "

@@ -167,6 +167,9 @@ class LoopClientConfig(RobotClientConfig):
     # with the actions that observation's chunk actually put on the arm (the
     # executed subset), for prompt/error analysis.
     log_vla_inputs: bool = True
+    # Write the captured VLA inputs to vla_input_dir. False keeps the in-memory
+    # capture (the VLM monitor's frame tap relies on it) but saves nothing.
+    save_vla_inputs: bool = True
     # Root directory for VLA-input logging. Each episode gets its own
     # <index>_<object>/ subdirectory here, holding that episode's input PNGs, an
     # actions.csv (one row per executed action, paired with its input) and a
@@ -276,6 +279,12 @@ class LoopRobotClient:
         # fills so retained frames stay evenly spaced across the whole episode.
         self._clip_stride = 1
         self._clip_seen = 0
+        # Time the execution gate has held the arm this episode, and when the current
+        # hold began (None while running). A hold (the VLM monitor's grasp freeze and
+        # wrist verify, 15-30 s) buffers one frame, and clips are sampled on time with
+        # the holds cut out — otherwise the frozen arm fills most of the eval clip.
+        self._clip_paused_s = 0.0
+        self._clip_pause_start: float | None = None
         self._clip_lock = threading.Lock()
 
         # VLA-input capture: save the scene image + joint state + task for each
@@ -304,7 +313,7 @@ class LoopRobotClient:
         self._chunk_counter = 0
         # Bound memory for inputs whose observation the server never predicts.
         self._sent_inputs_maxlen = 64
-        if config.log_vla_inputs:
+        if config.log_vla_inputs and config.save_vla_inputs:
             self._vla_input_root.mkdir(parents=True, exist_ok=True)
             # Resume the episode index from whatever's already on disk. It would
             # otherwise restart at 0 on every process launch, and the first
@@ -596,7 +605,8 @@ class LoopRobotClient:
                 self._active_chunks = {}
                 self._timestep_source = {}
                 self._chunk_counter = 0
-            self._start_vla_episode_dir(task)
+            if self.config.save_vla_inputs:
+                self._start_vla_episode_dir(task)
         self.episode_done.clear()
         self.must_go.set()
         # Start each episode with execution allowed; the monitor re-gates as needed.
@@ -625,6 +635,8 @@ class LoopRobotClient:
             self._episode_clip.clear()
             self._clip_stride = 1
             self._clip_seen = 0
+            self._clip_paused_s = 0.0
+            self._clip_pause_start = None
 
     # ------------------------------------------------------------------
     # Episode threads
@@ -1044,15 +1056,29 @@ class LoopRobotClient:
         then arrive at the same effective interval as the halved older ones, so the
         first frame (episode start) through the newest stay evenly spaced. Memory is
         bounded by clip_buffer_maxlen.
+
+        While the execution gate is closed (the arm held, e.g. by the VLM monitor)
+        only the hold's first frame is kept. Each entry is (wall time, frame, active
+        time), active time being wall time minus the holds so far; clips are sampled
+        on active time, so a 20 s freeze neither repeats the frozen frame nor leaves
+        a gap that the evenly-spaced sample points fall into.
         """
         frame = self._select_camera_frame(obs, self._clip_camera_key)
         if frame is None:
             return
+        now = time.perf_counter()
         with self._clip_lock:
+            if not self.execution_gate.is_set():
+                if self._clip_pause_start is not None:
+                    return
+                self._clip_pause_start = now
+            elif self._clip_pause_start is not None:
+                self._clip_paused_s += now - self._clip_pause_start
+                self._clip_pause_start = None
             self._clip_seen += 1
-            if self._clip_seen % self._clip_stride != 0:
+            if self._clip_seen % self._clip_stride != 0 and self._clip_pause_start != now:
                 return
-            self._episode_clip.append((time.perf_counter(), frame.copy()))
+            self._episode_clip.append((now, frame.copy(), now - self._clip_paused_s))
             if len(self._episode_clip) > self.config.clip_buffer_maxlen:
                 # Halve the buffer (keep indices 0, 2, 4, ... — retains the
                 # episode-start frame) and match the incoming rate to it.
@@ -1239,6 +1265,8 @@ class LoopRobotClient:
             self._sent_inputs = {}
             self._timestep_source = {}
             self._chunk_counter = 0
+        if not self.config.save_vla_inputs:
+            return
 
         rows = [rec for rec in chunks if rec.get("executed_actions")]
         if not rows:
@@ -1328,12 +1356,13 @@ class LoopRobotClient:
         if not entries:
             return None
 
-        t0 = entries[0][0]
-        span = entries[-1][0] - t0 if len(entries) > 1 else 0.0
+        # Sampled on active time (holds cut out), labelled with wall time.
+        t0 = entries[0][2]
+        span = entries[-1][2] - t0 if len(entries) > 1 else 0.0
         if len(entries) <= num_frames or span <= 0:
             sampled = entries
         else:
-            times = [ts for ts, _ in entries]
+            times = [active for _, _, active in entries]
             idxs: list[int] = []
             for k in range(num_frames):
                 target = t0 + span * k / (num_frames - 1)
@@ -1348,7 +1377,7 @@ class LoopRobotClient:
             from PIL import Image, ImageDraw
 
             tiles = []
-            for ts, frame in sampled:
+            for ts, frame, _ in sampled:
                 img = Image.fromarray(np.asarray(frame, dtype=np.uint8)).convert("RGB")
                 elapsed = ts - episode_start
                 label = f"t={elapsed:4.1f}s"
@@ -1379,7 +1408,9 @@ class LoopRobotClient:
     def get_episode_clip(self, num_frames: int,
                          window_s: float | None = None) -> tuple[list, float]:
         """Return up to num_frames frames sampled evenly *in time*, oldest-first,
-        along with the wall-clock span those frames cover.
+        along with the time span those frames cover. Time here is active time: any
+        execution-gate holds are cut out (see _buffer_clip_frame), so the span is
+        the time the arm was actually running.
 
         By default samples across the whole episode buffer. If window_s is given,
         first restricts to the recent window — only frames whose timestamp is
@@ -1406,18 +1437,18 @@ class LoopRobotClient:
             return [], 0.0
 
         if window_s is not None and len(entries) > 1:
-            cutoff = entries[-1][0] - window_s
-            entries = [e for e in entries if e[0] >= cutoff]
+            cutoff = entries[-1][2] - window_s
+            entries = [e for e in entries if e[2] >= cutoff]
 
-        span = entries[-1][0] - entries[0][0] if len(entries) > 1 else 0.0
+        span = entries[-1][2] - entries[0][2] if len(entries) > 1 else 0.0
         if len(entries) <= num_frames or span <= 0:
-            return [frame for _, frame in entries], span
+            return [frame for _, frame, _ in entries], span
 
         # Pick the frame whose timestamp is nearest each evenly-spaced target time,
         # inclusive of both ends. De-duplicate while preserving order so a sparse
         # buffer can't return the same frame twice.
-        t0 = entries[0][0]
-        timestamps = [ts for ts, _ in entries]
+        t0 = entries[0][2]
+        timestamps = [active for _, _, active in entries]
         idxs: list[int] = []
         for k in range(num_frames):
             target = t0 + span * k / (num_frames - 1)
@@ -1439,6 +1470,17 @@ class LoopRobotClient:
             self.action_logger.removeHandler(handler)
             handler.close()
         self.logger.info("Client stopped")
+
+
+def drop_file_logging():
+    """Detach and delete the root logger's log files, for runs that must write
+    nothing to disk: get_logger (LoopRobotClient.logger, at import) opens
+    logs/<name>_<unix_ts>.log for this process."""
+    root = logging.getLogger()
+    for h in [h for h in root.handlers if isinstance(h, logging.FileHandler)]:
+        root.removeHandler(h)
+        h.close()
+        Path(h.baseFilename).unlink(missing_ok=True)
 
 
 # ---------------------------------------------------------------------------

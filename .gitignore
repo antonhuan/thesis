@@ -14,3 +14,23 @@ lerobot_so101/data/denoise_plots/*
 lerobot_so101/data/denoise_image/
 !lerobot_so101/data/denoise_plots/2026-08-26_05-22-36/
 !lerobot_so101/data/denoise_plots/2026-08-27_07-08-15/
+
+# --- lerobot_so101/data: track code, result summaries (json/csv/md) and figures/ only ---
+# Raw robot recordings / per-episode dumps
+lerobot_so101/data/runs/
+lerobot_so101/data/vla_failure_test/
+lerobot_so101/data/vla_test/
+lerobot_so101/data/vla_inputs/
+lerobot_so101/data/pouch_study/
+lerobot_so101/data/**/episodes/
+lerobot_so101/data/**/runs/
+lerobot_so101/data/**/actions/
+# Bulky generated files anywhere under data/
+lerobot_so101/data/**/*.png
+lerobot_so101/data/**/*.npy
+lerobot_so101/data/**/*.log
+lerobot_so101/data/**/*.mp4
+lerobot_so101/data/**/*.gz
+# Curated figures stay tracked
+!lerobot_so101/data/figures/**
+!lerobot_so101/data/**/fig_*.png

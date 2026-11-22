@@ -1,0 +1,1854 @@
+{
+  "config": {
+    "root": "vla_failure_test",
+    "worklist": "vla_failure_analysis2/labeling_worklist.csv",
+    "model": "Qwen/Qwen3-VL-8B-Instruct",
+    "mode": "all",
+    "categories": null,
+    "set": "all",
+    "paraphrase_only": true,
+    "limit": null,
+    "temp": 0.1,
+    "out": "vlm_monitor_test/object_matcher_paraphrase.json",
+    "rescore": null
+  },
+  "phrase_truth": {
+    "pouch": "POUCH",
+    "brown pouch": "POUCH",
+    "box": "POUCH",
+    "purse": "POUCH",
+    "roll": "POUCH",
+    "pencil case": "POUCH",
+    "chocolate bar": "POUCH",
+    "chocolate": "POUCH",
+    "sausage": "POUCH",
+    "cylinder": "POUCH",
+    "cylindrical object": "POUCH",
+    "brown cylinder": "POUCH",
+    "brown cylindrical object": "POUCH",
+    "plush toy": "PLUSH",
+    "toy": "PLUSH",
+    "moose": "PLUSH",
+    "stuffed animal": "PLUSH",
+    "brown plush toy": "PLUSH",
+    "banana": "BANANA",
+    "robot arm": "NONE",
+    "table": "NONE",
+    "tray": "NONE",
+    "wires": "NONE",
+    "kumquat": "NONE",
+    "brown object": "AMBIGUOUS",
+    "kiwi": "AMBIGUOUS"
+  },
+  "results": [
+    {
+      "category": "box",
+      "episode": "012_box",
+      "trial": "correct",
+      "dir": "vla_failure_test/box/012_box",
+      "initial": "vla_failure_test/box/012_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the box on the tray",
+      "phrase": "box",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction 'put the box on the tray' refers to the brown pouch, as it is the only object that resembles a box (rectangular container) among the items on the table. The plush moose toy is a stuffed animal, and the banana is a fruit, neither of which fits the description of a 'box'. The tray is already present and is the destination, so it is not the object to pick.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The instruction 'put the box on the tray' refers to the pencil case, as it is the only rectangular, container-like object that could reasonably be called a 'box' in an informal or loose sense. The stuffed animal is not a box, the banana is not a box, and the tray is already the destination, not the object to be moved.",
+        "scene_objects": [
+          "banana",
+          "pencil case",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "brown pouch",
+        "appearance": "brown, rectangular, with wires attached"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "box",
+      "episode": "017_box",
+      "trial": "correct",
+      "dir": "vla_failure_test/box/017_box",
+      "initial": "vla_failure_test/box/017_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the box on the tray",
+      "phrase": "box",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction says 'put the box on the tray'. The brown pouch is the only object that resembles a box in shape and function, even though it's not a typical box. The plush moose toy and banana are clearly not boxes, and the tray is the destination, not the object to pick.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The instruction says 'put the box on the tray'. Among the objects, the brown pencil case is the most likely candidate for being referred to as 'box' due to its rectangular shape and enclosed form, even though it's not a typical box. The pink tray is the destination, so it's not the object to pick. The stuffed animal and banana don't resemble a box.",
+        "scene_objects": [
+          "stuffed animal",
+          "banana",
+          "pencil case"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "box",
+        "appearance": "pink rectangular tray"
+      },
+      "direct_pred": "TRAY"
+    },
+    {
+      "category": "box",
+      "episode": "021_box",
+      "trial": "correct",
+      "dir": "vla_failure_test/box/021_box",
+      "initial": "vla_failure_test/box/021_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the box on the tray",
+      "phrase": "box",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction 'put the box on the tray' likely refers to the brown pouch as the 'box' because it is the only object that resembles a container or box shape among the items on the table. The plush moose toy is not a box, the banana is not a box, and the tray is already present. The brown pouch is the most plausible object being referred to as 'box' in this context.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pen case",
+        "reason": "The instruction 'put the box on the tray' refers to the pen case, which is rectangular and has a box-like shape, fitting the description of 'box'. The stuffed animal is not box-shaped, the banana is elongated and curved, and the tray is already present as a destination, so it's not the object to pick.",
+        "scene_objects": [
+          "banana",
+          "pen case",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "box",
+        "appearance": "pink box with moose toy inside"
+      },
+      "direct_pred": "TRAY"
+    },
+    {
+      "category": "box",
+      "episode": "081_box",
+      "trial": "correct",
+      "dir": "vla_failure_test/box/081_box",
+      "initial": "vla_failure_test/box/081_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the box on the tray",
+      "phrase": "box",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction says 'put the box on the tray'. The brown pouch is the only object that resembles a box in shape and is a plausible candidate for being referred to as 'box'. The plush moose toy is not box-shaped, and the banana is not a box. The tray is already present and the instruction says to put the box on it, not move the tray.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "brown cylinder",
+        "reason": "The instruction says 'put the box on the tray'. The brown cylinder is the only object that resembles a box in shape and context, while the banana is clearly not a box, and the tray already has an object on it. The brown cylinder is the most plausible interpretation of 'box' in this context.",
+        "scene_objects": [
+          "banana",
+          "brown cylinder"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "box",
+        "appearance": "pink tray with a brown stuffed animal inside"
+      },
+      "direct_pred": "TRAY"
+    },
+    {
+      "category": "box",
+      "episode": "118_box",
+      "trial": "correct",
+      "dir": "vla_failure_test/box/118_box",
+      "initial": "vla_failure_test/box/118_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the box on the tray",
+      "phrase": "box",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction says 'put the box on the tray'. The brown pouch is the most likely object being referred to as 'box' because it is rectangular and has a box-like shape, unlike the plush moose toy or banana. The tray is the pink rectangular frame on the right.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The instruction 'put the box on the tray' refers to the pencil case, as it is the only rectangular, box-like object on the table that could reasonably be called a 'box'. The tray is the pink rectangular frame, which is the destination, not the object to pick.",
+        "scene_objects": [
+          "banana",
+          "kiwi",
+          "pencil case"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "box",
+        "appearance": "pink rectangular tray"
+      },
+      "direct_pred": "TRAY"
+    },
+    {
+      "category": "brown",
+      "episode": "013_brown",
+      "trial": "correct",
+      "dir": "vla_failure_test/brown/013_brown",
+      "initial": "vla_failure_test/brown/013_brown/00000_front_put_the_brown_cylinder_on_the_tray.png",
+      "task": "put the brown cylinder on the tray",
+      "phrase": "brown cylinder",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'brown cylinder', which matches the shape and color of the brown pouch. The plush moose toy is brown but not cylindrical, and the banana is yellow and curved, not cylindrical in the same way. The brown pouch is the only object that fits the description of a brown cylinder.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "stuffed animal",
+        "reason": "The brown cylinder refers to the brown cylindrical part of the stuffed animal, which is the object the robot needs to move. The banana is yellow and curved, not cylindrical in the same way. The pink tray is the destination, not the object to pick.",
+        "scene_objects": [
+          "banana",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "PLUSH",
+      "direct_raw": {
+        "object": "brown cylinder",
+        "appearance": "brown, cylindrical, plush toy"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "brown",
+      "episode": "014_brown",
+      "trial": "correct",
+      "dir": "vla_failure_test/brown/014_brown",
+      "initial": "vla_failure_test/brown/014_brown/00000_front_put_the_brown_cylinder_on_the_tray.png",
+      "task": "put the brown cylinder on the tray",
+      "phrase": "brown cylinder",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'brown cylinder', which matches the shape and color of the brown pouch on the table. The plush moose toy is not cylindrical, and the banana is yellow, not brown. Therefore, the brown pouch is the only object that fits the description.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The brown cylinder refers to the brown pencil case, as it is the only cylindrical object that is brown on the table. The banana is curved and not cylindrical in shape, the stuffed animal is round but not cylindrical, and none of the other objects match the description of a brown cylinder.",
+        "scene_objects": [
+          "banana",
+          "pencil case",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "brown cylinder",
+        "appearance": "brown, cylindrical, leather-like"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "brown",
+      "episode": "029_brown",
+      "trial": "correct",
+      "dir": "vla_failure_test/brown/029_brown",
+      "initial": "vla_failure_test/brown/029_brown/00000_front_put_the_brown_object_in_the_box.png",
+      "task": "put the brown object in the box",
+      "phrase": "brown object",
+      "truth": "AMBIGUOUS",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'brown object', and the brown pouch is the only object on the table that is distinctly brown and can be reasonably interpreted as the 'brown object'. The plush moose toy is also brown but has other features (like a banana on top) that make it less likely to be the intended object. The banana is yellow, not brown. Therefore, the brown pouch is the most fitting choice.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The instruction refers to a 'brown object', and among the visible items, the brown pencil case is the most likely candidate, as the stuffed animal is brown but also has a banana on it, making it less distinct. The pencil case is a solid brown object that fits the description without ambiguity.",
+        "scene_objects": [
+          "banana",
+          "stuffed animal",
+          "pencil case"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "brown object",
+        "appearance": "brown, cylindrical, possibly a pen case"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "brown",
+      "episode": "030_brown",
+      "trial": "correct",
+      "dir": "vla_failure_test/brown/030_brown",
+      "initial": "vla_failure_test/brown/030_brown/00000_front_put_the_brown_object_in_the_box.png",
+      "task": "put the brown object in the box",
+      "phrase": "brown object",
+      "truth": "AMBIGUOUS",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'brown object', and the brown pouch is the only object on the table that is distinctly brown and matches the description. The plush moose toy is also brown but has other features (like a banana on top) that make it less likely to be the intended 'brown object'. The banana is yellow, and 'none' and 'ambiguous' are incorrect because the brown pouch clearly fits the description.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The instruction refers to a 'brown object', and among the visible items, the brown pencil case is the most clearly brown and matches the description. The stuffed animal is also brown but has a banana on it, making it less likely to be the intended 'brown object'. The banana is yellow, and the box is pink, so neither of those fits the 'brown object' description.",
+        "scene_objects": [
+          "banana",
+          "stuffed animal",
+          "pencil case"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "brown object",
+        "appearance": "brown, cylindrical, possibly a pen case"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "brown",
+      "episode": "160_brown",
+      "trial": "correct",
+      "dir": "vla_failure_test/brown/160_brown",
+      "initial": "vla_failure_test/brown/160_brown/00000_front_put_the_brown_object_on_the_tray.png",
+      "task": "put the brown object on the tray",
+      "phrase": "brown object",
+      "truth": "AMBIGUOUS",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'brown object', and the brown pouch is the only object on the table that is distinctly brown and can be reasonably interpreted as the 'brown object'. The plush moose toy is also brown but has other features (horns, fur texture) that make it less likely to be the intended 'brown object'. The banana is yellow, not brown. Therefore, the brown pouch is the most fitting choice.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "chocolate",
+        "reason": "The instruction refers to a 'brown object', and among the visible items, the chocolate bar is the most clearly brown and solid object that fits this description. The banana is yellowish-brown but more yellow, the kiwi is green, and the toy is brown but fuzzy and less uniformly brown. The chocolate is the most unambiguous match for 'brown object'.",
+        "scene_objects": [
+          "banana",
+          "chocolate",
+          "kiwi",
+          "toy"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "brown object",
+        "appearance": "long, cylindrical, brown, possibly a sausage or similar item"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "brown",
+      "episode": "174_brown",
+      "trial": "correct",
+      "dir": "vla_failure_test/brown/174_brown",
+      "initial": "vla_failure_test/brown/174_brown/00000_front_put_the_brown_cylindrical_object_on_the_.png",
+      "task": "put the brown cylindrical object on the ",
+      "phrase": "brown cylindrical object",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The 'brown cylindrical object' most likely refers to the brown pouch, as it is the only object on the table that matches the description of being brown and cylindrical. The plush moose toy is brown but not cylindrical, and the banana is curved but not cylindrical in the same way as the pouch. The instruction implies the robot should place this object somewhere else, not on itself.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The brown cylindrical object is clearly the pencil case, which matches the description. The banana is curved and not cylindrical, and the stuffed animal is irregularly shaped. Therefore, the pencil case is the only object that fits the description of a 'brown cylindrical object'.",
+        "scene_objects": [
+          "banana",
+          "stuffed animal",
+          "pencil case"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "brown cylindrical object",
+        "appearance": "brown, cylindrical, possibly a case or pouch"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "brown",
+      "episode": "175_brown",
+      "trial": "correct",
+      "dir": "vla_failure_test/brown/175_brown",
+      "initial": "vla_failure_test/brown/175_brown/00000_front_put_the_brown_cylindrical_object_on_the_.png",
+      "task": "put the brown cylindrical object on the ",
+      "phrase": "brown cylindrical object",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The brown cylindrical object is clearly the brown pouch, which matches the description. The plush moose toy is not cylindrical, the banana is curved but not cylindrical in the same way, and 'none' and 'ambiguous' are incorrect as the pouch is unambiguously the intended object.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The brown cylindrical object is clearly the pencil case, which matches the description. The banana is curved and not cylindrical, and the stuffed animal is irregularly shaped. Therefore, the pencil case is the only object that fits the description of a 'brown cylindrical object'.",
+        "scene_objects": [
+          "banana",
+          "stuffed animal",
+          "pencil case"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "brown cylindrical object",
+        "appearance": "brown, cylindrical, possibly a case or pouch"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "brown",
+      "episode": "205_brown",
+      "trial": "correct",
+      "dir": "vla_failure_test/brown/205_brown",
+      "initial": "vla_failure_test/brown/205_brown/00000_front_put_the_brown_object_on_the_tray.png",
+      "task": "put the brown object on the tray",
+      "phrase": "brown object",
+      "truth": "AMBIGUOUS",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction asks to 'put the brown object on the tray'. Among the objects, the brown pouch is clearly a brown object, while the plush moose toy is also brown but is already on the tray. The banana is yellow. Therefore, the brown pouch is the intended object to be moved, as it is not on the tray and matches the description.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pen case",
+        "reason": "The instruction refers to a 'brown object', and among the visible items, the pen case is the most clearly brown and solid object that fits this description. The stuffed animal is also brown, but it is furry and less uniformly brown, and the banana is yellow. The pen case is a distinct, rectangular brown object that matches the description best.",
+        "scene_objects": [
+          "banana",
+          "stuffed animal",
+          "pen case"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "brown object",
+        "appearance": "brown cylindrical object with wires attached"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "chocolate",
+      "episode": "164_chocolate",
+      "trial": "correct",
+      "dir": "vla_failure_test/chocolate/164_chocolate",
+      "initial": "vla_failure_test/chocolate/164_chocolate/00000_front_put_the_chocolate_bar_on_the_tray.png",
+      "task": "put the chocolate bar on the tray",
+      "phrase": "chocolate bar",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'chocolate bar', which is typically a rectangular, brown, edible item. The brown pouch on the table is the only object that matches this description in shape and color, even though it's not actually chocolate. The plush moose toy and banana are clearly not chocolate bars, and 'none' is incorrect because the brown pouch fits the description.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "kumquat",
+        "reason": "The instruction asks to put 'the chocolate bar' on the tray. The object labeled 'KUMQUAT' is a brown, rectangular object with wires attached, resembling a chocolate bar in shape and color. The banana is curved and yellow, the toy animal is furry and brown, and none of these other objects match the description of a chocolate bar. Therefore, the 'kumquat' is the intended object.",
+        "scene_objects": [
+          "banana",
+          "kumquat",
+          "toy animal"
+        ]
+      },
+      "open_pred": null,
+      "direct_raw": {
+        "object": "chocolate bar",
+        "appearance": "brown rectangular bar"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "chocolate",
+      "episode": "165_chocolate",
+      "trial": "correct",
+      "dir": "vla_failure_test/chocolate/165_chocolate",
+      "initial": "vla_failure_test/chocolate/165_chocolate/00000_front_put_the_chocolate_bar_on_the_tray.png",
+      "task": "put the chocolate bar on the tray",
+      "phrase": "chocolate bar",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction asks to put 'the chocolate bar' on the tray. The brown pouch is the only object that resembles a chocolate bar in shape and color, while the plush moose toy and banana are clearly different in appearance. The instruction may use 'chocolate bar' loosely to refer to the brown pouch, which is likely the intended object to be moved.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "kumquat",
+        "reason": "The object referred to as 'chocolate bar' in the instruction is likely the brown, rectangular object labeled 'KUMQUAT', which visually resembles a chocolate bar. The banana is curved and yellow, and the toy is a stuffed animal, neither of which matches the description of a chocolate bar.",
+        "scene_objects": [
+          "banana",
+          "kumquat",
+          "toy"
+        ]
+      },
+      "open_pred": null,
+      "direct_raw": {
+        "object": "chocolate bar",
+        "appearance": "brown rectangular object"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "chocolate",
+      "episode": "189_chocolate",
+      "trial": "correct",
+      "dir": "vla_failure_test/chocolate/189_chocolate",
+      "initial": "vla_failure_test/chocolate/189_chocolate/00000_front_put_the_chocolate_bar_on_the_tray.png",
+      "task": "put the chocolate bar on the tray",
+      "phrase": "chocolate bar",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'chocolate bar', which is typically a long, rectangular, edible item. The brown pouch is the only object on the table that matches this description in shape and color, resembling a chocolate bar. The plush moose toy and banana are clearly not chocolate bars, and there is no actual chocolate bar visible.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "chocolate",
+        "reason": "The instruction refers to a 'chocolate bar', which matches the brown, rectangular, bar-like object on the table. The banana is curved and yellow, and the stuffed animal is furry and horned, neither of which resemble a chocolate bar. Therefore, the chocolate object is the only one that fits the description.",
+        "scene_objects": [
+          "chocolate",
+          "banana",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "chocolate bar",
+        "appearance": "brown, cylindrical, wrapped"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "chocolate",
+      "episode": "190_chocolate",
+      "trial": "correct",
+      "dir": "vla_failure_test/chocolate/190_chocolate",
+      "initial": "vla_failure_test/chocolate/190_chocolate/00000_front_put_the_chocolate_on_the_tray.png",
+      "task": "put the chocolate on the tray",
+      "phrase": "chocolate",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to 'chocolate', which is a food item. The brown pouch is the only object that resembles a chocolate bar or chocolate-related item on the table, while the plush moose toy and banana are clearly not chocolate. The instruction does not refer to the tray as the object to pick, but rather the chocolate (the pouch) should be moved to the tray.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "chocolate",
+        "reason": "The instruction explicitly mentions 'chocolate', and there is a brown, elongated object that visually matches the typical appearance of a chocolate bar or similar confectionery item on the table. The other objects (banana, stuffed animal) do not match the description of 'chocolate'.",
+        "scene_objects": [
+          "chocolate",
+          "banana",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "chocolate",
+        "appearance": "brown cylindrical object"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "chocolate",
+      "episode": "191_chocolate",
+      "trial": "correct",
+      "dir": "vla_failure_test/chocolate/191_chocolate",
+      "initial": "vla_failure_test/chocolate/191_chocolate/00000_front_put_the_chocolate_bar_on_the_tray.png",
+      "task": "put the chocolate bar on the tray",
+      "phrase": "chocolate bar",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'chocolate bar', which is typically a long, rectangular, edible item. The brown pouch is the only object on the table that matches this description in shape and color, resembling a chocolate bar. The plush moose toy and banana are clearly not chocolate bars, and there is no actual chocolate bar visible.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "chocolate",
+        "reason": "The instruction refers to a 'chocolate bar', which matches the brown, rectangular, bar-shaped object labeled as 'chocolate' on the table. The banana is curved and yellow, and the stuffed animal is furry and horned, neither of which resemble a chocolate bar. Therefore, the chocolate object is the only one that fits the description.",
+        "scene_objects": [
+          "chocolate",
+          "banana",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "chocolate bar",
+        "appearance": "brown, cylindrical, wrapped"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "cylinder",
+      "episode": "188_cylinder",
+      "trial": "correct",
+      "dir": "vla_failure_test/cylinder/188_cylinder",
+      "initial": "vla_failure_test/cylinder/188_cylinder/00000_front_put_the_cylinder_on_the_tray.png",
+      "task": "put the cylinder on the tray",
+      "phrase": "cylinder",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'cylinder', which matches the shape and appearance of the brown pouch. The plush moose toy is irregularly shaped, the banana is curved, and none of the other objects are cylindrical.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "chocolate",
+        "reason": "The instruction refers to a 'cylinder', and the chocolate object is cylindrical in shape, while the banana is curved but not cylindrical, and the stuffed animal is irregularly shaped. The chocolate fits the description best.",
+        "scene_objects": [
+          "chocolate",
+          "banana",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "cylinder",
+        "appearance": "brown, cylindrical object"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "cylindrical",
+      "episode": "185_cylindrical",
+      "trial": "correct",
+      "dir": "vla_failure_test/cylindrical/185_cylindrical",
+      "initial": "vla_failure_test/cylindrical/185_cylindrical/00000_front_put_the_cylindrical_object_on_the_tray.png",
+      "task": "put the cylindrical object on the tray",
+      "phrase": "cylindrical object",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'cylindrical object'. Among the objects on the table, the brown pouch is the most cylindrical in shape, while the plush moose toy is irregular and the banana is curved but not cylindrical in the same way. The pouch fits the description best.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The cylindrical object refers to the brown pencil case, which has a cylindrical shape, while the banana is curved but not cylindrical, and the stuffed animal is irregularly shaped.",
+        "scene_objects": [
+          "banana",
+          "stuffed animal",
+          "pencil case"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "cylindrical object",
+        "appearance": "brown, cylindrical, possibly a toy or container"
+      },
+      "direct_pred": "TRAY"
+    },
+    {
+      "category": "cylindrical",
+      "episode": "186_cylindrical",
+      "trial": "correct",
+      "dir": "vla_failure_test/cylindrical/186_cylindrical",
+      "initial": "vla_failure_test/cylindrical/186_cylindrical/00000_front_put_the_cylindrical_object_on_the_tray.png",
+      "task": "put the cylindrical object on the tray",
+      "phrase": "cylindrical object",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'cylindrical object', and the brown pouch is the only object on the table that has a clear cylindrical shape. The plush moose toy is irregularly shaped, and the banana, while somewhat curved, is not cylindrical in the same way as the pouch.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "chocolate",
+        "reason": "The cylindrical object is clearly the brown, elongated chocolate bar, which matches the description of a 'cylindrical object'. The banana is curved and not cylindrical, and the stuffed animal is irregularly shaped. The instruction asks to put the cylindrical object on the tray, so the chocolate is the correct target.",
+        "scene_objects": [
+          "chocolate",
+          "banana",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "cylindrical object",
+        "appearance": "brown, cylindrical, textured"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "cylindrical",
+      "episode": "187_cylindrical",
+      "trial": "correct",
+      "dir": "vla_failure_test/cylindrical/187_cylindrical",
+      "initial": "vla_failure_test/cylindrical/187_cylindrical/00000_front_put_the_cylindrical_object_on_the_tray.png",
+      "task": "put the cylindrical object on the tray",
+      "phrase": "cylindrical object",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'cylindrical object', and the brown pouch is the only object on the table that has a clear cylindrical shape. The plush moose toy is irregularly shaped, and the banana, while somewhat curved, is not cylindrical in the same way as the pouch.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "chocolate",
+        "reason": "The cylindrical object is clearly the chocolate bar, which has a distinct cylindrical shape. The banana is curved and not cylindrical, and the stuffed animal is irregularly shaped. The instruction refers to the object to be moved, not the destination.",
+        "scene_objects": [
+          "chocolate",
+          "banana",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "cylindrical object",
+        "appearance": "brown, cylindrical, textured"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "cylindrical",
+      "episode": "195_cylindrical",
+      "trial": "correct",
+      "dir": "vla_failure_test/cylindrical/195_cylindrical",
+      "initial": "vla_failure_test/cylindrical/195_cylindrical/00000_front_put_the_cylindrical_object_on_the_tray.png",
+      "task": "put the cylindrical object on the tray",
+      "phrase": "cylindrical object",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The cylindrical object is most likely the brown pouch, as it has a cylindrical shape and is the only object that fits the description of being cylindrical. The plush moose toy is irregularly shaped, and the banana is elongated but not cylindrical in the same way as the pouch. The instruction refers to the object to be moved, not the destination.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The cylindrical object is clearly the brown pencil case, which has a cylindrical shape. The banana is elongated but not cylindrical, and the kangaroo is a stuffed animal with a different shape. The instruction refers to the pencil case as the object to be moved.",
+        "scene_objects": [
+          "banana",
+          "kangaroo",
+          "pencil case"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "cylindrical object",
+        "appearance": "brown, cylindrical, textured"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "fail",
+      "episode": "080_box",
+      "trial": "correct",
+      "dir": "vla_failure_test/fail/080_box",
+      "initial": "vla_failure_test/fail/080_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the box on the tray",
+      "phrase": "box",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction says 'put the box on the tray'. The brown pouch is the only object that resembles a box in shape and is rectangular, while the plush moose toy is clearly not a box and the banana is not box-shaped. The tray is already present and the instruction is to place the box on it, so the box is the brown pouch.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "none",
+        "reason": "The instruction 'put the box on the tray' refers to an object called 'box', but none of the objects on the table are a box. The brown cylindrical object is a kumquat (as labeled), the banana is a banana, and the plush toy is a stuffed animal. There is no actual box present.",
+        "scene_objects": [
+          "banana",
+          "kumquat",
+          "plush toy"
+        ]
+      },
+      "open_pred": "NONE",
+      "direct_raw": {
+        "object": "box",
+        "appearance": "pink rectangular box with a plush toy inside"
+      },
+      "direct_pred": "TRAY"
+    },
+    {
+      "category": "fail",
+      "episode": "196_pencil",
+      "trial": "correct",
+      "dir": "vla_failure_test/fail/196_pencil",
+      "initial": "vla_failure_test/fail/196_pencil/00000_front_put_the_pencil_case_on_the_tray.png",
+      "task": "put the pencil case on the tray",
+      "phrase": "pencil case",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'pencil case', which is a container for writing utensils. The brown pouch on the table is the most likely candidate for this, as it resembles a typical pencil case in shape and function. The plush moose toy and banana do not fit the description of a pencil case, and there is no other object that matches.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The instruction explicitly mentions 'pencil case', and there is a brown cylindrical object on the table that matches the typical appearance of a pencil case. The other objects (banana, stuffed animal) do not resemble a pencil case.",
+        "scene_objects": [
+          "banana",
+          "pencil case",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "pencil case",
+        "appearance": "brown, cylindrical, zippered case"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "kiwi",
+      "episode": "063_kiwi",
+      "trial": "correct",
+      "dir": "vla_failure_test/kiwi/063_kiwi",
+      "initial": "vla_failure_test/kiwi/063_kiwi/00000_front_put_the_kiwi_on_the_tray.png",
+      "task": "put the kiwi on the tray",
+      "phrase": "kiwi",
+      "truth": "AMBIGUOUS",
+      "closed_raw": {
+        "object": "plush moose toy",
+        "reason": "The instruction asks to 'put the kiwi on the tray'. A kiwi is a small, round fruit with brown, fuzzy skin. The plush moose toy is brown and fuzzy, resembling a kiwi in appearance, while the banana is yellow and smooth, and the brown pouch is a solid, non-fuzzy object. Therefore, the plush moose toy is the most likely object being referred to as 'kiwi' in this context.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "PLUSH",
+      "open_raw": {
+        "object": "kiwi",
+        "reason": "The instruction refers to a 'kiwi', which is a fruit. On the table, there is a brown, fuzzy plush toy shaped like a kiwi with a long beak, sitting on a pink tray. Although it is a toy, it is the only object that visually matches the description 'kiwi' (fuzzy, brown, with a beak-like feature). The banana is yellow and smooth, the pencil case is brown and cylindrical, and none of these match the description of a kiwi fruit. Therefore, the instruction's object 'kiwi' refers to this plush toy.",
+        "scene_objects": [
+          "banana",
+          "kiwi",
+          "pencil case"
+        ]
+      },
+      "open_pred": "PLUSH",
+      "direct_raw": {
+        "object": "kiwi",
+        "appearance": "brown fuzzy toy with arms"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "kiwi",
+      "episode": "064_kiwi",
+      "trial": "correct",
+      "dir": "vla_failure_test/kiwi/064_kiwi",
+      "initial": "vla_failure_test/kiwi/064_kiwi/00000_front_put_the_kiwi_on_the_tray.png",
+      "task": "put the kiwi on the tray",
+      "phrase": "kiwi",
+      "truth": "AMBIGUOUS",
+      "closed_raw": {
+        "object": "plush moose toy",
+        "reason": "The instruction asks to put the 'kiwi' on the tray. The plush moose toy has a brown, fuzzy texture and a shape that resembles a kiwi bird (often confused with 'kiwi' fruit due to the name similarity). The banana is clearly a banana, and the brown pouch is a pouch. The plush moose toy is the only object that fits the description of 'kiwi' in this context, even though it's not a real kiwi fruit.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "PLUSH",
+      "open_raw": {
+        "object": "kiwi",
+        "reason": "The kiwi is the brown, fuzzy, bird-like plush toy with a long beak and legs, which matches the description of a kiwi (a bird) despite being a toy. The banana is a fruit, the pencil case is a brown case, and none of the other objects fit the description of a kiwi.",
+        "scene_objects": [
+          "banana",
+          "kiwi",
+          "pencil case"
+        ]
+      },
+      "open_pred": "PLUSH",
+      "direct_raw": {
+        "object": "kiwi",
+        "appearance": "brown fuzzy toy with arms"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "kumquat",
+      "episode": "230_kumquat",
+      "trial": "correct",
+      "dir": "vla_failure_test/kumquat/230_kumquat",
+      "initial": "vla_failure_test/kumquat/230_kumquat/00000_front_put_the_kumquat_on_the_tray.png",
+      "task": "put the kumquat on the tray",
+      "phrase": "kumquat",
+      "truth": "NONE",
+      "closed_raw": {
+        "object": "none",
+        "reason": "The instruction asks to put the 'kumquat' on the tray, but there is no kumquat visible on the table. The orange robot has a label 'KUMQUAT' on it, but that is part of the robot itself, not an object to be moved. Therefore, nothing on the table fits the description of 'kumquat'.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "NONE",
+      "open_raw": {
+        "object": "none",
+        "reason": "The instruction asks to put the 'kumquat' on the tray, but there is no kumquat visible on the table. The orange robot has a label 'KUMQUAT' on it, but that is part of the robot itself, not an object to be moved. The banana and chocolate bar are the only other objects, and neither resembles a kumquat.",
+        "scene_objects": [
+          "banana",
+          "chocolate bar"
+        ]
+      },
+      "open_pred": "NONE",
+      "direct_raw": {
+        "object": "kumquat",
+        "appearance": "orange robotic arm with label"
+      },
+      "direct_pred": null
+    },
+    {
+      "category": "moose",
+      "episode": "071_moose",
+      "trial": "correct",
+      "dir": "vla_failure_test/moose/071_moose",
+      "initial": "vla_failure_test/moose/071_moose/00000_front_put_the_moose_on_the_tray.png",
+      "task": "put the moose on the tray",
+      "phrase": "moose",
+      "truth": "PLUSH",
+      "closed_raw": {
+        "object": "plush moose toy",
+        "reason": "The instruction refers to 'the moose', which is a common name for a plush toy shaped like a moose, distinguishable by its antlers and furry body. The brown pouch and banana do not resemble a moose, and 'none' and 'ambiguous' are incorrect as the plush moose toy clearly fits the description.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "PLUSH",
+      "open_raw": {
+        "object": "moose",
+        "reason": "The instruction explicitly mentions 'moose', and there is a brown plush toy with antlers on the table that clearly resembles a moose. The other objects (banana, kumquat, plastic frame) do not match the description of a moose.",
+        "scene_objects": [
+          "moose",
+          "banana",
+          "kumquat",
+          "plastic frame"
+        ]
+      },
+      "open_pred": "PLUSH",
+      "direct_raw": {
+        "object": "moose",
+        "appearance": "brown plush toy with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "pencil",
+      "episode": "206_pencil",
+      "trial": "correct",
+      "dir": "vla_failure_test/pencil/206_pencil",
+      "initial": "vla_failure_test/pencil/206_pencil/00000_front_put_the_pencil_case_on_the_tray.png",
+      "task": "put the pencil case on the tray",
+      "phrase": "pencil case",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'pencil case', which is a container for writing utensils. The brown pouch on the table is the most likely object to fit this description, as it appears to be a case or pouch designed to hold items like pencils. The plush moose toy and banana are clearly not pencil cases, and there is no other object that fits the description of a pencil case.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "banana",
+        "reason": "The instruction says 'put the pencil case on the tray'. The banana is the only object that fits the description of a 'pencil case' in this context, as it is the only object that is long and cylindrical, resembling a pencil case. The monkey toy is clearly a stuffed animal and does not resemble a pencil case. The banana is also the only object that can be placed on the tray, which is the destination mentioned in the instruction.",
+        "scene_objects": [
+          "banana",
+          "monkey toy"
+        ]
+      },
+      "open_pred": "BANANA",
+      "direct_raw": {
+        "object": "pencil case",
+        "appearance": "brown, cylindrical, fabric"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pencil",
+      "episode": "207_pencil",
+      "trial": "correct",
+      "dir": "vla_failure_test/pencil/207_pencil",
+      "initial": "vla_failure_test/pencil/207_pencil/00000_front_put_the_pencil_case_on_the_tray.png",
+      "task": "put the pencil case on the tray",
+      "phrase": "pencil case",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'pencil case', which is a container for writing utensils. The brown pouch on the table is the most likely object to fit this description, as it appears to be a case or pouch, while the plush moose toy and banana are clearly not pencil cases.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pen case",
+        "reason": "The instruction refers to a 'pencil case', which is a container for writing utensils. The brown, cylindrical object with a zipper, located near the robot, matches this description best. The other objects (banana, stuffed animal) do not fit the description of a pencil case.",
+        "scene_objects": [
+          "banana",
+          "stuffed animal",
+          "pen case"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "pencil case",
+        "appearance": "brown, rectangular, with zipper"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pencil",
+      "episode": "208_pencil",
+      "trial": "correct",
+      "dir": "vla_failure_test/pencil/208_pencil",
+      "initial": "vla_failure_test/pencil/208_pencil/00000_front_put_the_pencil_case_on_the_tray.png",
+      "task": "put the pencil case on the tray",
+      "phrase": "pencil case",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'pencil case', which is a container for writing utensils. The brown pouch on the table is the most likely object to fit this description, as it appears to be a small, closed container, unlike the plush toy or banana. The instruction does not refer to the tray as the object to pick, but rather the destination for the pencil case.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "stuffed animal",
+        "reason": "The instruction refers to 'pencil case', which is a container for writing tools. The stuffed animal is the only object that resembles a container or case, as it has a shape and texture that could be mistaken for a pencil case, especially if viewed from a certain angle. The banana is clearly not a container, and the orange robot is not an object to be moved. The stuffed animal is the most plausible candidate for the 'pencil case' in this context.",
+        "scene_objects": [
+          "banana",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "PLUSH",
+      "direct_raw": {
+        "object": "pencil case",
+        "appearance": "brown, cylindrical, fabric"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "purse",
+      "episode": "015_purse",
+      "trial": "correct",
+      "dir": "vla_failure_test/purse/015_purse",
+      "initial": "vla_failure_test/purse/015_purse/00000_front_put_the_purse_on_the_tray.png",
+      "task": "put the purse on the tray",
+      "phrase": "purse",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'purse', which is a type of bag or pouch. The brown pouch on the table is the only object that fits this description, as the plush moose toy is a stuffed animal and the banana is a fruit.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The instruction refers to a 'purse', which is a type of bag or container for carrying items. Among the objects on the table, the brown, cylindrical object that resembles a small bag or pouch is most likely what is meant by 'purse'. The banana is a fruit, the stuffed animal is a toy, and none of these are purses. Therefore, the pencil case is the object the instruction refers to.",
+        "scene_objects": [
+          "banana",
+          "pencil case",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "purse",
+        "appearance": "brown leather pouch"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "purse",
+      "episode": "016_purse",
+      "trial": "correct",
+      "dir": "vla_failure_test/purse/016_purse",
+      "initial": "vla_failure_test/purse/016_purse/00000_front_put_the_purse_on_the_tray.png",
+      "task": "put the purse on the tray",
+      "phrase": "purse",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'purse', which is typically a small bag or pouch for carrying items. The brown pouch on the table matches this description, while the plush moose toy is a stuffed animal and the banana is a fruit, neither of which are purses.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "stuffed animal",
+        "reason": "The stuffed animal has a brown pouch-like feature on its back, which matches the description of a 'purse'. The instruction asks to put the purse on the tray, and the stuffed animal is the only object that fits this loose description.",
+        "scene_objects": [
+          "banana",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "PLUSH",
+      "direct_raw": {
+        "object": "purse",
+        "appearance": "brown, stuffed, with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "purse",
+      "episode": "020_purse",
+      "trial": "correct",
+      "dir": "vla_failure_test/purse/020_purse",
+      "initial": "vla_failure_test/purse/020_purse/00000_front_put_the_purse_on_the_tray.png",
+      "task": "put the purse on the tray",
+      "phrase": "purse",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction asks to 'put the purse on the tray'. Among the objects, the brown pouch is the most likely candidate for a 'purse' due to its shape, material, and typical use as a small bag or pouch. The plush moose toy is clearly not a purse, and the banana is a fruit. Therefore, the brown pouch is the intended object.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "sausage",
+        "reason": "The sausage is a brown, cylindrical object that resembles a purse in shape and texture, fitting the loose description of 'purse' in the instruction. The banana is clearly not a purse, and the plush toy is not relevant to the instruction.",
+        "scene_objects": [
+          "banana",
+          "sausage"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "purse",
+        "appearance": "brown cylindrical object"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "robot",
+      "episode": "150_robot",
+      "trial": "correct",
+      "dir": "vla_failure_test/robot/150_robot",
+      "initial": "vla_failure_test/robot/150_robot/00000_front_put_the_robot_arm_on_the_tray.png",
+      "task": "put the robot arm on the tray",
+      "phrase": "robot arm",
+      "truth": "NONE",
+      "closed_raw": {
+        "object": "none",
+        "reason": "The instruction 'put the robot arm on the tray' refers to the orange robotic arm visible in the image. The robot arm is not an object on the table; it is the robot itself, which is presumably the entity performing the action. The instruction implies the robot should place its own arm (or a part of it) onto the tray, but since the robot arm is part of the robot, it is not a separate object on the table to be moved. The other objects (brown pouch, plush moose toy, banana) are unrelated to the instruction.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "NONE",
+      "open_raw": {
+        "object": "none",
+        "reason": "The instruction 'put the robot arm on the tray' refers to the robot arm, which is not a separate object on the table but part of the robot itself. The robot arm is attached to the robot base, and the instruction likely means to move the robot (or its arm) to the tray. Since the robot arm is not a distinct object on the table, none of the listed objects (chocolate, stuffed animal) fit the description of 'robot arm'.",
+        "scene_objects": [
+          "chocolate",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "NONE",
+      "direct_raw": {
+        "object": "robot arm",
+        "appearance": "orange robotic arm with wires and a label"
+      },
+      "direct_pred": null
+    },
+    {
+      "category": "robot",
+      "episode": "221_robot",
+      "trial": "correct",
+      "dir": "vla_failure_test/robot/221_robot",
+      "initial": "vla_failure_test/robot/221_robot/00000_front_put_the_robot_arm_on_the_tray.png",
+      "task": "put the robot arm on the tray",
+      "phrase": "robot arm",
+      "truth": "NONE",
+      "closed_raw": {
+        "object": "none",
+        "reason": "The instruction 'put the robot arm on the tray' refers to a robot arm, which is not visible on the table. The objects present are a brown pouch, a plush moose toy, and a banana, none of which are a robot arm. The instruction may use an unusual description, but no object on the table matches the description of a robot arm.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "NONE",
+      "open_raw": {
+        "object": "none",
+        "reason": "The instruction 'put the robot arm on the tray' refers to a robot arm, which is not visible on the table. The objects present are a banana, a brown cylinder, and a kiwi plush toy. None of these are a robot arm, even though the orange device in the center has some robotic features, it is not clearly identifiable as a 'robot arm' and is likely the robot's body or base, not an arm to be moved. The instruction implies an action involving a separate robot arm component, which is not present on the table.",
+        "scene_objects": [
+          "banana",
+          "brown cylinder",
+          "kiwi plush"
+        ]
+      },
+      "open_pred": "NONE",
+      "direct_raw": {
+        "object": "robot arm",
+        "appearance": "orange robotic arm with wires and a label"
+      },
+      "direct_pred": null
+    },
+    {
+      "category": "roll",
+      "episode": "011_roll",
+      "trial": "correct",
+      "dir": "vla_failure_test/roll/011_roll",
+      "initial": "vla_failure_test/roll/011_roll/00000_front_put_the_roll_on_the_tray.png",
+      "task": "put the roll on the tray",
+      "phrase": "roll",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction 'put the roll on the tray' refers to the brown pouch, which is cylindrical and resembles a roll. The plush moose toy and banana do not fit the description of a 'roll', and the tray is the destination, not the object to pick.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction 'put the roll on the tray' refers to an object that is cylindrical and likely rolled, which matches the appearance of the brown pouch. The banana is elongated but not typically described as a 'roll', and the stuffed animal is not cylindrical or roll-shaped. The tray is the destination, not the object to pick.",
+        "scene_objects": [
+          "banana",
+          "stuffed animal",
+          "brown pouch"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "brown roll",
+        "appearance": "brown cylindrical object"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "roll",
+      "episode": "018_roll",
+      "trial": "correct",
+      "dir": "vla_failure_test/roll/018_roll",
+      "initial": "vla_failure_test/roll/018_roll/00000_front_put_the_roll_on_the_tray.png",
+      "task": "put the roll on the tray",
+      "phrase": "roll",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to a 'roll', which is most likely the brown pouch due to its cylindrical shape and rolled appearance, resembling a rolled-up item. The plush moose toy is bulky and not rolled, and the banana is a fruit, not typically called a 'roll' in this context.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The 'roll' in the instruction likely refers to the cylindrical brown object, which is a pencil case, as it resembles a rolled-up item. The banana is curved but not cylindrical like a roll, and the toy moose is not roll-shaped. The pencil case is the only object that fits the description of a 'roll'.",
+        "scene_objects": [
+          "toy moose",
+          "banana",
+          "pencil case"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "brown cylindrical object",
+        "appearance": "brown, cylindrical, possibly a roll"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "roll",
+      "episode": "019_roll",
+      "trial": "correct",
+      "dir": "vla_failure_test/roll/019_roll",
+      "initial": "vla_failure_test/roll/019_roll/00000_front_put_the_roll_on_the_tray.png",
+      "task": "put the roll on the tray",
+      "phrase": "roll",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction refers to 'the roll', which is a common term for a cylindrical object. The brown pouch is the only object on the table that is cylindrical and roll-shaped, fitting the description. The banana is elongated but not typically called a 'roll', and the plush moose toy is not cylindrical. Therefore, the brown pouch is the intended object.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pen case",
+        "reason": "The instruction refers to 'the roll', which describes the cylindrical, brown, rolled-up object that resembles a pen case. The banana is elongated and curved, not rolled in the same way, and the moose plush is not a roll. Therefore, the pen case is the only object that fits the description of 'roll'.",
+        "scene_objects": [
+          "banana",
+          "pen case"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "roll",
+        "appearance": "brown cylindrical object"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "sausage",
+      "episode": "097_sausage",
+      "trial": "correct",
+      "dir": "vla_failure_test/sausage/097_sausage",
+      "initial": "vla_failure_test/sausage/097_sausage/00000_front_put_the_sausage_on_the_tray.png",
+      "task": "put the sausage on the tray",
+      "phrase": "sausage",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction asks to put 'the sausage' on the tray. Among the objects, the brown pouch is the most likely candidate for being referred to as a 'sausage' due to its elongated, cylindrical shape and brown color, which resembles a sausage. The plush moose toy is clearly not a sausage, the banana is a fruit and not sausage-shaped, and 'none' is incorrect because the brown pouch fits the description. 'Ambiguous' is not correct because only the brown pouch fits the description of a sausage.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "none",
+        "reason": "The instruction asks to put 'the sausage' on the tray. On the table, there is a brown, cylindrical object that resembles a sausage, but it is actually a sausage-shaped toy or prop, not a real sausage. The robot's task is to manipulate real objects, and since there is no actual sausage on the table, the instruction cannot be executed as described. Therefore, 'none' is the correct choice because nothing on the table fits the description of a real sausage.",
+        "scene_objects": [
+          "moose",
+          "banana",
+          "kumquat"
+        ]
+      },
+      "open_pred": "NONE",
+      "direct_raw": {
+        "object": "sausage",
+        "appearance": "brown, cylindrical, textured"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "sausage",
+      "episode": "098_sausage",
+      "trial": "correct",
+      "dir": "vla_failure_test/sausage/098_sausage",
+      "initial": "vla_failure_test/sausage/098_sausage/00000_front_put_the_sausage_on_the_tray.png",
+      "task": "put the sausage on the tray",
+      "phrase": "sausage",
+      "truth": "POUCH",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The brown pouch is the most likely object referred to as 'sausage' due to its elongated, cylindrical shape and brown color, which can resemble a sausage. The banana is yellow and curved differently, and the plush moose toy is a stuffed animal, neither of which resemble a sausage. The instruction's destination is 'the tray,' which is already occupied by the pouch and banana, so the pouch is the object to be moved.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "pencil case",
+        "reason": "The pencil case is the most likely object referred to as 'sausage' due to its elongated, cylindrical shape and brown color, resembling a sausage. The banana is curved and yellow, the stuffed animal is furry and irregularly shaped, and none of these match the description as closely as the pencil case.",
+        "scene_objects": [
+          "banana",
+          "pencil case",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "pen case",
+        "appearance": "brown, rectangular, leather-like"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "stuffed",
+      "episode": "022_stuffed",
+      "trial": "correct",
+      "dir": "vla_failure_test/stuffed/022_stuffed",
+      "initial": "vla_failure_test/stuffed/022_stuffed/00000_front_put_the_stuffed_animal_in_the_tray.png",
+      "task": "put the stuffed animal in the tray",
+      "phrase": "stuffed animal",
+      "truth": "PLUSH",
+      "closed_raw": {
+        "object": "plush moose toy",
+        "reason": "The instruction refers to a 'stuffed animal', which is clearly the brown plush moose toy with antlers lying on the table. The other objects (banana, brown pouch, pink tray) do not match the description of a stuffed animal.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "PLUSH",
+      "open_raw": {
+        "object": "stuffed animal",
+        "reason": "The instruction explicitly mentions 'stuffed animal', and among the objects on the table, the brown, furry, moose-like plush toy is clearly a stuffed animal. The banana and hot dog are food items, and 'none' or 'ambiguous' are incorrect because the stuffed animal is unambiguously identifiable.",
+        "scene_objects": [
+          "stuffed animal",
+          "banana",
+          "hot dog"
+        ]
+      },
+      "open_pred": "PLUSH",
+      "direct_raw": {
+        "object": "stuffed animal",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "stuffed",
+      "episode": "023_stuffed",
+      "trial": "correct",
+      "dir": "vla_failure_test/stuffed/023_stuffed",
+      "initial": "vla_failure_test/stuffed/023_stuffed/00000_front_put_the_stuffed_animal_in_the_tray.png",
+      "task": "put the stuffed animal in the tray",
+      "phrase": "stuffed animal",
+      "truth": "PLUSH",
+      "closed_raw": {
+        "object": "plush moose toy",
+        "reason": "The stuffed animal is clearly identifiable as the brown plush moose toy with antlers and a ribbon, distinct from the banana, pouch, and tray.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "PLUSH",
+      "open_raw": {
+        "object": "moose",
+        "reason": "The stuffed animal is clearly identifiable as the brown, furry moose toy with antlers and a ribbon on its back, distinct from the banana, fish, and label.",
+        "scene_objects": [
+          "moose",
+          "banana",
+          "fish",
+          "label"
+        ]
+      },
+      "open_pred": "PLUSH",
+      "direct_raw": {
+        "object": "stuffed animal",
+        "appearance": "brown plush moose with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "stuffed",
+      "episode": "024_stuffed",
+      "trial": "correct",
+      "dir": "vla_failure_test/stuffed/024_stuffed",
+      "initial": "vla_failure_test/stuffed/024_stuffed/00000_front_put_the_stuffed_animal_in_the_box.png",
+      "task": "put the stuffed animal in the box",
+      "phrase": "stuffed animal",
+      "truth": "PLUSH",
+      "closed_raw": {
+        "object": "plush moose toy",
+        "reason": "The stuffed animal is clearly identifiable as the brown plush moose toy with antlers and a tag, distinct from the banana, pouch, or box.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "PLUSH",
+      "open_raw": {
+        "object": "stuffed animal",
+        "reason": "The stuffed animal is the only object on the table that matches the description 'stuffed animal'\u2014it is a brown plush toy with antlers, clearly identifiable as such. The banana and brown object are not stuffed animals, and 'none' and 'ambiguous' are incorrect because the stuffed animal is unambiguously present and matches the description.",
+        "scene_objects": [
+          "stuffed animal",
+          "banana",
+          "brown object"
+        ]
+      },
+      "open_pred": "PLUSH",
+      "direct_raw": {
+        "object": "stuffed animal",
+        "appearance": "brown plush animal with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "stuffed",
+      "episode": "038_stuffed",
+      "trial": "correct",
+      "dir": "vla_failure_test/stuffed/038_stuffed",
+      "initial": "vla_failure_test/stuffed/038_stuffed/00000_front_put_the_stuffed_animal_on_the_tray.png",
+      "task": "put the stuffed animal on the tray",
+      "phrase": "stuffed animal",
+      "truth": "PLUSH",
+      "closed_raw": {
+        "object": "plush moose toy",
+        "reason": "The instruction refers to a 'stuffed animal', which is clearly the brown, furry plush toy with horns resembling a moose. The other objects (banana, brown pouch) are not stuffed animals.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "PLUSH",
+      "open_raw": {
+        "object": "stuffed animal",
+        "reason": "The instruction explicitly mentions 'stuffed animal', and there is a brown, furry plush toy on the table that matches this description. The banana is a fruit and does not fit the description of a stuffed animal.",
+        "scene_objects": [
+          "banana",
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "PLUSH",
+      "direct_raw": {
+        "object": "stuffed animal",
+        "appearance": "brown fuzzy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "stuffed",
+      "episode": "238_stuffed",
+      "trial": "correct",
+      "dir": "vla_failure_test/stuffed/238_stuffed",
+      "initial": "vla_failure_test/stuffed/238_stuffed/00000_front_put_the_stuffed_animal_in_the_tray.png",
+      "task": "put the stuffed animal in the tray",
+      "phrase": "stuffed animal",
+      "truth": "PLUSH",
+      "closed_raw": {
+        "object": "plush moose toy",
+        "reason": "The instruction refers to a 'stuffed animal', which is clearly the brown plush moose toy with antlers on the left side of the table. The other objects (pouch, banana, tray) are not stuffed animals.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "PLUSH",
+      "open_raw": {
+        "object": "moose",
+        "reason": "The stuffed animal is clearly identifiable as the brown plush moose with antlers on the left side of the table. The instruction 'put the stuffed animal in the tray' refers to this specific object, as it is the only item that matches the description of a stuffed animal.",
+        "scene_objects": [
+          "moose",
+          "banana",
+          "pen",
+          "plastic tray"
+        ]
+      },
+      "open_pred": "PLUSH",
+      "direct_raw": {
+        "object": "stuffed animal",
+        "appearance": "brown plush moose with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "table",
+      "episode": "153_table",
+      "trial": "correct",
+      "dir": "vla_failure_test/table/153_table",
+      "initial": "vla_failure_test/table/153_table/00000_front_put_the_table_on_the_tray.png",
+      "task": "put the table on the tray",
+      "phrase": "table",
+      "truth": "NONE",
+      "closed_raw": {
+        "object": "none",
+        "reason": "The instruction 'put the table on the tray' refers to a 'table', which is not an object present on the table. The objects visible are a brown pouch, a plush moose toy, and a banana. None of these are a table, and the instruction likely uses 'table' as a loose or unusual description for one of these objects, but none fit the description of a table. Therefore, the correct choice is 'none'.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "NONE",
+      "open_raw": {
+        "object": "none",
+        "reason": "The instruction 'put the table on the tray' refers to a 'table', which is not an object present on the table. The only objects visible are a stuffed animal and an orange robotic arm. Neither of these is a table, and the instruction likely uses 'table' as a loose or unusual description for one of the objects, but none fit the description of a table.",
+        "scene_objects": [
+          "stuffed animal"
+        ]
+      },
+      "open_pred": "NONE",
+      "direct_raw": {
+        "object": "table",
+        "appearance": "white surface"
+      },
+      "direct_pred": null
+    },
+    {
+      "category": "tray",
+      "episode": "222_tray",
+      "trial": "correct",
+      "dir": "vla_failure_test/tray/222_tray",
+      "initial": "vla_failure_test/tray/222_tray/00000_front_put_the_tray_on_the_tray.png",
+      "task": "put the tray on the tray",
+      "phrase": "tray",
+      "truth": "NONE",
+      "closed_raw": {
+        "object": "brown pouch",
+        "reason": "The instruction 'put the tray on the tray' implies there are two trays. The brown pouch is placed on a pink tray, making it the most likely candidate for the 'tray' being referred to in the instruction. The plush moose toy and banana do not resemble trays, and 'none' or 'ambiguous' are not appropriate since the brown pouch clearly fits the description of a tray-like object in context.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "POUCH",
+      "open_raw": {
+        "object": "chocolate bar",
+        "reason": "The instruction 'put the tray on the tray' likely refers to the chocolate bar as the object to be moved, since it is placed on a pink tray-like structure. The chocolate bar is the only object that fits the description of being 'on a tray' and is the most plausible candidate for the instruction's 'tray'.",
+        "scene_objects": [
+          "banana",
+          "kumquat",
+          "chocolate bar"
+        ]
+      },
+      "open_pred": "POUCH",
+      "direct_raw": {
+        "object": "tray",
+        "appearance": "pink tray holding chocolate-covered item"
+      },
+      "direct_pred": "TRAY"
+    },
+    {
+      "category": "wires",
+      "episode": "200_wires",
+      "trial": "correct",
+      "dir": "vla_failure_test/wires/200_wires",
+      "initial": "vla_failure_test/wires/200_wires/00000_front_put_the_wires_on_the_tray.png",
+      "task": "put the wires on the tray",
+      "phrase": "wires",
+      "truth": "NONE",
+      "closed_raw": {
+        "object": "none",
+        "reason": "The instruction 'put the wires on the tray' refers to wires, which are not visible as distinct objects on the table. The orange robot has wires attached to it, but these are part of the robot's structure, not separate 'wires' to be moved. The brown pouch, plush moose toy, and banana are unrelated to the instruction.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "NONE",
+      "open_raw": {
+        "object": "none",
+        "reason": "The instruction 'put the wires on the tray' refers to wires, which are not visible as distinct objects on the table. The orange robot has wires attached to it, but these are part of the robot's structure, not loose wires on the table. The stuffed animal and log are unrelated to the instruction. Therefore, nothing on the table fits the description of 'wires' as an object to be moved.",
+        "scene_objects": [
+          "stuffed animal",
+          "log"
+        ]
+      },
+      "open_pred": "NONE",
+      "direct_raw": {
+        "object": "wires",
+        "appearance": "black and red wires connected to orange device"
+      },
+      "direct_pred": null
+    },
+    {
+      "category": "wires",
+      "episode": "201_wires",
+      "trial": "correct",
+      "dir": "vla_failure_test/wires/201_wires",
+      "initial": "vla_failure_test/wires/201_wires/00000_front_put_the_wires_on_the_tray.png",
+      "task": "put the wires on the tray",
+      "phrase": "wires",
+      "truth": "NONE",
+      "closed_raw": {
+        "object": "none",
+        "reason": "The instruction 'put the wires on the tray' refers to wires, which are not visible as distinct objects on the table. The orange robot has wires attached to it, but they are not loose wires on the table. The other objects (brown pouch, plush moose toy, banana) do not resemble wires. Therefore, nothing on the table fits the description of 'wires' as intended by the instruction.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "NONE",
+      "open_raw": {
+        "object": "battery pack",
+        "reason": "The battery pack is the object with visible wires attached to it, making it the most likely candidate for 'wires' in the instruction. The stuffed animal is unrelated, and 'none' or 'ambiguous' are incorrect because the battery pack clearly fits the description.",
+        "scene_objects": [
+          "stuffed animal",
+          "battery pack"
+        ]
+      },
+      "open_pred": null,
+      "direct_raw": {
+        "object": "wires",
+        "appearance": "black and red wires connected to an orange device"
+      },
+      "direct_pred": null
+    },
+    {
+      "category": "wires",
+      "episode": "202_wires",
+      "trial": "correct",
+      "dir": "vla_failure_test/wires/202_wires",
+      "initial": "vla_failure_test/wires/202_wires/00000_front_put_the_wires_on_the_tray.png",
+      "task": "put the wires on the tray",
+      "phrase": "wires",
+      "truth": "NONE",
+      "closed_raw": {
+        "object": "none",
+        "reason": "The instruction 'put the wires on the tray' refers to wires, which are not visible as distinct objects on the table. The orange robot has wires attached to it, but these are part of the robot and not separate objects to be moved. The brown pouch, plush moose toy, and banana are unrelated to the instruction. Therefore, nothing on the table fits the description of 'wires' as a separate object to be moved.",
+        "scene_objects": [
+          "brown pouch",
+          "plush moose toy",
+          "banana"
+        ]
+      },
+      "closed_pred": "NONE",
+      "open_raw": {
+        "object": "none",
+        "reason": "The instruction 'put the wires on the tray' refers to wires, which are not visible as distinct objects on the table. The orange robot has wires attached to it, but these are part of the robot's structure and not separate 'wires' to be moved. The stuffed animal and log are unrelated to the instruction. Therefore, nothing on the table fits the description of 'wires' as an object to be moved.",
+        "scene_objects": [
+          "stuffed animal",
+          "log"
+        ]
+      },
+      "open_pred": "NONE",
+      "direct_raw": {
+        "object": "wires",
+        "appearance": "black and red wires connected to an orange device"
+      },
+      "direct_pred": null
+    }
+  ]
+}

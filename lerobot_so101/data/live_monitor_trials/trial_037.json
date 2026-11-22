@@ -1,0 +1,122 @@
+{
+  "trial": 37,
+  "time": "2026-09-27T07:01:05",
+  "vla_task": "put the pouch on the tray",
+  "monitor_task": "put the banana on the tray",
+  "label": "wrong",
+  "outcome": "STOP",
+  "stop": {
+    "frame": 6,
+    "t": 5.85,
+    "reason": "The arm is going for 'pouch', which is a different object from the sub-task target 'banana'. The perception pass has resolved the target, and it does not match.",
+    "verify": "wrist held 'pencil case' (pencil case/pencil case), task object grounded to 'banana'"
+  },
+  "committed": false,
+  "held_object": null,
+  "reach_windows": 1,
+  "stale_skipped": 0,
+  "verify_calls": 4,
+  "n_frames": 7,
+  "first_close": null,
+  "gate_open_at": null,
+  "verify": {
+    "close_frame": null,
+    "probe": "grasp freeze t=6.35s",
+    "frozen_at": 6.35383037396241,
+    "frozen_aperture": 14.10958904109589,
+    "held": "pencil case",
+    "answers": [
+      {
+        "frame": 0,
+        "object": "pencil case",
+        "reason": "The object held between the orange gripper jaws has a brown, textured surface with visible stitching or seams, consistent with a fabric pencil case. The shape is elongated and rectangular, matching the description of a pencil case. It does not resemble a banana, plush toy, or anything else in the list."
+      },
+      {
+        "frame": 1,
+        "object": "pencil case",
+        "reason": "The object held between the orange gripper jaws has a brown, textured surface with visible stitching or seams, consistent with a fabric pencil case. The shape is elongated and rectangular, matching the description of a pencil case. The close-up view and the context of a robot gripper holding it further support this identification."
+      }
+    ],
+    "grounded": "banana",
+    "inventory": [
+      {
+        "name": "banana",
+        "appearance": "yellow, curved, peelable"
+      },
+      {
+        "name": "plush toy",
+        "appearance": "brown, furry, animal-like"
+      },
+      {
+        "name": "pencil case",
+        "appearance": "brown, rectangular, fabric"
+      }
+    ],
+    "verify_s": 24.91
+  },
+  "timeline": [
+    {
+      "frame": 6,
+      "t": 5.85,
+      "action": "SUSPECT",
+      "reason": "single check says STOP \u2014 verifying on the frozen wrist: The arm is going for 'pouch', which is a different object from the sub-task target 'banana'. The perception pass has resolved the target, and it does not match.",
+      "check_s": 18.83
+    },
+    {
+      "frame": 6,
+      "t": 5.85,
+      "action": "STOP",
+      "reason": "[verify: wrist held 'pencil case' (pencil case/pencil case), task object grounded to 'banana'] The arm is going for 'pouch', which is a different object from the sub-task target 'banana'. The perception pass has resolved the target, and it does not match.",
+      "check_s": 24.91
+    }
+  ],
+  "freeze_images": [
+    "live_monitor_trials/freeze/trial_037_wrist_0.png",
+    "live_monitor_trials/freeze/trial_037_front_0.png",
+    "live_monitor_trials/freeze/trial_037_wrist_1.png",
+    "live_monitor_trials/freeze/trial_037_front_1.png"
+  ],
+  "empty_closes": [],
+  "inventory_dropped": [
+    {
+      "name": "plastic tray",
+      "appearance": "pink, rectangular, transparent"
+    }
+  ],
+  "episode": {
+    "dir": "live_monitor_trials/episodes/pouch/037_pouch",
+    "duration": 56.34652654104866,
+    "converged": false,
+    "max_displacement": 116.75320434570312,
+    "total_actions": 145
+  },
+  "wall_s": 198.8,
+  "note": "",
+  "config": {
+    "gate": "grasp",
+    "horizon": 20,
+    "tail": 1,
+    "verify": true,
+    "match": "inventory",
+    "objects": [
+      "banana",
+      "brown pouch",
+      "plush moose toy"
+    ],
+    "window": 4,
+    "ground_compare": false,
+    "unclear_wrist_decides": true,
+    "grasp_fallback_frames": 6,
+    "freeze_stall_eps": 0.5,
+    "freeze_settle_s": 0.3,
+    "verify_frame_gap_s": 0.2,
+    "min_hold_aperture": 4.0,
+    "pause_refreshes": 1,
+    "post_pause_grace_s": 5.0,
+    "chunk_size_threshold": 0.95,
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "temperature": 0.1,
+    "episode_duration": 100.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct"
+  }
+}

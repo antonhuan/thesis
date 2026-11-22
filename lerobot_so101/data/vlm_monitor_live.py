@@ -259,6 +259,13 @@ class TappedClient(LoopRobotClient):
                 closed = g <= w["peak"] - cfg.freeze_close_margin
                 stalled = (len(w["hist"]) >= 4
                            and max(w["hist"]) - min(w["hist"]) < cfg.freeze_stall_eps)
+                # Per-tick trace (actions.log only, beside the commanded targets): how long
+                # the measured aperture takes from crossing the close margin to stalling.
+                self.action_logger.debug(
+                    f"[grasp watch] t={elapsed:.3f}s g={g:.1f} peak={w['peak']:.1f} "
+                    f"start={w['start']:.1f} spread="
+                    f"{max(w['hist']) - min(w['hist']):.2f}/{len(w['hist'])} "
+                    f"opened={int(opened)} closed={int(closed)} stalled={int(stalled)}")
                 if opened and closed and stalled and g - w["start"] < cfg.min_hold_aperture:
                     # Closed on nothing (a mid-approach open/close blip): not a grasp.
                     w.setdefault("empty_closes", []).append(
@@ -275,6 +282,7 @@ class TappedClient(LoopRobotClient):
                     w["aperture"] = g
                     self.logger.info(f"[grasp watch] gripper closed ({g:.1f}, peak "
                                      f"{w['peak']:.1f}) — arm frozen at t={elapsed:.2f}s")
+                    self.action_logger.debug(f"[grasp watch] FROZEN t={elapsed:.3f}s g={g:.1f}")
                 return
             # Frozen: take two settled wrist (+ front) frames for the verify.
             if elapsed < w["frozen_at"] + cfg.freeze_settle_s:
@@ -386,11 +394,12 @@ def split_fixtures(inventory: list[dict]) -> tuple[list[dict], list[dict]]:
 
 class LiveMonitor:
     def __init__(self, client: TappedClient, model, processor, cfg: MonitorSettings,
-                 temperature: float, freeze_dir: "str | Path"):
+                 temperature: float, freeze_dir: "str | Path | None"):
         self.client, self.model, self.processor, self.cfg = client, model, processor, cfg
         self.temperature = temperature
-        # Where the grasp-freeze frames are saved (the orchestrator repoints it per task).
-        self.freeze_dir = Path(freeze_dir)
+        # Where the grasp-freeze frames are saved (the orchestrator repoints it per task);
+        # None saves none.
+        self.freeze_dir = Path(freeze_dir) if freeze_dir is not None else None
         self.prompts = T.default_prompts()
         self.inbox: queue.Queue = queue.Queue()
         self._thread = None
@@ -409,6 +418,7 @@ class LiveMonitor:
         self.first_close = None
         self.gate_open_at = None          # close-trigger gate opening frame
         self.pending = None               # pre-grasp STOP awaiting the close
+        self.reach_object = None          # what the latest STOP'ing reach check named
         self.verify_cache = self.grounded = self.inventory = None
         self.verify_info = {}
         self.stopped = None               # final STOP record
@@ -692,6 +702,7 @@ class LiveMonitor:
                 self.reach_windows += 1
             action = "GATED" if gated else (str(verdict.get("action", "?")).upper() if verdict else "PARSE_FAIL")
             if action == "STOP" and cfg.verify:
+                self.reach_object = str(verdict.get("reaching_for") or "").strip().lower()
                 if self._arm_watch():
                     # Live: the per-tick watch freezes the arm at the grasp (or at once,
                     # if it has already closed) and verifies on fresh still frames.
@@ -752,6 +763,7 @@ class LiveMonitor:
             action = str(verdict.get("action", "?")).upper() if verdict else "PARSE_FAIL"
             reason = str(verdict.get("reason", "")) if verdict else ""
             if action == "STOP" and cfg.verify:
+                self.reach_object = str(verdict.get("reaching_for") or "").strip().lower()
                 if fresh is not None:
                     self._log(idx, "SUSPECT", f"single check says STOP — verifying on the "
                               f"frozen wrist: {reason}")
@@ -796,7 +808,7 @@ class LiveMonitor:
     def _save_freeze(self, fresh: dict):
         """Write the grasp-freeze frames (front + wrist, wrist rotated as the VLM sees it)
         to freeze_dir for review. Never raises."""
-        if self.freeze_images:
+        if self.freeze_images or self.freeze_dir is None:
             return
         try:
             out = self.freeze_dir
@@ -883,8 +895,30 @@ class LiveMonitor:
             held, answers = self.verify_cache
             seen = "/".join(a["object"] for a in answers)
             self._ground()
+            # The reach check names objects freely and its pass 2 compares that name to
+            # the task wording as text, so a mere naming difference ('pouch' reached,
+            # task says 'case') reads as a wrong object. Map the reached name onto the
+            # inventory: if it is the grounded task object, the reach STOP was only a
+            # naming mismatch and the wrist decides as for an unclear reach.
+            reconciled = None
+            if (not reach_unclear and cfg.match == "inventory" and self.inventory
+                    and self.reach_object and self.reach_object not in T._UNDECIDED_REACH
+                    and self.grounded in vocab):
+                reconciled, how = T.reconcile_name(self.model, self.processor,
+                                                   self.reach_object, self.inventory,
+                                                   self.temperature)
+                if how != "string":
+                    self.verify_calls += 1
+                print(f"  [monitor] reach object '{self.reach_object}' -> inventory "
+                      f"'{reconciled}' ({how}); task object '{self.grounded}'", flush=True)
+                if reconciled == self.grounded:
+                    reach_unclear = True
+                    reach_reason = (f"reach named '{self.reach_object}' = task object "
+                                    f"'{self.grounded}' (naming mismatch only); " + reach_reason)
             self.last_check_s = round(time.perf_counter() - t_check, 2)
             self.verify_info = {"close_frame": c, "probe": c_desc,
+                                "reach_object": self.reach_object,
+                                "reach_reconciled": reconciled,
                                 "frozen_at": fresh["frozen_at"] if fresh else None,
                                 "frozen_aperture": fresh.get("aperture") if fresh else None,
                                 "held": held, "answers": answers,

@@ -1,0 +1,4426 @@
+{
+  "meta": {
+    "scenes": [
+      {
+        "name": "2026-08-06_23-04-44",
+        "path": "runs/run_2026-08-06_23-04-44/01/decompose_20260806_230850.png"
+      },
+      {
+        "name": "2026-08-06_23-31-04",
+        "path": "runs/run_2026-08-06_23-31-04/01/decompose_20260806_233523.png"
+      },
+      {
+        "name": "2026-08-19_03-51-37",
+        "path": "runs/run_2026-08-19_03-51-37/01/decompose_20260819_035832.png"
+      },
+      {
+        "name": "2026-08-19_04-10-27",
+        "path": "runs/run_2026-08-19_04-10-27/01/decompose_20260819_041511.png"
+      },
+      {
+        "name": "2026-08-19_04-21-15",
+        "path": "runs/run_2026-08-19_04-21-15/01/decompose_20260819_042508.png"
+      },
+      {
+        "name": "2026-08-19_04-44-51",
+        "path": "runs/run_2026-08-19_04-44-51/01/decompose_20260819_044841.png"
+      },
+      {
+        "name": "2026-08-19_05-50-13",
+        "path": "runs/run_2026-08-19_05-50-13/01/decompose_20260819_060122.png"
+      },
+      {
+        "name": "2026-08-19_06-31-10",
+        "path": "runs/run_2026-08-19_06-31-10/01/decompose_20260819_063558.png"
+      },
+      {
+        "name": "2026-08-19_06-57-56",
+        "path": "runs/run_2026-08-19_06-57-56/01/decompose_20260819_070128.png"
+      },
+      {
+        "name": "2026-08-19_07-17-03",
+        "path": "runs/run_2026-08-19_07-17-03/01/decompose_20260819_072035.png"
+      },
+      {
+        "name": "2026-08-19_07-36-23",
+        "path": "runs/run_2026-08-19_07-36-23/01/decompose_20260819_073953.png"
+      },
+      {
+        "name": "2026-08-20_06-23-01",
+        "path": "runs/run_2026-08-20_06-23-01/01/decompose_20260820_062347.png"
+      },
+      {
+        "name": "2026-08-20_06-49-37",
+        "path": "runs/run_2026-08-20_06-49-37/01/decompose_20260820_065026.png"
+      },
+      {
+        "name": "2026-08-20_07-17-48",
+        "path": "runs/run_2026-08-20_07-17-48/01/decompose_20260820_071829.png"
+      },
+      {
+        "name": "2026-08-20_07-24-04",
+        "path": "runs/run_2026-08-20_07-24-04/01/decompose_20260820_072449.png"
+      },
+      {
+        "name": "2026-08-20_08-03-31",
+        "path": "runs/run_2026-08-20_08-03-31/01/decompose_20260820_080408.png"
+      },
+      {
+        "name": "2026-09-02_09-11-20",
+        "path": "runs/run_2026-09-02_09-11-20/01/decompose_20260902_091153.png"
+      },
+      {
+        "name": "2026-09-02_09-41-46",
+        "path": "runs/run_2026-09-02_09-41-46/01/decompose_20260902_094426.png"
+      },
+      {
+        "name": "2026-09-02_10-07-14",
+        "path": "runs/run_2026-09-02_10-07-14/01/decompose_20260902_100750.png"
+      },
+      {
+        "name": "2026-09-02_10-25-12",
+        "path": "runs/run_2026-09-02_10-25-12/01/decompose_20260902_102548.png"
+      },
+      {
+        "name": "2026-09-02_10-37-10",
+        "path": "runs/run_2026-09-02_10-37-10/01/decompose_20260902_103754.png"
+      },
+      {
+        "name": "2026-09-03_06-00-35",
+        "path": "runs/run_2026-09-03_06-00-35/01/decompose_20260903_060419.png"
+      },
+      {
+        "name": "2026-09-03_06-20-51",
+        "path": "runs/run_2026-09-03_06-20-51/01/decompose_20260903_062125.png"
+      },
+      {
+        "name": "2026-09-03_07-09-01",
+        "path": "runs/run_2026-09-03_07-09-01/01/decompose_20260903_070947.png"
+      },
+      {
+        "name": "2026-09-04_00-24-27",
+        "path": "runs/run_2026-09-04_00-24-27/01/decompose_20260904_002507.png"
+      },
+      {
+        "name": "2026-09-09_07-03-56",
+        "path": "runs/run_2026-09-09_07-03-56/01/decompose_20260909_070434.png"
+      },
+      {
+        "name": "2026-09-09_07-16-05",
+        "path": "runs/run_2026-09-09_07-16-05/01/decompose_20260909_071646.png"
+      },
+      {
+        "name": "2026-09-10_02-36-03",
+        "path": "runs/run_2026-09-10_02-36-03/01/decompose_20260910_023638.png"
+      },
+      {
+        "name": "2026-09-10_02-49-37",
+        "path": "runs/run_2026-09-10_02-49-37/01/decompose_20260910_025038.png"
+      },
+      {
+        "name": "2026-09-10_03-02-18",
+        "path": "runs/run_2026-09-10_03-02-18/01/decompose_20260910_030339.png"
+      },
+      {
+        "name": "2026-09-10_04-41-17",
+        "path": "runs/run_2026-09-10_04-41-17/01/decompose_20260910_044211.png"
+      },
+      {
+        "name": "2026-09-10_04-49-31",
+        "path": "runs/run_2026-09-10_04-49-31/01/decompose_20260910_045017.png"
+      },
+      {
+        "name": "2026-09-16_07-21-11",
+        "path": "runs/run_2026-09-16_07-21-11/01/decompose_20260916_072627.png"
+      },
+      {
+        "name": "2026-09-16_08-18-24",
+        "path": "runs/run_2026-09-16_08-18-24/01/decompose_20260916_081857.png"
+      },
+      {
+        "name": "2026-09-16_08-31-16",
+        "path": "runs/run_2026-09-16_08-31-16/01/decompose_20260916_083157.png"
+      },
+      {
+        "name": "2026-09-16_09-04-56",
+        "path": "runs/run_2026-09-16_09-04-56/01/decompose_20260916_090530.png"
+      },
+      {
+        "name": "2026-09-17_06-41-16",
+        "path": "runs/run_2026-09-17_06-41-16/01/decompose_20260917_064341.png"
+      },
+      {
+        "name": "2026-09-17_06-54-19",
+        "path": "runs/run_2026-09-17_06-54-19/01/decompose_20260917_065444.png"
+      },
+      {
+        "name": "2026-09-17_07-24-42",
+        "path": "runs/run_2026-09-17_07-24-42/01/decompose_20260917_072520.png"
+      }
+    ],
+    "model": "Qwen/Qwen3-VL-8B-Instruct",
+    "temperature": 0.1,
+    "reask_uncovered": false,
+    "one_pass": false,
+    "role_identify": true,
+    "ignored_group": true,
+    "trials": 1,
+    "created": "2026-10-06T06:47:32",
+    "sample": null,
+    "per_category": 39,
+    "seed": 0,
+    "scene_objects": [
+      "banana",
+      "toy",
+      "pouch"
+    ],
+    "manual_label_help": "Set manual_label.correct to true/false (failure_mode/notes optional); re-run with --replot to rebuild the plot."
+  },
+  "prompts": {
+    "base": {
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "expected": [
+        "banana",
+        "pouch",
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "omit banana": {
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana",
+      "expected": [
+        "pouch",
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "omit toy": {
+      "category": "omission",
+      "prompt": "put everything on the tray except the toy",
+      "expected": [
+        "banana",
+        "pouch"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "omit pouch": {
+      "category": "omission",
+      "prompt": "put everything on the tray except the pouch",
+      "expected": [
+        "banana",
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "omit banana+toy": {
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana and the toy",
+      "expected": [
+        "pouch"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "omit toy+pouch": {
+      "category": "omission",
+      "prompt": "put everything on the tray but leave the toy and the pouch",
+      "expected": [
+        "banana"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "omit don't touch": {
+      "category": "omission",
+      "prompt": "put everything on the tray, don't touch the pouch",
+      "expected": [
+        "banana",
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "seq banana>toy>pouch": {
+      "category": "sequencing",
+      "prompt": "put the banana on the tray first, then the toy, then the pouch",
+      "expected": [
+        "banana",
+        "pouch",
+        "toy"
+      ],
+      "order": [
+        [
+          "banana",
+          "toy"
+        ],
+        [
+          "toy",
+          "pouch"
+        ]
+      ],
+      "pool": null,
+      "n": null
+    },
+    "seq pouch>banana>toy": {
+      "category": "sequencing",
+      "prompt": "put the pouch on the tray first, then the banana, then the toy",
+      "expected": [
+        "banana",
+        "pouch",
+        "toy"
+      ],
+      "order": [
+        [
+          "pouch",
+          "banana"
+        ],
+        [
+          "banana",
+          "toy"
+        ]
+      ],
+      "pool": null,
+      "n": null
+    },
+    "seq toy first": {
+      "category": "sequencing",
+      "prompt": "put everything on the tray, starting with the toy",
+      "expected": [
+        "banana",
+        "pouch",
+        "toy"
+      ],
+      "order": [
+        [
+          "toy",
+          "banana"
+        ],
+        [
+          "toy",
+          "pouch"
+        ]
+      ],
+      "pool": null,
+      "n": null
+    },
+    "seq pouch last": {
+      "category": "sequencing",
+      "prompt": "put everything on the tray, but the pouch goes last",
+      "expected": [
+        "banana",
+        "pouch",
+        "toy"
+      ],
+      "order": [
+        [
+          "banana",
+          "pouch"
+        ],
+        [
+          "toy",
+          "pouch"
+        ]
+      ],
+      "pool": null,
+      "n": null
+    },
+    "seq banana after toy": {
+      "category": "sequencing",
+      "prompt": "put everything on the tray, put the banana after the toy",
+      "expected": [
+        "banana",
+        "pouch",
+        "toy"
+      ],
+      "order": [
+        [
+          "toy",
+          "banana"
+        ]
+      ],
+      "pool": null,
+      "n": null
+    },
+    "cond fruit": {
+      "category": "conditional",
+      "prompt": "put the fruit on the tray",
+      "expected": [
+        "banana"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "cond brown": {
+      "category": "conditional",
+      "prompt": "put the brown objects on the tray",
+      "expected": [
+        "pouch",
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "cond not edible": {
+      "category": "conditional",
+      "prompt": "put everything that is not edible on the tray",
+      "expected": [
+        "pouch",
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "cond soft": {
+      "category": "conditional",
+      "prompt": "put only the soft, furry things on the tray",
+      "expected": [
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "cond if banana": {
+      "category": "conditional",
+      "prompt": "if there is a banana on the table, put only the banana on the tray; otherwise put everything on the tray",
+      "expected": [
+        "banana"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "cond if apple": {
+      "category": "conditional",
+      "prompt": "if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+      "expected": [
+        "toy"
+      ],
+      "order": [],
+      "pool": null,
+      "n": null
+    },
+    "qty one": {
+      "category": "quantity",
+      "prompt": "put one object on the tray",
+      "expected": null,
+      "order": [],
+      "pool": [
+        "banana",
+        "toy",
+        "pouch"
+      ],
+      "n": 1
+    },
+    "qty two": {
+      "category": "quantity",
+      "prompt": "put two objects on the tray",
+      "expected": null,
+      "order": [],
+      "pool": [
+        "banana",
+        "toy",
+        "pouch"
+      ],
+      "n": 2
+    },
+    "qty three": {
+      "category": "quantity",
+      "prompt": "put all three objects on the tray",
+      "expected": null,
+      "order": [],
+      "pool": [
+        "banana",
+        "toy",
+        "pouch"
+      ],
+      "n": 3
+    },
+    "qty one brown": {
+      "category": "quantity",
+      "prompt": "put one of the brown objects on the tray",
+      "expected": null,
+      "order": [],
+      "pool": [
+        "toy",
+        "pouch"
+      ],
+      "n": 1
+    },
+    "qty two not banana": {
+      "category": "quantity",
+      "prompt": "put two objects on the tray, but not the banana",
+      "expected": null,
+      "order": [],
+      "pool": [
+        "toy",
+        "pouch"
+      ],
+      "n": 2
+    }
+  },
+  "trials": [
+    {
+      "scene": "2026-08-06_23-04-44",
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "pouch",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 20.78,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns in the center\", \"role\": \"object\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and label 'KUMQUAT' in the foreground\", \"role\": \"robot\"}]}",
+          "latency_s": 14.33
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [\"table\"],\n  \"allowed_objects\": [\"banana\", \"plush toy\", \"pouch\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 6.45
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana",
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-06_23-04-44",
+      "key": "omit toy",
+      "category": "omission",
+      "prompt": "put everything on the tray except the toy",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "pouch",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "plush toy"
+      ],
+      "allowed_objects": [
+        "banana",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.99,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns in the center\", \"role\": \"object\"}, {\"name\": \"pouch\", \"evidence\": \"brown rectangular pouch under the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and label 'KUMQUAT' in the foreground\", \"role\": \"robot\"}]}",
+          "latency_s": 12.09
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the toy",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"plush toy\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"pouch\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 5.89
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-06_23-04-44",
+      "key": "seq toy first",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, starting with the toy",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "pouch",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the pouch on the tray",
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 18.02,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns in the center\", \"role\": \"object\"}, {\"name\": \"pouch\", \"evidence\": \"brown rectangular pouch under the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and label 'KUMQUAT' in the foreground\", \"role\": \"robot\"}]}",
+          "latency_s": 11.62
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, starting with the toy",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\", \"pouch\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the pouch on the tray\", \"put the banana on the tray\"]\n}",
+          "latency_s": 6.4
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch",
+          "banana"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-06_23-04-44",
+      "key": "cond not edible",
+      "category": "conditional",
+      "prompt": "put everything that is not edible on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "pouch",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "plush toy",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.74,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns in the center\", \"role\": \"object\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and label 'KUMQUAT' in the foreground\", \"role\": \"robot\"}]}",
+          "latency_s": 11.1
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"pouch\", \"tray\", \"table\"]\nInstruction: put everything that is not edible on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"pouch\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the pouch on the tray\"]\n}",
+          "latency_s": 5.63
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-06_23-04-44",
+      "key": "qty one brown",
+      "category": "quantity",
+      "prompt": "put one of the brown objects on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "pouch",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "pouch"
+      ],
+      "subtasks": [
+        "put the pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.02,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns in the center\", \"role\": \"object\"}, {\"name\": \"pouch\", \"evidence\": \"brown cylindrical pouch under the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and label 'KUMQUAT' in the foreground\", \"role\": \"robot\"}]}",
+          "latency_s": 11.02
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"pouch\", \"tray\", \"table\"]\nInstruction: put one of the brown objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"pouch\"],\n  \"subtasks\": [\"put the pouch on the tray\"]\n}",
+          "latency_s": 4.99
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-06_23-31-04",
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown pouch",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown pouch"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the brown pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.07,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit in the center\", \"role\": \"object\"}, {\"name\": \"brown pouch\", \"evidence\": \"brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with 'KUMQUAT' label in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 10.77
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown pouch\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the brown pouch on the tray\"]\n}",
+          "latency_s": 6.29
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-06_23-31-04",
+      "key": "omit toy+pouch",
+      "category": "omission",
+      "prompt": "put everything on the tray but leave the toy and the pouch",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown pouch",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "plush toy",
+        "brown pouch"
+      ],
+      "allowed_objects": [
+        "banana"
+      ],
+      "subtasks": [
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.36,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit in the center\", \"role\": \"object\"}, {\"name\": \"brown pouch\", \"evidence\": \"brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with 'KUMQUAT' label in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 11.07
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray but leave the toy and the pouch",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"plush toy\", \"brown pouch\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\"],\n  \"subtasks\": [\"put the banana on the tray\"]\n}",
+          "latency_s": 5.29
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-06_23-31-04",
+      "key": "seq banana after toy",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, put the banana after the toy",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown pouch",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown pouch"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the brown pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.7,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit in the center\", \"role\": \"object\"}, {\"name\": \"brown pouch\", \"evidence\": \"brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with 'KUMQUAT' label in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 11.22
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown pouch\", \"tray\", \"table\"]\nInstruction: put everything on the tray, put the banana after the toy",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown pouch\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the brown pouch on the tray\"]\n}",
+          "latency_s": 6.47
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-06_23-31-04",
+      "key": "cond if apple",
+      "category": "conditional",
+      "prompt": "if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown pouch",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown pouch"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the brown pouch on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.01,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit in the center\", \"role\": \"object\"}, {\"name\": \"brown pouch\", \"evidence\": \"brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with 'KUMQUAT' label in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 10.7
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown pouch\", \"tray\", \"table\"]\nInstruction: if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown pouch\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the brown pouch on the tray\"]\n}",
+          "latency_s": 6.31
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-06_23-31-04",
+      "key": "qty two",
+      "category": "quantity",
+      "prompt": "put two objects on the tray",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown pouch",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown pouch"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.57,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit in the center\", \"role\": \"object\"}, {\"name\": \"brown pouch\", \"evidence\": \"brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with 'KUMQUAT' label in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 11.08
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown pouch\", \"tray\", \"table\"]\nInstruction: put two objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown pouch\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown pouch\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\"]\n}",
+          "latency_s": 6.48
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_03-51-37",
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "moose toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "moose toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose toy",
+        "banana",
+        "brown cylinder"
+      ],
+      "subtasks": [
+        "put the moose toy on the tray",
+        "put the banana on the tray",
+        "put the brown cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 18.38,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose toy\", \"evidence\": \"brown plush toy with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit lying horizontally near the center\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"dark brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 11.64
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"moose toy\", \"banana\", \"brown cylinder\"],\n  \"subtasks\": [\"put the moose toy on the tray\", \"put the banana on the tray\", \"put the brown cylinder on the tray\"]\n}",
+          "latency_s": 6.74
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_03-51-37",
+      "key": "omit pouch",
+      "category": "omission",
+      "prompt": "put everything on the tray except the pouch",
+      "trial": 0,
+      "identified": [
+        "moose toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "moose toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose toy",
+        "banana",
+        "brown cylinder"
+      ],
+      "subtasks": [
+        "put the moose toy on the tray",
+        "put the banana on the tray",
+        "put the brown cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.98,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose toy\", \"evidence\": \"brown plush toy with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit in the center\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"dark brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 11.66
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the pouch",
+          "output": "{\n  \"visible_objects\": [\"moose toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"moose toy\", \"banana\", \"brown cylinder\"],\n  \"subtasks\": [\"put the moose toy on the tray\", \"put the banana on the tray\", \"put the brown cylinder on the tray\"]\n}",
+          "latency_s": 6.32
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_03-51-37",
+      "key": "seq pouch>banana>toy",
+      "category": "sequencing",
+      "prompt": "put the pouch on the tray first, then the banana, then the toy",
+      "trial": 0,
+      "identified": [
+        "moose toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "moose toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "brown cylinder",
+        "banana",
+        "moose toy"
+      ],
+      "subtasks": [
+        "put the brown cylinder on the tray",
+        "put the banana on the tray",
+        "put the moose toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.51,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose toy\", \"evidence\": \"brown plush toy with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit lying horizontally near the center\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"dark brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 11.07
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: put the pouch on the tray first, then the banana, then the toy",
+          "output": "{\n  \"visible_objects\": [\"moose toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"brown cylinder\", \"banana\", \"moose toy\"],\n  \"subtasks\": [\"put the brown cylinder on the tray\", \"put the banana on the tray\", \"put the moose toy on the tray\"]\n}",
+          "latency_s": 6.44
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "pouch",
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_03-51-37",
+      "key": "cond if apple",
+      "category": "conditional",
+      "prompt": "if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+      "trial": 0,
+      "identified": [
+        "moose toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "moose toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "moose toy",
+        "banana",
+        "brown cylinder"
+      ],
+      "subtasks": [
+        "put the moose toy on the tray",
+        "put the banana on the tray",
+        "put the brown cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 18.59,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose toy\", \"evidence\": \"brown plush toy with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit in the center\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"dark brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 12.21
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"moose toy\", \"banana\", \"brown cylinder\"],\n  \"subtasks\": [\"put the moose toy on the tray\", \"put the banana on the tray\", \"put the brown cylinder on the tray\"]\n}",
+          "latency_s": 6.38
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_03-51-37",
+      "key": "qty one brown",
+      "category": "quantity",
+      "prompt": "put one of the brown objects on the tray",
+      "trial": 0,
+      "identified": [
+        "moose toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "moose toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "brown cylinder"
+      ],
+      "subtasks": [
+        "put the brown cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.39,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"moose toy\", \"evidence\": \"brown plush toy with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit in the center\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"dark brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 10.77
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"moose toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: put one of the brown objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"moose toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"brown cylinder\"],\n  \"subtasks\": [\"put the brown cylinder on the tray\"]\n}",
+          "latency_s": 4.62
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-10-27",
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown object"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the brown object on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.07,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown stuffed animal with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit partially under the plush toy\", \"role\": \"object\"}, {\"name\": \"brown object\", \"evidence\": \"dark brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 10.81
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown object\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the brown object on the tray\"]\n}",
+          "latency_s": 6.26
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {
+          "brown object": "pouch"
+        }
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-10-27",
+      "key": "omit don't touch",
+      "category": "omission",
+      "prompt": "put everything on the tray, don't touch the pouch",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown object"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the brown object on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.88,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown stuffed animal with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit partially under the plush toy\", \"role\": \"object\"}, {\"name\": \"brown object\", \"evidence\": \"dark brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 10.76
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"]\nInstruction: put everything on the tray, don't touch the pouch",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown object\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the brown object on the tray\"]\n}",
+          "latency_s": 6.12
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {
+          "brown object": "pouch"
+        }
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-10-27",
+      "key": "seq banana after toy",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, put the banana after the toy",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown object"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the brown object on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.93,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown stuffed animal with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit partially under the plush toy\", \"role\": \"object\"}, {\"name\": \"brown object\", \"evidence\": \"dark brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 10.82
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"]\nInstruction: put everything on the tray, put the banana after the toy",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown object\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the brown object on the tray\"]\n}",
+          "latency_s": 6.1
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {
+          "brown object": "pouch"
+        }
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-10-27",
+      "key": "cond brown",
+      "category": "conditional",
+      "prompt": "put the brown objects on the tray",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "brown object"
+      ],
+      "subtasks": [
+        "put the brown object on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.38,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown stuffed animal with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit partially under the plush toy\", \"role\": \"object\"}, {\"name\": \"brown object\", \"evidence\": \"dark brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 10.79
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"]\nInstruction: put the brown objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"brown object\"],\n  \"subtasks\": [\"put the brown object on the tray\"]\n}",
+          "latency_s": 4.59
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "pouch"
+        ],
+        "resolved_by_elimination": {
+          "brown object": "pouch"
+        }
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-10-27",
+      "key": "qty two not banana",
+      "category": "quantity",
+      "prompt": "put two objects on the tray, but not the banana",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "plush toy",
+        "brown object"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the brown object on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.5,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown stuffed animal with antlers on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit partially under the plush toy\", \"role\": \"object\"}, {\"name\": \"brown object\", \"evidence\": \"dark brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 10.91
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"]\nInstruction: put two objects on the tray, but not the banana",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"brown object\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the brown object on the tray\"]\n}",
+          "latency_s": 5.58
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {
+          "brown object": "pouch"
+        }
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-21-15",
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot",
+        "wires",
+        "background equipment"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown cylinder"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the brown cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 20.61,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with tan feet and ears on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit partially hidden behind the plush toy\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"brown cylindrical object behind the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}, {\"name\": \"wires\", \"evidence\": \"black and red wires connected to the robot\", \"role\": \"robot\"}, {\"name\": \"background equipment\", \"evidence\": \"black cables and equipment visible at the top edge\", \"role\": \"background\"}]}",
+          "latency_s": 14.51
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown cylinder\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the brown cylinder on the tray\"]\n}",
+          "latency_s": 6.1
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-21-15",
+      "key": "omit banana+toy",
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana and the toy",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot",
+        "wires",
+        "background equipment"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "allowed_objects": [
+        "brown cylinder"
+      ],
+      "subtasks": [
+        "put the brown cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 19.77,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with tan feet and ears on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit partially hidden behind the plush toy\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"brown cylindrical object behind the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}, {\"name\": \"wires\", \"evidence\": \"black and red wires connected to the robot\", \"role\": \"robot\"}, {\"name\": \"background equipment\", \"evidence\": \"black cables and equipment visible at the top edge\", \"role\": \"background\"}]}",
+          "latency_s": 14.67
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the banana and the toy",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\", \"plush toy\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"brown cylinder\"],\n  \"subtasks\": [\"put the brown cylinder on the tray\"]\n}",
+          "latency_s": 5.09
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-21-15",
+      "key": "seq toy first",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, starting with the toy",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot",
+        "wires",
+        "background equipment"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown cylinder"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the brown cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 23.03,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with tan feet and ears on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit partially hidden behind the plush toy\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"brown cylindrical object behind the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}, {\"name\": \"wires\", \"evidence\": \"black and red wires connected to the robot\", \"role\": \"robot\"}, {\"name\": \"background equipment\", \"evidence\": \"black cables and equipment visible at the top edge\", \"role\": \"background\"}]}",
+          "latency_s": 15.8
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: put everything on the tray, starting with the toy",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown cylinder\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the brown cylinder on the tray\"]\n}",
+          "latency_s": 7.22
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-21-15",
+      "key": "cond if apple",
+      "category": "conditional",
+      "prompt": "if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot",
+        "wires",
+        "background equipment"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown cylinder"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the brown cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 21.76,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with tan feet and ears on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit partially hidden behind the plush toy\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"brown cylindrical object behind the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}, {\"name\": \"wires\", \"evidence\": \"black and red wires connected to the robot\", \"role\": \"robot\"}, {\"name\": \"background equipment\", \"evidence\": \"black cables and equipment visible at the top edge\", \"role\": \"background\"}]}",
+          "latency_s": 15.27
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: if there is an apple on the table, put the apple on the tray; otherwise put the toy on the tray",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown cylinder\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the brown cylinder on the tray\"]\n}",
+          "latency_s": 6.48
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-21-15",
+      "key": "qty three",
+      "category": "quantity",
+      "prompt": "put all three objects on the tray",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot",
+        "wires",
+        "background equipment"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown cylinder"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the brown cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 21.18,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with tan feet and ears on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit partially hidden behind the plush toy\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"brown cylindrical object behind the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}, {\"name\": \"wires\", \"evidence\": \"black and red wires connected to the robot\", \"role\": \"robot\"}, {\"name\": \"background equipment\", \"evidence\": \"black cables and equipment visible at the top edge\", \"role\": \"background\"}]}",
+          "latency_s": 14.86
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: put all three objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown cylinder\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the brown cylinder on the tray\"]\n}",
+          "latency_s": 6.32
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-44-51",
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy",
+        "brown cylinder"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray",
+        "put the brown cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.24,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns in the center\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"brown cylindrical object under the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with 'KUMQUAT' label in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 11.02
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\", \"brown cylinder\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\", \"put the brown cylinder on the tray\"]\n}",
+          "latency_s": 6.22
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana",
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-44-51",
+      "key": "omit banana+toy",
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana and the toy",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "allowed_objects": [
+        "brown cylinder"
+      ],
+      "subtasks": [
+        "put the brown cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.55,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns in the center\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"brown cylindrical object under the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with 'KUMQUAT' label in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 11.31
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the banana and the toy",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\", \"plush toy\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"brown cylinder\"],\n  \"subtasks\": [\"put the brown cylinder on the tray\"]\n}",
+          "latency_s": 5.23
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-44-51",
+      "key": "seq banana after toy",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, put the banana after the toy",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy",
+        "brown cylinder"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the brown cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.67,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns in the center\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"brown cylindrical object under the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with 'KUMQUAT' label in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 11.36
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: put everything on the tray, put the banana after the toy",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\", \"brown cylinder\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the brown cylinder on the tray\"]\n}",
+          "latency_s": 6.3
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-44-51",
+      "key": "cond soft",
+      "category": "conditional",
+      "prompt": "put only the soft, furry things on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana",
+        "brown cylinder"
+      ],
+      "allowed_objects": [
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.71,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns in the center\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"brown cylindrical object under the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with 'KUMQUAT' label in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 12.42
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: put only the soft, furry things on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\", \"brown cylinder\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\"],\n  \"subtasks\": [\"put the plush toy on the tray\"]\n}",
+          "latency_s": 5.28
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_04-44-51",
+      "key": "qty three",
+      "category": "quantity",
+      "prompt": "put all three objects on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "brown cylinder",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "brown cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy",
+        "brown cylinder"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray",
+        "put the brown cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.5,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns in the center\", \"role\": \"object\"}, {\"name\": \"brown cylinder\", \"evidence\": \"brown cylindrical object under the plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with 'KUMQUAT' label in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 11.28
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"brown cylinder\", \"tray\", \"table\"]\nInstruction: put all three objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"brown cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\", \"brown cylinder\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\", \"put the brown cylinder on the tray\"]\n}",
+          "latency_s": 6.22
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "banana",
+          "toy",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_05-50-13",
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.52,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a tail, behind the robot arm\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and a label reading 'KUMQUAT'\", \"role\": \"robot\"}]}",
+          "latency_s": 10.05
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\"]\n}",
+          "latency_s": 5.47
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_05-50-13",
+      "key": "omit toy+pouch",
+      "category": "omission",
+      "prompt": "put everything on the tray but leave the toy and the pouch",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "plush toy"
+      ],
+      "allowed_objects": [
+        "banana"
+      ],
+      "subtasks": [
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.8,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a tail, behind the robot arm\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and a label reading 'KUMQUAT'\", \"role\": \"robot\"}]}",
+          "latency_s": 10.5
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put everything on the tray but leave the toy and the pouch",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"plush toy\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\"],\n  \"subtasks\": [\"put the banana on the tray\"]\n}",
+          "latency_s": 5.29
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "banana"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_05-50-13",
+      "key": "seq toy first",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, starting with the toy",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.41,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a tail, behind the robot arm\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and a label reading 'KUMQUAT'\", \"role\": \"robot\"}]}",
+          "latency_s": 10.18
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put everything on the tray, starting with the toy",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\"]\n}",
+          "latency_s": 5.22
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": false,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "toy",
+          "banana"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_05-50-13",
+      "key": "cond if banana",
+      "category": "conditional",
+      "prompt": "if there is a banana on the table, put only the banana on the tray; otherwise put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.41,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a tail, behind the robot arm\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and a label reading 'KUMQUAT'\", \"role\": \"robot\"}]}",
+          "latency_s": 10.31
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: if there is a banana on the table, put only the banana on the tray; otherwise put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\"]\n}",
+          "latency_s": 5.1
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_05-50-13",
+      "key": "qty three",
+      "category": "quantity",
+      "prompt": "put all three objects on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.03,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a tail, behind the robot arm\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and a label reading 'KUMQUAT'\", \"role\": \"robot\"}]}",
+          "latency_s": 9.81
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put all three objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\"]\n}",
+          "latency_s": 5.22
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_06-31-10",
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 14.88,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with tan limbs lying on the table\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 9.77
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\"]\n}",
+          "latency_s": 5.11
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_06-31-10",
+      "key": "omit toy",
+      "category": "omission",
+      "prompt": "put everything on the tray except the toy",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "plush toy"
+      ],
+      "allowed_objects": [
+        "banana"
+      ],
+      "subtasks": [
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 14.02,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with tan limbs lying on the table\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 9.43
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the toy",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"plush toy\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\"],\n  \"subtasks\": [\"put the banana on the tray\"]\n}",
+          "latency_s": 4.59
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "banana"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_06-31-10",
+      "key": "seq banana after toy",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, put the banana after the toy",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.13,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with tan limbs lying on the table\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 9.95
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put everything on the tray, put the banana after the toy",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\"]\n}",
+          "latency_s": 5.18
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "toy",
+          "banana"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_06-31-10",
+      "key": "cond not edible",
+      "category": "conditional",
+      "prompt": "put everything that is not edible on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 13.98,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with tan limbs lying on the table\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 9.57
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put everything that is not edible on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\"],\n  \"subtasks\": [\"put the plush toy on the tray\"]\n}",
+          "latency_s": 4.41
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_06-31-10",
+      "key": "qty one brown",
+      "category": "quantity",
+      "prompt": "put one of the brown objects on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 14.04,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with tan limbs lying on the table\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 9.5
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put one of the brown objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\"],\n  \"subtasks\": [\"put the plush toy on the tray\"]\n}",
+          "latency_s": 4.54
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_06-57-56",
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.36,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a long brown body, behind the robot\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and a label that says 'KUMQUAT'\", \"role\": \"robot\"}]}",
+          "latency_s": 10.96
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\"]\n}",
+          "latency_s": 6.39
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_06-57-56",
+      "key": "omit don't touch",
+      "category": "omission",
+      "prompt": "put everything on the tray, don't touch the pouch",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot",
+        "wires"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.29,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a long brown body, partially behind the robot\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}, {\"name\": \"wires\", \"evidence\": \"black and red wires connected to the robot\", \"role\": \"robot\"}]}",
+          "latency_s": 12.05
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put everything on the tray, don't touch the pouch",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\"]\n}",
+          "latency_s": 5.24
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_06-57-56",
+      "key": "seq pouch last",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, but the pouch goes last",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot",
+        "wires"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 18.21,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a long brown body, partially behind the robot\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}, {\"name\": \"wires\", \"evidence\": \"black and red wires connected to the robot\", \"role\": \"robot\"}]}",
+          "latency_s": 12.72
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put everything on the tray, but the pouch goes last",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\"]\n}",
+          "latency_s": 5.49
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": false,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_06-57-56",
+      "key": "cond not edible",
+      "category": "conditional",
+      "prompt": "put everything that is not edible on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot",
+        "wires"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.79,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a long brown body, partially behind the robot\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}, {\"name\": \"wires\", \"evidence\": \"black and red wires connected to the robot\", \"role\": \"robot\"}]}",
+          "latency_s": 12.04
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put everything that is not edible on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\"],\n  \"subtasks\": [\"put the plush toy on the tray\"]\n}",
+          "latency_s": 4.75
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_06-57-56",
+      "key": "qty two",
+      "category": "quantity",
+      "prompt": "put two objects on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.06,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a long brown body, behind the robot\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and a label that says 'KUMQUAT'\", \"role\": \"robot\"}]}",
+          "latency_s": 10.53
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put two objects on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\"]\n}",
+          "latency_s": 5.53
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_07-17-03",
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.22,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a long tail, partially behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and a label reading 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 11.12
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\"]\n}",
+          "latency_s": 5.1
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_07-17-03",
+      "key": "omit banana",
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.03,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a long tail, partially behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and a label reading 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 10.31
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the banana",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\"],\n  \"subtasks\": [\"put the plush toy on the tray\"]\n}",
+          "latency_s": 4.72
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_07-17-03",
+      "key": "seq banana>toy>pouch",
+      "category": "sequencing",
+      "prompt": "put the banana on the tray first, then the toy, then the pouch",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.68,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a long tail, partially behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and a label reading 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 10.61
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put the banana on the tray first, then the toy, then the pouch",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\"]\n}",
+          "latency_s": 6.07
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": false,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_07-17-03",
+      "key": "cond if banana",
+      "category": "conditional",
+      "prompt": "if there is a banana on the table, put only the banana on the tray; otherwise put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the banana on the tray",
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.41,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a long tail, partially behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and a label reading 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 11.0
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: if there is a banana on the table, put only the banana on the tray; otherwise put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"banana\", \"plush toy\"],\n  \"subtasks\": [\"put the banana on the tray\", \"put the plush toy on the tray\"]\n}",
+          "latency_s": 5.4
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "banana",
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_07-17-03",
+      "key": "qty two not banana",
+      "category": "quantity",
+      "prompt": "put two objects on the tray, but not the banana",
+      "trial": 0,
+      "identified": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "banana",
+        "plush toy",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana"
+      ],
+      "allowed_objects": [
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 15.41,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"banana\", \"evidence\": \"yellow curved fruit on the left side of the table\", \"role\": \"object\"}, {\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns and a long tail, partially behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side of the table\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with wires and a label reading 'KUMQUAT' in the center\", \"role\": \"robot\"}]}",
+          "latency_s": 10.66
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"banana\", \"plush toy\", \"tray\", \"table\"]\nInstruction: put two objects on the tray, but not the banana",
+          "output": "{\n  \"visible_objects\": [\"banana\", \"plush toy\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\"],\n  \"subtasks\": [\"put the plush toy on the tray\"]\n}",
+          "latency_s": 4.75
+        }
+      ],
+      "auto_label": {
+        "identified": false,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "missed_object",
+        "planned": [
+          "toy"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_07-36-23",
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown object"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the brown object on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.88,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit behind the plush toy\", \"role\": \"object\"}, {\"name\": \"brown object\", \"evidence\": \"brown rectangular object under the banana and plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm in the center with wires and a label\", \"role\": \"robot\"}]}",
+          "latency_s": 11.31
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown object\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the brown object on the tray\"]\n}",
+          "latency_s": 6.56
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {
+          "brown object": "pouch"
+        }
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_07-36-23",
+      "key": "omit banana+toy",
+      "category": "omission",
+      "prompt": "put everything on the tray except the banana and the toy",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana",
+        "plush toy"
+      ],
+      "allowed_objects": [
+        "brown object"
+      ],
+      "subtasks": [
+        "put the brown object on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.53,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit behind the plush toy\", \"role\": \"object\"}, {\"name\": \"brown object\", \"evidence\": \"brown rectangular object under the banana and plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm in the center with wires and a label\", \"role\": \"robot\"}]}",
+          "latency_s": 11.19
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"]\nInstruction: put everything on the tray except the banana and the toy",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\", \"plush toy\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"brown object\"],\n  \"subtasks\": [\"put the brown object on the tray\"]\n}",
+          "latency_s": 5.34
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "pouch"
+        ],
+        "resolved_by_elimination": {
+          "brown object": "pouch"
+        }
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_07-36-23",
+      "key": "seq banana after toy",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, put the banana after the toy",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown object"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the brown object on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 17.66,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit behind the plush toy\", \"role\": \"object\"}, {\"name\": \"brown object\", \"evidence\": \"brown rectangular object under the banana and plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm in the center with wires and a label\", \"role\": \"robot\"}]}",
+          "latency_s": 11.19
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"]\nInstruction: put everything on the tray, put the banana after the toy",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown object\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the brown object on the tray\"]\n}",
+          "latency_s": 6.47
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {
+          "brown object": "pouch"
+        }
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_07-36-23",
+      "key": "cond soft",
+      "category": "conditional",
+      "prompt": "put only the soft, furry things on the tray",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [
+        "banana",
+        "brown object"
+      ],
+      "allowed_objects": [
+        "plush toy"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.64,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit behind the plush toy\", \"role\": \"object\"}, {\"name\": \"brown object\", \"evidence\": \"brown rectangular object under the banana and plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm in the center with wires and a label\", \"role\": \"robot\"}]}",
+          "latency_s": 11.2
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"]\nInstruction: put only the soft, furry things on the tray",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"],\n  \"excluded_objects\": [\"banana\", \"brown object\"],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\"],\n  \"subtasks\": [\"put the plush toy on the tray\"]\n}",
+          "latency_s": 5.44
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy"
+        ],
+        "resolved_by_elimination": {
+          "brown object": "pouch"
+        }
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-19_07-36-23",
+      "key": "qty one",
+      "category": "quantity",
+      "prompt": "put one object on the tray",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table",
+        "robot"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "brown object",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "brown object"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 16.29,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with horns on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit behind the plush toy\", \"role\": \"object\"}, {\"name\": \"brown object\", \"evidence\": \"brown rectangular object under the banana and plush toy\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm in the center with wires and a label\", \"role\": \"robot\"}]}",
+          "latency_s": 11.1
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"]\nInstruction: put one object on the tray",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"brown object\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"brown object\"],\n  \"subtasks\": [\"put the plush toy on the tray\"]\n}",
+          "latency_s": 5.18
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy"
+        ],
+        "resolved_by_elimination": {
+          "brown object": "pouch"
+        }
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-20_06-23-01",
+      "key": "base",
+      "category": "base",
+      "prompt": "put everything on the tray",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "cylinder",
+        "tray",
+        "table",
+        "robot",
+        "wires",
+        "background equipment"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "cylinder"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 21.13,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with feet and ears on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit behind the plush toy\", \"role\": \"object\"}, {\"name\": \"cylinder\", \"evidence\": \"brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}, {\"name\": \"wires\", \"evidence\": \"black and red wires connected to the robot\", \"role\": \"robot\"}, {\"name\": \"background equipment\", \"evidence\": \"black cables and equipment at the top edge of the frame\", \"role\": \"background\"}]}",
+          "latency_s": 14.7
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"cylinder\", \"tray\", \"table\"]\nInstruction: put everything on the tray",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"cylinder\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the cylinder on the tray\"]\n}",
+          "latency_s": 6.43
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-20_06-23-01",
+      "key": "omit don't touch",
+      "category": "omission",
+      "prompt": "put everything on the tray, don't touch the pouch",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "cylinder",
+        "tray",
+        "table",
+        "robot",
+        "wires",
+        "background equipment"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "cylinder"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 21.57,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with feet and ears on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit lying horizontally behind the plush toy\", \"role\": \"object\"}, {\"name\": \"cylinder\", \"evidence\": \"brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}, {\"name\": \"wires\", \"evidence\": \"black and red wires connected to the robot\", \"role\": \"robot\"}, {\"name\": \"background equipment\", \"evidence\": \"black cables and equipment visible at the top edge\", \"role\": \"background\"}]}",
+          "latency_s": 15.25
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"cylinder\", \"tray\", \"table\"]\nInstruction: put everything on the tray, don't touch the pouch",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"cylinder\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the cylinder on the tray\"]\n}",
+          "latency_s": 6.31
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": false,
+        "order": true,
+        "count": false,
+        "destination": true,
+        "correct": false,
+        "failure_mode": "wrong_objects",
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    },
+    {
+      "scene": "2026-08-20_06-23-01",
+      "key": "seq toy first",
+      "category": "sequencing",
+      "prompt": "put everything on the tray, starting with the toy",
+      "trial": 0,
+      "identified": [
+        "plush toy",
+        "banana",
+        "cylinder",
+        "tray",
+        "table",
+        "robot",
+        "wires",
+        "background equipment"
+      ],
+      "visible_objects": [
+        "plush toy",
+        "banana",
+        "cylinder",
+        "tray",
+        "table"
+      ],
+      "excluded_objects": [],
+      "allowed_objects": [
+        "plush toy",
+        "banana",
+        "cylinder"
+      ],
+      "subtasks": [
+        "put the plush toy on the tray",
+        "put the banana on the tray",
+        "put the cylinder on the tray"
+      ],
+      "error": null,
+      "retried": false,
+      "latency_s": 21.97,
+      "passes": [
+        {
+          "pass_name": "identify",
+          "user_text": "[top-down camera]\nList every visible object and surface.",
+          "output": "{\"visible_objects\": [{\"name\": \"plush toy\", \"evidence\": \"brown furry toy with feet and ears on the left side\", \"role\": \"object\"}, {\"name\": \"banana\", \"evidence\": \"yellow curved fruit lying horizontally behind the plush toy\", \"role\": \"object\"}, {\"name\": \"cylinder\", \"evidence\": \"brown cylindrical object behind the banana\", \"role\": \"object\"}, {\"name\": \"tray\", \"evidence\": \"pink rectangular tray on the right side\", \"role\": \"surface\"}, {\"name\": \"table\", \"evidence\": \"white flat surface under all objects\", \"role\": \"surface\"}, {\"name\": \"robot\", \"evidence\": \"orange robotic arm with label 'KUMQUAT' in the center\", \"role\": \"robot\"}, {\"name\": \"wires\", \"evidence\": \"black and red wires connected to the robot\", \"role\": \"robot\"}, {\"name\": \"background equipment\", \"evidence\": \"black cables and equipment visible at the top edge\", \"role\": \"background\"}]}",
+          "latency_s": 15.26
+        },
+        {
+          "pass_name": "decompose",
+          "user_text": "[top-down camera]\nVisible objects: [\"plush toy\", \"banana\", \"cylinder\", \"tray\", \"table\"]\nInstruction: put everything on the tray, starting with the toy",
+          "output": "{\n  \"visible_objects\": [\"plush toy\", \"banana\", \"cylinder\", \"tray\", \"table\"],\n  \"excluded_objects\": [],\n  \"completed_objects\": [],\n  \"ignored_objects\": [],\n  \"allowed_objects\": [\"plush toy\", \"banana\", \"cylinder\"],\n  \"subtasks\": [\"put the plush toy on the tray\", \"put the banana on the tray\", \"put the cylinder on the tray\"]\n}",
+          "latency_s": 6.71
+        }
+      ],
+      "auto_label": {
+        "identified": true,
+        "object_set": true,
+        "order": true,
+        "count": true,
+        "destination": true,
+        "correct": true,
+        "failure_mode": null,
+        "planned": [
+          "toy",
+          "banana",
+          "pouch"
+        ],
+        "resolved_by_elimination": {}
+      },
+      "manual_label": {
+        "correct": null,
+        "failure_mode": null,
+        "notes": ""
+      }
+    }
+  ]
+}

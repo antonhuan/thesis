@@ -1,0 +1,1479 @@
+{
+  "config": {
+    "root": "vla_failure_test",
+    "worklist": "vla_failure_analysis2/labeling_worklist.csv",
+    "gate_only": false,
+    "model": "Qwen/Qwen3-VL-8B-Instruct",
+    "categories": null,
+    "limit_per_category": null,
+    "max_episodes": 10,
+    "view": "front",
+    "wrist_view": "wrist",
+    "window": 4,
+    "fps": 2.0,
+    "temp": 0.1,
+    "joint_start_thresh": 73.0,
+    "joint_still_thresh": 7.0,
+    "motion_thresh": 2.0,
+    "no_stop_on_first": false,
+    "no_latch": false,
+    "out": "monitor_test_results_v2.json",
+    "plot": "confusion_matrix.png"
+  },
+  "wrong_object_map": {
+    "banana": "toy",
+    "box": "stuffed animal",
+    "brown": "banana",
+    "moose": "pouch",
+    "plush": "pouch",
+    "pouch": "banana",
+    "purse": "banana",
+    "roll": "plush toy",
+    "stuffed": "pouch",
+    "toy": "pouch"
+  },
+  "missing_on_disk": [],
+  "fully_gated_excluded": [],
+  "results": [
+    {
+      "category": "banana",
+      "episode": "001_banana",
+      "dir": "vla_failure_test/banana/001_banana",
+      "object_type": "banana",
+      "task_correct": "put the banana on the tray",
+      "n_frames": 25,
+      "n_wrist": 25,
+      "joints_loaded": true,
+      "wrong_object": "toy",
+      "task_wrong": "put the toy on the tray",
+      "correct": {
+        "task": "put the banana on the tray",
+        "n_windows": 22,
+        "n_gated": 5,
+        "n_latched": 14,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00005..00008",
+        "latched": true,
+        "latch_window": "00008..00011",
+        "stopped": false,
+        "stop_window": null,
+        "stop_reason": null,
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 22.9 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 34.7 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 35.5 < 73)."
+          },
+          {
+            "span": "00003..00006",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 43.7 < 73)."
+          },
+          {
+            "span": "00004..00007",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 55.8 < 73)."
+          },
+          {
+            "span": "00005..00008",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00006..00009",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00007..00010",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for/grasping a 'banana', which matches exactly with the sub-task's target object."
+          },
+          {
+            "span": "00008..00011",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00009..00012",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00010..00013",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00011..00014",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00012..00015",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00013..00016",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00014..00017",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00015..00018",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00016..00019",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00017..00020",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00018..00021",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00019..00022",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00020..00023",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00021..00024",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          }
+        ]
+      },
+      "wrong": {
+        "task": "put the toy on the tray",
+        "n_windows": 6,
+        "n_gated": 5,
+        "n_latched": 0,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00005..00008",
+        "latched": false,
+        "latch_window": null,
+        "stopped": true,
+        "stop_window": "00005..00008",
+        "stop_reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'.",
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 22.9 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 34.7 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 35.5 < 73)."
+          },
+          {
+            "span": "00003..00006",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 43.7 < 73)."
+          },
+          {
+            "span": "00004..00007",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 55.8 < 73)."
+          },
+          {
+            "span": "00005..00008",
+            "action": "STOP",
+            "reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'."
+          }
+        ]
+      },
+      "correct_pass": true,
+      "wrong_pass": true,
+      "never_opened": false
+    },
+    {
+      "category": "banana",
+      "episode": "005_banana",
+      "dir": "vla_failure_test/banana/005_banana",
+      "object_type": "banana",
+      "task_correct": "put the banana on the tray",
+      "n_frames": 17,
+      "n_wrist": 17,
+      "joints_loaded": true,
+      "wrong_object": "toy",
+      "task_wrong": "put the toy on the tray",
+      "correct": {
+        "task": "put the banana on the tray",
+        "n_windows": 14,
+        "n_gated": 1,
+        "n_latched": 8,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00001..00004",
+        "latched": true,
+        "latch_window": "00006..00009",
+        "stopped": false,
+        "stop_window": null,
+        "stop_reason": null,
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 47.8 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00002..00005",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00003..00006",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00004..00007",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00005..00008",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for/grasping a 'banana', which matches exactly with the sub-task's target object."
+          },
+          {
+            "span": "00006..00009",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00007..00010",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00008..00011",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00009..00012",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00010..00013",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00011..00014",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00012..00015",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00013..00016",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          }
+        ]
+      },
+      "wrong": {
+        "task": "put the toy on the tray",
+        "n_windows": 2,
+        "n_gated": 1,
+        "n_latched": 0,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00001..00004",
+        "latched": false,
+        "latch_window": null,
+        "stopped": true,
+        "stop_window": "00001..00004",
+        "stop_reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'.",
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 47.8 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "STOP",
+            "reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'."
+          }
+        ]
+      },
+      "correct_pass": true,
+      "wrong_pass": true,
+      "never_opened": false
+    },
+    {
+      "category": "banana",
+      "episode": "025_banana",
+      "dir": "vla_failure_test/banana/025_banana",
+      "object_type": "banana",
+      "task_correct": "put the banana in the box",
+      "n_frames": 22,
+      "n_wrist": 22,
+      "joints_loaded": true,
+      "wrong_object": "toy",
+      "task_wrong": "put the toy on the tray",
+      "correct": {
+        "task": "put the banana in the box",
+        "n_windows": 5,
+        "n_gated": 4,
+        "n_latched": 0,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00004..00007",
+        "latched": false,
+        "latch_window": null,
+        "stopped": true,
+        "stop_window": "00004..00007",
+        "stop_reason": "A pouch is not a banana; they are different objects.",
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 9.5 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 9.4 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 63.2 < 73)."
+          },
+          {
+            "span": "00003..00006",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 52.3 < 73)."
+          },
+          {
+            "span": "00004..00007",
+            "action": "STOP",
+            "reason": "A pouch is not a banana; they are different objects."
+          }
+        ]
+      },
+      "wrong": {
+        "task": "put the toy on the tray",
+        "n_windows": 5,
+        "n_gated": 4,
+        "n_latched": 0,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00004..00007",
+        "latched": false,
+        "latch_window": null,
+        "stopped": true,
+        "stop_window": "00004..00007",
+        "stop_reason": "A 'pouch' is not the same object as a 'toy'. The sub-task specifically requires the robot to put the toy on the tray, and the perception pass reports the arm is reaching for a pouch, which is a different object.",
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 9.5 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 9.4 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 63.2 < 73)."
+          },
+          {
+            "span": "00003..00006",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 52.3 < 73)."
+          },
+          {
+            "span": "00004..00007",
+            "action": "STOP",
+            "reason": "A 'pouch' is not the same object as a 'toy'. The sub-task specifically requires the robot to put the toy on the tray, and the perception pass reports the arm is reaching for a pouch, which is a different object."
+          }
+        ]
+      },
+      "correct_pass": false,
+      "wrong_pass": true,
+      "never_opened": false
+    },
+    {
+      "category": "banana",
+      "episode": "041_banana",
+      "dir": "vla_failure_test/banana/041_banana",
+      "object_type": "banana",
+      "task_correct": "put the banana on the tray",
+      "n_frames": 22,
+      "n_wrist": 22,
+      "joints_loaded": true,
+      "wrong_object": "toy",
+      "task_wrong": "put the toy on the tray",
+      "correct": {
+        "task": "put the banana on the tray",
+        "n_windows": 19,
+        "n_gated": 2,
+        "n_latched": 13,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00002..00005",
+        "latched": true,
+        "latch_window": "00006..00009",
+        "stopped": false,
+        "stop_window": null,
+        "stop_reason": null,
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 24.4 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 46.4 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00003..00006",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00004..00007",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00005..00008",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for/grasping a 'banana', which matches exactly with the sub-task's target object."
+          },
+          {
+            "span": "00006..00009",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00007..00010",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00008..00011",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00009..00012",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00010..00013",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00011..00014",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00012..00015",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00013..00016",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00014..00017",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00015..00018",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00016..00019",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00017..00020",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00018..00021",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          }
+        ]
+      },
+      "wrong": {
+        "task": "put the toy on the tray",
+        "n_windows": 3,
+        "n_gated": 2,
+        "n_latched": 0,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00002..00005",
+        "latched": false,
+        "latch_window": null,
+        "stopped": true,
+        "stop_window": "00002..00005",
+        "stop_reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'.",
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 24.4 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 46.4 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "STOP",
+            "reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'."
+          }
+        ]
+      },
+      "correct_pass": true,
+      "wrong_pass": true,
+      "never_opened": false
+    },
+    {
+      "category": "banana",
+      "episode": "050_banana",
+      "dir": "vla_failure_test/banana/050_banana",
+      "object_type": "banana",
+      "task_correct": "put the banana on the tray",
+      "n_frames": 22,
+      "n_wrist": 22,
+      "joints_loaded": true,
+      "wrong_object": "toy",
+      "task_wrong": "put the toy on the tray",
+      "correct": {
+        "task": "put the banana on the tray",
+        "n_windows": 19,
+        "n_gated": 6,
+        "n_latched": 8,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00006..00009",
+        "latched": true,
+        "latch_window": "00011..00014",
+        "stopped": false,
+        "stop_window": null,
+        "stop_reason": null,
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 5.5 < 73); barely moving (peak 5.5 < 7)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 4.3 < 73); barely moving (peak 5.1 < 7)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 7.9 < 73)."
+          },
+          {
+            "span": "00003..00006",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 8.5 < 73); barely moving (peak 3.2 < 7)."
+          },
+          {
+            "span": "00004..00007",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 34.7 < 73)."
+          },
+          {
+            "span": "00005..00008",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 40.6 < 73)."
+          },
+          {
+            "span": "00006..00009",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00007..00010",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00008..00011",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00009..00012",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00010..00013",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for/grasping a 'banana', which matches exactly with the sub-task's target object."
+          },
+          {
+            "span": "00011..00014",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00012..00015",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00013..00016",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00014..00017",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00015..00018",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00016..00019",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00017..00020",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00018..00021",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          }
+        ]
+      },
+      "wrong": {
+        "task": "put the toy on the tray",
+        "n_windows": 7,
+        "n_gated": 6,
+        "n_latched": 0,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00006..00009",
+        "latched": false,
+        "latch_window": null,
+        "stopped": true,
+        "stop_window": "00006..00009",
+        "stop_reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'.",
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 5.5 < 73); barely moving (peak 5.5 < 7)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 4.3 < 73); barely moving (peak 5.1 < 7)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 7.9 < 73)."
+          },
+          {
+            "span": "00003..00006",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 8.5 < 73); barely moving (peak 3.2 < 7)."
+          },
+          {
+            "span": "00004..00007",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 34.7 < 73)."
+          },
+          {
+            "span": "00005..00008",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 40.6 < 73)."
+          },
+          {
+            "span": "00006..00009",
+            "action": "STOP",
+            "reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'."
+          }
+        ]
+      },
+      "correct_pass": true,
+      "wrong_pass": true,
+      "never_opened": false
+    },
+    {
+      "category": "banana",
+      "episode": "052_banana",
+      "dir": "vla_failure_test/banana/052_banana",
+      "object_type": "banana",
+      "task_correct": "put the banana on the tray",
+      "n_frames": 21,
+      "n_wrist": 21,
+      "joints_loaded": true,
+      "wrong_object": "toy",
+      "task_wrong": "put the toy on the tray",
+      "correct": {
+        "task": "put the banana on the tray",
+        "n_windows": 18,
+        "n_gated": 2,
+        "n_latched": 9,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00002..00005",
+        "latched": true,
+        "latch_window": "00009..00012",
+        "stopped": false,
+        "stop_window": null,
+        "stop_reason": null,
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 11.6 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 13.4 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00003..00006",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00004..00007",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00005..00008",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00006..00009",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00007..00010",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00008..00011",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for/grasping a 'banana', which matches exactly with the sub-task's target object."
+          },
+          {
+            "span": "00009..00012",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00010..00013",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00011..00014",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00012..00015",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00013..00016",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00014..00017",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00015..00018",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00016..00019",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00017..00020",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          }
+        ]
+      },
+      "wrong": {
+        "task": "put the toy on the tray",
+        "n_windows": 3,
+        "n_gated": 2,
+        "n_latched": 0,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00002..00005",
+        "latched": false,
+        "latch_window": null,
+        "stopped": true,
+        "stop_window": "00002..00005",
+        "stop_reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'.",
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 11.6 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 13.4 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "STOP",
+            "reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'."
+          }
+        ]
+      },
+      "correct_pass": true,
+      "wrong_pass": true,
+      "never_opened": false
+    },
+    {
+      "category": "banana",
+      "episode": "068_banana",
+      "dir": "vla_failure_test/banana/068_banana",
+      "object_type": "banana",
+      "task_correct": "put the banana on the tray",
+      "n_frames": 18,
+      "n_wrist": 18,
+      "joints_loaded": true,
+      "wrong_object": "toy",
+      "task_wrong": "put the toy on the tray",
+      "correct": {
+        "task": "put the banana on the tray",
+        "n_windows": 15,
+        "n_gated": 2,
+        "n_latched": 12,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00002..00005",
+        "latched": true,
+        "latch_window": "00003..00006",
+        "stopped": false,
+        "stop_window": null,
+        "stop_reason": null,
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 21.7 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 53.4 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for/grasping a 'banana', which matches exactly with the sub-task's target object."
+          },
+          {
+            "span": "00003..00006",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00004..00007",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00005..00008",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00006..00009",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00007..00010",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00008..00011",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00009..00012",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00010..00013",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00011..00014",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00012..00015",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00013..00016",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00014..00017",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          }
+        ]
+      },
+      "wrong": {
+        "task": "put the toy on the tray",
+        "n_windows": 3,
+        "n_gated": 2,
+        "n_latched": 0,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00002..00005",
+        "latched": false,
+        "latch_window": null,
+        "stopped": true,
+        "stop_window": "00002..00005",
+        "stop_reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object.",
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 21.7 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 53.4 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "STOP",
+            "reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object."
+          }
+        ]
+      },
+      "correct_pass": true,
+      "wrong_pass": true,
+      "never_opened": false
+    },
+    {
+      "category": "banana",
+      "episode": "072_banana",
+      "dir": "vla_failure_test/banana/072_banana",
+      "object_type": "banana",
+      "task_correct": "put the banana on the tray",
+      "n_frames": 23,
+      "n_wrist": 23,
+      "joints_loaded": true,
+      "wrong_object": "toy",
+      "task_wrong": "put the toy on the tray",
+      "correct": {
+        "task": "put the banana on the tray",
+        "n_windows": 20,
+        "n_gated": 4,
+        "n_latched": 14,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00004..00007",
+        "latched": true,
+        "latch_window": "00006..00009",
+        "stopped": false,
+        "stop_window": null,
+        "stop_reason": null,
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 11.6 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 14.8 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 22.3 < 73)."
+          },
+          {
+            "span": "00003..00006",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 43.4 < 73)."
+          },
+          {
+            "span": "00004..00007",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for a 'banana', which matches the sub-task's target object exactly."
+          },
+          {
+            "span": "00005..00008",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for/grasping a 'banana', which matches exactly with the sub-task's target object."
+          },
+          {
+            "span": "00006..00009",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00007..00010",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00008..00011",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00009..00012",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00010..00013",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00011..00014",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00012..00015",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00013..00016",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00014..00017",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00015..00018",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00016..00019",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00017..00020",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00018..00021",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00019..00022",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          }
+        ]
+      },
+      "wrong": {
+        "task": "put the toy on the tray",
+        "n_windows": 5,
+        "n_gated": 4,
+        "n_latched": 0,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00004..00007",
+        "latched": false,
+        "latch_window": null,
+        "stopped": true,
+        "stop_window": "00004..00007",
+        "stop_reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'.",
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 11.6 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 14.8 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 22.3 < 73)."
+          },
+          {
+            "span": "00003..00006",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 43.4 < 73)."
+          },
+          {
+            "span": "00004..00007",
+            "action": "STOP",
+            "reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'."
+          }
+        ]
+      },
+      "correct_pass": true,
+      "wrong_pass": true,
+      "never_opened": false
+    },
+    {
+      "category": "banana",
+      "episode": "105_banana",
+      "dir": "vla_failure_test/banana/105_banana",
+      "object_type": "banana",
+      "task_correct": "put the banana on the tray",
+      "n_frames": 18,
+      "n_wrist": 18,
+      "joints_loaded": true,
+      "wrong_object": "toy",
+      "task_wrong": "put the toy on the tray",
+      "correct": {
+        "task": "put the banana on the tray",
+        "n_windows": 15,
+        "n_gated": 3,
+        "n_latched": 11,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00003..00006",
+        "latched": true,
+        "latch_window": "00004..00007",
+        "stopped": false,
+        "stop_window": null,
+        "stop_reason": null,
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 9.3 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 29.8 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 56.2 < 73)."
+          },
+          {
+            "span": "00003..00006",
+            "action": "CONTINUE",
+            "reason": "The perception pass reports the arm is reaching for/grasping a 'banana', which matches exactly with the sub-task's target object."
+          },
+          {
+            "span": "00004..00007",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00005..00008",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00006..00009",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00007..00010",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00008..00011",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00009..00012",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00010..00013",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00011..00014",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00012..00015",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00013..00016",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          },
+          {
+            "span": "00014..00017",
+            "action": "LATCHED",
+            "reason": "correct object confirmed held earlier; monitor disengaged for placement"
+          }
+        ]
+      },
+      "wrong": {
+        "task": "put the toy on the tray",
+        "n_windows": 4,
+        "n_gated": 3,
+        "n_latched": 0,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00003..00006",
+        "latched": false,
+        "latch_window": null,
+        "stopped": true,
+        "stop_window": "00003..00006",
+        "stop_reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object.",
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 9.3 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 29.8 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 56.2 < 73)."
+          },
+          {
+            "span": "00003..00006",
+            "action": "STOP",
+            "reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object."
+          }
+        ]
+      },
+      "correct_pass": true,
+      "wrong_pass": true,
+      "never_opened": false
+    },
+    {
+      "category": "banana",
+      "episode": "113_banana",
+      "dir": "vla_failure_test/banana/113_banana",
+      "object_type": "banana",
+      "task_correct": "put the banana on the tray",
+      "n_frames": 24,
+      "n_wrist": 24,
+      "joints_loaded": true,
+      "wrong_object": "toy",
+      "task_wrong": "put the toy on the tray",
+      "correct": {
+        "task": "put the banana on the tray",
+        "n_windows": 5,
+        "n_gated": 4,
+        "n_latched": 0,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00004..00007",
+        "latched": false,
+        "latch_window": null,
+        "stopped": true,
+        "stop_window": "00004..00007",
+        "stop_reason": "A plush toy is not a banana; they are different objects.",
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 8.3 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 13.1 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 43.1 < 73)."
+          },
+          {
+            "span": "00003..00006",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 60.7 < 73)."
+          },
+          {
+            "span": "00004..00007",
+            "action": "STOP",
+            "reason": "A plush toy is not a banana; they are different objects."
+          }
+        ]
+      },
+      "wrong": {
+        "task": "put the toy on the tray",
+        "n_windows": 8,
+        "n_gated": 4,
+        "n_latched": 0,
+        "n_parse_fail": 0,
+        "first_vlm_window": "00004..00007",
+        "latched": false,
+        "latch_window": null,
+        "stopped": true,
+        "stop_window": "00007..00010",
+        "stop_reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'.",
+        "timeline": [
+          {
+            "span": "00000..00003",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 8.3 < 73)."
+          },
+          {
+            "span": "00001..00004",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 13.1 < 73)."
+          },
+          {
+            "span": "00002..00005",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 43.1 < 73)."
+          },
+          {
+            "span": "00003..00006",
+            "action": "GATED",
+            "reason": "motion-gated: near home (dist 60.7 < 73)."
+          },
+          {
+            "span": "00004..00007",
+            "action": "CONTINUE",
+            "reason": "A 'plush toy' is a type of toy, so it matches the sub-task's requirement."
+          },
+          {
+            "span": "00005..00008",
+            "action": "CONTINUE",
+            "reason": "A 'plush toy' is a type of toy, so it matches the sub-task's requirement."
+          },
+          {
+            "span": "00006..00009",
+            "action": "CONTINUE",
+            "reason": "A 'plush toy' is a type of toy, so it matches the sub-task's requirement."
+          },
+          {
+            "span": "00007..00010",
+            "action": "STOP",
+            "reason": "The sub-task requires the robot to put a 'toy' on the tray, but the perception pass reports the arm is reaching for a 'banana', which is a different object. There is no indication that 'banana' is a synonym or description of 'toy'."
+          }
+        ]
+      },
+      "correct_pass": false,
+      "wrong_pass": true,
+      "never_opened": false
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "trial": 36,
+  "time": "2026-09-27T06:57:15",
+  "vla_task": "put the banana on the tray",
+  "monitor_task": "put the banana on the tray",
+  "label": "correct",
+  "outcome": "CONTINUE",
+  "stop": null,
+  "committed": true,
+  "held_object": "banana",
+  "reach_windows": 1,
+  "stale_skipped": 0,
+  "verify_calls": 0,
+  "n_frames": 89,
+  "first_close": 10,
+  "gate_open_at": null,
+  "verify": {},
+  "timeline": [
+    {
+      "frame": 9,
+      "t": 9.5,
+      "action": "CONTINUE",
+      "reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object.",
+      "check_s": 14.16,
+      "reaching_for": "banana",
+      "held": "yes"
+    },
+    {
+      "frame": 9,
+      "t": 9.5,
+      "action": "COMMIT",
+      "reason": "grasp confirmed on 'banana'",
+      "check_s": null
+    },
+    {
+      "frame": 9,
+      "t": 9.5,
+      "action": "RETIRED",
+      "reason": "single grasp check done \u2014 monitor retired for this run",
+      "check_s": null
+    }
+  ],
+  "freeze_images": [
+    "live_monitor_trials/freeze/trial_036_wrist_0.png",
+    "live_monitor_trials/freeze/trial_036_front_0.png",
+    "live_monitor_trials/freeze/trial_036_wrist_1.png",
+    "live_monitor_trials/freeze/trial_036_front_1.png"
+  ],
+  "empty_closes": [],
+  "inventory_dropped": [],
+  "episode": {
+    "dir": "live_monitor_trials/episodes/banana/036_banana",
+    "duration": 120.0448915240122,
+    "converged": false,
+    "max_displacement": 192.47999572753906,
+    "total_actions": 2129
+  },
+  "wall_s": 130.7,
+  "note": "",
+  "config": {
+    "gate": "grasp",
+    "horizon": 20,
+    "tail": 1,
+    "verify": true,
+    "match": "inventory",
+    "objects": [
+      "banana",
+      "brown pouch",
+      "plush moose toy"
+    ],
+    "window": 4,
+    "ground_compare": false,
+    "unclear_wrist_decides": true,
+    "grasp_fallback_frames": 6,
+    "freeze_stall_eps": 0.5,
+    "freeze_settle_s": 0.3,
+    "verify_frame_gap_s": 0.2,
+    "min_hold_aperture": 4.0,
+    "pause_refreshes": 1,
+    "post_pause_grace_s": 5.0,
+    "chunk_size_threshold": 0.95,
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "temperature": 0.1,
+    "episode_duration": 100.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct"
+  }
+}

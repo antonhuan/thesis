@@ -1,0 +1,496 @@
+[
+  {
+    "group": "true_fp",
+    "episode": "box/017_box",
+    "span": "00006..00009",
+    "full": {
+      "candidates": [
+        "plush toy",
+        "banana"
+      ],
+      "reaching_for": "unclear",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames shows it moving toward the plush toy and the banana, which are positioned side by side. In the wrist close-up, the gripper is seen approaching both objects, and the motion does not clearly resolve which one it is converging on \u2014 it appears to be straddling the gap between them. Since the gripper is not yet closed and the target is ambiguous between two objects sitting side by side, the answer is 'unclear'."
+    },
+    "wrist": {
+      "candidates": [
+        "banana",
+        "plush toy"
+      ],
+      "reaching_for": "unclear",
+      "held": "no",
+      "reason": "The gripper's trajectory across the wrist frames shows it moving toward the area where the banana and plush toy are adjacent. In frame 1, the gripper is positioned above the plush toy, but by frame 4, it has shifted to be directly over the banana. The motion suggests the gripper is converging on the banana, but the plush toy is also very close and partially occluded by the banana in the later frames. Since the gripper's movement is ambiguous between the two objects \u2014 it could be closing on the banana or the plush toy \u2014 and both are plausible targets due to their proximity and the trajectory not yet resolving definitively, the target is unclear."
+    },
+    "front": {
+      "candidates": [
+        "plush toy"
+      ],
+      "reaching_for": "plush toy",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames clearly converges on the plush toy. In frame 1, the gripper is positioned to the left of the toy; in frame 2, it moves toward the toy; in frame 3, it is directly above the toy; and in frame 4, it is still positioned over the toy without having closed. The other objects (brown pouch, banana, pink tray) are not in the gripper's path of convergence. The gripper is not closing on any other object, and the toy is the only one the arm is actively moving toward."
+    },
+    "probe": {
+      "object": "nothing",
+      "reason": "The orange gripper jaws are open and positioned to grasp an object, but there is no object directly between them. The brown pouch is above the jaws, and the plush moose toy is to the right, partially obscured by the jaws."
+    }
+  },
+  {
+    "group": "true_fp",
+    "episode": "brown/083_brown",
+    "span": "00004..00007",
+    "full": {
+      "candidates": [
+        "banana"
+      ],
+      "reaching_for": "banana",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames clearly converges on the banana, as seen in both the front and wrist views. In the wrist close-up, the gripper is shown moving down and closing around the banana, confirming it as the target. The brown pouch is nearby but the gripper is not converging on it; it is merely passing over it or positioned beside it without intent to grasp. The plush toy is further away and not in the gripper's path of approach."
+    },
+    "wrist": {
+      "candidates": [
+        "banana"
+      ],
+      "reaching_for": "banana",
+      "held": "no",
+      "reason": "The gripper is clearly converging on the banana across the frames, moving closer and aligning with it. The banana is the only object the trajectory is heading toward; the brown pouch is to the side and not in the path of convergence. The gripper has not yet closed around the banana in the final frame, so it is not held."
+    },
+    "front": {
+      "candidates": [
+        "banana"
+      ],
+      "reaching_for": "banana",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames clearly converges on the banana, moving downward and forward toward it. The banana is the only object the gripper is actively approaching; the other objects (pouch, plush toy) are not in the path of convergence. The gripper has not yet closed around the banana in the final frame."
+    },
+    "probe": {
+      "object": "banana",
+      "reason": "The banana is positioned directly between the orange gripper jaws, with the jaws appearing to be holding or about to hold it."
+    }
+  },
+  {
+    "group": "true_fp",
+    "episode": "moose/071_moose",
+    "span": "00005..00008",
+    "full": {
+      "candidates": [
+        "banana"
+      ],
+      "reaching_for": "banana",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames clearly converges on the banana. In the wrist close-up, the gripper is seen approaching and closing around the banana, with the plush toy and brown pouch visible nearby but not being targeted. The motion is directed specifically at the banana, and it is the only object the gripper is converging on."
+    },
+    "wrist": {
+      "candidates": [
+        "banana"
+      ],
+      "reaching_for": "banana",
+      "held": "no",
+      "reason": "The gripper is clearly converging on the banana across the frames, moving closer and aligning with it. The banana is the only object the trajectory is heading toward; the plush toy is to the side and not being approached. The gripper has not yet closed around the banana in the final frame."
+    },
+    "front": {
+      "candidates": [
+        "plush toy",
+        "banana"
+      ],
+      "reaching_for": "unclear",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames shows it moving toward the plush toy and the banana, which are positioned very close together. In frame 1, the gripper is near the plush toy; in frame 2, it moves slightly toward the banana; in frame 3, it appears to be converging on the plush toy again; and in frame 4, it is positioned over the plush toy. The motion is ambiguous \u2014 it could be closing on the plush toy or the banana, as they are adjacent and the gripper's path is not clearly resolving to one object. The wrist close-up is not provided to confirm which object is directly under the gripper, so the target remains unclear."
+    },
+    "probe": {
+      "object": "banana",
+      "reason": "The banana is positioned directly between the two orange gripper jaws, with one jaw on each side of the banana."
+    }
+  },
+  {
+    "group": "true_fp",
+    "episode": "pouch/008_pouch",
+    "span": "00002..00005",
+    "full": {
+      "candidates": [
+        "plush toy",
+        "pouch"
+      ],
+      "reaching_for": "unclear",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames shows it moving toward the plush toy, which is positioned directly behind the pouch. The wrist close-up confirms the gripper is approaching the pouch, but the plush toy is also directly behind it and aligned with the gripper's path. Since the gripper is converging on the area where the pouch and plush toy overlap, and the motion has not yet resolved which one it is targeting (it could close on either), both are plausible candidates. The arm has not yet closed on any object, so 'held' is 'no'."
+    },
+    "wrist": {
+      "candidates": [
+        "brown pouch"
+      ],
+      "reaching_for": "brown pouch",
+      "held": "no",
+      "reason": "The gripper is clearly converging on the brown pouch across the frames, moving closer and aligning with it. The wrist close-up shows the gripper approaching the pouch's zipper area, indicating intent to grasp it. No other object is in the gripper's trajectory or being targeted."
+    },
+    "front": {
+      "candidates": [
+        "plush toy"
+      ],
+      "reaching_for": "plush toy",
+      "held": "yes",
+      "reason": "The gripper's trajectory clearly converges on the plush toy across the frames, moving from below and wrapping around it. In the final frame, the gripper is closed and holding the plush toy. The banana and pink tray are not the target \u2014 the gripper does not approach them, and the banana is to the left, not in the gripper's path. The plush toy is the only object the gripper is actively converging on and grasping."
+    },
+    "probe": {
+      "object": "brown pouch",
+      "reason": "The brown pouch is positioned directly between the two orange gripper jaws, as seen in the image."
+    }
+  },
+  {
+    "group": "true_fp",
+    "episode": "pouch/078_pouch",
+    "span": "00003..00006",
+    "full": {
+      "candidates": [
+        "plush toy"
+      ],
+      "reaching_for": "plush toy",
+      "held": "no",
+      "reason": "The gripper's trajectory across the front frames clearly converges on the plush toy, moving upward and toward it. The wrist close-up confirms this: in frames 1-3, the gripper is descending onto the plush toy (which is partially obscured by a brown pouch, but the gripper is clearly targeting the plush toy's body). In frame 4, the gripper is still above the plush toy, not yet closed. The banana and pink tray are not in the gripper's path of convergence; the arm is moving toward the plush toy, not the banana or tray."
+    },
+    "wrist": {
+      "candidates": [
+        "plush toy"
+      ],
+      "reaching_for": "plush toy",
+      "held": "no",
+      "reason": "The gripper is moving downward and forward, converging on the plush toy inside the brown pouch. In the wrist frames, the gripper is clearly approaching the plush toy, which is visible inside the pouch. The motion across frames shows a clear trajectory toward the plush toy, not the pouch itself or any other object. The gripper has not yet closed on it, so it is not held."
+    },
+    "front": {
+      "candidates": [
+        "plush toy"
+      ],
+      "reaching_for": "plush toy",
+      "held": "no",
+      "reason": "The gripper's trajectory clearly converges on the plush toy across the frames, moving from below and toward it. In frame 4, the gripper is positioned directly over the plush toy, indicating it is the target. The banana and pink tray are not in the gripper's path of convergence and are ignored as candidates."
+    },
+    "probe": {
+      "object": "brown pouch",
+      "reason": "The brown pouch is positioned directly between the two orange gripper jaws in the image."
+    }
+  },
+  {
+    "group": "true_fp",
+    "episode": "pouch/112_pouch",
+    "span": "00005..00008",
+    "full": {
+      "candidates": [
+        "plush toy"
+      ],
+      "reaching_for": "plush toy",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames clearly converges on the plush toy, moving toward it and closing around it. The wrist close-up confirms the gripper is directly over and closing on the plush toy, not the brown pouch or the pink tray. The arm is not merely passing over any other object; it is actively moving toward and engaging with the plush toy."
+    },
+    "wrist": {
+      "candidates": [
+        "plush toy"
+      ],
+      "reaching_for": "plush toy",
+      "held": "yes",
+      "reason": "The gripper is clearly converging on the plush toy across the frames, closing around it in frame 4. The motion trajectory shows the gripper moving toward and then grasping the plush toy, not any other object. The brown pouch is nearby but not the target of the gripper's movement."
+    },
+    "front": {
+      "candidates": [
+        "plush toy"
+      ],
+      "reaching_for": "plush toy",
+      "held": "yes",
+      "reason": "The gripper's trajectory across the frames clearly converges on the plush toy, moving from the right and descending onto it. In the final frame, the gripper is closed around the plush toy, confirming it is being grasped. The other objects (brown cylindrical object, pink tray) are not in the gripper's path of convergence and are not being contacted."
+    },
+    "probe": {
+      "object": "plush moose toy",
+      "reason": "The plush moose toy is positioned directly between the orange gripper jaws, with its body and head in the center of the frame."
+    }
+  },
+  {
+    "group": "true_fp",
+    "episode": "pouch/215_pouch",
+    "span": "00004..00007",
+    "full": {
+      "candidates": [
+        "plush toy"
+      ],
+      "reaching_for": "plush toy",
+      "held": "no",
+      "reason": "The gripper's trajectory across the front frames clearly converges on the plush toy, moving toward it and descending. The wrist close-up confirms the gripper is approaching and interacting with the plush toy (specifically its textured surface and zipper), not the banana or the pouch. The banana is to the side and not in the gripper's path of approach. The pouch is behind the plush toy, but the gripper is not converging on it \u2014 it is moving toward the plush toy, which is in front of the pouch. The gripper has not yet closed on the plush toy in the final frame, so it is not held."
+    },
+    "wrist": {
+      "candidates": [
+        "brown pouch"
+      ],
+      "reaching_for": "brown pouch",
+      "held": "no",
+      "reason": "The gripper is clearly converging on the brown pouch across the wrist frames, moving downward and forward toward it. The pouch is the only object the trajectory is heading for; no other objects are plausible targets as the gripper is not passing over or heading toward anything else. The gripper has not yet closed on the pouch in the final frame."
+    },
+    "front": {
+      "candidates": [
+        "banana"
+      ],
+      "reaching_for": "banana",
+      "held": "no",
+      "reason": "The gripper's trajectory clearly converges on the banana across the frames. In frame 1, the gripper is moving toward the banana's location. In frames 2-4, it is positioned directly over the banana, descending to grasp it. The banana is not behind another object or side-by-side with another object in a way that creates ambiguity. The plush toy and the brown object are not targets, as the gripper is not converging on them."
+    },
+    "probe": {
+      "object": "brown pouch",
+      "reason": "The brown pouch is positioned directly between the orange gripper jaws, as seen in the close-up view."
+    }
+  },
+  {
+    "group": "true_fp",
+    "episode": "pouch/225_pouch",
+    "span": "00007..00010",
+    "full": {
+      "candidates": [
+        "banana"
+      ],
+      "reaching_for": "banana",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames clearly converges on the banana. In the wrist close-up, the gripper is seen moving toward and descending onto the banana, with the banana positioned directly under the gripper in the final frame. The brown pouch is nearby but the gripper is not converging on it; it is merely passing over or beside it. The plush toy is further away and not in the gripper's path."
+    },
+    "wrist": {
+      "candidates": [
+        "banana"
+      ],
+      "reaching_for": "banana",
+      "held": "no",
+      "reason": "The gripper is clearly converging on the banana across the frames, moving downward and forward toward it. The banana is the only object the trajectory is heading for; the brown pouch is to the side and not in the path of convergence. The gripper has not yet closed around the banana in the final frame, so it is not held."
+    },
+    "front": {
+      "candidates": [
+        "banana"
+      ],
+      "reaching_for": "banana",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames clearly converges on the banana. In frame 1, the arm is positioned to the left of the banana; in frame 2, it moves toward the banana; in frame 3, it is directly above it; and in frame 4, it is holding the banana in place. The other objects (pouch and plush toy) are not in the gripper's path of convergence. The banana is the only object the gripper is actively moving toward and closing on."
+    },
+    "probe": {
+      "object": "nothing",
+      "reason": "The image shows the orange gripper jaws and a brown surface above them, but there is no object visibly positioned directly between the jaws."
+    }
+  },
+  {
+    "group": "true_fp",
+    "episode": "roll/018_roll",
+    "span": "00007..00010",
+    "full": {
+      "candidates": [
+        "banana",
+        "pouch"
+      ],
+      "reaching_for": "unclear",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames shows it moving toward the area where the banana and the brown pouch are adjacent. In the wrist close-up, the gripper is positioned directly over the banana, but the pouch is also very close and partially obscures the view. The gripper appears to be converging on the banana, but the pouch is also a plausible candidate because the gripper's motion is ambiguous \u2014 it could be going for the banana or the pouch, or even the area between them. Since the gripper has not yet closed and the trajectory does not clearly resolve which object it is targeting (the pouch is directly adjacent and the gripper's approach is not definitively toward one or the other), the target is unclear."
+    },
+    "wrist": {
+      "candidates": [
+        "banana"
+      ],
+      "reaching_for": "banana",
+      "held": "no",
+      "reason": "The gripper is clearly converging on the banana across the frames, moving downward and toward it. In the wrist close-up, the gripper is positioned to grasp the banana's stem area, and the motion shows a clear trajectory toward it. The brown pouch is nearby but the gripper is not heading toward it \u2014 it is passing over or beside it. The banana is the only object the gripper is actively converging on."
+    },
+    "front": {
+      "candidates": [],
+      "reaching_for": "unclear",
+      "held": "no",
+      "reason": "The gripper is moving away from all objects and not converging on any specific one. In the trajectory frames, the arm is retracting or repositioning, not approaching or closing on any object. Therefore, no object is being reached for or grasped."
+    },
+    "probe": {
+      "object": "nothing",
+      "reason": "The orange gripper jaws are open and positioned to grasp an object, but there is no object directly between them. The brown pouch is above the jaws, and the banana is below them, not between."
+    }
+  },
+  {
+    "group": "true_fp",
+    "episode": "roll/019_roll",
+    "span": "00005..00008",
+    "full": {
+      "candidates": [
+        "banana"
+      ],
+      "reaching_for": "banana",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames clearly converges on the banana, as shown by its downward motion toward it in the front view and the wrist close-up showing the gripper approaching and closing around the banana. The brown pouch is nearby but the gripper is not converging on it; it is merely passing over it or positioned beside it without intent to grasp. The plush toy is to the right and not in the gripper's path."
+    },
+    "wrist": {
+      "candidates": [
+        "banana"
+      ],
+      "reaching_for": "banana",
+      "held": "no",
+      "reason": "The gripper is clearly converging on the banana across the frames, moving downward and forward to grasp it. The brown pouch is to the side and behind, and the gripper's motion does not indicate it is targeting the pouch. The trajectory resolves to the banana before the gripper closes."
+    },
+    "front": {
+      "candidates": [],
+      "reaching_for": "unclear",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames does not show clear convergence on any single object. It moves downward and slightly forward, but the motion is ambiguous \u2014 it could be heading toward the banana, the brown pouch, or the plush toy. The banana and pouch are close together, and the gripper's path appears to pass over or hover near them without clearly converging on one. The plush toy is to the side and not in the gripper's direct path. Since the trajectory does not resolve to one object, the target is unclear."
+    },
+    "probe": {
+      "object": "brown pouch",
+      "reason": "The brown pouch is positioned directly between the two orange gripper jaws in the image."
+    }
+  },
+  {
+    "group": "control",
+    "episode": "pouch/007_pouch",
+    "span": "00006..00009",
+    "full": {
+      "candidates": [
+        "pouch"
+      ],
+      "reaching_for": "pouch",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames clearly converges on the brown pouch. In the wrist close-up, the gripper is seen approaching and making contact with the pouch, and the motion is directed specifically toward it. The plush toy and banana are not in the gripper's path of convergence; the arm is moving away from them. The pouch is the only object the gripper is actively closing on."
+    },
+    "wrist": {
+      "candidates": [
+        "brown pouch"
+      ],
+      "reaching_for": "brown pouch",
+      "held": "yes",
+      "reason": "The gripper trajectory clearly converges on the brown pouch across the frames, and in the final frame, it is visibly grasping it. The plush toy is to the side and not the target of the gripper's motion."
+    },
+    "front": {
+      "candidates": [
+        "pouch"
+      ],
+      "reaching_for": "pouch",
+      "held": "no",
+      "reason": "The gripper's trajectory clearly converges on the brown pouch. In frame 1, the gripper is positioned near the pouch. In frame 2, it moves toward and begins to close around it. By frame 3, it is fully closed around the pouch, and in frame 4, it is lifting it. The plush toy and banana are to the right and remain untouched; the gripper does not approach them."
+    },
+    "probe": {
+      "object": "brown pouch",
+      "reason": "The brown pouch is positioned directly between the two orange gripper jaws in the image."
+    }
+  },
+  {
+    "group": "control",
+    "episode": "pouch/060_pouch",
+    "span": "00005..00008",
+    "full": {
+      "candidates": [
+        "pouch"
+      ],
+      "reaching_for": "pouch",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames clearly converges on the brown pouch. In the wrist close-up, the gripper is seen approaching and descending directly onto the pouch, with no other object in its path or being considered. The banana and plush toy are to the right and are not targeted; the gripper is moving leftward toward the pouch."
+    },
+    "wrist": {
+      "candidates": [
+        "pouch"
+      ],
+      "reaching_for": "pouch",
+      "held": "no",
+      "reason": "The gripper is clearly converging on the brown pouch across the wrist frames, moving closer to it and aligning with it. The gripper has not yet closed, but the trajectory is unambiguously heading for the pouch, not any other object. No other objects are in the gripper's path or plausible targets."
+    },
+    "front": {
+      "candidates": [
+        "pouch"
+      ],
+      "reaching_for": "pouch",
+      "held": "no",
+      "reason": "The gripper's trajectory clearly converges on the brown pouch. In frame 1, the gripper is near the pouch; in frame 2, it moves toward it; in frame 3, it is directly above it; and in frame 4, it is still positioned over it, indicating intent to grasp it. The banana and plush toy are not in the gripper's path of convergence and are ignored as candidates."
+    },
+    "probe": {
+      "object": "brown pouch",
+      "reason": "The brown pouch is positioned directly between the two orange gripper jaws in the image."
+    }
+  },
+  {
+    "group": "control",
+    "episode": "pouch/075_pouch",
+    "span": "00007..00010",
+    "full": {
+      "candidates": [
+        "pouch"
+      ],
+      "reaching_for": "pouch",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames clearly converges on the brown pouch. In the wrist close-up, the gripper is seen approaching and closing around the pouch, confirming it as the target. The other objects (banana, plush toy) are not in the gripper's path of convergence and are not being approached."
+    },
+    "wrist": {
+      "candidates": [
+        "pouch"
+      ],
+      "reaching_for": "pouch",
+      "held": "no",
+      "reason": "The gripper is clearly converging on the brown pouch across the wrist frames, moving closer and aligning with it. The motion trajectory shows intent to grasp this single object, and no other object is in the path or plausible as the target. The gripper has not yet closed on it in the final frame."
+    },
+    "front": {
+      "candidates": [
+        "pouch"
+      ],
+      "reaching_for": "pouch",
+      "held": "no",
+      "reason": "The gripper's trajectory clearly converges on the brown pouch. In frame 1, the gripper is positioned to the right of the pouch. In frame 2, it moves leftward and begins to approach the pouch. By frame 3, it is directly above the pouch and descending. In frame 4, it is still descending toward the pouch, indicating intent to grasp it. The banana and plush toy are not in the gripper's path of convergence; the arm is moving toward the pouch, not the banana or plush toy."
+    },
+    "probe": {
+      "object": "brown pouch",
+      "reason": "The brown pouch is positioned directly between the two orange gripper jaws in the image."
+    }
+  },
+  {
+    "group": "control",
+    "episode": "pouch/107_pouch",
+    "span": "00006..00009",
+    "full": {
+      "candidates": [
+        "pouch"
+      ],
+      "reaching_for": "pouch",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames clearly converges on the brown pouch. In the wrist close-up, the gripper is seen moving toward and approaching the pouch, and in the final frame, it is positioned directly above it, indicating intent to grasp it. The plush toy is to the right and is not the target, as the arm is not moving toward it. The gripper does not pass over any other object; its motion is directed solely at the pouch."
+    },
+    "wrist": {
+      "candidates": [
+        "pouch"
+      ],
+      "reaching_for": "pouch",
+      "held": "no",
+      "reason": "The gripper is clearly converging on the brown pouch across the wrist frames, moving closer to it and aligning with its surface. The trajectory shows a clear intent to grasp this single object, and no other objects are in the path or plausible targets. The gripper has not yet closed on it in the final frame."
+    },
+    "front": {
+      "candidates": [
+        "brown cylindrical object"
+      ],
+      "reaching_for": "brown cylindrical object",
+      "held": "no",
+      "reason": "The gripper's trajectory clearly converges on the brown cylindrical object across the frames. In frame 1, the arm is positioned to the right of it; in frame 2, it moves leftward toward it; in frame 3, it is directly above it; and in frame 4, it is still positioned over it, indicating convergence. The plush toy and the pink frame are not the target, as the gripper is not moving toward them. The gripper has not yet closed around the object, so 'held' is 'no'."
+    },
+    "probe": {
+      "object": "brown pouch",
+      "reason": "The brown pouch is positioned directly between the two orange gripper jaws in the image."
+    }
+  },
+  {
+    "group": "control",
+    "episode": "pouch/147_pouch",
+    "span": "00004..00007",
+    "full": {
+      "candidates": [
+        "pouch"
+      ],
+      "reaching_for": "pouch",
+      "held": "no",
+      "reason": "The gripper's trajectory across the frames clearly converges on the brown pouch. In the wrist close-up, the gripper is seen approaching and closing around the pouch, confirming it as the target. The plush toy is to the right and is not in the gripper's path of approach."
+    },
+    "wrist": {
+      "candidates": [
+        "brown pouch"
+      ],
+      "reaching_for": "brown pouch",
+      "held": "no",
+      "reason": "The gripper is clearly converging on the brown pouch across the frames, moving closer to it and aligning with it. The wrist close-up shows the gripper approaching the pouch's surface, and the trajectory resolves to this single object without ambiguity. No other object is being targeted or passed over."
+    },
+    "front": {
+      "candidates": [],
+      "reaching_for": "unclear",
+      "held": "no",
+      "reason": "The gripper is moving downward and forward, but the trajectory does not clearly converge on any single object. It appears to be moving toward the area near the brown pouch and the plush toy, but the motion across frames does not resolve which one it is targeting. The pouch is partially obscured by the arm's base, and the plush toy is on a pink tray. Since the gripper is not clearly converging on one specific object, and both are plausible targets, the target is unclear."
+    },
+    "probe": {
+      "object": "brown pouch",
+      "reason": "The brown pouch is positioned directly between the orange gripper jaws in the image."
+    }
+  }
+]

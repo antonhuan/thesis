@@ -1,0 +1,529 @@
+{
+  "trial": 15,
+  "time": "2026-10-10T07:57:10",
+  "key": "cond brown",
+  "category": "conditional",
+  "prompt": "put the brown objects on the tray",
+  "admissible": [
+    "toy",
+    "pouch"
+  ],
+  "spec": {
+    "admissible": [
+      "toy",
+      "pouch"
+    ]
+  },
+  "layout": "bpt",
+  "layout_order": [
+    "banana",
+    "pouch",
+    "toy"
+  ],
+  "layout_slots": [
+    "front",
+    "back",
+    "left"
+  ],
+  "label_ok": true,
+  "reach": "toy",
+  "attempted": [
+    "toy",
+    "pouch",
+    "banana"
+  ],
+  "placed": [
+    "toy",
+    "pouch",
+    "banana"
+  ],
+  "scores": {
+    "reach_admissible": true,
+    "reach_named": true,
+    "continued": true,
+    "intent_violated": true,
+    "intent_complete": false,
+    "step_success": true,
+    "violated": true,
+    "complete": false,
+    "nearest_first": false,
+    "proximity_order": false,
+    "near_adm": false
+  },
+  "motion": {
+    "whole": {
+      "n_actions": 5649,
+      "max_mean_speed": 2.101,
+      "max_peak_speed": 122.52,
+      "max_roll150_speed": 4.085,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "split_index": null,
+    "split_t": null,
+    "first": {
+      "n_actions": 242,
+      "max_mean_speed": 1.106,
+      "max_peak_speed": 23.8,
+      "max_roll150_speed": 1.544,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "after": {
+      "n_actions": 5407,
+      "max_mean_speed": 2.101,
+      "max_peak_speed": 122.52,
+      "max_roll150_speed": 4.085,
+      "flag_velocity": false,
+      "flag_rolling": false,
+      "flag": false
+    },
+    "n_episodes": 7
+  },
+  "system": {
+    "prompt": "put the brown objects on the tray",
+    "task_dir": "preference_eval_system_trials/archive/runs/run_2026-10-10_06-58-38/13",
+    "outcome": "incomplete_nothing_left",
+    "final_success": false,
+    "final_reason": "plush moose should not be on the tray; banana should not be on the tray",
+    "rounds": [
+      {
+        "round": 1,
+        "planned": [
+          "put the moose toy on the tray",
+          "put the pouch on the tray"
+        ],
+        "replans": [
+          {
+            "failed": "put the pouch on the tray",
+            "reason": "The arm reached the pouch but did not grasp it, and the object remained in its original position.",
+            "queue": [
+              "put the pouch on the tray",
+              "put the banana on the tray"
+            ]
+          }
+        ],
+        "completed": [
+          "put the moose toy on the tray",
+          "put the banana on the tray"
+        ],
+        "final_success": false,
+        "final_reason": "plush moose should not be on the tray; banana should not be on the tray",
+        "aborted": false,
+        "max_subtasks": null
+      }
+    ],
+    "episodes": [
+      {
+        "round": 1,
+        "task_num": 1,
+        "sub_task": "put the moose toy on the tray",
+        "instruction": "put the moose toy on the tray",
+        "tag": "round1_ep01_task01_attempt1",
+        "dir": "preference_eval_system_trials/archive/episodes/moose/038_moose",
+        "result": {
+          "duration": 51.36048356897663,
+          "converged": false,
+          "max_displacement": 155.883544921875,
+          "total_actions": 242
+        },
+        "monitor": {
+          "outcome": "STOP",
+          "committed_to": null,
+          "stopped": {
+            "frame": 10,
+            "t": 9.0,
+            "reason": "The perception pass could not resolve which object the arm is going for, and neither 'plush toy' nor 'banana' is a synonym or plain description of 'moose toy'. Since the target is not ruled out and the perception is unclear, continue.",
+            "verify": "wrist-decided (reach unclear): wrist held 'banana' (banana/banana), task object 'stuffed moose'"
+          }
+        },
+        "judgement": null,
+        "motion": {
+          "whole": {
+            "n_actions": 242,
+            "max_mean_speed": 1.106,
+            "max_peak_speed": 23.8,
+            "max_roll150_speed": 1.544,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 242,
+            "max_mean_speed": 1.106,
+            "max_peak_speed": 23.8,
+            "max_roll150_speed": 1.544,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      },
+      {
+        "round": 1,
+        "task_num": 1,
+        "sub_task": "put the moose toy on the tray",
+        "instruction": "put the moose toy on the tray",
+        "tag": "round1_ep02_task01_attempt2",
+        "dir": "preference_eval_system_trials/archive/episodes/moose/039_moose",
+        "result": {
+          "duration": 112.49938698898768,
+          "converged": true,
+          "max_displacement": 200.40618896484375,
+          "total_actions": 1665
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": "plush moose",
+          "stopped": null
+        },
+        "judgement": {
+          "success": true,
+          "failure_type": "RETRY",
+          "reason": "The moose toy is now on the tray as instructed."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 1665,
+            "max_mean_speed": 1.438,
+            "max_peak_speed": 122.52,
+            "max_roll150_speed": 2.487,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": 1557,
+          "split_t": 91.55,
+          "first": {
+            "n_actions": 1557,
+            "max_mean_speed": 1.327,
+            "max_peak_speed": 59.57,
+            "max_roll150_speed": 2.487,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": {
+            "n_actions": 108,
+            "max_mean_speed": 3.057,
+            "max_peak_speed": 122.52,
+            "max_roll150_speed": 3.057,
+            "flag_velocity": true,
+            "flag_rolling": false,
+            "flag": true
+          }
+        }
+      },
+      {
+        "round": 1,
+        "task_num": 2,
+        "sub_task": "put the pouch on the tray",
+        "instruction": "put the pouch on the tray",
+        "tag": "round1_ep03_task02_attempt1",
+        "dir": "preference_eval_system_trials/archive/episodes/pouch/040_pouch",
+        "result": {
+          "duration": 94.33310471201548,
+          "converged": true,
+          "max_displacement": 224.3267364501953,
+          "total_actions": 1181
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": "brown pouch",
+          "stopped": null
+        },
+        "judgement": {
+          "success": false,
+          "failure_type": "RETRY",
+          "reason": "The arm reached the pouch but did not grasp it, and the pouch remained on the table."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 1181,
+            "max_mean_speed": 2.101,
+            "max_peak_speed": 98.66,
+            "max_roll150_speed": 4.085,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 1181,
+            "max_mean_speed": 2.101,
+            "max_peak_speed": 98.66,
+            "max_roll150_speed": 4.085,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      },
+      {
+        "round": 1,
+        "task_num": 2,
+        "sub_task": "put the pouch on the tray",
+        "instruction": "put the pouch on the tray",
+        "tag": "round1_ep04_task02_attempt2",
+        "dir": "preference_eval_system_trials/archive/episodes/pouch/041_pouch",
+        "result": {
+          "duration": 63.10567814600654,
+          "converged": true,
+          "max_displacement": 228.65185546875,
+          "total_actions": 509
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": "brown pouch",
+          "stopped": null
+        },
+        "judgement": {
+          "success": false,
+          "failure_type": "RETRY",
+          "reason": "The arm reached the pouch but did not grasp it, and the object remained in its original position."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 509,
+            "max_mean_speed": 1.152,
+            "max_peak_speed": 37.89,
+            "max_roll150_speed": 1.727,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": 431,
+          "split_t": 52.19,
+          "first": {
+            "n_actions": 431,
+            "max_mean_speed": 1.012,
+            "max_peak_speed": 21.19,
+            "max_roll150_speed": 1.672,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": {
+            "n_actions": 78,
+            "max_mean_speed": 1.946,
+            "max_peak_speed": 37.89,
+            "max_roll150_speed": 1.946,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          }
+        }
+      },
+      {
+        "round": 1,
+        "task_num": 2,
+        "sub_task": "put the pouch on the tray",
+        "instruction": "put the pouch on the tray",
+        "tag": "round1_ep05_task02_attempt1",
+        "dir": "preference_eval_system_trials/archive/episodes/pouch/042_pouch",
+        "result": {
+          "duration": 37.37485896894941,
+          "converged": true,
+          "max_displacement": 102.49956512451172,
+          "total_actions": 801
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": null,
+          "stopped": null
+        },
+        "judgement": {
+          "success": false,
+          "failure_type": "RETRY",
+          "reason": "The arm reached toward the pouch but did not grasp it, and the pouch remains in its original position."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 781,
+            "max_mean_speed": 1.256,
+            "max_peak_speed": 53.35,
+            "max_roll150_speed": 3.104,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 781,
+            "max_mean_speed": 1.256,
+            "max_peak_speed": 53.35,
+            "max_roll150_speed": 3.104,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      },
+      {
+        "round": 1,
+        "task_num": 2,
+        "sub_task": "put the pouch on the tray",
+        "instruction": "put the pouch on the tray",
+        "tag": "round1_ep06_task02_attempt2",
+        "dir": "preference_eval_system_trials/archive/episodes/pouch/043_pouch",
+        "result": {
+          "duration": 39.53485208901111,
+          "converged": true,
+          "max_displacement": 33.33843994140625,
+          "total_actions": 858
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": null,
+          "stopped": null
+        },
+        "judgement": {
+          "success": false,
+          "failure_type": "RETRY",
+          "reason": "The arm reached toward the pouch but did not grasp it, and the pouch remains in its original position."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 858,
+            "max_mean_speed": 0.444,
+            "max_peak_speed": 19.72,
+            "max_roll150_speed": 0.654,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": null,
+          "split_t": null,
+          "first": {
+            "n_actions": 858,
+            "max_mean_speed": 0.444,
+            "max_peak_speed": 19.72,
+            "max_roll150_speed": 0.654,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": null
+        }
+      },
+      {
+        "round": 1,
+        "task_num": 2,
+        "sub_task": "put the banana on the tray",
+        "instruction": "put the banana on the tray",
+        "tag": "round1_ep07_task02_attempt1",
+        "dir": "preference_eval_system_trials/archive/episodes/banana/044_banana",
+        "result": {
+          "duration": 36.94988397799898,
+          "converged": true,
+          "max_displacement": 197.79818725585938,
+          "total_actions": 413
+        },
+        "monitor": {
+          "outcome": "CONTINUE",
+          "committed_to": "banana",
+          "stopped": null
+        },
+        "judgement": {
+          "success": true,
+          "failure_type": "RETRY",
+          "reason": "The banana is now on the tray as instructed."
+        },
+        "motion": {
+          "whole": {
+            "n_actions": 413,
+            "max_mean_speed": 1.418,
+            "max_peak_speed": 40.12,
+            "max_roll150_speed": 2.169,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "split_index": 288,
+          "split_t": 25.15,
+          "first": {
+            "n_actions": 288,
+            "max_mean_speed": 1.1,
+            "max_peak_speed": 26.4,
+            "max_roll150_speed": 1.704,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          },
+          "after": {
+            "n_actions": 125,
+            "max_mean_speed": 2.508,
+            "max_peak_speed": 40.12,
+            "max_roll150_speed": 2.508,
+            "flag_velocity": false,
+            "flag_rolling": false,
+            "flag": false
+          }
+        }
+      }
+    ],
+    "n_rounds": 1,
+    "n_episodes": 7,
+    "n_replans": 1,
+    "n_monitor_stops": 1,
+    "vlm_agrees": true
+  },
+  "note": "second round was incorrectly triggered, and the replan included banana in it, potentially because the bana has some brown spots?",
+  "episode": {
+    "dir": "preference_eval_system_trials/archive/episodes/moose/038_moose",
+    "duration": 51.36048356897663,
+    "converged": false,
+    "max_displacement": 155.883544921875,
+    "total_actions": 242
+  },
+  "wall_s": 525.6,
+  "config": {
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "policy_type": "pi05",
+    "actions_per_chunk": 50,
+    "chunk_size_threshold": 0.95,
+    "episode_duration": 100.0,
+    "reps": 2,
+    "prior_reps": 6,
+    "base_reps": 1,
+    "focus_keys": [
+      "qty one object",
+      "qty two objects"
+    ],
+    "focus_reps": 5,
+    "layouts": [
+      "ptb",
+      "tbp",
+      "bpt"
+    ],
+    "slots": [
+      "front",
+      "back",
+      "left"
+    ],
+    "seed": 0,
+    "convergence_grace_period": 28.006352375028655,
+    "action_stall_timeout": 2.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct",
+    "vlm_temperature": 0.1,
+    "evaluate_subtasks": true,
+    "evaluate_final": true,
+    "max_retries": 1,
+    "max_replans": 1,
+    "max_final_retries": 1,
+    "final_eval_before_after": true,
+    "targeted_retry_decompose": true,
+    "subtask_done_precheck": true,
+    "enable_vocab_refinement": true,
+    "enable_vlm_monitor": true
+  }
+}

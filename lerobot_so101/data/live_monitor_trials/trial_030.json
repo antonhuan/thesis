@@ -1,0 +1,116 @@
+{
+  "trial": 30,
+  "time": "2026-09-27T06:38:42",
+  "vla_task": "put the pouch on the tray",
+  "monitor_task": "put the pouch on the tray",
+  "label": "wrong",
+  "outcome": "STOP",
+  "stop": {
+    "frame": 6,
+    "t": 5.92,
+    "reason": "The arm is going for a plush toy, which is not the target object (pouch). The perception pass has resolved the object, and it is clearly different from the sub-task's target.",
+    "verify": "wrist held 'other' (other/other), task object grounded to 'brown object'"
+  },
+  "committed": false,
+  "held_object": null,
+  "reach_windows": 1,
+  "stale_skipped": 1,
+  "verify_calls": 4,
+  "n_frames": 8,
+  "first_close": 7,
+  "gate_open_at": null,
+  "verify": {
+    "close_frame": null,
+    "probe": "grasp freeze t=6.89s",
+    "frozen_at": 6.886615908006206,
+    "frozen_aperture": 17.80821917808219,
+    "held": "other",
+    "answers": [
+      {
+        "frame": 0,
+        "object": "other",
+        "reason": "the image is too blurry to identify the object clearly, but the object appears to be a brown, long, cylindrical item that could be leather, which is not a banana, plush toy, or nothing"
+      },
+      {
+        "frame": 1,
+        "object": "other",
+        "reason": "The image is extremely blurry and lacks clear details to identify any specific object. While there are two orange fingers (gripper jaws), there is no discernible object held between them that matches the descriptions of banana, plush toy, or brown cylindrical object. The lower portion appears to be a dark, indistinct shape, but it is not clear enough to confirm what it is."
+      }
+    ],
+    "grounded": "brown object",
+    "inventory": [
+      {
+        "name": "banana",
+        "appearance": "yellow, curved, peelable"
+      },
+      {
+        "name": "plush toy",
+        "appearance": "brown, furry, has ears"
+      },
+      {
+        "name": "brown object",
+        "appearance": "brown, long, cylindrical, possibly leather"
+      }
+    ],
+    "verify_s": 24.5
+  },
+  "timeline": [
+    {
+      "frame": 6,
+      "t": 5.92,
+      "action": "SUSPECT",
+      "reason": "single check says STOP \u2014 verifying on the frozen wrist: The arm is going for a plush toy, which is not the target object (pouch). The perception pass has resolved the object, and it is clearly different from the sub-task's target.",
+      "check_s": 21.38
+    },
+    {
+      "frame": 6,
+      "t": 5.92,
+      "action": "STOP",
+      "reason": "[verify: wrist held 'other' (other/other), task object grounded to 'brown object'] The arm is going for a plush toy, which is not the target object (pouch). The perception pass has resolved the object, and it is clearly different from the sub-task's target.",
+      "check_s": 24.5
+    }
+  ],
+  "freeze_images": [
+    "live_monitor_trials/freeze/trial_030_wrist_0.png",
+    "live_monitor_trials/freeze/trial_030_front_0.png",
+    "live_monitor_trials/freeze/trial_030_wrist_1.png",
+    "live_monitor_trials/freeze/trial_030_front_1.png"
+  ],
+  "empty_closes": [],
+  "inventory_dropped": [],
+  "episode": {
+    "dir": "live_monitor_trials/episodes/pouch/030_pouch",
+    "duration": 60.75736524199601,
+    "converged": false,
+    "max_displacement": 126.4200210571289,
+    "total_actions": 151
+  },
+  "wall_s": 74.9,
+  "note": "",
+  "config": {
+    "gate": "grasp",
+    "horizon": 20,
+    "tail": 1,
+    "verify": true,
+    "match": "inventory",
+    "objects": [
+      "banana",
+      "brown pouch",
+      "plush moose toy"
+    ],
+    "window": 4,
+    "ground_compare": false,
+    "unclear_wrist_decides": true,
+    "grasp_fallback_frames": 6,
+    "freeze_stall_eps": 0.5,
+    "freeze_settle_s": 0.3,
+    "verify_frame_gap_s": 0.2,
+    "min_hold_aperture": 4.0,
+    "pause_refreshes": 1,
+    "chunk_size_threshold": 0.95,
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "temperature": 0.1,
+    "episode_duration": 100.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct"
+  }
+}

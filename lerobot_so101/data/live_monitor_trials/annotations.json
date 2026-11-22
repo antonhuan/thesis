@@ -1,0 +1,16 @@
+{
+  "invalid": {
+    "24": "froze on an empty mid-approach gripper close (fixed in 780f49d1)",
+    "27": "froze on an empty mid-approach gripper close (fixed in 780f49d1)",
+    "29": "froze on an empty mid-approach gripper close (fixed in 780f49d1)",
+    "43": "episode ended after 10 s before any grasp \u2014 the monitor never checked (CONTINUE by default)"
+  },
+  "actual_target": {
+    "30": "toy",
+    "57": "toy"
+  },
+  "notes": {
+    "30": "natural VLA error: told pouch, went for the toy \u2014 monitor caught it",
+    "57": "natural VLA error: told pouch, went for the toy (the monitor's object)"
+  }
+}

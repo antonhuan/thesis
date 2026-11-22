@@ -1,0 +1,332 @@
+[
+  {
+    "group": "true_fp",
+    "episode": "box/017_box",
+    "first_close": 11,
+    "probes": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item that appears to be a pouch or bag, not a banana, plush toy, or nothing."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item that appears to be a pouch or bag, not a banana, plush toy, or nothing."
+      },
+      {
+        "frame": 13,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visible between the orange gripper jaws, with its textured surface and some white specks clearly seen. The banana is below and to the side, not held by the gripper."
+      }
+    ]
+  },
+  {
+    "group": "true_fp",
+    "episode": "brown/083_brown",
+    "first_close": 9,
+    "probes": [
+      {
+        "frame": 9,
+        "object": "nothing",
+        "reason": "the image is too blurry to identify any object clearly, but the gripper jaws appear to be closed without holding anything visible"
+      },
+      {
+        "frame": 10,
+        "object": "nothing",
+        "reason": "the image is too blurry to identify any object being held, and there are no clear features of a banana, brown pouch, or plush moose toy visible between the gripper jaws."
+      },
+      {
+        "frame": 11,
+        "object": "nothing",
+        "reason": "the image is too blurry and dark to identify any object being held between the gripper jaws, and there is no clear visual evidence of a banana, brown pouch, or plush moose toy."
+      }
+    ]
+  },
+  {
+    "group": "true_fp",
+    "episode": "moose/071_moose",
+    "first_close": 11,
+    "probes": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The image shows a blurry, brown, textured object that appears to be a soft, fuzzy material consistent with a pouch. The two orange fingers (gripper jaws) are visible at the bottom, holding the object. It does not resemble a banana (smooth, curved), a plush moose toy (typically more defined shape), or nothing (as something is clearly being held)."
+      },
+      {
+        "frame": 12,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy, brown, textured surface with a radial pattern, consistent with the fur of a plush toy. The white background and the blurred orange shapes at the top suggest the gripper jaws are holding the object, and the texture and shape are not consistent with a banana, pouch, or nothing."
+      },
+      {
+        "frame": 13,
+        "object": "plush moose toy",
+        "reason": "the image shows a fuzzy, brown, textured surface consistent with a plush toy, and the context of a robot gripper suggests it's being held."
+      }
+    ]
+  },
+  {
+    "group": "true_fp",
+    "episode": "pouch/008_pouch",
+    "first_close": 7,
+    "probes": [
+      {
+        "frame": 7,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visible between the orange gripper jaws, with its textured surface and zipper partially seen."
+      },
+      {
+        "frame": 8,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visible between the orange gripper jaws, with its zipper and textured surface clearly in view."
+      },
+      {
+        "frame": 9,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item with visible seams and some white specks, consistent with a brown pouch. It is not a banana (too large and textured), a plush moose toy (no visible features of a toy), or nothing (an object is clearly being gripped)."
+      }
+    ]
+  },
+  {
+    "group": "true_fp",
+    "episode": "pouch/078_pouch",
+    "first_close": 8,
+    "probes": [
+      {
+        "frame": 8,
+        "object": "nothing",
+        "reason": "the image is blurry and shows only the orange gripper jaws with no clear object between them"
+      },
+      {
+        "frame": 9,
+        "object": "nothing",
+        "reason": "the image is blurry and shows only the gripper jaws with no clear object between them"
+      },
+      {
+        "frame": 10,
+        "object": "nothing",
+        "reason": "the image is too blurry to identify any object clearly, but the gripper jaws appear to be holding nothing, as there is no distinct shape or texture of an object visible between them."
+      }
+    ]
+  },
+  {
+    "group": "true_fp",
+    "episode": "pouch/112_pouch",
+    "first_close": 11,
+    "probes": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item with visible stitching or seams, consistent with a fabric pouch. It does not resemble a banana (smooth, curved), a plush moose toy (typically has distinct features like ears or antlers), or nothing (as something is clearly being gripped)."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item with visible stitching or seams, consistent with a fabric pouch. It does not resemble a banana, plush moose toy, or appear to be holding nothing."
+      },
+      {
+        "frame": 13,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visibly sandwiched between the orange gripper jaws, with its zipper and textured surface clearly in view."
+      }
+    ]
+  },
+  {
+    "group": "true_fp",
+    "episode": "pouch/215_pouch",
+    "first_close": 8,
+    "probes": [
+      {
+        "frame": 8,
+        "object": "nothing",
+        "reason": "The orange gripper jaws are open and not enclosing any object; they are positioned near the brown pouch and plush moose toy but not holding anything."
+      },
+      {
+        "frame": 9,
+        "object": "nothing",
+        "reason": "The orange gripper jaws are open and not enclosing any object; they are positioned near the banana and pouch but not holding anything."
+      },
+      {
+        "frame": 10,
+        "object": "nothing",
+        "reason": "The orange gripper jaws are open and not enclosing any object; they are positioned near the banana but not holding it."
+      }
+    ]
+  },
+  {
+    "group": "true_fp",
+    "episode": "pouch/225_pouch",
+    "first_close": 12,
+    "probes": [
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The large brown object occupying most of the frame is consistent with a pouch, and the orange gripper jaws are positioned around it. The banana is partially visible but not fully enclosed by the jaws, and there's no evidence of a plush moose toy or nothing being held."
+      },
+      {
+        "frame": 13,
+        "object": "brown pouch",
+        "reason": "The large brown object occupying most of the frame is held between the orange gripper jaws, and its shape and texture suggest it is a brown pouch rather than a banana, plush toy, or nothing."
+      },
+      {
+        "frame": 14,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, soft, textured item that appears to be a pouch or bag, not a banana, plush toy, or nothing."
+      }
+    ]
+  },
+  {
+    "group": "true_fp",
+    "episode": "roll/018_roll",
+    "first_close": 11,
+    "probes": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The brown pouch is positioned between the orange gripper jaws, with the jaws visibly gripping its edges. The banana is separate and not held by the gripper."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The brown pouch is positioned between the orange gripper jaws, with the jaws visibly gripping its edges. The banana is below and not held by the gripper."
+      },
+      {
+        "frame": 13,
+        "object": "nothing",
+        "reason": "The orange gripper jaws are open and not enclosing any object. The banana is below the gripper, and the brown pouch is above it, but neither is held between the jaws."
+      }
+    ]
+  },
+  {
+    "group": "true_fp",
+    "episode": "roll/019_roll",
+    "first_close": 10,
+    "probes": [
+      {
+        "frame": 10,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item with visible white specks, consistent with a brown pouch. A banana is yellow and curved, a plush moose toy would have distinct features like eyes or antlers, and nothing would not have any visible texture or color."
+      },
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is brown and has a soft, textured surface with small white specks, consistent with a brown pouch. A banana is yellow and visible below, not being gripped. A plush moose toy is not visible or identifiable in the image."
+      },
+      {
+        "frame": 12,
+        "object": "plush moose toy",
+        "reason": "the plush moose toy is partially visible between the orange gripper jaws, with its textured fur and part of its body showing."
+      }
+    ]
+  },
+  {
+    "group": "control",
+    "episode": "pouch/007_pouch",
+    "first_close": 11,
+    "probes": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visibly sandwiched between the orange gripper jaws, with its textured surface and zipper partially visible."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visible between the orange gripper jaws, with its zipper and textured surface clearly in view."
+      },
+      {
+        "frame": 13,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item that appears to be a pouch or bag, not a banana, plush toy, or nothing."
+      }
+    ]
+  },
+  {
+    "group": "control",
+    "episode": "pouch/060_pouch",
+    "first_close": 10,
+    "probes": [
+      {
+        "frame": 10,
+        "object": "brown pouch",
+        "reason": "The object held between the gripper jaws is a brown, textured item with small white specks, consistent with a brown pouch. The orange gripper jaws are visible at the top and bottom edges of the frame, holding the object."
+      },
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The object is brown and has white spots, consistent with a brown pouch. The orange gripper jaws are holding it, and the shape and texture suggest a soft, possibly fabric item rather than a banana or plush toy."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The object is brown and has a soft, textured surface with some lighter spots, consistent with a fabric pouch. The orange gripper jaws are holding it, and it occupies most of the frame."
+      }
+    ]
+  },
+  {
+    "group": "control",
+    "episode": "pouch/075_pouch",
+    "first_close": 12,
+    "probes": [
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The image shows a brown, textured object with a zipper, which is consistent with a pouch. The orange gripper jaws are holding this object, and the zipper is visible at the top."
+      },
+      {
+        "frame": 13,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visible between the orange gripper jaws, with its zipper partially exposed and the material of the pouch clearly identifiable."
+      },
+      {
+        "frame": 14,
+        "object": "brown pouch",
+        "reason": "The brown pouch is the only object clearly visible between the orange gripper jaws, while the banana is below and not held."
+      }
+    ]
+  },
+  {
+    "group": "control",
+    "episode": "pouch/107_pouch",
+    "first_close": 11,
+    "probes": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is brown, has a textured surface with some wear or scuff marks, and appears to be made of a soft, flexible material consistent with a pouch. It does not resemble a banana, plush moose toy, or nothing."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item that appears to be a pouch or bag, not a banana, plush toy, or nothing."
+      },
+      {
+        "frame": 13,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item that appears to be a pouch or bag, not a banana, plush toy, or nothing."
+      }
+    ]
+  },
+  {
+    "group": "control",
+    "episode": "pouch/147_pouch",
+    "first_close": 9,
+    "probes": [
+      {
+        "frame": 9,
+        "object": "brown pouch",
+        "reason": "The object held between the gripper jaws is brown and has a soft, textured surface with some lighter speckles, consistent with a fabric pouch rather than a banana, plush toy, or nothing."
+      },
+      {
+        "frame": 10,
+        "object": "nothing",
+        "reason": "the image shows only the gripper jaws and no object is visible between them"
+      },
+      {
+        "frame": 11,
+        "object": "nothing",
+        "reason": "the image is blurry and shows only the gripper jaws and a white surface, with no object clearly visible between them"
+      }
+    ]
+  }
+]

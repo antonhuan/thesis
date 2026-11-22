@@ -1,0 +1,47 @@
+{
+  "trial": 6,
+  "time": "2026-09-26T06:49:58",
+  "vla_task": "put the pouch on the tray",
+  "monitor_task": "put the pouch on the tray",
+  "label": null,
+  "outcome": "CONTINUE",
+  "stop": null,
+  "committed": false,
+  "held_object": null,
+  "reach_windows": 0,
+  "stale_skipped": 0,
+  "verify_calls": 0,
+  "n_frames": 4,
+  "first_close": null,
+  "gate_open_at": null,
+  "verify": {},
+  "timeline": [],
+  "episode": {
+    "dir": "live_monitor_trials/episodes/pouch/005_pouch",
+    "duration": 9.366261744988151,
+    "converged": false,
+    "max_displacement": 1.5745937824249268,
+    "total_actions": 103
+  },
+  "wall_s": 22.8,
+  "note": "",
+  "config": {
+    "gate": "distance",
+    "horizon": 20,
+    "tail": 1,
+    "verify": true,
+    "match": "scene",
+    "objects": [
+      "banana",
+      "brown pouch",
+      "plush moose toy"
+    ],
+    "window": 4,
+    "pause_refreshes": 1,
+    "chunk_size_threshold": 0.95,
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "temperature": 0.1,
+    "episode_duration": 100.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct"
+  }
+}

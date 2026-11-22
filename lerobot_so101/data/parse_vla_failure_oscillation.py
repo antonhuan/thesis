@@ -34,11 +34,17 @@ flag: review showed it fires on successful, non-oscillating episodes (and the
 single highest flip count in the set belonged to a success), so it does not
 discriminate oscillation.
 
-Outputs (written to ``vla_failure_analysis/``):
+Outputs (written to ``--out-dir``, default ``vla_failure_analysis2/``):
 
-  * oscillation_manifest.csv  one row per episode with per-joint reversal
-                               counts, ranges, rev/step, mean speed, fast-rev
-                               counts, the class label, and the review flag
+  * labeling_worklist.csv      one row per episode in the same column format as
+                               ``vla_failure_analysis/labeling_worklist.csv``
+                               (minus ``priority``): episode_id, object_type,
+                               max_mean_speed, max_peak_speed, max_range,
+                               max_rev_per_step, oscillation_class, rule_flag
+                               (the review flag as TRUE/FALSE), and blank
+                               existing_label / manual_label / Success columns
+                               for manual labelling. Rows are grouped by object
+                               folder then episode number, matching the layout.
   * oscillating_episodes.txt   episode ids classified as oscillating (reversal)
   * review_episodes.txt        episode ids flagged for manual review (velocity
                                OR sign flips), tab-separated with the reason
@@ -72,7 +78,7 @@ JOINTS = [
 ]
 
 TEST_DIR = Path("vla_failure_test")
-OUT_DIR = Path("vla_failure_analysis")
+OUT_DIR = Path("vla_failure_analysis2")
 
 REVERSAL_THRESHOLD_DEG = 15.0
 
@@ -292,6 +298,11 @@ def main() -> None:
     parser.add_argument("--plots", action="store_true",
                         help="Generate diagnostic plots for oscillating episodes "
                              "(via plot_oscillation_diagnostics.py)")
+    parser.add_argument("--merge-labels", default=None,
+                        help="Path to a previously labelled worklist CSV. Its "
+                             "existing_label / manual_label / Success values are "
+                             "carried over to matching episode_id rows in the new "
+                             "output; unmatched episodes stay blank.")
     args = parser.parse_args()
 
     test_dir = Path(args.test_dir)
@@ -300,7 +311,37 @@ def main() -> None:
         print(f"ERROR: not a directory: {test_dir}")
         sys.exit(1)
 
-    csv_paths = sorted(test_dir.glob("*/*/actions.csv"))
+    # Optionally seed the label columns from a prior labelled worklist, keyed by
+    # episode_id, so re-running does not discard hand-labelled data.
+    LABEL_COLS = ("existing_label", "manual_label", "Success")
+    prev_labels: dict[str, dict[str, str]] = {}
+    if args.merge_labels:
+        prev_path = Path(args.merge_labels)
+        if not prev_path.is_file():
+            print(f"ERROR: --merge-labels file not found: {prev_path}")
+            sys.exit(1)
+        with prev_path.open(newline="") as f:
+            for r in csv.DictReader(f):
+                eid = (r.get("episode_id") or "").strip()
+                if not eid:
+                    continue
+                prev_labels[eid] = {c: (r.get(c) or "").strip() for c in LABEL_COLS}
+
+    # Order rows the same way the directory tree is organised: grouped by object
+    # folder (alphabetical), then by the numeric NNN prefix of the <NNN_object>
+    # dir within each object. This keeps labelling inline with the folder layout
+    # so you walk one object's episodes in order before moving to the next.
+    # Non-numeric dir names sort last within their object, alphabetically.
+    def _episode_sort_key(p: Path) -> tuple[str, int, str]:
+        object_type = p.parent.parent.name  # e.g. "banana"
+        name = p.parent.name                 # e.g. "125_banana"
+        prefix = name.split("_", 1)[0]
+        try:
+            return (object_type, int(prefix), name)
+        except ValueError:
+            return (object_type, 10**9, name)
+
+    csv_paths = sorted(test_dir.glob("*/*/actions.csv"), key=_episode_sort_key)
     if not csv_paths:
         print(f"ERROR: no */*/actions.csv found under {test_dir}")
         sys.exit(1)
@@ -309,20 +350,19 @@ def main() -> None:
     plot_dir = out_dir / "plots"
     script_dir = Path(__file__).resolve().parent
 
-    manifest_fields = ["episode_id", "object_type", "episode_dir", "task",
-                       "num_actions", "duration_s", "source"]
-    for j in JOINTS:
-        manifest_fields += [f"{j}_major_rev", f"{j}_range", f"{j}_rev_per_step",
-                            f"{j}_mean_speed", f"{j}_peak_speed", f"{j}_fast_rev"]
-    manifest_fields += ["total_major_rev", "max_range", "max_rev_per_step",
-                        "oscillating_joints", "n_oscillating_joints", "oscillation_class",
-                        "max_mean_speed", "max_peak_speed", "max_fast_rev",
-                        "high_velocity", "high_peak", "review_flag", "review_reason"]
+    # Worklist columns, matching vla_failure_analysis/labeling_worklist.csv. The
+    # first eight are computed here; existing_label / manual_label / Success are
+    # left blank for manual labelling. rule_flag is the review flag (TRUE/FALSE).
+    manifest_fields = ["episode_id", "object_type",
+                       "max_mean_speed", "max_peak_speed", "max_range", "max_rev_per_step",
+                       "oscillation_class", "rule_flag",
+                       "existing_label", "manual_label", "Success"]
 
     rows: list[dict] = []
     warnings: list[str] = []
     oscillating: list[str] = []
     review: list[str] = []
+    merged_ids: set[str] = set()
 
     for csv_path in csv_paths:
         ep_dir = csv_path.parent
@@ -346,6 +386,15 @@ def main() -> None:
         row = {"episode_id": episode_id, "object_type": object_type,
                "episode_dir": episode_dir_name, "task": task, "source": args.source}
         row.update(m)
+        # Worklist-specific columns: rule_flag mirrors the review flag as
+        # TRUE/FALSE; label columns come from a prior worklist (if --merge-labels)
+        # else blank for manual labelling.
+        row["rule_flag"] = "TRUE" if m["review_flag"] else "FALSE"
+        prev = prev_labels.get(episode_id)
+        for c in LABEL_COLS:
+            row[c] = prev[c] if prev else ""
+        if prev and any(prev[c] for c in LABEL_COLS):
+            merged_ids.add(episode_id)
         rows.append(row)
 
         if m["oscillation_class"] == "oscillation":
@@ -361,11 +410,22 @@ def main() -> None:
                     check=False,
                 )
 
-    manifest_path = out_dir / "oscillation_manifest.csv"
+    manifest_path = out_dir / "labeling_worklist.csv"
     with manifest_path.open("w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=manifest_fields)
+        w = csv.DictWriter(f, fieldnames=manifest_fields, extrasaction="ignore")
         w.writeheader()
         w.writerows(rows)
+
+    if args.merge_labels:
+        new_ids = {r["episode_id"] for r in rows}
+        unmatched = sorted(set(prev_labels) - new_ids)
+        print(f"\nMerged labels from {args.merge_labels}: "
+              f"{len(merged_ids)}/{len(rows)} episodes carried a prior label; "
+              f"{len(rows) - len(merged_ids)} left blank for labelling.")
+        if unmatched:
+            print(f"  {len(unmatched)} labelled episode(s) in the old file had no "
+                  f"match in the new set (labels not carried): "
+                  f"{', '.join(unmatched[:10])}{' ...' if len(unmatched) > 10 else ''}")
 
     osc_list_path = out_dir / "oscillating_episodes.txt"
     osc_list_path.write_text("\n".join(oscillating) + ("\n" if oscillating else ""))

@@ -1,0 +1,77 @@
+{
+  "trial": 18,
+  "time": "2026-09-27T05:26:50",
+  "vla_task": "put the toy on the tray",
+  "monitor_task": "put the toy on the tray",
+  "label": "correct",
+  "outcome": "CONTINUE",
+  "stop": null,
+  "committed": true,
+  "held_object": "plush toy",
+  "reach_windows": 1,
+  "stale_skipped": 1,
+  "verify_calls": 0,
+  "n_frames": 22,
+  "first_close": 8,
+  "gate_open_at": null,
+  "verify": {},
+  "timeline": [
+    {
+      "frame": 8,
+      "t": 7.36,
+      "action": "CONTINUE",
+      "reason": "The perception pass resolved the arm is going for 'plush toy', which is a synonym/description of the sub-task's target 'toy'. Therefore, the arm is still on track.",
+      "check_s": 18.98,
+      "reaching_for": "plush toy",
+      "held": "yes"
+    },
+    {
+      "frame": 8,
+      "t": 7.36,
+      "action": "COMMIT",
+      "reason": "grasp confirmed on 'plush toy'",
+      "check_s": 18.98
+    },
+    {
+      "frame": 8,
+      "t": 7.36,
+      "action": "RETIRED",
+      "reason": "single grasp check done \u2014 monitor retired for this run",
+      "check_s": 18.98
+    }
+  ],
+  "episode": {
+    "dir": "live_monitor_trials/episodes/toy/017_toy",
+    "duration": 45.8493313069921,
+    "converged": false,
+    "max_displacement": 217.1197509765625,
+    "total_actions": 476
+  },
+  "wall_s": 74.9,
+  "note": "missed grasp",
+  "config": {
+    "gate": "grasp",
+    "horizon": 20,
+    "tail": 1,
+    "verify": true,
+    "match": "inventory",
+    "objects": [
+      "banana",
+      "brown pouch",
+      "plush moose toy"
+    ],
+    "window": 4,
+    "ground_compare": false,
+    "unclear_wrist_decides": true,
+    "grasp_fallback_frames": 6,
+    "freeze_stall_eps": 0.5,
+    "freeze_settle_s": 0.3,
+    "verify_frame_gap_s": 0.2,
+    "pause_refreshes": 1,
+    "chunk_size_threshold": 0.95,
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "temperature": 0.1,
+    "episode_duration": 100.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct"
+  }
+}

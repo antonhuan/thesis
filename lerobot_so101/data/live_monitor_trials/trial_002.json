@@ -1,0 +1,58 @@
+{
+  "trial": 2,
+  "time": "2026-09-26T05:15:07",
+  "vla_task": "put the pouch on the tray",
+  "monitor_task": "put the pouch on the tray",
+  "label": "correct",
+  "outcome": "CONTINUE",
+  "stop": null,
+  "committed": true,
+  "held_object": "pouch",
+  "reach_windows": 1,
+  "verify_calls": 0,
+  "n_frames": 12,
+  "first_close": 7,
+  "gate_open_at": null,
+  "verify": {},
+  "timeline": [
+    {
+      "frame": 10,
+      "t": 9.16,
+      "action": "CONTINUE",
+      "reason": "The perception pass has resolved the arm is going for 'pouch', which matches the sub-task's target exactly.",
+      "reaching_for": "pouch",
+      "held": "yes"
+    },
+    {
+      "frame": 10,
+      "t": 9.16,
+      "action": "COMMIT",
+      "reason": "grasp confirmed on 'pouch' \u2014 check retired"
+    }
+  ],
+  "episode": {
+    "dir": "live_monitor_trials/episodes/pouch/001_pouch",
+    "duration": 35.08031317300629,
+    "converged": false,
+    "max_displacement": 171.7096710205078,
+    "total_actions": 250
+  },
+  "wall_s": 45.1,
+  "note": "",
+  "config": {
+    "gate": "distance",
+    "horizon": 20,
+    "tail": 1,
+    "verify": true,
+    "match": "scene",
+    "objects": [
+      "banana",
+      "brown pouch",
+      "plush moose toy"
+    ],
+    "window": 4,
+    "temperature": 0.1,
+    "episode_duration": 30.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct"
+  }
+}

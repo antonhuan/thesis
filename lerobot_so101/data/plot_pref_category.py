@@ -1,12 +1,13 @@
 """Per-category bar chart: VLA baseline vs. full system (replan off) vs. human oracle
 (vla_preference_oracle_live.py), preference prompts only.
 
-Task success rate per category plus an overall group, each bar labelled k/n. Reads the paired trials
-exactly as the write-up does:
+Task success rate per category plus an overall group, each bar labelled k/n, with 95% Wilson score
+intervals as error bars (Wilson, not normal-approximation: several cells are 0/n or n/n). Reads the
+paired trials exactly as the write-up does:
     python plot_pref_category.py
-Writes preference_eval_system_trials/fig_pref_category.{pdf,png}. Sized for a 6.3 in
-\\textwidth; include the PDF at width=\\textwidth so the text stays at 8-9 pt.
+Writes preference_eval_system_trials/fig_pref_category.{pdf,png} at 530 x 243 pt.
 """
+import math
 from pathlib import Path
 
 import matplotlib
@@ -47,6 +48,14 @@ for b, s in pairs:
     triples.append((b, s, o))
 
 
+def wilson(k, n, z=1.96):
+    """95% Wilson score interval for k successes out of n, in percent."""
+    p = k / n
+    centre = (p + z * z / (2 * n)) / (1 + z * z / n)
+    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / (1 + z * z / n)
+    return 100 * max(0.0, centre - half), 100 * min(1.0, centre + half)
+
+
 def counts(metric):
     """[(label, n, [baseline k, system k, oracle k])] per category, then overall."""
     rows = []
@@ -69,7 +78,7 @@ plt.rcParams.update({
 metric = "complete"
 rows = counts(metric)
 
-fig, ax = plt.subplots(figsize=(6.3, 3.6))
+fig, ax = plt.subplots(figsize=(530 / 72, 243 / 72))   # 530 x 243 pt
 w, gap, sep = 0.26, 0.06, 0.35         # bar width, gap within a group, extra gap before Overall
 xs = [i + (sep if label == "Overall" else 0) for i, (label, *_) in enumerate(rows)]
 
@@ -77,8 +86,11 @@ for x0, (label, n, ks) in zip(xs, rows):
     for j, k in enumerate(ks):
         x = x0 + (j - (len(ks) - 1) / 2) * (w + gap)
         pct = 100 * k / n
+        lo, hi = wilson(k, n)
         ax.bar(x, pct, w, color=SERIES[j][1], edgecolor="none", zorder=2)
-        ax.text(x, pct + 2, f"{k}/{n}", ha="center", va="bottom", fontsize=8, color=INK)
+        ax.errorbar(x, pct, yerr=[[pct - lo], [hi - pct]], fmt="none", ecolor=INK2,
+                    elinewidth=0.8, capsize=2.5, capthick=0.8, zorder=3)
+        ax.text(x, hi + 1.5, f"{k}/{n}", ha="center", va="bottom", fontsize=8, color=INK)
 
 # Divider before the overall group.
 ax.axvline((xs[-2] + xs[-1]) / 2, color=GRID, linewidth=0.8, zorder=1)
@@ -86,7 +98,7 @@ ax.axvline((xs[-2] + xs[-1]) / 2, color=GRID, linewidth=0.8, zorder=1)
 ax.set_xticks(xs)
 ax.set_xticklabels([f"{label}\n" + rf"($n={n}$)" for label, n, *_ in rows], fontsize=11)
 ax.set_xlim(xs[0] - 0.6, xs[-1] + 0.6)
-ax.set_ylim(0, 110)
+ax.set_ylim(0, 112)
 ax.set_yticks([0, 25, 50, 75, 100])
 ax.set_ylabel("Task success rate (%)")
 ax.set_title("Task success on preference prompts",
@@ -109,4 +121,5 @@ fig.legend(handles, [s for s, _ in SERIES], loc="lower center", ncol=len(SERIES)
 fig.tight_layout(pad=0.3, rect=(0, 0.1, 1, 1))
 for ext in ("pdf", "png"):
     fig.savefig(OUT / f"fig_pref_category.{ext}", dpi=300, facecolor="white")
-print(metric, rows)
+print(metric, [(label, n, ks, [tuple(round(v) for v in wilson(k, n)) for k in ks])
+              for label, n, ks in rows])

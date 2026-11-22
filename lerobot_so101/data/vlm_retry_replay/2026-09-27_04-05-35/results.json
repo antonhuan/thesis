@@ -1,0 +1,1383 @@
+{
+  "meta": {
+    "model": "Qwen/Qwen3-VL-8B-Instruct",
+    "temperature": 0.1,
+    "created": "2026-09-27T04:05:48"
+  },
+  "cases": [
+    {
+      "case": "2026-08-19_04-21-15_07",
+      "task_dir": "runs/run_2026-08-19_04-21-15/07",
+      "frame": "runs/run_2026-08-19_04-21-15/07/final_eval_20260819_044038.png",
+      "prompt": "put everything on the tray except for the toy",
+      "completed": [],
+      "logged_round2_plan": [
+        "put the banana on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The pouch and banana are still on the table, but the instruction requires everything except the toy to be on the tray.",
+      "survey": [
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "pouch",
+          "support": "table"
+        },
+        {
+          "object": "banana",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "pouch",
+        "banana"
+      ],
+      "targeted_objects": [
+        "pouch",
+        "banana",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the pouch on the tray",
+        "put the banana on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-08-19_04-44-51_01",
+      "task_dir": "runs/run_2026-08-19_04-44-51/01",
+      "frame": "runs/run_2026-08-19_04-44-51/01/final_eval_20260819_044925.png",
+      "prompt": "put everything on the tray except for the banana",
+      "completed": [],
+      "logged_round2_plan": [
+        "put the stuffed animal on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The brown pouch is still on the table instead of on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "brown pouch",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "banana",
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "banana",
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the plush toy on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-08-19_05-50-13_01",
+      "task_dir": "runs/run_2026-08-19_05-50-13/01",
+      "frame": "runs/run_2026-08-19_05-50-13/01/final_eval_20260819_060153.png",
+      "prompt": "put everything on the tray except for the banana",
+      "completed": [
+        "put the toy on the tray"
+      ],
+      "logged_round2_plan": [],
+      "judge_success": false,
+      "judge_reason": "The brown pouch is still on the table instead of being on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "table"
+        },
+        {
+          "object": "brown pouch",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        }
+      ],
+      "remaining": [
+        "banana",
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "banana",
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-08-19_05-50-13_04",
+      "task_dir": "runs/run_2026-08-19_05-50-13/04",
+      "frame": "runs/run_2026-08-19_05-50-13/04/final_eval_20260819_061215.png",
+      "prompt": "put everything on the tray except for the banana",
+      "completed": [
+        "put the toy on the tray"
+      ],
+      "logged_round2_plan": [],
+      "judge_success": false,
+      "judge_reason": "The pouch is still on the table instead of on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "table"
+        },
+        {
+          "object": "pouch",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        }
+      ],
+      "remaining": [
+        "banana",
+        "pouch"
+      ],
+      "targeted_objects": [
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-08-19_06-57-56_02",
+      "task_dir": "runs/run_2026-08-19_06-57-56/02",
+      "frame": "runs/run_2026-08-19_06-57-56/02/final_eval_20260819_070300.png",
+      "prompt": "put everything on the tray except for the banana",
+      "completed": [
+        "put the toy on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the cylinder on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The brown cylindrical object is still on the table instead of on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "table"
+        },
+        {
+          "object": "brown cylindrical object",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        }
+      ],
+      "remaining": [
+        "banana",
+        "brown cylindrical object"
+      ],
+      "targeted_objects": [
+        "banana",
+        "brown cylindrical object",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the cylinder on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown cylindrical object on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-08-19_07-17-03_01",
+      "task_dir": "runs/run_2026-08-19_07-17-03/01",
+      "frame": "runs/run_2026-08-19_07-17-03/01/final_eval_20260819_072113.png",
+      "prompt": "put everything on the tray except for the banana",
+      "completed": [
+        "put the toy on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the cylinder on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The brown cylindrical object is still on the table instead of on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "table"
+        },
+        {
+          "object": "brown cylindrical object",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        }
+      ],
+      "remaining": [
+        "banana",
+        "brown cylindrical object"
+      ],
+      "targeted_objects": [
+        "banana",
+        "brown cylindrical object",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the brown cylinder on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown cylindrical object on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-08-20_06-23-01_01",
+      "task_dir": "runs/run_2026-08-20_06-23-01/01",
+      "frame": "runs/run_2026-08-20_06-23-01/01/final_eval_20260820_062446.png",
+      "prompt": "put everything away",
+      "completed": [
+        "put the stuffed animal in the tray",
+        "put the banana in the tray"
+      ],
+      "logged_round2_plan": [
+        "put the pouch on the tray",
+        "put the kumquat on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The banana is on the plush toy, which is on the tray, so the banana is effectively on the tray. However, the brown pouch is still on the table and not on the tray, so not everything is put away.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "plush toy"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "brown pouch",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown pouch in the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-08-20_06-23-01_02",
+      "task_dir": "runs/run_2026-08-20_06-23-01/02",
+      "frame": "runs/run_2026-08-20_06-23-01/02/final_eval_20260820_062710.png",
+      "prompt": "put everything on the tray except for the banana",
+      "completed": [
+        "put the toy on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the roll on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The brown cylindrical object is still on the table instead of on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "table"
+        },
+        {
+          "object": "brown cylindrical object",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        }
+      ],
+      "remaining": [
+        "banana",
+        "brown cylindrical object"
+      ],
+      "targeted_objects": [
+        "banana",
+        "brown cylindrical object",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the cylinder on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown cylindrical object on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-08-20_06-23-01_03",
+      "task_dir": "runs/run_2026-08-20_06-23-01/03",
+      "frame": "runs/run_2026-08-20_06-23-01/03/final_eval_20260820_063507.png",
+      "prompt": "put everything on the tray except for hte pouch",
+      "completed": [
+        "put the stuffed animal on the tray",
+        "put the banana on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the kumquat on the tray"
+      ],
+      "judge_success": true,
+      "judge_reason": "The brown pouch is correctly left on the table, and both the plush toy and banana are on the tray, satisfying the instruction.",
+      "survey": [
+        {
+          "object": "brown pouch",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "banana",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "brown pouch",
+        "banana"
+      ],
+      "targeted_objects": [
+        "brown pouch",
+        "banana",
+        "tray",
+        "table"
+      ],
+      "old_plan": [],
+      "targeted_plan": [],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-08-20_06-49-37_01",
+      "task_dir": "runs/run_2026-08-20_06-49-37/01",
+      "frame": "runs/run_2026-08-20_06-49-37/01/final_eval_20260820_065224.png",
+      "prompt": "put everything on the tray except for the pouch",
+      "completed": [
+        "put the stuffed animal on the tray",
+        "put the banana on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the kumquat on the tray"
+      ],
+      "judge_success": true,
+      "judge_reason": "The brown pouch is correctly left on the table, and both the plush toy and banana are on the tray as required.",
+      "survey": [
+        {
+          "object": "brown pouch",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "banana",
+          "support": "tray"
+        }
+      ],
+      "remaining": [
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the table on the tray",
+        "put the robot arm on the tray",
+        "put the wires on the tray",
+        "put the black cables on the tray"
+      ],
+      "targeted_plan": [],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-08-20_07-24-04_01",
+      "task_dir": "runs/run_2026-08-20_07-24-04/01",
+      "frame": "runs/run_2026-08-20_07-24-04/01/final_eval_20260820_072547.png",
+      "prompt": "put everything on the tray",
+      "completed": [
+        "put the stuffed animal on the tray",
+        "put the banana on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the pouch on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The brown pouch is still on the table and the banana is on top of the plush toy, neither of which are on the tray.",
+      "survey": [
+        {
+          "object": "brown pouch",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "banana",
+          "support": "plush toy"
+        }
+      ],
+      "remaining": [
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-08-20_07-24-04_03",
+      "task_dir": "runs/run_2026-08-20_07-24-04/03",
+      "frame": "runs/run_2026-08-20_07-24-04/03/final_eval_20260820_073310.png",
+      "prompt": "put everything on the tray except for the toy",
+      "completed": [
+        "put the banana on the tray",
+        "put the bag on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the tray on the table"
+      ],
+      "judge_success": false,
+      "judge_reason": "The brown plush toy is on the banana, which is on the tray, so the toy is not left on the table as required.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "tray"
+        },
+        {
+          "object": "brown plush toy",
+          "support": "banana"
+        },
+        {
+          "object": "pink tray",
+          "support": "table"
+        }
+      ],
+      "remaining": [],
+      "targeted_objects": null,
+      "old_plan": [
+        "put the wires on the tray"
+      ],
+      "targeted_plan": "STOP (survey: nothing off a destination)",
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-08-20_08-03-31_02",
+      "task_dir": "runs/run_2026-08-20_08-03-31/02",
+      "frame": "runs/run_2026-08-20_08-03-31/02/final_eval_20260820_080845.png",
+      "prompt": "put everything on the tray",
+      "completed": [
+        "put the banana on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the toy on the tray",
+        "put the pouch on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The brown pouch is still on the table and not on the tray, while the banana and plush toy are on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "tray"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "brown pouch",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-08-20_08-03-31_03",
+      "task_dir": "runs/run_2026-08-20_08-03-31/03",
+      "frame": "runs/run_2026-08-20_08-03-31/03/final_eval_20260820_081142.png",
+      "prompt": "put everything on the tray",
+      "completed": [
+        "put the banana on the tray",
+        "put the stuffed animal on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the robot on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The brown pouch is still on the table and not on the tray, so the instruction was not fully accomplished.",
+      "survey": [
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "banana",
+          "support": "tray"
+        },
+        {
+          "object": "brown pouch",
+          "support": "table"
+        },
+        {
+          "object": "orange robot arm",
+          "support": "pouch"
+        }
+      ],
+      "remaining": [
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the object on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-02_09-11-20_02",
+      "task_dir": "runs/run_2026-09-02_09-11-20/02",
+      "frame": "runs/run_2026-09-02_09-11-20/02/final_eval_20260902_091700.png",
+      "prompt": "put everything away",
+      "completed": [
+        "put the stuffed animal in the box"
+      ],
+      "logged_round2_plan": [
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The banana is on the plush toy, which is on the table, so the banana is not on the tray. The brown pouch is also still on the table, not on the tray. The instruction 'put everything away' requires all objects to be on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "plush toy"
+        },
+        {
+          "object": "plush toy",
+          "support": "table"
+        },
+        {
+          "object": "brown pouch",
+          "support": "table"
+        },
+        {
+          "object": "pink tray",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "banana",
+        "plush toy",
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "banana",
+        "plush toy",
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the banana on the tray",
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the banana on the tray",
+        "put the brown pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-02_09-41-46_03",
+      "task_dir": "runs/run_2026-09-02_09-41-46/03",
+      "frame": "runs/run_2026-09-02_09-41-46/03/final_eval_20260902_095614.png",
+      "prompt": "put the banana on the tray",
+      "completed": [
+        "put the banana on the tray"
+      ],
+      "logged_round2_plan": [],
+      "judge_success": false,
+      "judge_reason": "The banana is on the pouch, not on the tray, so the instruction was not accomplished.",
+      "survey": [
+        {
+          "object": "hand",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "table"
+        },
+        {
+          "object": "banana",
+          "support": "pouch"
+        },
+        {
+          "object": "pouch",
+          "support": "table"
+        },
+        {
+          "object": "tray",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "plush toy",
+        "banana",
+        "pouch"
+      ],
+      "targeted_objects": [
+        "plush toy",
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the chocolate bar on the tray",
+        "put the plush toy on the tray"
+      ],
+      "targeted_plan": [
+        "put the banana on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-02_09-41-46_04",
+      "task_dir": "runs/run_2026-09-02_09-41-46/04",
+      "frame": "runs/run_2026-09-02_09-41-46/04/final_eval_20260902_095949.png",
+      "prompt": "put everything on the tray",
+      "completed": [
+        "put the plush toy on the tray",
+        "put the banana on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the pouch on the tray",
+        "put the power strip on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The pouch is still on the table and not on the tray, while the banana and plush toy are correctly on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "tray"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "pouch",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "pouch"
+      ],
+      "targeted_objects": [
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-02_10-25-12_01",
+      "task_dir": "runs/run_2026-09-02_10-25-12/01",
+      "frame": "runs/run_2026-09-02_10-25-12/01/final_eval_20260902_102938.png",
+      "prompt": "put everything on the tray",
+      "completed": [
+        "put the plush toy on the tray",
+        "put the banana on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the pouch on the tray",
+        "put the power strip on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The brown pouch is still on the table and not on the tray, so the instruction was not fully accomplished.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "tray"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "brown pouch",
+          "support": "table"
+        },
+        {
+          "object": "orange robot arm",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-02_10-37-10_01",
+      "task_dir": "runs/run_2026-09-02_10-37-10/01",
+      "frame": "runs/run_2026-09-02_10-37-10/01/final_eval_20260902_103910.png",
+      "prompt": "put everything on the tray",
+      "completed": [
+        "put the plush toy on the tray",
+        "put the banana on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the kiwi on the tray",
+        "put the pouch on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The brown pouch is still on the table and not on the tray, while the banana and plush toy are on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "tray"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "brown pouch",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-03_06-00-35_01",
+      "task_dir": "runs/run_2026-09-03_06-00-35/01",
+      "frame": "runs/run_2026-09-03_06-00-35/01/final_eval_20260903_060534.png",
+      "prompt": "put everything on the tray",
+      "completed": [
+        "put the plush toy on the tray",
+        "put the banana on the tray"
+      ],
+      "logged_round2_plan": [],
+      "judge_success": false,
+      "judge_reason": "The brown pouch is still on the table and not on the tray, while the banana and plush toy are on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "tray"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "brown pouch",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-03_07-09-01_01",
+      "task_dir": "runs/run_2026-09-03_07-09-01/01",
+      "frame": "runs/run_2026-09-03_07-09-01/01/final_eval_20260903_071407.png",
+      "prompt": "put everything on the tray",
+      "completed": [
+        "put the plush toy on the tray",
+        "put the brown pouch on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the banana on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The banana and brown pouch are still on the table instead of on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "brown pouch",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "banana",
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "banana",
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the banana on the tray"
+      ],
+      "targeted_plan": [
+        "put the banana on the tray",
+        "put the brown pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-06_05-53-28_01",
+      "task_dir": "runs/run_2026-09-06_05-53-28/01",
+      "frame": "runs/run_2026-09-06_05-53-28/01/final_eval_20260906_055524.png",
+      "prompt": "put everything away",
+      "completed": [
+        "put the plush toy in the tray",
+        "put the pouch in the tray"
+      ],
+      "logged_round2_plan": [
+        "put the robot arm on the tray"
+      ],
+      "judge_success": true,
+      "judge_reason": "All objects are on the tray as required by 'put everything away'.",
+      "survey": [
+        {
+          "object": "stuffed animal",
+          "support": "tray"
+        },
+        {
+          "object": "brown cylindrical object",
+          "support": "tray"
+        },
+        {
+          "object": "pink tray",
+          "support": "table"
+        }
+      ],
+      "remaining": [],
+      "targeted_objects": null,
+      "old_plan": [],
+      "targeted_plan": "STOP (survey: nothing off a destination)",
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-09_02-42-03_01",
+      "task_dir": "runs/run_2026-09-09_02-42-03/01",
+      "frame": "runs/run_2026-09-09_02-42-03/01/final_eval_20260909_024803.png",
+      "prompt": "put everything on the tray",
+      "completed": [
+        "put the plush toy on the tray",
+        "put the pouch on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the table on the tray",
+        "put the robot arm on the tray",
+        "put the tray on the tray",
+        "put the cable on the tray"
+      ],
+      "judge_success": true,
+      "judge_reason": "The stuffed animal is on the tray, which satisfies the instruction. The pink tray is the destination and is correctly identified as the tray; since the instruction is to put everything on the tray, and no other objects are reported, the task is complete.",
+      "survey": [
+        {
+          "object": "stuffed animal",
+          "support": "tray"
+        },
+        {
+          "object": "pink tray",
+          "support": "table"
+        }
+      ],
+      "remaining": [],
+      "targeted_objects": null,
+      "old_plan": [
+        "put the robot arm on the tray"
+      ],
+      "targeted_plan": "STOP (survey: nothing off a destination)",
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-10_02-49-37_01",
+      "task_dir": "runs/run_2026-09-10_02-49-37/01",
+      "frame": "runs/run_2026-09-10_02-49-37/01/final_eval_20260910_025356.png",
+      "prompt": "put everything on the tray",
+      "completed": [
+        "put the toy on the tray",
+        "put the banana on the tray",
+        "put the brown plush toy on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the pouch on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The brown pouch is still on the table and not on the tray, so the instruction was not fully accomplished.",
+      "survey": [
+        {
+          "object": "stuffed animal",
+          "support": "tray"
+        },
+        {
+          "object": "banana",
+          "support": "tray"
+        },
+        {
+          "object": "brown pouch",
+          "support": "table"
+        },
+        {
+          "object": "orange robot arm",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-10_03-02-18_01",
+      "task_dir": "runs/run_2026-09-10_03-02-18/01",
+      "frame": "runs/run_2026-09-10_03-02-18/01/final_eval_20260910_030731.png",
+      "prompt": "put everything on the tray except for the banana",
+      "completed": [
+        "put the plush toy on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the pouch on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The brown pouch is still on the table instead of being on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "table"
+        },
+        {
+          "object": "brown pouch",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        }
+      ],
+      "remaining": [
+        "banana",
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "banana",
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the brown pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-10_04-41-17_01",
+      "task_dir": "runs/run_2026-09-10_04-41-17/01",
+      "frame": "runs/run_2026-09-10_04-41-17/01/final_eval_20260910_044500.png",
+      "prompt": "put the food on the tray",
+      "completed": [
+        "put the banana on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the chocolate bar on the tray",
+        "put the stuffed animal on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The chocolate bar, banana, and stuffed animal are still on the table instead of on the tray, and none are on the tray as required.",
+      "survey": [
+        {
+          "object": "chocolate bar",
+          "support": "table"
+        },
+        {
+          "object": "stuffed animal",
+          "support": "table"
+        },
+        {
+          "object": "banana",
+          "support": "table"
+        },
+        {
+          "object": "tray",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "chocolate bar",
+        "stuffed animal",
+        "banana"
+      ],
+      "targeted_objects": [
+        "chocolate bar",
+        "stuffed animal",
+        "banana",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the chocolate bar on the tray",
+        "put the stuffed animal on the tray"
+      ],
+      "targeted_plan": [
+        "put the chocolate bar on the tray",
+        "put the stuffed animal on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-16_08-18-24_01",
+      "task_dir": "runs/run_2026-09-16_08-18-24/01",
+      "frame": "runs/run_2026-09-16_08-18-24/01/final_eval_20260916_082307.png",
+      "prompt": "put everything on the tray",
+      "completed": [
+        "put the plush toy on the tray",
+        "put the banana on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the pouch on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The banana and brown pouch are still on the table instead of on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "brown pouch",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "banana",
+        "brown pouch"
+      ],
+      "targeted_objects": [
+        "banana",
+        "brown pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the brown pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the banana on the tray",
+        "put the brown pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    },
+    {
+      "case": "2026-09-17_06-54-19_01",
+      "task_dir": "runs/run_2026-09-17_06-54-19/01",
+      "frame": "runs/run_2026-09-17_06-54-19/01/final_eval_20260917_065606.png",
+      "prompt": "put everything on the tray except for the banana",
+      "completed": [
+        "put the toy on the tray"
+      ],
+      "logged_round2_plan": [
+        "put the pouch on the tray"
+      ],
+      "judge_success": false,
+      "judge_reason": "The pouch is still on the table instead of on the tray.",
+      "survey": [
+        {
+          "object": "banana",
+          "support": "table"
+        },
+        {
+          "object": "pouch",
+          "support": "table"
+        },
+        {
+          "object": "plush toy",
+          "support": "tray"
+        },
+        {
+          "object": "tray",
+          "support": "table"
+        }
+      ],
+      "remaining": [
+        "banana",
+        "pouch"
+      ],
+      "targeted_objects": [
+        "banana",
+        "pouch",
+        "tray",
+        "table"
+      ],
+      "old_plan": [
+        "put the pouch on the tray"
+      ],
+      "targeted_plan": [
+        "put the pouch on the tray"
+      ],
+      "manual_label": {
+        "old_correct": null,
+        "targeted_correct": null,
+        "notes": ""
+      }
+    }
+  ]
+}

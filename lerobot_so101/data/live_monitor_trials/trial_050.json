@@ -1,0 +1,87 @@
+{
+  "trial": 50,
+  "time": "2026-09-28T03:23:17",
+  "vla_task": "put the toy on the tray",
+  "monitor_task": "put the toy on the tray",
+  "label": "correct",
+  "outcome": "CONTINUE",
+  "stop": null,
+  "committed": true,
+  "held_object": "plush toy",
+  "reach_windows": 1,
+  "stale_skipped": 1,
+  "verify_calls": 0,
+  "n_frames": 15,
+  "first_close": 9,
+  "gate_open_at": null,
+  "verify": {},
+  "timeline": [
+    {
+      "frame": 8,
+      "t": 7.2,
+      "action": "CONTINUE",
+      "reason": "The perception pass resolved the arm is going for 'plush toy', which is a synonym/description of the sub-task's target 'toy'. Therefore, the arm is still on track.",
+      "check_s": 18.97,
+      "reaching_for": "plush toy",
+      "held": "yes"
+    },
+    {
+      "frame": 8,
+      "t": 7.2,
+      "action": "COMMIT",
+      "reason": "grasp confirmed on 'plush toy'",
+      "check_s": null
+    },
+    {
+      "frame": 8,
+      "t": 7.2,
+      "action": "RETIRED",
+      "reason": "single grasp check done \u2014 monitor retired for this run",
+      "check_s": null
+    }
+  ],
+  "freeze_images": [
+    "live_monitor_trials/freeze/trial_050_wrist_0.png",
+    "live_monitor_trials/freeze/trial_050_front_0.png",
+    "live_monitor_trials/freeze/trial_050_wrist_1.png",
+    "live_monitor_trials/freeze/trial_050_front_1.png"
+  ],
+  "empty_closes": [],
+  "inventory_dropped": [],
+  "episode": {
+    "dir": "live_monitor_trials/episodes/toy/051_toy",
+    "duration": 38.37520977901295,
+    "converged": false,
+    "max_displacement": 223.77899169921875,
+    "total_actions": 310
+  },
+  "wall_s": 56.5,
+  "note": "grasp failure but judgement was correct",
+  "config": {
+    "gate": "grasp",
+    "horizon": 20,
+    "tail": 1,
+    "verify": true,
+    "match": "inventory",
+    "objects": [
+      "banana",
+      "brown pouch",
+      "plush moose toy"
+    ],
+    "window": 4,
+    "ground_compare": false,
+    "unclear_wrist_decides": true,
+    "grasp_fallback_frames": 6,
+    "freeze_stall_eps": 0.5,
+    "freeze_settle_s": 0.3,
+    "verify_frame_gap_s": 0.2,
+    "min_hold_aperture": 4.0,
+    "pause_refreshes": 1,
+    "post_pause_grace_s": 5.0,
+    "chunk_size_threshold": 0.95,
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "temperature": 0.1,
+    "episode_duration": 100.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct"
+  }
+}

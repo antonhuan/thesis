@@ -6,6 +6,8 @@
 #   - prompt box + Run (one high-level task at a time)
 #   - Skip (ends the running sub-task's episode) and Abort (abandons the whole
 #     task and parks the arm) for operator control during a demo
+#   - Clear history (between tasks): empties the task, episode, history, VLM
+#     output and log panels
 #   - live plan: each round's sub-tasks with their status, every episode's VLM
 #     judgement and monitor outcome, the final verdict, past tasks
 #   - live log (everything the terminal shows) and live camera feeds
@@ -18,9 +20,13 @@
 # Ctrl+C in the terminal shuts down as before. 'q'+Enter in the terminal still
 # aborts a running task. Replanning is not exposed.
 #
-# Camera feeds: during a task the page shows the frames the control loop / VLM
-# already read (the GUI never reads the robot itself mid-task); between tasks it
-# polls the robot at --gui_idle_fps.
+# Camera feeds: during an episode the page shows the frames the control loop
+# already reads; whenever the robot is otherwise idle (between tasks, but also
+# while the VLM plans or judges) it polls the robot at --gui_idle_fps.
+#
+# Logging: unlike the terminal orchestrator, nothing is written to disk by
+# default (no run folder, task logs, VLA-input episodes or monitor records);
+# pass --no_logging=false to keep them. The page's log panel is unaffected.
 #
 # Usage: the orchestrator's flags, plus optionally --gui_host / --gui_port:
 #   python orchestrator_gui.py --robot.type=so101_follower ... --gui_port=7860
@@ -39,16 +45,15 @@ from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
 
-import cv2
 import draccus
-import numpy as np
 import uvicorn
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse, Response, StreamingResponse
+from fastapi.responses import HTMLResponse, Response
 from pydantic import BaseModel
 
 from lerobot.utils.import_utils import register_third_party_plugins
 
+from gui_common import CameraTap, LogBuffer, camera_stream, idle_camera_poller
 from vlm_monitor_live import TappedClient
 from vlm_robot_orchestrator import OrchestratorConfig, open_session
 
@@ -64,71 +69,14 @@ class GuiConfig(OrchestratorConfig):
     # Max rate the camera feeds are copied out of the control loop / streamed.
     gui_stream_fps: float = 15.0
     gui_jpeg_quality: int = 75
+    # The GUI is the demo front-end: write nothing to disk unless asked
+    # (--no_logging=false keeps the orchestrator's run folder and logs).
+    no_logging: bool = True
 
 
 # ---------------------------------------------------------------------------
 # Shared state between the task loop, the robot client and the web server
 # ---------------------------------------------------------------------------
-class LogBuffer:
-    """Terminal mirror (a _Tee sink) keeping the last `maxlen` lines, numbered so
-    the page can poll for only what is new. A '\\r' (progress bars) rewrites the
-    current partial line rather than adding lines."""
-
-    def __init__(self, maxlen: int = 5000):
-        self._lines: deque[tuple[int, str]] = deque(maxlen=maxlen)
-        self._seq = 0
-        self._partial = ""
-        self._lock = threading.Lock()
-
-    def write(self, data: str):
-        with self._lock:
-            text = self._partial + data
-            *done, self._partial = text.split("\n")
-            for line in done:
-                line = line.rsplit("\r", 1)[-1]
-                self._seq += 1
-                self._lines.append((self._seq, line))
-
-    def flush(self):
-        pass
-
-    def since(self, after: int) -> tuple[int, list[str]]:
-        with self._lock:
-            lines = [l for s, l in self._lines if s > after]
-            return self._seq, lines
-
-
-class CameraTap:
-    """Latest frame per camera, as copies (the camera loop reuses its arrays),
-    taken at most every 1/fps seconds so the control loop pays little for it."""
-
-    def __init__(self, fps: float):
-        self._period = 1.0 / max(fps, 0.1)
-        self._frames: dict[str, np.ndarray] = {}
-        self._seq: dict[str, int] = {}
-        self._last = 0.0
-        self._lock = threading.Lock()
-
-    def offer(self, obs: dict, force: bool = False):
-        now = time.monotonic()
-        if not force and now - self._last < self._period:
-            return
-        self._last = now
-        frames = TappedClient._select_all_camera_frames(obs)
-        with self._lock:
-            for key, arr in frames.items():
-                self._frames[key] = np.array(arr, dtype=np.uint8, copy=True)
-                self._seq[key] = self._seq.get(key, 0) + 1
-
-    def keys(self) -> list[str]:
-        with self._lock:
-            return sorted(self._frames)
-
-    def get(self, key: str) -> tuple[int, np.ndarray | None]:
-        with self._lock:
-            return self._seq.get(key, 0), self._frames.get(key)
-
-
 def _yes(value) -> bool | None:
     return None if value is None else bool(value)
 
@@ -288,6 +236,11 @@ class VlmResultLog:
         with self._lock:
             return self._ver, [dict(e) for e in self._entries if e["ver"] > after]
 
+    def clear(self):
+        """Drop every entry; `ver` carries on, so pollers stay in step."""
+        with self._lock:
+            self._entries.clear()
+
 
 class GuiState:
     def __init__(self):
@@ -297,6 +250,7 @@ class GuiState:
         self.phase_detail = ""
         self.trace: dict | None = None
         self.history: list[dict] = []   # finished tasks, oldest first
+        self.cleared = 0   # bumped by Clear history; the page empties its panels on a change
 
     def set_phase(self, phase: str, detail: str = ""):
         with self.lock:
@@ -306,7 +260,7 @@ class GuiState:
         with self.lock:
             trace = self.trace
             out = {"busy": self.busy, "phase": self.phase, "phase_detail": self.phase_detail,
-                   "history": list(self.history)}
+                   "history": list(self.history), "cleared": self.cleared}
         # The trace is filled in place by the task thread; its dicts keep fixed keys,
         # but retry the copy in case one is caught mid-change.
         for _ in range(3):
@@ -320,28 +274,62 @@ class GuiState:
         return out
 
 
-def make_client_cls(tap: CameraTap, state: GuiState):
+FINAL_EVAL_DETAIL = "final evaluation"
+
+
+def make_client_cls(tap: CameraTap, state: GuiState, robot_lock: threading.RLock):
     class GuiClient(TappedClient):
         """TappedClient that hands every observation it reads to the GUI's camera
-        tap and reports when an episode is running."""
+        tap and reports when an episode is running. Every method that reads or
+        moves the robot holds robot_lock, so the idle camera poller can read the
+        robot between them (during VLM calls) without sharing the bus."""
 
         def _capture_input(self, obs, task, timestep, elapsed, must_go):
             super()._capture_input(obs, task, timestep, elapsed, must_go)
             tap.offer(obs)
 
         def capture_frame(self) -> dict:
-            obs = super().capture_frame()
+            with robot_lock:
+                obs = super().capture_frame()
             tap.offer(obs, force=True)
             return obs
+
+        def go_home(self):
+            with robot_lock:
+                super().go_home()
+
+        def release_gripper(self):
+            with robot_lock:
+                super().release_gripper()
+
+        def lift_away(self):
+            with robot_lock:
+                super().lift_away()
 
         def run_episode(self, task, enable_abort_listener=True):
             state.set_phase("executing", task)
             try:
-                return super().run_episode(task, enable_abort_listener=enable_abort_listener)
+                with robot_lock:
+                    return super().run_episode(task, enable_abort_listener=enable_abort_listener)
             finally:
                 state.set_phase("evaluating", task)
 
     return GuiClient
+
+
+def track_final_eval_phase(state: GuiState):
+    """Mark the final evaluation in the phase detail, so the page does not take the
+    last episode's sub-task for the one being judged."""
+    import vlm_robot_orchestrator as orch
+
+    evaluate_final = orch.VLMPlanner.evaluate_final
+
+    @functools.wraps(evaluate_final)
+    def wrapped(*args, **kwargs):
+        state.set_phase("evaluating", FINAL_EVAL_DETAIL)
+        return evaluate_final(*args, **kwargs)
+
+    orch.VLMPlanner.evaluate_final = wrapped
 
 
 # ---------------------------------------------------------------------------
@@ -363,7 +351,7 @@ def build_app(cfg: GuiConfig, session, state: GuiState, tap: CameraTap, logs: Lo
     def get_state():
         snap = state.snapshot()
         snap["cameras"] = tap.keys()
-        snap["run_dir"] = str(session.run_dir)
+        snap["run_dir"] = "no logging" if cfg.no_logging else str(session.run_dir)
         snap["config"] = {"policy": cfg.pretrained_name_or_path, "vlm": cfg.vlm_model,
                           "episode_duration": cfg.episode_duration,
                           "max_retries": cfg.max_retries,
@@ -414,47 +402,23 @@ def build_app(cfg: GuiConfig, session, state: GuiState, tap: CameraTap, logs: Lo
         session.interjection.request_abort()
         return {"ok": True}
 
+    @app.post("/api/clear")
+    def clear():
+        # Only between tasks: a running task fills the trace in place.
+        with state.lock:
+            if state.busy:
+                raise HTTPException(409, "wait for the task to finish")
+            vlm_calls.clear()
+            logs.clear()
+            state.trace, state.history = None, []
+            state.cleared += 1
+        return {"ok": True}
+
     @app.get("/api/camera/{key}")
     def camera(key: str):
-        period = 1.0 / max(cfg.gui_stream_fps, 0.1)
-        params = [cv2.IMWRITE_JPEG_QUALITY, int(cfg.gui_jpeg_quality)]
-
-        def stream():
-            # Re-send the last frame every few seconds even when nothing is new
-            # (e.g. a long VLM call): a closed tab is only noticed at a yield, so
-            # this bounds how long it holds a server thread.
-            last, last_sent = -1, 0.0
-            while True:
-                seq, frame = tap.get(key)
-                if frame is not None and (seq != last or time.monotonic() - last_sent > 2.0):
-                    last, last_sent = seq, time.monotonic()
-                    ok, jpg = cv2.imencode(".jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR),
-                                           params)
-                    if ok:
-                        yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n"
-                               + jpg.tobytes() + b"\r\n")
-                time.sleep(period)
-
-        return StreamingResponse(stream(),
-                                 media_type="multipart/x-mixed-replace; boundary=frame")
+        return camera_stream(tap, key, cfg.gui_stream_fps, cfg.gui_jpeg_quality)
 
     return app
-
-
-def idle_camera_poller(session, robot_lock: threading.Lock, tap: CameraTap,
-                       fps: float, stop: threading.Event):
-    """Keep the feeds live between tasks. Reads the robot only while it holds
-    robot_lock, which the task loop holds for the whole of every task."""
-    period = 1.0 / max(fps, 0.1)
-    while not stop.wait(period):
-        if not robot_lock.acquire(blocking=False):
-            continue
-        try:
-            tap.offer(session.client.robot.get_observation(), force=True)
-        except Exception as e:  # noqa: BLE001 - a dropped frame must not kill the feed
-            logging.debug(f"GUI idle camera read failed: {e}")
-        finally:
-            robot_lock.release()
 
 
 # ---------------------------------------------------------------------------
@@ -467,15 +431,18 @@ def main(cfg: GuiConfig):
     logs = LogBuffer()
     tap = CameraTap(cfg.gui_stream_fps)
     state = GuiState()
-    session = open_session(cfg, client_cls=make_client_cls(tap, state), mirrors=(logs,))
+    # Re-entrant: release_and_home -> go_home, and close() under the lock -> go_home.
+    robot_lock = threading.RLock()
+    session = open_session(cfg, client_cls=make_client_cls(tap, state, robot_lock),
+                           mirrors=(logs,))
     if session is None:
         return
     logger = session.client.logger
     vlm_calls = VlmResultLog()
     vlm_calls.install()
+    track_final_eval_phase(state)
 
     jobs: "queue.Queue[str]" = queue.Queue()
-    robot_lock = threading.Lock()
     stop = threading.Event()
 
     server = uvicorn.Server(uvicorn.Config(build_app(cfg, session, state, tap, logs, vlm_calls, jobs),
@@ -483,7 +450,8 @@ def main(cfg: GuiConfig):
                                            log_level="warning"))
     threading.Thread(target=server.run, daemon=True, name="gui-server").start()
     threading.Thread(target=idle_camera_poller, daemon=True, name="gui-camera",
-                     args=(session, robot_lock, tap, cfg.gui_idle_fps, stop)).start()
+                     args=(session.client.robot, robot_lock, tap, cfg.gui_idle_fps,
+                           stop)).start()
 
     logger.info("=" * 60)
     logger.info("Dual-system ready: VLM planner + VLA policy loaded.")
@@ -506,17 +474,16 @@ def main(cfg: GuiConfig):
                 state.trace = None
             state.set_phase("planning", prompt)
             trace = None
-            with robot_lock:
+            try:
+                # Terminal listener in abort-only mode: skip comes from the page,
+                # replanning is not offered.
+                trace = session.run(prompt, abort_only=True, on_trace=on_trace)
+            except Exception as e:  # noqa: BLE001 - keep serving after a task crash
+                logger.exception(f"Task '{prompt}' crashed: {e}")
                 try:
-                    # Terminal listener in abort-only mode: skip comes from the page,
-                    # replanning is not offered.
-                    trace = session.run(prompt, abort_only=True, on_trace=on_trace)
-                except Exception as e:  # noqa: BLE001 - keep serving after a task crash
-                    logger.exception(f"Task '{prompt}' crashed: {e}")
-                    try:
-                        session.client.go_home()
-                    except Exception:  # noqa: BLE001
-                        logger.exception("go_home after the crash failed")
+                    session.client.go_home()
+                except Exception:  # noqa: BLE001
+                    logger.exception("go_home after the crash failed")
             with state.lock:
                 done = trace or state.trace or {"prompt": prompt}
                 state.history.append({

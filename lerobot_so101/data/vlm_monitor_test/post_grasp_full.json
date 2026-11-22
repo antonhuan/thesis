@@ -1,0 +1,2888 @@
+[
+  {
+    "category": "banana",
+    "episode": "001_banana",
+    "object_type": "banana",
+    "first_close": 12,
+    "answers": [
+      {
+        "frame": 12,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws has a curved, yellowish shape consistent with a banana, and the surface texture and color match that of a banana peel."
+      },
+      {
+        "frame": 13,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws has a curved, elongated shape and a pale yellowish-brown color consistent with a banana. The surface texture and coloration match a banana, and the gripper is holding it firmly."
+      }
+    ],
+    "held": {
+      "one": "banana",
+      "two": "banana"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "005_banana",
+    "object_type": "banana",
+    "first_close": 7,
+    "answers": [
+      {
+        "frame": 7,
+        "object": "nothing",
+        "reason": "the image is blurry and shows only the gripper jaws and a white surface, with no distinct object visible between them"
+      },
+      {
+        "frame": 8,
+        "object": "nothing",
+        "reason": "the image shows only the orange gripper jaws and a blurred background, with no object visibly held between them"
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "025_banana",
+    "object_type": "banana",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "nothing",
+        "reason": "the image shows only the gripper jaws and no object is clearly visible between them"
+      },
+      {
+        "frame": 12,
+        "object": "banana",
+        "reason": "The curved, pale yellowish object held between the orange gripper jaws matches the shape and color of a banana."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the banana in the box",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is not ruled out and the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is not ruled out and the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "041_banana",
+    "object_type": "banana",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "nothing",
+        "reason": "the image shows only the gripper jaws and no object is visible between them"
+      },
+      {
+        "frame": 10,
+        "object": "nothing",
+        "reason": "the image shows only the gripper jaws and a blurred background, with no distinct object clearly held between them."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "050_banana",
+    "object_type": "banana",
+    "first_close": 13,
+    "answers": [
+      {
+        "frame": 13,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws is elongated, curved, and pale yellowish-beige, consistent with the appearance of a banana. The texture and shape do not match a brown pouch, plush toy, or nothing."
+      },
+      {
+        "frame": 14,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws is elongated, curved, and pale yellowish-beige, consistent with the appearance of a banana. The surface texture and shape do not match a brown pouch, plush moose toy, or nothing."
+      }
+    ],
+    "held": {
+      "one": "banana",
+      "two": "banana"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "052_banana",
+    "object_type": "banana",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "nothing",
+        "reason": "the image shows a blurry, out-of-focus view with no clearly identifiable object held between the gripper jaws. the visible areas are mostly a brown surface and a white background, with no distinct item like a banana, pouch, or toy discernible."
+      },
+      {
+        "frame": 12,
+        "object": "nothing",
+        "reason": "the image shows a blurry, light-colored surface that appears to be part of the gripper or a background object, with no distinct object clearly held between the orange gripper jaws."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "068_banana",
+    "object_type": "banana",
+    "first_close": 7,
+    "answers": [
+      {
+        "frame": 7,
+        "object": "banana",
+        "reason": "The object held between the gripper jaws has a curved, elongated shape and a yellowish-orange color consistent with a banana. The surface appears smooth and slightly textured, matching the peel of a banana. The orange gripper jaws are clearly holding this object, and no other objects are visible in the frame."
+      },
+      {
+        "frame": 8,
+        "object": "nothing",
+        "reason": "the image shows only the gripper jaws and a blurred surface, with no distinct object clearly held between them."
+      }
+    ],
+    "held": {
+      "one": "banana",
+      "two": "unclear"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "072_banana",
+    "object_type": "banana",
+    "first_close": 10,
+    "answers": [
+      {
+        "frame": 10,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws has a curved, elongated shape and a pale yellowish color consistent with a banana. The surface texture and coloration match a banana, and the orange gripper jaws are gripping it firmly."
+      },
+      {
+        "frame": 11,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws is elongated and curved with a pale yellowish color, consistent with the appearance of a banana."
+      }
+    ],
+    "held": {
+      "one": "banana",
+      "two": "banana"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "105_banana",
+    "object_type": "banana",
+    "first_close": 8,
+    "answers": [
+      {
+        "frame": 8,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws has a yellowish, curved shape with brown spots, consistent with a banana peel. The texture and color match a ripe banana."
+      },
+      {
+        "frame": 9,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws has a curved, yellowish shape with brown spots and a textured surface consistent with a banana peel."
+      }
+    ],
+    "held": {
+      "one": "banana",
+      "two": "banana"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "113_banana",
+    "object_type": "banana",
+    "first_close": 12,
+    "answers": [
+      {
+        "frame": 12,
+        "object": "nothing",
+        "reason": "the orange gripper jaws are open and not holding anything visible between them; the blurry brown object at the bottom is separate and not gripped."
+      },
+      {
+        "frame": 13,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws is elongated and pale yellow, consistent with the appearance of a banana. The texture and color match a banana, and the gripper is clearly holding it."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "121_banana",
+    "object_type": "banana",
+    "first_close": 10,
+    "answers": [
+      {
+        "frame": 10,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws has a curved, yellowish-brown peel with brown spots and a visible stem area, which is characteristic of a banana."
+      },
+      {
+        "frame": 11,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws has a yellowish, curved shape with brown spots and a textured surface consistent with a banana peel. The visible portion shows the typical appearance of a banana's skin, and the way it is being gripped by the jaws further supports this identification."
+      }
+    ],
+    "held": {
+      "one": "banana",
+      "two": "banana"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "125_banana",
+    "object_type": "banana",
+    "first_close": 12,
+    "answers": [
+      {
+        "frame": 12,
+        "object": "banana",
+        "reason": "The image shows a banana with brown spots being held between two orange gripper jaws. The banana's curved shape and peel texture are visible, and the gripper is clearly gripping it."
+      },
+      {
+        "frame": 13,
+        "object": "banana",
+        "reason": "The image shows a banana peel with brown spots, held between two orange gripper jaws. The shape and texture match a banana peel, and the gripper is clearly gripping it."
+      }
+    ],
+    "held": {
+      "one": "banana",
+      "two": "banana"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "184_banana",
+    "object_type": "banana",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws has a curved, elongated shape with brown spots and a yellowish-brown peel, which is characteristic of a banana."
+      },
+      {
+        "frame": 12,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws has the characteristic curved shape and brown spotted skin of a ripe banana."
+      }
+    ],
+    "held": {
+      "one": "banana",
+      "two": "banana"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "197_banana",
+    "object_type": "banana",
+    "first_close": 12,
+    "answers": [
+      {
+        "frame": 12,
+        "object": "banana",
+        "reason": "The banana is visibly held between the orange gripper jaws, with its curved peel and brown spots clearly in view."
+      },
+      {
+        "frame": 13,
+        "object": "banana",
+        "reason": "The banana is visibly positioned between the orange gripper jaws, with its curved surface touching the jaws."
+      }
+    ],
+    "held": {
+      "one": "banana",
+      "two": "banana"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "204_banana",
+    "object_type": "banana",
+    "first_close": 10,
+    "answers": [
+      {
+        "frame": 10,
+        "object": "banana",
+        "reason": "The image shows a curved, yellowish-brown object with brown spots, which is characteristic of a ripe banana. The orange gripper jaws are clearly holding this object."
+      },
+      {
+        "frame": 11,
+        "object": "banana",
+        "reason": "The image shows a curved, yellowish object with brown spots, which is characteristic of a banana peel. The orange gripper jaws are clearly holding this object."
+      }
+    ],
+    "held": {
+      "one": "banana",
+      "two": "banana"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "216_banana",
+    "object_type": "banana",
+    "first_close": 10,
+    "answers": [
+      {
+        "frame": 10,
+        "object": "banana",
+        "reason": "The image shows a banana with brown spots, partially held between two orange-colored gripper jaws. The shape and texture match a banana, and the gripper is clearly holding it."
+      },
+      {
+        "frame": 11,
+        "object": "banana",
+        "reason": "The image shows a yellow banana with brown spots, partially held between two orange gripper jaws. The shape and texture are consistent with a banana."
+      }
+    ],
+    "held": {
+      "one": "banana",
+      "two": "banana"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object."
+    }
+  },
+  {
+    "category": "banana",
+    "episode": "217_banana",
+    "object_type": "banana",
+    "skipped": "no first close (c=None)"
+  },
+  {
+    "category": "banana",
+    "episode": "226_banana",
+    "object_type": "banana",
+    "first_close": 10,
+    "answers": [
+      {
+        "frame": 10,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws is yellow with brown spots, consistent with a ripe banana."
+      },
+      {
+        "frame": 11,
+        "object": "banana",
+        "reason": "The object held between the orange gripper jaws is yellow with brown spots, consistent with a ripe banana."
+      }
+    ],
+    "held": {
+      "one": "banana",
+      "two": "banana"
+    },
+    "task_correct": "put the banana on the tray",
+    "task_wrong": "put the toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'banana', which matches the sub-task's target object."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a banana, but the sub-task targets a toy. A banana is not a synonym or description of a toy, so the arm is converging on the wrong object."
+    }
+  },
+  {
+    "category": "box",
+    "episode": "012_box",
+    "object_type": "box",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "brown pouch",
+        "reason": "The image shows a close-up of a brown textured object with a zipper, which is consistent with a pouch. The orange gripper jaws are holding this object, and the zipper is clearly visible along the top edge."
+      },
+      {
+        "frame": 10,
+        "object": "brown pouch",
+        "reason": "The image shows a brown zipper and fabric, consistent with a pouch, being held between orange gripper jaws."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the box on the tray",
+    "task_wrong": "put the stuffed animal on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the same object as the target box. The perception pass has resolved on a different object, so the arm should be stopped before grasping.",
+      "canon_two": "CONTINUE",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the same object as the target box. The perception pass has resolved on a different object, so the arm should be stopped before grasping."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the stuffed animal mentioned in the sub-task. The objects are different and not synonyms.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the stuffed animal mentioned in the sub-task. They are clearly different objects."
+    }
+  },
+  {
+    "category": "box",
+    "episode": "017_box",
+    "object_type": "box",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item that appears to be a pouch or bag, not a banana, plush toy, or nothing."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item that appears to be a pouch or bag, not a banana, plush toy, or nothing."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the box on the tray",
+    "task_wrong": "put the stuffed animal on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the same object as the box the sub-task requires. The perception pass has resolved on a different object, so the arm should be stopped before grasping.",
+      "canon_two": "CONTINUE",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the same object as the box the sub-task requires. The perception pass has resolved on a different object, so the arm should be stopped before grasping."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the stuffed animal mentioned in the sub-task. They are clearly different objects.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the stuffed animal mentioned in the sub-task. The objects are different and not synonyms."
+    }
+  },
+  {
+    "category": "box",
+    "episode": "021_box",
+    "object_type": "box",
+    "first_close": 8,
+    "answers": [
+      {
+        "frame": 8,
+        "object": "brown pouch",
+        "reason": "The brown pouch is directly between the orange gripper jaws, with the zipper visible and the pouch material pressed against the jaws. The banana is above the pouch and not held by the gripper."
+      },
+      {
+        "frame": 9,
+        "object": "brown pouch",
+        "reason": "The brown pouch is directly between the orange gripper jaws, with the zipper visible and the pouch material appearing to be held in place by the gripper. The banana is above and not in contact with the jaws."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the box on the tray",
+    "task_wrong": "put the stuffed animal on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the same object as the target box. The perception pass has resolved on a different object, so the arm should be stopped before grasping.",
+      "canon_two": "CONTINUE",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the same object as the box the sub-task requires. The perception pass has resolved on a different object, so the arm should be stopped before grasping."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the stuffed animal mentioned in the sub-task. They are clearly different objects.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the stuffed animal mentioned in the sub-task. The objects are different and not synonyms."
+    }
+  },
+  {
+    "category": "box",
+    "episode": "118_box",
+    "object_type": "box",
+    "first_close": 8,
+    "answers": [
+      {
+        "frame": 8,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is brown and has a textured, possibly fabric or leather-like surface with visible stitching or seams, consistent with a pouch. It does not resemble a banana, plush toy, or nothing."
+      },
+      {
+        "frame": 9,
+        "object": "brown pouch",
+        "reason": "The brown pouch is directly between the orange gripper jaws, with its zipper and textured surface visible."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the box on the tray",
+    "task_wrong": "put the stuffed animal on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the same object as the box the sub-task requires. The perception pass has resolved on a different object, so the arm should be stopped before grasping.",
+      "canon_two": "CONTINUE",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the same object as the box the sub-task requires. The perception pass has resolved on a different object, so the arm should be stopped before grasping."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the stuffed animal mentioned in the sub-task. The objects are different and not synonyms.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the stuffed animal mentioned in the sub-task. They are clearly different objects."
+    }
+  },
+  {
+    "category": "brown",
+    "episode": "077_brown",
+    "object_type": "brown",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "nothing",
+        "reason": "The orange gripper jaws are open and not enclosing any object; the brown pouch is lying on the surface nearby but not held between the jaws."
+      },
+      {
+        "frame": 10,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visible directly above the orange gripper jaws, indicating it is being held between them."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the brown pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "brown",
+    "episode": "083_brown",
+    "object_type": "brown",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "nothing",
+        "reason": "the image is too blurry to identify any object clearly, but the gripper jaws appear to be closed without holding anything visible"
+      },
+      {
+        "frame": 10,
+        "object": "nothing",
+        "reason": "the image is too blurry to identify any object being held, and there are no clear features of a banana, brown pouch, or plush moose toy visible between the gripper jaws."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the brown pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is not ruled out and the arm is still on track."
+    }
+  },
+  {
+    "category": "moose",
+    "episode": "071_moose",
+    "object_type": "moose",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The image shows a blurry, brown, textured object that appears to be a soft, fuzzy material consistent with a pouch. The two orange fingers (gripper jaws) are visible at the bottom, holding the object. It does not resemble a banana (smooth, curved), a plush moose toy (typically more defined shape), or nothing (as something is clearly being held)."
+      },
+      {
+        "frame": 12,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy, brown, textured surface with a radial pattern, consistent with the fur of a plush toy. The white background and the blurred orange shapes at the top suggest the gripper jaws are holding the object, and the texture and shape are not consistent with a banana, pouch, or nothing."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "unclear"
+    },
+    "task_correct": "put the moose on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the same as the sub-task target 'moose'. The perception pass has resolved on a different object, so the arm should be stopped before grasping.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is not ruled out and the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "plush",
+    "episode": "040_plush",
+    "object_type": "plush",
+    "first_close": 10,
+    "answers": [
+      {
+        "frame": 10,
+        "object": "plush moose toy",
+        "reason": "the fuzzy, brownish texture visible between the orange gripper jaws is consistent with the fur of a plush toy, not a banana, pouch, or nothing."
+      },
+      {
+        "frame": 11,
+        "object": "nothing",
+        "reason": "the image is extremely blurry and shows only indistinct brown and white shapes, with no clear object identifiable between the gripper jaws."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "unclear"
+    },
+    "task_correct": "put the plush toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of the sub-task's target 'plush toy'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm is converging on the wrong thing.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "plush",
+    "episode": "051_plush",
+    "object_type": "plush",
+    "first_close": 12,
+    "answers": [
+      {
+        "frame": 12,
+        "object": "plush moose toy",
+        "reason": "the image shows a fuzzy, brown, textured object with visible strands of fur or fabric, consistent with a plush toy, held between what appear to be the gripper jaws."
+      },
+      {
+        "frame": 13,
+        "object": "plush moose toy",
+        "reason": "the image shows fuzzy, brown, textured material consistent with a plush toy, and the shape suggests a tail or body part being gripped by the robot's jaws."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "plush moose toy"
+    },
+    "task_correct": "put the plush toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of the sub-task's target 'plush toy'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of the sub-task's target 'plush toy'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm is converging on the wrong thing.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing."
+    }
+  },
+  {
+    "category": "plush",
+    "episode": "061_plush",
+    "object_type": "plush",
+    "first_close": 12,
+    "answers": [
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The image shows a blurry, textured brown object that appears to be a soft, possibly fabric item, consistent with a pouch. The orange fingers at the bottom are the gripper jaws holding it."
+      },
+      {
+        "frame": 13,
+        "object": "brown pouch",
+        "reason": "The image shows a blurry, textured, brown object that appears to be a soft, fabric-like item consistent with a pouch. The shape and texture do not match a banana (smooth, curved) or a plush moose toy (typically more defined features). The object is held between the gripper jaws, so it is not 'nothing'."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the plush toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the plush toy mentioned in the sub-task. The objects are different and not synonyms.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the plush toy mentioned in the sub-task. The objects are different and not synonyms."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    }
+  },
+  {
+    "category": "plush",
+    "episode": "067_plush",
+    "object_type": "plush",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy, brown, textured object that matches the appearance of a plush toy, likely a moose given its shape and the context of being gripped by robotic jaws. The orange fingers are visible at the bottom right, confirming it's being held by a gripper."
+      },
+      {
+        "frame": 12,
+        "object": "plush moose toy",
+        "reason": "the image shows a fuzzy, brown, textured surface consistent with a plush toy, and the context of a gripper suggests it's being held."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "plush moose toy"
+    },
+    "task_correct": "put the plush toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of the sub-task's target 'plush toy'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of the sub-task's target 'plush toy'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm should be stopped before it grasps."
+    }
+  },
+  {
+    "category": "plush",
+    "episode": "146_plush",
+    "object_type": "plush",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "nothing",
+        "reason": "the image is blurry but shows only the gripper jaws and no distinct object held between them"
+      },
+      {
+        "frame": 10,
+        "object": "nothing",
+        "reason": "the image is extremely blurry and shows only indistinct brown and white shapes, with no identifiable object clearly held between the gripper jaws."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the plush toy in the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "plush",
+    "episode": "148_plush",
+    "object_type": "plush",
+    "first_close": 8,
+    "answers": [
+      {
+        "frame": 8,
+        "object": "nothing",
+        "reason": "the image is extremely blurred and shows only the orange gripper jaws with no discernible object between them"
+      },
+      {
+        "frame": 9,
+        "object": "nothing",
+        "reason": "the image is extremely blurry and shows no distinct object between the gripper jaws; only indistinct shapes and colors are visible."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the plush toy in the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "plush",
+    "episode": "151_plush",
+    "object_type": "plush",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "nothing",
+        "reason": "The image shows only the blurred orange gripper jaws and a blurry brownish surface, with no distinct object clearly held between them."
+      },
+      {
+        "frame": 10,
+        "object": "nothing",
+        "reason": "the image is too blurry to identify any specific object being held, and there are no clear features of a banana, brown pouch, or plush moose toy visible between the gripper jaws."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the plush toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "plush",
+    "episode": "155_plush",
+    "object_type": "plush",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy, brown, textured object that appears to be a plush toy, consistent with the appearance of a moose toy. The orange background elements are likely the robot gripper jaws holding the toy."
+      },
+      {
+        "frame": 12,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy brown object with a white ribbon tied around it, which is characteristic of a plush toy. The orange fingers at the bottom are the gripper jaws holding the plush toy."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "plush moose toy"
+    },
+    "task_correct": "put the plush toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of the sub-task's target 'plush toy'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of the sub-task's target 'plush toy'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm is converging on the wrong thing.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm should be stopped before it grasps."
+    }
+  },
+  {
+    "category": "plush",
+    "episode": "177_plush",
+    "object_type": "plush",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "plush moose toy",
+        "reason": "the image shows a fuzzy brown texture consistent with a plush toy, with white tags and orange elements that match the gripper jaws."
+      },
+      {
+        "frame": 10,
+        "object": "plush moose toy",
+        "reason": "the image shows fuzzy brown material consistent with a plush toy, with white tags attached, and orange gripper jaws visible at the top right, indicating the toy is being held."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "plush moose toy"
+    },
+    "task_correct": "put the plush toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of the sub-task's target 'plush toy'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of the sub-task's target 'plush toy'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm should be stopped before it grasps."
+    }
+  },
+  {
+    "category": "plush",
+    "episode": "192_plush",
+    "object_type": "plush",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "plush moose toy",
+        "reason": "The object has brown, fuzzy texture resembling fur, and the silver/grey parts look like metal tags or stitching on a stuffed animal, consistent with a plush moose toy. The orange fingers are gripping the toy, not a banana or pouch."
+      },
+      {
+        "frame": 12,
+        "object": "plush moose toy",
+        "reason": "The object has brown, textured fur resembling a moose, with visible ears and a head shape, consistent with a plush toy. The orange fingers are gripping it, and the background is white, typical of a robotic gripper setup."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "plush moose toy"
+    },
+    "task_correct": "put the plush toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of the sub-task's target 'plush toy'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of the sub-task's target 'plush toy'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm should be stopped before it grasps.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm should be stopped before it grasps."
+    }
+  },
+  {
+    "category": "plush",
+    "episode": "203_plush",
+    "object_type": "plush",
+    "first_close": 12,
+    "answers": [
+      {
+        "frame": 12,
+        "object": "nothing",
+        "reason": "the image is too blurry to identify any object clearly, and there is no visible object between the gripper jaws"
+      },
+      {
+        "frame": 13,
+        "object": "nothing",
+        "reason": "the image is too blurry to identify any object clearly, and there is no visible object between the gripper jaws"
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the plush toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "007_pouch",
+    "object_type": "pouch",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visibly sandwiched between the orange gripper jaws, with its textured surface and zipper partially visible."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visible between the orange gripper jaws, with its zipper and textured surface clearly in view."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "008_pouch",
+    "object_type": "pouch",
+    "first_close": 7,
+    "answers": [
+      {
+        "frame": 7,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visible between the orange gripper jaws, with its textured surface and zipper partially seen."
+      },
+      {
+        "frame": 8,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visible between the orange gripper jaws, with its zipper and textured surface clearly in view."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the banana mentioned in the sub-task. They are clearly different objects."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "060_pouch",
+    "object_type": "pouch",
+    "first_close": 10,
+    "answers": [
+      {
+        "frame": 10,
+        "object": "brown pouch",
+        "reason": "The object held between the gripper jaws is a brown, textured item with small white specks, consistent with a brown pouch. The orange gripper jaws are visible at the top and bottom edges of the frame, holding the object."
+      },
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The object is brown and has white spots, consistent with a brown pouch. The orange gripper jaws are holding it, and the shape and texture suggest a soft, possibly fabric item rather than a banana or plush toy."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana mentioned in the sub-task. The objects are clearly different, so the arm should be stopped before grasping.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "075_pouch",
+    "object_type": "pouch",
+    "first_close": 12,
+    "answers": [
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The image shows a brown, textured object with a zipper, which is consistent with a pouch. The orange gripper jaws are holding this object, and the zipper is visible at the top."
+      },
+      {
+        "frame": 13,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visible between the orange gripper jaws, with its zipper partially exposed and the material of the pouch clearly identifiable."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "076_pouch",
+    "object_type": "pouch",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visibly held between the orange gripper jaws, with the zipper and part of the pouch's surface in view."
+      },
+      {
+        "frame": 10,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, soft, rounded item that appears to be a pouch or bag, not a banana, plush toy, or nothing."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana mentioned in the sub-task. They are clearly different objects.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the banana mentioned in the sub-task. The objects are clearly different, so the arm should be stopped before grasping."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "078_pouch",
+    "object_type": "pouch",
+    "first_close": 8,
+    "answers": [
+      {
+        "frame": 8,
+        "object": "nothing",
+        "reason": "the image is blurry and shows only the orange gripper jaws with no clear object between them"
+      },
+      {
+        "frame": 9,
+        "object": "nothing",
+        "reason": "the image is blurry and shows only the orange gripper jaws with no visible object between them"
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "079_pouch",
+    "object_type": "pouch",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item with a zipper, consistent with a pouch. The surface has small white specks, possibly from wear or material, and the shape suggests a flexible, soft container rather than a banana or plush toy."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item with a zipper, consistent with a pouch. The shape and material do not match a banana or plush toy, and there is clearly an object being gripped, not nothing."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "099_pouch",
+    "object_type": "pouch",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "brown pouch",
+        "reason": "The brown pouch is the only object clearly visible between the orange gripper jaws, with its textured surface and seams in focus. The banana is partially visible in the background, not between the jaws."
+      },
+      {
+        "frame": 10,
+        "object": "brown pouch",
+        "reason": "The image shows a close-up of a textured brown object with stitching, consistent with a pouch, held between two orange robotic gripper jaws. The banana is visible in the background, not between the jaws."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the banana mentioned in the sub-task. The objects are clearly different, so the arm should be stopped before grasping."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "107_pouch",
+    "object_type": "pouch",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is brown, has a textured surface with some wear or scuff marks, and appears to be made of a soft, flexible material consistent with a pouch. It does not resemble a banana, plush moose toy, or nothing."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item that appears to be a pouch or similar soft container, not a banana, plush toy, or nothing."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana mentioned in the sub-task. The objects are clearly different, so the arm should be stopped before grasping.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the banana mentioned in the sub-task. They are clearly different objects."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "112_pouch",
+    "object_type": "pouch",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item with visible stitching or seams, consistent with a fabric pouch. It does not resemble a banana (smooth, curved), a plush moose toy (typically has distinct features like ears or antlers), or nothing (as something is clearly being gripped)."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item with visible stitching or seams, consistent with a pouch. It does not resemble a banana, plush moose toy, or nothing."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana mentioned in the sub-task. They are clearly different objects.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the banana mentioned in the sub-task. They are clearly different objects."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "117_pouch",
+    "object_type": "pouch",
+    "first_close": 7,
+    "answers": [
+      {
+        "frame": 7,
+        "object": "nothing",
+        "reason": "the image is blurry but shows only the gripper jaws and no distinct object held between them"
+      },
+      {
+        "frame": 8,
+        "object": "brown pouch",
+        "reason": "The image shows a blurry, close-up view of a textured, brown object being held between two orange gripper jaws. The shape and texture suggest it is a soft, possibly fabric item like a pouch, rather than a banana, plush toy, or nothing."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "119_pouch",
+    "object_type": "pouch",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visible between the orange gripper jaws, with its surface texture and shape clearly identifiable despite the blur."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is brown and has a textured, possibly fabric-like surface with some speckles or dirt, consistent with a brown pouch. It does not resemble a banana (smooth, curved, yellow), a plush moose toy (typically more defined shape and texture), or nothing (as something is clearly being gripped)."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the pouch on thet tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "147_pouch",
+    "object_type": "pouch",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "brown pouch",
+        "reason": "The object held between the gripper jaws is brown and has a soft, textured surface with visible speckles, consistent with a brown pouch rather than a banana, plush toy, or nothing."
+      },
+      {
+        "frame": 10,
+        "object": "nothing",
+        "reason": "the image shows only the gripper jaws and no object is visible between them"
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "unclear"
+    },
+    "task_correct": "put the pouch in the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana mentioned in the sub-task. The objects are clearly different, so the arm should be stopped before grasping.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is not ruled out and the arm is still on track."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "149_pouch",
+    "object_type": "pouch",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is brown and has a textured surface with visible stitching or seams, consistent with a pouch. It does not resemble a banana, plush moose toy, or nothing."
+      },
+      {
+        "frame": 10,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visible between the orange gripper jaws, with its textured surface and some white specks clearly seen."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the pouch in the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "199_pouch",
+    "object_type": "pouch",
+    "first_close": 8,
+    "answers": [
+      {
+        "frame": 8,
+        "object": "nothing",
+        "reason": "the image is blurry and shows only the gripper jaws with no visible object between them"
+      },
+      {
+        "frame": 9,
+        "object": "nothing",
+        "reason": "the image is too blurry to identify any object being held, and the gripper jaws appear to be closed on nothing or a very indistinct surface"
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is not ruled out and the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "215_pouch",
+    "object_type": "pouch",
+    "first_close": 8,
+    "answers": [
+      {
+        "frame": 8,
+        "object": "nothing",
+        "reason": "The orange gripper jaws are open and not enclosing any object; they are positioned near the brown pouch and plush moose toy but not holding anything."
+      },
+      {
+        "frame": 9,
+        "object": "nothing",
+        "reason": "The orange gripper jaws are open and not enclosing any object; they are positioned near the brown pouch but not holding it."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is not ruled out and the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is not ruled out and the arm is still on track."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "219_pouch",
+    "object_type": "pouch",
+    "first_close": 8,
+    "answers": [
+      {
+        "frame": 8,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, cylindrical item with a textured surface and some lighter spots, consistent with a brown pouch. It is too large and irregularly shaped to be a banana or a plush moose toy, and clearly not nothing."
+      },
+      {
+        "frame": 9,
+        "object": "brown pouch",
+        "reason": "The object held between the gripper jaws is a brown, cylindrical item with a textured surface, consistent with a brown pouch. The orange gripper jaws are clearly visible holding it, and no other objects like a banana or plush toy are discernible."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping."
+    }
+  },
+  {
+    "category": "pouch",
+    "episode": "225_pouch",
+    "object_type": "pouch",
+    "first_close": 12,
+    "answers": [
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The large brown object occupying most of the frame is consistent with a pouch, and the orange gripper jaws are positioned around it. The banana is partially visible but not fully enclosed by the jaws, and there's no evidence of a plush moose toy or nothing being held."
+      },
+      {
+        "frame": 13,
+        "object": "brown pouch",
+        "reason": "The large brown object occupying most of the frame is held between the orange gripper jaws, and its shape and texture suggest it is a brown pouch rather than a banana, plush toy, or nothing."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the pouch on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'brown pouch', which is a synonym/description of the sub-task's target 'pouch'. Therefore, the arm is still on track."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana mentioned in the sub-task. They are clearly different objects.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the banana mentioned in the sub-task. The objects are clearly different, so the arm should be stopped before grasping."
+    }
+  },
+  {
+    "category": "purse",
+    "episode": "015_purse",
+    "object_type": "purse",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, soft-looking item with some texture and small white specks, consistent with a brown pouch rather than a banana, plush toy, or nothing."
+      },
+      {
+        "frame": 10,
+        "object": "nothing",
+        "reason": "the image shows only the orange gripper jaws and a white surface, with no object visible between them"
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "unclear"
+    },
+    "task_correct": "put the purse on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for a 'brown pouch', which is a synonym/description of the sub-task's target 'purse'. Therefore, the arm is still on track.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the banana specified in the sub-task. The objects are clearly different, so the arm should be stopped before grasping.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is not ruled out and the arm is still on track."
+    }
+  },
+  {
+    "category": "purse",
+    "episode": "020_purse",
+    "object_type": "purse",
+    "first_close": 10,
+    "answers": [
+      {
+        "frame": 10,
+        "object": "nothing",
+        "reason": "the image shows only the gripper jaws and a blurry brown surface, with no distinct object clearly held between them"
+      },
+      {
+        "frame": 11,
+        "object": "banana",
+        "reason": "The object held between the gripper jaws has a curved, elongated shape with a yellowish color and some brown spots, which is characteristic of a banana."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the purse on the tray",
+    "task_wrong": "put the banana on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target (banana) is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "roll",
+    "episode": "011_roll",
+    "object_type": "roll",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "brown pouch",
+        "reason": "The brown pouch is directly between the orange gripper jaws, with its zipper and fabric texture visible. The plush moose toy is above the pouch and not held by the gripper."
+      },
+      {
+        "frame": 10,
+        "object": "brown pouch",
+        "reason": "The brown pouch is positioned between the orange gripper jaws, with its zipper visible and the gripper holding it firmly."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the roll on the tray",
+    "task_wrong": "put the plush toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a 'brown pouch', which is clearly a different object from the sub-task target 'roll'.",
+      "canon_two": "CONTINUE",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a 'brown pouch', which is clearly a different object from the sub-task's target 'roll'."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the plush toy mentioned in the sub-task. The objects are different and not synonyms.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the plush toy mentioned in the sub-task. The objects are different and not synonyms."
+    }
+  },
+  {
+    "category": "roll",
+    "episode": "018_roll",
+    "object_type": "roll",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The brown pouch is visibly sandwiched between the orange gripper jaws, with its surface and edges in direct contact with the jaws. The banana is separate, lying below and to the right, not held by the gripper."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The brown pouch is positioned between the orange gripper jaws, with the jaws appearing to be closing or holding it. The banana is below and not between the jaws."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the roll on the tray",
+    "task_wrong": "put the plush toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a 'brown pouch', which is clearly a different object from the sub-task target 'roll'.",
+      "canon_two": "CONTINUE",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a 'brown pouch', which is clearly a different object from the sub-task target 'roll'."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the plush toy mentioned in the sub-task. The objects are different and not synonyms.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the plush toy mentioned in the sub-task. The objects are different and not synonyms."
+    }
+  },
+  {
+    "category": "roll",
+    "episode": "019_roll",
+    "object_type": "roll",
+    "first_close": 10,
+    "answers": [
+      {
+        "frame": 10,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is a brown, textured item with visible white specks, consistent with a brown pouch. A banana is yellow and curved, a plush moose toy would have distinct features like eyes or antlers, and nothing would not have any visible texture or color."
+      },
+      {
+        "frame": 11,
+        "object": "brown pouch",
+        "reason": "The object held between the orange gripper jaws is brown and has a soft, textured surface with small white specks, consistent with a brown pouch. A banana is yellow and visible below, not being gripped. A plush moose toy is not visible or identifiable. The gripper is holding something, so it is not 'nothing'."
+      }
+    ],
+    "held": {
+      "one": "brown pouch",
+      "two": "brown pouch"
+    },
+    "task_correct": "put the roll on the tray",
+    "task_wrong": "put the plush toy on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a 'brown pouch', which is clearly a different object from the sub-task's target 'roll'.",
+      "canon_two": "CONTINUE",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a 'brown pouch', which is clearly a different object from the sub-task target 'roll'."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a brown pouch, which is not the plush toy mentioned in the sub-task. The objects are different and not synonyms.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a brown pouch, which is not the plush toy mentioned in the sub-task. The objects are different and not synonyms."
+    }
+  },
+  {
+    "category": "stuffed",
+    "episode": "024_stuffed",
+    "object_type": "stuffed",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "plush moose toy",
+        "reason": "the fuzzy brown texture and shape suggest a plush toy, and it is positioned between the orange gripper jaws."
+      },
+      {
+        "frame": 10,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy, brown, textured object with a ribbon or tag attached, consistent with a plush toy. The shape and material suggest it is a stuffed animal, likely a moose given the context of the question. The object is being held by what appears to be robotic gripper jaws."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "plush moose toy"
+    },
+    "task_correct": "put the stuffed animal in the box",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "STOP",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of 'stuffed animal', so the arm is still on track for the sub-task.",
+      "canon_two": "STOP",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of 'stuffed animal', so the arm is still on track for the sub-task."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm should be stopped before it grasps.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing."
+    }
+  },
+  {
+    "category": "stuffed",
+    "episode": "238_stuffed",
+    "object_type": "stuffed",
+    "first_close": 12,
+    "answers": [
+      {
+        "frame": 12,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy, brown textured object with a ribbon or bow, which is characteristic of a plush toy. The shape and material suggest it is a plush moose toy, and the orange fingers are gripping it."
+      },
+      {
+        "frame": 13,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy, brown textured object with a white ribbon tied around it, which is characteristic of a plush toy. The ribbon has partial text visible, likely part of a brand or name, further suggesting it's a decorative plush item. The object is being held by what appears to be robotic gripper jaws, consistent with the description."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "plush moose toy"
+    },
+    "task_correct": "put the stuffed animal in the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of 'stuffed animal', so the arm is still on track for the sub-task.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a synonym/description of 'stuffed animal', so the arm is still on track for the sub-task."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm is converging on the wrong thing."
+    }
+  },
+  {
+    "category": "toy",
+    "episode": "000_toy",
+    "object_type": "toy",
+    "first_close": 8,
+    "answers": [
+      {
+        "frame": 8,
+        "object": "nothing",
+        "reason": "the image is extremely blurry and shows only the orange gripper jaws with no clear object between them"
+      },
+      {
+        "frame": 9,
+        "object": "nothing",
+        "reason": "the image is too blurry to identify any object being held, and there are no clear features of a banana, brown pouch, or plush moose toy visible between the gripper jaws."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "toy",
+    "episode": "003_toy",
+    "object_type": "toy",
+    "first_close": 12,
+    "answers": [
+      {
+        "frame": 12,
+        "object": "nothing",
+        "reason": "the image is blurry and shows only textured material, with no clear object identifiable as a banana, brown pouch, or plush moose toy. the orange fingers are visible at the bottom right, but no object is clearly held between them."
+      },
+      {
+        "frame": 13,
+        "object": "brown pouch",
+        "reason": "The image shows a blurry, textured, brownish object that appears to be a soft, possibly fabric item, consistent with a pouch. The shape and texture do not match a banana or a plush moose toy, and there is no clear indication of 'nothing' being held."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "toy",
+    "episode": "034_toy",
+    "object_type": "toy",
+    "first_close": 12,
+    "answers": [
+      {
+        "frame": 12,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy, brown, textured object that matches the appearance of a plush toy, likely a moose given its shape and fur-like texture. The background blur and the context of a robot gripper suggest it's being held, and the object's form is consistent with a stuffed animal rather than a banana, pouch, or nothing."
+      },
+      {
+        "frame": 13,
+        "object": "plush moose toy",
+        "reason": "the image shows a fuzzy, brown, textured object that matches the appearance of a plush toy, likely a moose given its shape and texture, held between the gripper jaws."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "plush moose toy"
+    },
+    "task_correct": "put the toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy \u2014 matching the sub-task's target 'put the toy on the tray'.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy \u2014 matching the sub-task's target 'put the toy on the tray'."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing."
+    }
+  },
+  {
+    "category": "toy",
+    "episode": "047_toy",
+    "object_type": "toy",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "plush moose toy",
+        "reason": "The object has brown, furry texture consistent with a plush toy, and the visible tag with 'NEW ZEALAND' suggests it's a stuffed animal. The orange fingers are gripping the plush material, not a banana or pouch."
+      },
+      {
+        "frame": 12,
+        "object": "plush moose toy",
+        "reason": "the object has brown fluffy texture and a tag with \"NEW ZEALAND\" visible, consistent with a plush toy, and is being held by the gripper jaws."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "plush moose toy"
+    },
+    "task_correct": "put the toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy, matching the sub-task's target.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy, matching the sub-task's target."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing."
+    }
+  },
+  {
+    "category": "toy",
+    "episode": "108_toy",
+    "object_type": "toy",
+    "first_close": 8,
+    "answers": [
+      {
+        "frame": 8,
+        "object": "plush moose toy",
+        "reason": "the image shows a fuzzy, brown textured object with white straps or patterns, consistent with a plush toy, held between what appear to be robotic gripper jaws."
+      },
+      {
+        "frame": 9,
+        "object": "plush moose toy",
+        "reason": "the image shows fuzzy brown material consistent with a plush toy, with white straps or fabric visible, which matches a plush moose toy being gripped."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "plush moose toy"
+    },
+    "task_correct": "put the toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy \u2014 matching the sub-task's target 'put the toy on the tray'.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy, matching the sub-task's target."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing."
+    }
+  },
+  {
+    "category": "toy",
+    "episode": "120_toy",
+    "object_type": "toy",
+    "first_close": 8,
+    "answers": [
+      {
+        "frame": 8,
+        "object": "plush moose toy",
+        "reason": "the fuzzy, brown, textured material visible in the close-up is consistent with the fur of a plush toy, and the context of a robot gripper suggests it is holding an object, likely a plush moose toy."
+      },
+      {
+        "frame": 9,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy, textured surface with brown and tan colors, consistent with the appearance of a plush toy. The close-up view and the context of a robot gripper suggest the object is being held, and the texture and color pattern match a plush moose toy rather than a banana, a brown pouch, or nothing."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "plush moose toy"
+    },
+    "task_correct": "put the toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy \u2014 matching the sub-task's target 'put the toy on the tray'.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy \u2014 matching the sub-task's target 'put the toy on the tray'."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing."
+    }
+  },
+  {
+    "category": "toy",
+    "episode": "122_toy",
+    "object_type": "toy",
+    "first_close": 10,
+    "answers": [
+      {
+        "frame": 10,
+        "object": "plush moose toy",
+        "reason": "the image shows a fuzzy, brown, textured object consistent with a plush toy, and the orange fingers are gripping it."
+      },
+      {
+        "frame": 11,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy, brown, textured object that matches the appearance of a plush toy, likely a moose given its shape and the context of being held by a gripper. The orange fingers are visible at the bottom, confirming it's being gripped."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "plush moose toy"
+    },
+    "task_correct": "put the toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy, matching the sub-task's target.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy, matching the sub-task's target."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm is converging on the wrong thing.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing."
+    }
+  },
+  {
+    "category": "toy",
+    "episode": "124_toy",
+    "object_type": "toy",
+    "first_close": 9,
+    "answers": [
+      {
+        "frame": 9,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy, brown, textured object with white patches that resemble a plush toy, held between orange gripper jaws."
+      },
+      {
+        "frame": 10,
+        "object": "brown pouch",
+        "reason": "The object held between the gripper jaws is fuzzy and brown, consistent with a brown pouch. The label \"AND\" is visible, which is typically attached to items for identification, further supporting it being a pouch rather than a plush toy or banana."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "unclear"
+    },
+    "task_correct": "put the toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy, matching the sub-task's target.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm is converging on the wrong thing.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "toy",
+    "episode": "169_toy",
+    "object_type": "toy",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy, brown, textured surface consistent with a plush toy, and the orange gripper jaws are visible at the bottom right, holding the object."
+      },
+      {
+        "frame": 12,
+        "object": "plush moose toy",
+        "reason": "the image shows a fuzzy, brown textured object consistent with a plush toy, held between what appear to be robotic gripper jaws."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "plush moose toy"
+    },
+    "task_correct": "put the toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy \u2014 matching the sub-task's target 'put the toy on the tray'.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy, matching the sub-task's target."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm should be stopped before it grasps.",
+      "canon_two": "STOP",
+      "compare_two": "STOP",
+      "compare_two_reason": "The arm is going for a plush moose toy, which is not the target object 'pouch'. The perception pass has resolved on a different object, so the arm is converging on the wrong thing."
+    }
+  },
+  {
+    "category": "toy",
+    "episode": "213_toy",
+    "object_type": "toy",
+    "first_close": 11,
+    "answers": [
+      {
+        "frame": 11,
+        "object": "plush moose toy",
+        "reason": "The image shows a fuzzy, brown, textured object with a soft, plush appearance, consistent with a stuffed toy. The shape and texture do not match a banana or a pouch, and the object is clearly being held by the gripper jaws, indicating it is the item being gripped."
+      },
+      {
+        "frame": 12,
+        "object": "brown pouch",
+        "reason": "The image shows a blurry, textured brown object that appears to be held between two orange gripper jaws, consistent with a brown pouch being grasped."
+      }
+    ],
+    "held": {
+      "one": "plush moose toy",
+      "two": "unclear"
+    },
+    "task_correct": "put the toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass resolved the arm is going for 'plush moose toy', which is a toy, matching the sub-task's target.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "STOP",
+      "compare_one": "STOP",
+      "compare_one_reason": "The arm is going for a plush moose toy, which is not the target object (pouch). The perception pass has resolved on a different object, so the arm should be stopped before it grasps.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "toy",
+    "episode": "218_toy",
+    "object_type": "toy",
+    "first_close": 7,
+    "answers": [
+      {
+        "frame": 7,
+        "object": "nothing",
+        "reason": "The image is completely black with no visible object between the orange gripper jaws."
+      },
+      {
+        "frame": 8,
+        "object": "nothing",
+        "reason": "The image is completely black with no visible objects or details, so nothing is being held between the gripper jaws."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  },
+  {
+    "category": "toy",
+    "episode": "231_toy",
+    "object_type": "toy",
+    "first_close": 12,
+    "answers": [
+      {
+        "frame": 12,
+        "object": "nothing",
+        "reason": "The image is extremely dark and blurry, with no discernible object clearly visible between the orange gripper jaws. The only visible elements are the faint orange shapes of the gripper itself, and no distinct object can be identified."
+      },
+      {
+        "frame": 13,
+        "object": "nothing",
+        "reason": "The image is extremely dark and blurry, with no discernible object clearly visible between the gripper jaws. The only visible features are the faint, out-of-focus orange shapes of the gripper jaws themselves, with no distinct object held between them."
+      }
+    ],
+    "held": {
+      "one": "unclear",
+      "two": "unclear"
+    },
+    "task_correct": "put the toy on the tray",
+    "task_wrong": "put the pouch on the tray",
+    "correct": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    },
+    "wrong": {
+      "canon_one": "CONTINUE",
+      "compare_one": "CONTINUE",
+      "compare_one_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out.",
+      "canon_two": "CONTINUE",
+      "compare_two": "CONTINUE",
+      "compare_two_reason": "The perception pass could not yet resolve which object the arm is going for, so the target is still plausible and not ruled out."
+    }
+  }
+]

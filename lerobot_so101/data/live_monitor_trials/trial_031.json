@@ -1,0 +1,118 @@
+{
+  "trial": 31,
+  "time": "2026-09-27T06:45:36",
+  "vla_task": "put the pouch on the tray",
+  "monitor_task": "put the pouch on the tray",
+  "label": "correct",
+  "outcome": "CONTINUE",
+  "stop": null,
+  "committed": true,
+  "held_object": "brown cylinder",
+  "reach_windows": 1,
+  "stale_skipped": 0,
+  "verify_calls": 4,
+  "n_frames": 26,
+  "first_close": 11,
+  "gate_open_at": null,
+  "verify": {
+    "close_frame": null,
+    "probe": "grasp freeze t=10.53s",
+    "frozen_at": 10.530989708960988,
+    "frozen_aperture": 11.643835616438356,
+    "held": "brown cylinder",
+    "answers": [
+      {
+        "frame": 0,
+        "object": "brown cylinder",
+        "reason": "The object held between the orange gripper jaws is cylindrical, dark brown, and has a fabric-like texture with visible stitching and wear, matching the description of a brown cylinder."
+      },
+      {
+        "frame": 1,
+        "object": "brown cylinder",
+        "reason": "The object held between the orange gripper jaws is cylindrical, dark brown, and has a fabric-like texture with visible stitching and a zipper, matching the description of a brown cylinder."
+      }
+    ],
+    "grounded": "brown cylinder",
+    "inventory": [
+      {
+        "name": "banana",
+        "appearance": "yellow, curved, peelable fruit"
+      },
+      {
+        "name": "stuffed animal",
+        "appearance": "brown, furry, has horns"
+      },
+      {
+        "name": "brown cylinder",
+        "appearance": "dark brown, cylindrical, fabric-like"
+      }
+    ],
+    "verify_s": 23.06
+  },
+  "timeline": [
+    {
+      "frame": 10,
+      "t": 9.93,
+      "action": "UNCLEAR",
+      "reason": "single check unclear \u2014 the wrist decides: The perception pass is still unclear which object the arm is going for, and the target 'pouch' is still plausible among the candidates (brown pouch). Since the arm has not yet resolved on a different object, the sub-task is not yet off-track.",
+      "check_s": 27.01
+    },
+    {
+      "frame": 10,
+      "t": 9.93,
+      "action": "CONTINUE",
+      "reason": "reach unclear; wrist 'brown cylinder' (brown cylinder/brown cylinder) vs task object 'brown cylinder' \u2014 no STOP",
+      "check_s": 23.06
+    },
+    {
+      "frame": 10,
+      "t": 9.93,
+      "action": "RETIRED",
+      "reason": "single grasp check done \u2014 monitor retired",
+      "check_s": null
+    }
+  ],
+  "freeze_images": [
+    "live_monitor_trials/freeze/trial_031_wrist_0.png",
+    "live_monitor_trials/freeze/trial_031_front_0.png",
+    "live_monitor_trials/freeze/trial_031_wrist_1.png",
+    "live_monitor_trials/freeze/trial_031_front_1.png"
+  ],
+  "empty_closes": [],
+  "inventory_dropped": [],
+  "episode": {
+    "dir": "live_monitor_trials/episodes/pouch/031_pouch",
+    "duration": 84.09668498195242,
+    "converged": true,
+    "max_displacement": 218.75592041015625,
+    "total_actions": 591
+  },
+  "wall_s": 157.6,
+  "note": "",
+  "config": {
+    "gate": "grasp",
+    "horizon": 20,
+    "tail": 1,
+    "verify": true,
+    "match": "inventory",
+    "objects": [
+      "banana",
+      "brown pouch",
+      "plush moose toy"
+    ],
+    "window": 4,
+    "ground_compare": false,
+    "unclear_wrist_decides": true,
+    "grasp_fallback_frames": 6,
+    "freeze_stall_eps": 0.5,
+    "freeze_settle_s": 0.3,
+    "verify_frame_gap_s": 0.2,
+    "min_hold_aperture": 4.0,
+    "pause_refreshes": 1,
+    "chunk_size_threshold": 0.95,
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "temperature": 0.1,
+    "episode_duration": 100.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct"
+  }
+}

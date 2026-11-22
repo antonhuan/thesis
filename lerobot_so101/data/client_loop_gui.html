@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robot Client</title>
+<style>
+  :root {
+    --bg: #f6f6f4; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6b66; --line: #e2e2dc;
+    --accent: #2f6fdb; --ok: #1f8a4c; --bad: #c8382e; --warn: #b7791f; --run: #2f6fdb;
+    --log-bg: #fbfbf9; --chip: #eeeee9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151514; --panel: #1e1e1c; --ink: #ececea; --muted: #9a9a94; --line: #2e2e2b;
+      --accent: #6c9cf0; --ok: #4cc27f; --bad: #ee6a5f; --warn: #e0a84a; --run: #6c9cf0;
+      --log-bg: #181817; --chip: #2a2a27;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+           padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  .pill { padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
+          background: var(--chip); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .pill.executing { background: var(--run); color: #fff; }
+  .pill.homing { background: var(--warn); color: #fff; }
+  .pill.idle { background: var(--ok); color: #fff; }
+  .meta { color: var(--muted); font-size: 12px; text-align: right; }
+  /* --ui-fs is the demo text size (A-/A+ in the header); the left column uses it and
+     its parts are sized in em so they scale with it. */
+  main { --ui-fs: 20px; display: grid; grid-template-columns: minmax(380px, 560px) 1fr; gap: 16px; padding: 16px; }
+  .col.left { font-size: var(--ui-fs); }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } .meta { margin-left: 0; text-align: left; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+       margin: 0 0 10px; font-weight: 600; }
+  textarea { width: 100%; min-height: 3.5em; resize: vertical; padding: 10px; border-radius: 8px;
+             border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; }
+  button { font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: 10px 16px;
+           cursor: pointer; color: #fff; background: var(--accent); }
+  button:disabled { opacity: .35; cursor: not-allowed; }
+  button.stop { background: var(--bad); }
+  button.home { background: var(--warn); }
+  .row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+  .row button { flex: 1; }
+  .len { display: flex; align-items: center; gap: 6px; font-size: .75em; color: var(--muted); }
+  .len input { width: 5em; font: inherit; color: var(--ink); background: var(--bg); padding: 6px 8px;
+               border: 1px solid var(--line); border-radius: 6px; }
+  .hint { color: var(--muted); font-size: .75em; margin-top: 6px; }
+  .err { color: var(--bad); font-size: .8em; margin-top: 6px; min-height: 1em; }
+  .now { margin-top: 12px; }
+  .now .task { font-weight: 600; }
+  .bar { height: 8px; border-radius: 4px; background: var(--chip); overflow: hidden; margin-top: 6px; }
+  .bar > div { height: 100%; background: var(--run); width: 0; transition: width .4s linear; }
+  .now .t { font-size: .75em; color: var(--muted); margin-top: 3px; }
+  .recent { display: flex; flex-wrap: wrap; gap: 6px; }
+  .recent button { font-size: .75em; font-weight: 500; padding: 4px 10px; border-radius: 999px;
+                   background: var(--chip); color: var(--ink); border: 1px solid var(--line); text-align: left; }
+  .ep { border-top: 1px solid var(--line); padding: 6px 0; font-size: .95em; }
+  .ep:first-child { border-top: 0; }
+  .tag { display: inline-block; font-size: .8em; padding: 1px 6px; border-radius: 4px;
+         background: var(--chip); color: var(--muted); margin-right: 4px; }
+  .tag.ok { color: var(--ok); } .tag.bad { color: var(--bad); } .tag.warn { color: var(--warn); }
+  .cams { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .cam { position: relative; background: #000; border-radius: 8px; overflow: hidden; aspect-ratio: 4 / 3; }
+  .cam img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .cam span { position: absolute; left: 8px; top: 6px; font-size: 12px; color: #fff;
+              background: rgba(0,0,0,.55); padding: 1px 6px; border-radius: 4px; }
+  .empty { color: var(--muted); font-size: .9em; }
+  #log { height: 360px; overflow: auto; margin: 0; padding: 10px; background: var(--log-bg);
+         border: 1px solid var(--line); border-radius: 8px;
+         font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; word-break: break-word; }
+  #log .w { color: var(--warn); } #log .e { color: var(--bad); } #log .g { color: var(--accent); font-weight: 600; }
+  .log-head { display: flex; align-items: center; justify-content: space-between; }
+  .log-head label { font-size: 12px; color: var(--muted); }
+  .fs { display: flex; gap: 4px; align-items: center; margin-left: auto; }
+  .fs span { font-size: 12px; color: var(--muted); margin-right: 2px; }
+  .fs button { font-size: 13px; padding: 2px 9px; border-radius: 6px; background: var(--chip);
+               color: var(--ink); border: 1px solid var(--line); }
+  .fs button#clear { margin-right: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Robot Client</h1>
+  <span id="phase" class="pill">connecting</span>
+  <div class="fs"><button id="clear" title="Empty the episodes, recent instructions and log">Clear history</button><span>Text</span><button id="fs-down" title="Smaller text">A−</button><button id="fs-up" title="Larger text">A+</button></div>
+  <div class="meta" id="meta"></div>
+</header>
+<main>
+  <div class="col left">
+    <section class="panel">
+      <h2>Instruction</h2>
+      <textarea id="task" placeholder="e.g. put the banana on the tray"></textarea>
+      <div class="row">
+        <label class="len">Episode length <input id="dur" type="number" min="1" step="1"> s</label>
+        <button id="run">Run</button>
+      </div>
+      <div class="row">
+        <button id="stop" class="stop" disabled title="End the running episode now">Stop episode</button>
+        <button id="home" class="home" disabled title="Return the arm to its home pose">Home</button>
+      </div>
+      <div class="hint">Enter runs · Shift+Enter for a new line · the arm returns home after each episode</div>
+      <div class="err" id="err"></div>
+      <div class="now" id="now"></div>
+    </section>
+    <section class="panel">
+      <h2>Recent instructions</h2>
+      <div class="recent" id="recent"><div class="empty">None yet.</div></div>
+    </section>
+    <section class="panel">
+      <h2>Episodes</h2>
+      <div id="episodes"><div class="empty">None yet.</div></div>
+    </section>
+  </div>
+  <div class="col">
+    <section class="panel">
+      <h2>Cameras</h2>
+      <div class="cams" id="cams"><div class="empty">Waiting for frames…</div></div>
+    </section>
+    <section class="panel">
+      <div class="log-head"><h2>Log</h2>
+        <label><input type="checkbox" id="follow" checked> follow</label></div>
+      <pre id="log"></pre>
+    </section>
+  </div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let camKeys = "", logSeq = 0, durSet = false;
+
+async function post(path, body) {
+  $("err").textContent = "";
+  try {
+    const r = await fetch(path, {method: "POST", headers: {"Content-Type": "application/json"},
+                                 body: body ? JSON.stringify(body) : null});
+    if (!r.ok) { const j = await r.json().catch(() => ({})); $("err").textContent = j.detail || r.statusText; return false; }
+    return true;
+  } catch (e) { $("err").textContent = "server unreachable"; return false; }
+}
+
+$("run").onclick = async () => {
+  const task = $("task").value.trim();
+  if (!task) return;
+  const d = parseFloat($("dur").value);
+  if (await post("/api/run", {task, duration: isFinite(d) ? d : null})) refresh();
+};
+$("task").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("run").click(); }
+});
+$("stop").onclick = () => post("/api/stop");
+$("home").onclick = async () => { if (await post("/api/home")) refresh(); };
+$("clear").onclick = async () => {
+  if (!confirm("Clear the episodes, recent instructions and log?")) return;
+  if (await post("/api/clear")) refresh();
+};
+// Clear history (from any tab) bumps s.cleared: empty the log, which the page keeps
+// itself; the episode and recent panels re-render from the state.
+let clearedSeen = null;
+$("recent").onclick = e => {
+  const b = e.target.closest("button");
+  if (b) { $("task").value = b.dataset.task; $("task").focus(); }
+};
+
+const ENDED = {converged: "ok", timeout: "", stopped: "warn", "ended early": "warn", crashed: "bad"};
+
+function renderNow(s) {
+  if (s.phase !== "executing") {
+    $("now").innerHTML = s.phase === "homing" ? '<div class="t">Returning home…</div>' : "";
+    return;
+  }
+  const pct = Math.min(100, 100 * (s.elapsed || 0) / s.duration);
+  $("now").innerHTML = `<div class="task">${esc(s.task)}</div>` +
+    `<div class="bar"><div style="width:${pct.toFixed(1)}%"></div></div>` +
+    `<div class="t">${(s.elapsed || 0).toFixed(1)} / ${s.duration}s</div>`;
+}
+
+function renderRecent(s) {
+  $("recent").innerHTML = s.recent.length
+    ? s.recent.map(t => `<button data-task="${esc(t)}" title="Use this instruction">${esc(t)}</button>`).join("")
+    : '<div class="empty">None yet.</div>';
+}
+
+function renderEpisodes(s) {
+  if (!s.episodes.length) { $("episodes").innerHTML = '<div class="empty">None yet.</div>'; return; }
+  $("episodes").innerHTML = s.episodes.slice().reverse().map(e =>
+    `<div class="ep"><div>${esc(e.task)}</div><div>` +
+    `<span class="tag">#${e.n} · ${esc(e.time)}</span>` +
+    `<span class="tag ${ENDED[e.ended] ?? ""}">${esc(e.ended)}</span>` +
+    (e.duration != null ? `<span class="tag">${e.duration.toFixed(1)}s</span>` : "") +
+    (e.total_actions != null ? `<span class="tag">${e.total_actions} actions</span>` : "") +
+    (e.max_displacement != null ? `<span class="tag">max disp ${e.max_displacement.toFixed(1)}</span>` : "") +
+    (e.error ? `<div class="tag bad">${esc(e.error)}</div>` : "") +
+    "</div></div>").join("");
+}
+
+function renderCams(keys) {
+  const k = keys.join(",");
+  if (k === camKeys) return;
+  camKeys = k;
+  $("cams").innerHTML = keys.length ? keys.map(key =>
+    `<div class="cam"><img src="/api/camera/${encodeURIComponent(key)}" alt="${esc(key)} camera"><span>${esc(key)}</span></div>`).join("")
+    : '<div class="empty">Waiting for frames…</div>';
+}
+
+async function refresh() {
+  try {
+    const s = await (await fetch("/api/state")).json();
+    if (s.cleared !== clearedSeen) { if (clearedSeen !== null) $("log").innerHTML = ""; clearedSeen = s.cleared; }
+    $("phase").textContent = s.phase; $("phase").className = "pill " + s.phase;
+    const c = s.config;
+    $("meta").innerHTML = `${esc(c.policy_type)} · ${esc(c.policy)}<br>` +
+      `default ${c.episode_duration}s/episode · logging ${esc(c.logging)}`;
+    if (!durSet) { $("dur").value = c.episode_duration; $("dur").max = c.max_episode_duration; durSet = true; }
+    $("run").disabled = s.busy;
+    $("stop").disabled = s.phase !== "executing";
+    $("home").disabled = s.busy;
+    $("clear").disabled = s.busy;
+    renderNow(s); renderRecent(s); renderEpisodes(s); renderCams(s.cameras);
+  } catch (e) {
+    $("phase").textContent = "offline"; $("phase").className = "pill";
+  }
+}
+
+async function pollLog() {
+  try {
+    const r = await (await fetch("/api/log?after=" + logSeq)).json();
+    if (r.seq < logSeq) logSeq = 0;  // server restarted
+    if (r.lines.length) {
+      const log = $("log");
+      const frag = document.createDocumentFragment();
+      for (const line of r.lines) {
+        const div = document.createElement("div");
+        if (/\bERROR\b|Traceback/.test(line)) div.className = "e";
+        else if (/\bWARNING\b/.test(line)) div.className = "w";
+        else if (/^\[GUI\]/.test(line)) div.className = "g";
+        div.textContent = line;
+        frag.appendChild(div);
+      }
+      log.appendChild(frag);
+      while (log.childNodes.length > 3000) log.removeChild(log.firstChild);
+      if ($("follow").checked) log.scrollTop = log.scrollHeight;
+    }
+    logSeq = r.seq;
+  } catch (e) {}
+}
+
+// Demo text size: A-/A+ step --ui-fs; remembered per browser, since demo screens differ.
+let uiFs = 20;
+try { uiFs = +localStorage.getItem("clientUiFs") || 20; } catch (e) {}
+function setUiFs(px) {
+  uiFs = Math.min(44, Math.max(12, px));
+  document.querySelector("main").style.setProperty("--ui-fs", uiFs + "px");
+  try { localStorage.setItem("clientUiFs", uiFs); } catch (e) {}
+}
+$("fs-down").onclick = () => setUiFs(uiFs - 2);
+$("fs-up").onclick = () => setUiFs(uiFs + 2);
+setUiFs(uiFs);
+
+refresh(); pollLog();
+setInterval(refresh, 500);
+setInterval(pollLog, 500);
+</script>
+</body>
+</html>

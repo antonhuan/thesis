@@ -1,0 +1,82 @@
+{
+  "trial": 11,
+  "time": "2026-09-26T07:06:37",
+  "vla_task": "put the pouch on the tray",
+  "monitor_task": "put the pouch on the tray",
+  "label": "correct",
+  "outcome": "CONTINUE",
+  "stop": null,
+  "committed": true,
+  "held_object": "pouch",
+  "reach_windows": 3,
+  "stale_skipped": 2,
+  "verify_calls": 0,
+  "n_frames": 18,
+  "first_close": 8,
+  "gate_open_at": 5,
+  "verify": {},
+  "timeline": [
+    {
+      "frame": 5,
+      "t": 5.29,
+      "action": "CONTINUE",
+      "reason": "The perception pass is still unclear about which object the arm is going for, and the target 'pouch' is still plausible among the remaining objects. No action should be stopped until resolution.",
+      "check_s": 24.75,
+      "reaching_for": "unclear",
+      "held": "no"
+    },
+    {
+      "frame": 7,
+      "t": 31.04,
+      "action": "CONTINUE",
+      "reason": "The perception pass resolved the arm is going for 'pouch', which matches the sub-task's target exactly.",
+      "check_s": 16.04,
+      "reaching_for": "pouch",
+      "held": "no"
+    },
+    {
+      "frame": 8,
+      "t": 48.03,
+      "action": "CONTINUE",
+      "reason": "The perception pass resolved the arm is going for 'pouch', which matches the sub-task's target exactly.",
+      "check_s": 13.13,
+      "reaching_for": "pouch",
+      "held": "yes"
+    },
+    {
+      "frame": 8,
+      "t": 48.03,
+      "action": "COMMIT",
+      "reason": "grasp confirmed on 'pouch' \u2014 check retired",
+      "check_s": 13.13
+    }
+  ],
+  "episode": {
+    "dir": "live_monitor_trials/episodes/pouch/010_pouch",
+    "duration": 74.69307645899244,
+    "converged": true,
+    "max_displacement": 191.48260498046875,
+    "total_actions": 384
+  },
+  "wall_s": 84.9,
+  "note": "",
+  "config": {
+    "gate": "close",
+    "horizon": 20,
+    "tail": 1,
+    "verify": true,
+    "match": "scene",
+    "objects": [
+      "banana",
+      "brown pouch",
+      "plush moose toy"
+    ],
+    "window": 4,
+    "pause_refreshes": 1,
+    "chunk_size_threshold": 0.95,
+    "pretrained_name_or_path": "ant0nh/pi05_500_30k",
+    "temperature": 0.1,
+    "episode_duration": 100.0,
+    "vlm_model": "Qwen/Qwen3-VL-8B-Instruct"
+  }
+}

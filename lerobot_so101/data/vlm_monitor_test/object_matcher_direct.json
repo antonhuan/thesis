@@ -1,0 +1,2233 @@
+{
+  "config": {
+    "root": "vla_failure_test",
+    "worklist": "vla_failure_analysis2/labeling_worklist.csv",
+    "model": "Qwen/Qwen3-VL-8B-Instruct",
+    "mode": "direct",
+    "categories": null,
+    "limit": null,
+    "temp": 0.1,
+    "out": "vlm_monitor_test/object_matcher_direct.json",
+    "rescore": null
+  },
+  "phrase_truth": {
+    "pouch": "POUCH",
+    "brown pouch": "POUCH",
+    "box": "POUCH",
+    "purse": "POUCH",
+    "roll": "POUCH",
+    "pencil case": "POUCH",
+    "chocolate bar": "POUCH",
+    "chocolate": "POUCH",
+    "sausage": "POUCH",
+    "cylinder": "POUCH",
+    "cylindrical object": "POUCH",
+    "brown cylinder": "POUCH",
+    "brown cylindrical object": "POUCH",
+    "plush toy": "PLUSH",
+    "toy": "PLUSH",
+    "moose": "PLUSH",
+    "stuffed animal": "PLUSH",
+    "brown plush toy": "PLUSH",
+    "banana": "BANANA",
+    "robot arm": "NONE",
+    "table": "NONE",
+    "tray": "NONE",
+    "wires": "NONE",
+    "kumquat": "NONE",
+    "brown object": "AMBIGUOUS",
+    "kiwi": "AMBIGUOUS"
+  },
+  "results": [
+    {
+      "category": "banana",
+      "episode": "001_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/001_banana",
+      "initial": "vla_failure_test/banana/001_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, with some brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "001_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/001_banana",
+      "initial": "vla_failure_test/banana/001_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown fuzzy toy with wings"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "005_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/005_banana",
+      "initial": "vla_failure_test/banana/005_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, with brown tip"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "005_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/005_banana",
+      "initial": "vla_failure_test/banana/005_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown stuffed animal with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "025_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/025_banana",
+      "initial": "vla_failure_test/banana/025_banana/00000_front_put_the_banana_in_the_box.png",
+      "task": "put the banana in the box",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved fruit"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "025_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/025_banana",
+      "initial": "vla_failure_test/banana/025_banana/00000_front_put_the_banana_in_the_box.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with arms and legs"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "041_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/041_banana",
+      "initial": "vla_failure_test/banana/041_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, lying on table"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "041_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/041_banana",
+      "initial": "vla_failure_test/banana/041_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown furry toy with arms"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "050_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/050_banana",
+      "initial": "vla_failure_test/banana/050_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, fruit"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "050_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/050_banana",
+      "initial": "vla_failure_test/banana/050_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush animal with long snout"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "052_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/052_banana",
+      "initial": "vla_failure_test/banana/052_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, lying on table"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "052_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/052_banana",
+      "initial": "vla_failure_test/banana/052_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown furry toy with arms"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "068_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/068_banana",
+      "initial": "vla_failure_test/banana/068_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, lying on a surface"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "068_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/068_banana",
+      "initial": "vla_failure_test/banana/068_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "072_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/072_banana",
+      "initial": "vla_failure_test/banana/072_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, with wires attached"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "072_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/072_banana",
+      "initial": "vla_failure_test/banana/072_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown furry toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "105_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/105_banana",
+      "initial": "vla_failure_test/banana/105_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, with brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "105_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/105_banana",
+      "initial": "vla_failure_test/banana/105_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "113_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/113_banana",
+      "initial": "vla_failure_test/banana/113_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, toy-like"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "113_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/113_banana",
+      "initial": "vla_failure_test/banana/113_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "121_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/121_banana",
+      "initial": "vla_failure_test/banana/121_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow banana hanging"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "121_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/121_banana",
+      "initial": "vla_failure_test/banana/121_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with arms"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "125_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/125_banana",
+      "initial": "vla_failure_test/banana/125_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, with some brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "125_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/125_banana",
+      "initial": "vla_failure_test/banana/125_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "184_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/184_banana",
+      "initial": "vla_failure_test/banana/184_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "brown, curved, with some spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "184_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/184_banana",
+      "initial": "vla_failure_test/banana/184_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with banana tail"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "197_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/197_banana",
+      "initial": "vla_failure_test/banana/197_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow banana with brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "197_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/197_banana",
+      "initial": "vla_failure_test/banana/197_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "204_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/204_banana",
+      "initial": "vla_failure_test/banana/204_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow banana with brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "204_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/204_banana",
+      "initial": "vla_failure_test/banana/204_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with arms"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "216_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/216_banana",
+      "initial": "vla_failure_test/banana/216_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, with brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "216_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/216_banana",
+      "initial": "vla_failure_test/banana/216_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "217_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/217_banana",
+      "initial": "vla_failure_test/banana/217_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, on pink tray"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "217_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/217_banana",
+      "initial": "vla_failure_test/banana/217_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "banana",
+      "episode": "226_banana",
+      "trial": "correct",
+      "dir": "vla_failure_test/banana/226_banana",
+      "initial": "vla_failure_test/banana/226_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow banana with brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "banana",
+      "episode": "226_banana",
+      "trial": "wrong",
+      "dir": "vla_failure_test/banana/226_banana",
+      "initial": "vla_failure_test/banana/226_banana/00000_front_put_the_banana_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with long ears"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "box",
+      "episode": "012_box",
+      "trial": "correct",
+      "dir": "vla_failure_test/box/012_box",
+      "initial": "vla_failure_test/box/012_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the box on the tray",
+      "phrase": "box",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "brown pouch",
+        "appearance": "brown, rectangular, with wires attached"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "box",
+      "episode": "012_box",
+      "trial": "wrong",
+      "dir": "vla_failure_test/box/012_box",
+      "initial": "vla_failure_test/box/012_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the stuffed animal on the tray",
+      "phrase": "stuffed animal",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "stuffed animal",
+        "appearance": "brown furry moose with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "box",
+      "episode": "017_box",
+      "trial": "correct",
+      "dir": "vla_failure_test/box/017_box",
+      "initial": "vla_failure_test/box/017_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the box on the tray",
+      "phrase": "box",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "box",
+        "appearance": "pink rectangular tray"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "box",
+      "episode": "017_box",
+      "trial": "wrong",
+      "dir": "vla_failure_test/box/017_box",
+      "initial": "vla_failure_test/box/017_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the stuffed animal on the tray",
+      "phrase": "stuffed animal",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "stuffed animal",
+        "appearance": "brown plush moose with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "box",
+      "episode": "021_box",
+      "trial": "correct",
+      "dir": "vla_failure_test/box/021_box",
+      "initial": "vla_failure_test/box/021_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the box on the tray",
+      "phrase": "box",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "box",
+        "appearance": "pink box with moose toy inside"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "box",
+      "episode": "021_box",
+      "trial": "wrong",
+      "dir": "vla_failure_test/box/021_box",
+      "initial": "vla_failure_test/box/021_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the stuffed animal on the tray",
+      "phrase": "stuffed animal",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "stuffed animal",
+        "appearance": "brown plush moose with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "box",
+      "episode": "118_box",
+      "trial": "correct",
+      "dir": "vla_failure_test/box/118_box",
+      "initial": "vla_failure_test/box/118_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the box on the tray",
+      "phrase": "box",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "box",
+        "appearance": "pink rectangular tray"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "box",
+      "episode": "118_box",
+      "trial": "wrong",
+      "dir": "vla_failure_test/box/118_box",
+      "initial": "vla_failure_test/box/118_box/00000_front_put_the_box_on_the_tray.png",
+      "task": "put the stuffed animal on the tray",
+      "phrase": "stuffed animal",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "stuffed animal",
+        "appearance": "brown plush animal with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "brown",
+      "episode": "077_brown",
+      "trial": "correct",
+      "dir": "vla_failure_test/brown/077_brown",
+      "initial": "vla_failure_test/brown/077_brown/00000_front_put_the_brown_pouch_on_the_tray.png",
+      "task": "put the brown pouch on the tray",
+      "phrase": "brown pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "brown pouch",
+        "appearance": "long, brown, pouch-like object"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "brown",
+      "episode": "077_brown",
+      "trial": "wrong",
+      "dir": "vla_failure_test/brown/077_brown",
+      "initial": "vla_failure_test/brown/077_brown/00000_front_put_the_brown_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, on a pink tray"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "brown",
+      "episode": "083_brown",
+      "trial": "correct",
+      "dir": "vla_failure_test/brown/083_brown",
+      "initial": "vla_failure_test/brown/083_brown/00000_front_put_the_brown_pouch_on_the_tray.png",
+      "task": "put the brown pouch on the tray",
+      "phrase": "brown pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "brown pouch",
+        "appearance": "brown, cylindrical, leather-like"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "brown",
+      "episode": "083_brown",
+      "trial": "wrong",
+      "dir": "vla_failure_test/brown/083_brown",
+      "initial": "vla_failure_test/brown/083_brown/00000_front_put_the_brown_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow banana lying on white surface"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "moose",
+      "episode": "071_moose",
+      "trial": "correct",
+      "dir": "vla_failure_test/moose/071_moose",
+      "initial": "vla_failure_test/moose/071_moose/00000_front_put_the_moose_on_the_tray.png",
+      "task": "put the moose on the tray",
+      "phrase": "moose",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "moose",
+        "appearance": "brown plush toy with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "moose",
+      "episode": "071_moose",
+      "trial": "wrong",
+      "dir": "vla_failure_test/moose/071_moose",
+      "initial": "vla_failure_test/moose/071_moose/00000_front_put_the_moose_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, rectangular, fabric"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "plush",
+      "episode": "040_plush",
+      "trial": "correct",
+      "dir": "vla_failure_test/plush/040_plush",
+      "initial": "vla_failure_test/plush/040_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the plush toy on the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown plush toy with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "plush",
+      "episode": "040_plush",
+      "trial": "wrong",
+      "dir": "vla_failure_test/plush/040_plush",
+      "initial": "vla_failure_test/plush/040_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, has banana inside, next to stuffed animal"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "plush",
+      "episode": "051_plush",
+      "trial": "correct",
+      "dir": "vla_failure_test/plush/051_plush",
+      "initial": "vla_failure_test/plush/051_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the plush toy on the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown plush toy with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "plush",
+      "episode": "051_plush",
+      "trial": "wrong",
+      "dir": "vla_failure_test/plush/051_plush",
+      "initial": "vla_failure_test/plush/051_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, elongated, fabric-like"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "plush",
+      "episode": "061_plush",
+      "trial": "correct",
+      "dir": "vla_failure_test/plush/061_plush",
+      "initial": "vla_failure_test/plush/061_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the plush toy on the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown plush toy with long ears"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "plush",
+      "episode": "061_plush",
+      "trial": "wrong",
+      "dir": "vla_failure_test/plush/061_plush",
+      "initial": "vla_failure_test/plush/061_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown plush toy with long ears"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "plush",
+      "episode": "067_plush",
+      "trial": "correct",
+      "dir": "vla_failure_test/plush/067_plush",
+      "initial": "vla_failure_test/plush/067_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the plush toy on the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown plush toy with horns and ears"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "plush",
+      "episode": "067_plush",
+      "trial": "wrong",
+      "dir": "vla_failure_test/plush/067_plush",
+      "initial": "vla_failure_test/plush/067_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, plush"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "plush",
+      "episode": "146_plush",
+      "trial": "correct",
+      "dir": "vla_failure_test/plush/146_plush",
+      "initial": "vla_failure_test/plush/146_plush/00000_front_put_the_plush_toy_in_the_tray.png",
+      "task": "put the plush toy in the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "plush",
+      "episode": "146_plush",
+      "trial": "wrong",
+      "dir": "vla_failure_test/plush/146_plush",
+      "initial": "vla_failure_test/plush/146_plush/00000_front_put_the_plush_toy_in_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, rectangular, with a zipper"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "plush",
+      "episode": "148_plush",
+      "trial": "correct",
+      "dir": "vla_failure_test/plush/148_plush",
+      "initial": "vla_failure_test/plush/148_plush/00000_front_put_the_plush_toy_in_the_tray.png",
+      "task": "put the plush toy in the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "plush",
+      "episode": "148_plush",
+      "trial": "wrong",
+      "dir": "vla_failure_test/plush/148_plush",
+      "initial": "vla_failure_test/plush/148_plush/00000_front_put_the_plush_toy_in_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, fabric"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "plush",
+      "episode": "151_plush",
+      "trial": "correct",
+      "dir": "vla_failure_test/plush/151_plush",
+      "initial": "vla_failure_test/plush/151_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the plush toy on the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "plush",
+      "episode": "151_plush",
+      "trial": "wrong",
+      "dir": "vla_failure_test/plush/151_plush",
+      "initial": "vla_failure_test/plush/151_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, with wires attached"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "plush",
+      "episode": "155_plush",
+      "trial": "correct",
+      "dir": "vla_failure_test/plush/155_plush",
+      "initial": "vla_failure_test/plush/155_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the plush toy on the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown plush moose with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "plush",
+      "episode": "155_plush",
+      "trial": "wrong",
+      "dir": "vla_failure_test/plush/155_plush",
+      "initial": "vla_failure_test/plush/155_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, textured"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "plush",
+      "episode": "177_plush",
+      "trial": "correct",
+      "dir": "vla_failure_test/plush/177_plush",
+      "initial": "vla_failure_test/plush/177_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the plush toy on the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "plush",
+      "episode": "177_plush",
+      "trial": "wrong",
+      "dir": "vla_failure_test/plush/177_plush",
+      "initial": "vla_failure_test/plush/177_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, rectangular, with zipper"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "plush",
+      "episode": "192_plush",
+      "trial": "correct",
+      "dir": "vla_failure_test/plush/192_plush",
+      "initial": "vla_failure_test/plush/192_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the plush toy on the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown stuffed animal with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "plush",
+      "episode": "192_plush",
+      "trial": "wrong",
+      "dir": "vla_failure_test/plush/192_plush",
+      "initial": "vla_failure_test/plush/192_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, fabric"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "plush",
+      "episode": "203_plush",
+      "trial": "correct",
+      "dir": "vla_failure_test/plush/203_plush",
+      "initial": "vla_failure_test/plush/203_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the plush toy on the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown plush toy with long ears"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "plush",
+      "episode": "203_plush",
+      "trial": "wrong",
+      "dir": "vla_failure_test/plush/203_plush",
+      "initial": "vla_failure_test/plush/203_plush/00000_front_put_the_plush_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown leather-like pouch with banana inside"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "pouch",
+      "episode": "007_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/007_pouch",
+      "initial": "vla_failure_test/pouch/007_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, leather-like"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "007_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/007_pouch",
+      "initial": "vla_failure_test/pouch/007_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, with a brown stem"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "pouch",
+      "episode": "008_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/008_pouch",
+      "initial": "vla_failure_test/pouch/008_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, rectangular, with a banana next to it"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "008_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/008_pouch",
+      "initial": "vla_failure_test/pouch/008_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, peel"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "pouch",
+      "episode": "060_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/060_pouch",
+      "initial": "vla_failure_test/pouch/060_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, textured"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "060_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/060_pouch",
+      "initial": "vla_failure_test/pouch/060_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, on pink tray"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "pouch",
+      "episode": "075_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/075_pouch",
+      "initial": "vla_failure_test/pouch/075_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, leather-like"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "075_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/075_pouch",
+      "initial": "vla_failure_test/pouch/075_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow banana with brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "pouch",
+      "episode": "076_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/076_pouch",
+      "initial": "vla_failure_test/pouch/076_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, with zipper"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "076_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/076_pouch",
+      "initial": "vla_failure_test/pouch/076_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, with brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "pouch",
+      "episode": "078_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/078_pouch",
+      "initial": "vla_failure_test/pouch/078_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown plush toy with a pouch-like shape"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "pouch",
+      "episode": "078_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/078_pouch",
+      "initial": "vla_failure_test/pouch/078_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow banana with brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "pouch",
+      "episode": "079_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/079_pouch",
+      "initial": "vla_failure_test/pouch/079_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, furry, stuffed animal"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "pouch",
+      "episode": "079_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/079_pouch",
+      "initial": "vla_failure_test/pouch/079_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, with brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "pouch",
+      "episode": "099_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/099_pouch",
+      "initial": "vla_failure_test/pouch/099_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "plastic tray",
+        "appearance": "rectangular, pink-edged, clear"
+      },
+      "direct_pred": null
+    },
+    {
+      "category": "pouch",
+      "episode": "099_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/099_pouch",
+      "initial": "vla_failure_test/pouch/099_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, with brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "pouch",
+      "episode": "107_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/107_pouch",
+      "initial": "vla_failure_test/pouch/107_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown cylindrical object"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "107_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/107_pouch",
+      "initial": "vla_failure_test/pouch/107_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown plush animal with banana attached"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "pouch",
+      "episode": "112_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/112_pouch",
+      "initial": "vla_failure_test/pouch/112_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, made of fabric"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "112_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/112_pouch",
+      "initial": "vla_failure_test/pouch/112_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with yellow legs"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "pouch",
+      "episode": "117_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/117_pouch",
+      "initial": "vla_failure_test/pouch/117_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, rectangular, with zipper"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "117_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/117_pouch",
+      "initial": "vla_failure_test/pouch/117_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, with brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "pouch",
+      "episode": "119_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/119_pouch",
+      "initial": "vla_failure_test/pouch/119_pouch/00000_front_put_the_pouch_on_thet_tray.png",
+      "task": "put the pouch on thet tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, leather-like"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "119_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/119_pouch",
+      "initial": "vla_failure_test/pouch/119_pouch/00000_front_put_the_pouch_on_thet_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, with some brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "pouch",
+      "episode": "147_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/147_pouch",
+      "initial": "vla_failure_test/pouch/147_pouch/00000_front_put_the_pouch_in_the_tray.png",
+      "task": "put the pouch in the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, rectangular, with zipper"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "147_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/147_pouch",
+      "initial": "vla_failure_test/pouch/147_pouch/00000_front_put_the_pouch_in_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "NONE",
+      "direct_raw": {
+        "object": "stuffed animal",
+        "appearance": "brown fuzzy animal with arms"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "pouch",
+      "episode": "149_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/149_pouch",
+      "initial": "vla_failure_test/pouch/149_pouch/00000_front_put_the_pouch_in_the_tray.png",
+      "task": "put the pouch in the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown cylindrical pouch"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "149_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/149_pouch",
+      "initial": "vla_failure_test/pouch/149_pouch/00000_front_put_the_pouch_in_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "NONE",
+      "direct_raw": {
+        "object": "stuffed animal",
+        "appearance": "brown fuzzy animal with tag"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "pouch",
+      "episode": "199_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/199_pouch",
+      "initial": "vla_failure_test/pouch/199_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, zippered, rectangular"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "199_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/199_pouch",
+      "initial": "vla_failure_test/pouch/199_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "NONE",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown furry toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "pouch",
+      "episode": "215_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/215_pouch",
+      "initial": "vla_failure_test/pouch/215_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "orange robotic arm with wires"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "215_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/215_pouch",
+      "initial": "vla_failure_test/pouch/215_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "NONE",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown fuzzy toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "pouch",
+      "episode": "219_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/219_pouch",
+      "initial": "vla_failure_test/pouch/219_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, leather-like"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "219_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/219_pouch",
+      "initial": "vla_failure_test/pouch/219_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "NONE",
+      "direct_raw": {
+        "object": "stuffed moose",
+        "appearance": "brown fuzzy toy with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "pouch",
+      "episode": "225_pouch",
+      "trial": "correct",
+      "dir": "vla_failure_test/pouch/225_pouch",
+      "initial": "vla_failure_test/pouch/225_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, leather-like"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "pouch",
+      "episode": "225_pouch",
+      "trial": "wrong",
+      "dir": "vla_failure_test/pouch/225_pouch",
+      "initial": "vla_failure_test/pouch/225_pouch/00000_front_put_the_pouch_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow banana with brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "purse",
+      "episode": "015_purse",
+      "trial": "correct",
+      "dir": "vla_failure_test/purse/015_purse",
+      "initial": "vla_failure_test/purse/015_purse/00000_front_put_the_purse_on_the_tray.png",
+      "task": "put the purse on the tray",
+      "phrase": "purse",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "purse",
+        "appearance": "brown leather pouch"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "purse",
+      "episode": "015_purse",
+      "trial": "wrong",
+      "dir": "vla_failure_test/purse/015_purse",
+      "initial": "vla_failure_test/purse/015_purse/00000_front_put_the_purse_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow, curved, peel"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "purse",
+      "episode": "020_purse",
+      "trial": "correct",
+      "dir": "vla_failure_test/purse/020_purse",
+      "initial": "vla_failure_test/purse/020_purse/00000_front_put_the_purse_on_the_tray.png",
+      "task": "put the purse on the tray",
+      "phrase": "purse",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "purse",
+        "appearance": "brown cylindrical object"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "purse",
+      "episode": "020_purse",
+      "trial": "wrong",
+      "dir": "vla_failure_test/purse/020_purse",
+      "initial": "vla_failure_test/purse/020_purse/00000_front_put_the_purse_on_the_tray.png",
+      "task": "put the banana on the tray",
+      "phrase": "banana",
+      "truth": "BANANA",
+      "direct_raw": {
+        "object": "banana",
+        "appearance": "yellow banana with brown spots"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "roll",
+      "episode": "011_roll",
+      "trial": "correct",
+      "dir": "vla_failure_test/roll/011_roll",
+      "initial": "vla_failure_test/roll/011_roll/00000_front_put_the_roll_on_the_tray.png",
+      "task": "put the roll on the tray",
+      "phrase": "roll",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "brown roll",
+        "appearance": "brown cylindrical object"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "roll",
+      "episode": "011_roll",
+      "trial": "wrong",
+      "dir": "vla_failure_test/roll/011_roll",
+      "initial": "vla_failure_test/roll/011_roll/00000_front_put_the_roll_on_the_tray.png",
+      "task": "put the plush toy on the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "roll",
+      "episode": "018_roll",
+      "trial": "correct",
+      "dir": "vla_failure_test/roll/018_roll",
+      "initial": "vla_failure_test/roll/018_roll/00000_front_put_the_roll_on_the_tray.png",
+      "task": "put the roll on the tray",
+      "phrase": "roll",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "brown cylindrical object",
+        "appearance": "brown, cylindrical, possibly a roll"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "roll",
+      "episode": "018_roll",
+      "trial": "wrong",
+      "dir": "vla_failure_test/roll/018_roll",
+      "initial": "vla_failure_test/roll/018_roll/00000_front_put_the_roll_on_the_tray.png",
+      "task": "put the plush toy on the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown furry moose with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "roll",
+      "episode": "019_roll",
+      "trial": "correct",
+      "dir": "vla_failure_test/roll/019_roll",
+      "initial": "vla_failure_test/roll/019_roll/00000_front_put_the_roll_on_the_tray.png",
+      "task": "put the roll on the tray",
+      "phrase": "roll",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "roll",
+        "appearance": "brown cylindrical object"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "roll",
+      "episode": "019_roll",
+      "trial": "wrong",
+      "dir": "vla_failure_test/roll/019_roll",
+      "initial": "vla_failure_test/roll/019_roll/00000_front_put_the_roll_on_the_tray.png",
+      "task": "put the plush toy on the tray",
+      "phrase": "plush toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "plush toy",
+        "appearance": "brown furry moose with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "stuffed",
+      "episode": "024_stuffed",
+      "trial": "correct",
+      "dir": "vla_failure_test/stuffed/024_stuffed",
+      "initial": "vla_failure_test/stuffed/024_stuffed/00000_front_put_the_stuffed_animal_in_the_box.png",
+      "task": "put the stuffed animal in the box",
+      "phrase": "stuffed animal",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "stuffed animal",
+        "appearance": "brown plush animal with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "stuffed",
+      "episode": "024_stuffed",
+      "trial": "wrong",
+      "dir": "vla_failure_test/stuffed/024_stuffed",
+      "initial": "vla_failure_test/stuffed/024_stuffed/00000_front_put_the_stuffed_animal_in_the_box.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown pouch with banana inside"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "stuffed",
+      "episode": "238_stuffed",
+      "trial": "correct",
+      "dir": "vla_failure_test/stuffed/238_stuffed",
+      "initial": "vla_failure_test/stuffed/238_stuffed/00000_front_put_the_stuffed_animal_in_the_tray.png",
+      "task": "put the stuffed animal in the tray",
+      "phrase": "stuffed animal",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "stuffed animal",
+        "appearance": "brown plush moose with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "stuffed",
+      "episode": "238_stuffed",
+      "trial": "wrong",
+      "dir": "vla_failure_test/stuffed/238_stuffed",
+      "initial": "vla_failure_test/stuffed/238_stuffed/00000_front_put_the_stuffed_animal_in_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, has banana on top"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "toy",
+      "episode": "000_toy",
+      "trial": "correct",
+      "dir": "vla_failure_test/toy/000_toy",
+      "initial": "vla_failure_test/toy/000_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with banana"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "toy",
+      "episode": "000_toy",
+      "trial": "wrong",
+      "dir": "vla_failure_test/toy/000_toy",
+      "initial": "vla_failure_test/toy/000_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown plush toy with banana"
+      },
+      "direct_pred": "BANANA"
+    },
+    {
+      "category": "toy",
+      "episode": "003_toy",
+      "trial": "correct",
+      "dir": "vla_failure_test/toy/003_toy",
+      "initial": "vla_failure_test/toy/003_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "toy",
+      "episode": "003_toy",
+      "trial": "wrong",
+      "dir": "vla_failure_test/toy/003_toy",
+      "initial": "vla_failure_test/toy/003_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, elongated, fabric-like"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "toy",
+      "episode": "034_toy",
+      "trial": "correct",
+      "dir": "vla_failure_test/toy/034_toy",
+      "initial": "vla_failure_test/toy/034_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "toy",
+      "episode": "034_toy",
+      "trial": "wrong",
+      "dir": "vla_failure_test/toy/034_toy",
+      "initial": "vla_failure_test/toy/034_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, rectangular, with a zipper"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "toy",
+      "episode": "047_toy",
+      "trial": "correct",
+      "dir": "vla_failure_test/toy/047_toy",
+      "initial": "vla_failure_test/toy/047_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "toy",
+      "episode": "047_toy",
+      "trial": "wrong",
+      "dir": "vla_failure_test/toy/047_toy",
+      "initial": "vla_failure_test/toy/047_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, rectangular, with zipper"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "toy",
+      "episode": "108_toy",
+      "trial": "correct",
+      "dir": "vla_failure_test/toy/108_toy",
+      "initial": "vla_failure_test/toy/108_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown stuffed animal with arms and legs"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "toy",
+      "episode": "108_toy",
+      "trial": "wrong",
+      "dir": "vla_failure_test/toy/108_toy",
+      "initial": "vla_failure_test/toy/108_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, fabric"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "toy",
+      "episode": "120_toy",
+      "trial": "correct",
+      "dir": "vla_failure_test/toy/120_toy",
+      "initial": "vla_failure_test/toy/120_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown stuffed animal with long ears"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "toy",
+      "episode": "120_toy",
+      "trial": "wrong",
+      "dir": "vla_failure_test/toy/120_toy",
+      "initial": "vla_failure_test/toy/120_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "chocolate",
+        "appearance": "brown rectangular chocolate bar"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "toy",
+      "episode": "122_toy",
+      "trial": "correct",
+      "dir": "vla_failure_test/toy/122_toy",
+      "initial": "vla_failure_test/toy/122_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "toy",
+      "episode": "122_toy",
+      "trial": "wrong",
+      "dir": "vla_failure_test/toy/122_toy",
+      "initial": "vla_failure_test/toy/122_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, with a zipper"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "toy",
+      "episode": "124_toy",
+      "trial": "correct",
+      "dir": "vla_failure_test/toy/124_toy",
+      "initial": "vla_failure_test/toy/124_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "toy",
+      "episode": "124_toy",
+      "trial": "wrong",
+      "dir": "vla_failure_test/toy/124_toy",
+      "initial": "vla_failure_test/toy/124_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, rectangular, with wires attached"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "toy",
+      "episode": "169_toy",
+      "trial": "correct",
+      "dir": "vla_failure_test/toy/169_toy",
+      "initial": "vla_failure_test/toy/169_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns and tail"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "toy",
+      "episode": "169_toy",
+      "trial": "wrong",
+      "dir": "vla_failure_test/toy/169_toy",
+      "initial": "vla_failure_test/toy/169_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, rectangular, fabric"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "toy",
+      "episode": "213_toy",
+      "trial": "correct",
+      "dir": "vla_failure_test/toy/213_toy",
+      "initial": "vla_failure_test/toy/213_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "toy",
+      "episode": "213_toy",
+      "trial": "wrong",
+      "dir": "vla_failure_test/toy/213_toy",
+      "initial": "vla_failure_test/toy/213_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, cylindrical, fabric"
+      },
+      "direct_pred": "POUCH"
+    },
+    {
+      "category": "toy",
+      "episode": "218_toy",
+      "trial": "correct",
+      "dir": "vla_failure_test/toy/218_toy",
+      "initial": "vla_failure_test/toy/218_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "toy",
+      "episode": "218_toy",
+      "trial": "wrong",
+      "dir": "vla_failure_test/toy/218_toy",
+      "initial": "vla_failure_test/toy/218_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown plush toy with horns"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "toy",
+      "episode": "231_toy",
+      "trial": "correct",
+      "dir": "vla_failure_test/toy/231_toy",
+      "initial": "vla_failure_test/toy/231_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the toy on the tray",
+      "phrase": "toy",
+      "truth": "PLUSH",
+      "direct_raw": {
+        "object": "toy",
+        "appearance": "brown plush toy with antlers"
+      },
+      "direct_pred": "PLUSH"
+    },
+    {
+      "category": "toy",
+      "episode": "231_toy",
+      "trial": "wrong",
+      "dir": "vla_failure_test/toy/231_toy",
+      "initial": "vla_failure_test/toy/231_toy/00000_front_put_the_toy_on_the_tray.png",
+      "task": "put the pouch on the tray",
+      "phrase": "pouch",
+      "truth": "POUCH",
+      "direct_raw": {
+        "object": "pouch",
+        "appearance": "brown, leather-like, rectangular"
+      },
+      "direct_pred": "POUCH"
+    }
+  ]
+}

@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robot Orchestrator</title>
+<style>
+  :root {
+    --bg: #f6f6f4; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6b66; --line: #e2e2dc;
+    --accent: #2f6fdb; --ok: #1f8a4c; --bad: #c8382e; --warn: #b7791f; --run: #2f6fdb;
+    --log-bg: #fbfbf9; --chip: #eeeee9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151514; --panel: #1e1e1c; --ink: #ececea; --muted: #9a9a94; --line: #2e2e2b;
+      --accent: #6c9cf0; --ok: #4cc27f; --bad: #ee6a5f; --warn: #e0a84a; --run: #6c9cf0;
+      --log-bg: #181817; --chip: #2a2a27;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+           padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  .pill { padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
+          background: var(--chip); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .pill.executing { background: var(--run); color: #fff; }
+  .pill.planning, .pill.evaluating { background: var(--warn); color: #fff; }
+  .pill.idle { background: var(--ok); color: #fff; }
+  .meta { color: var(--muted); font-size: 12px; text-align: right; }
+  /* --ui-fs is the demo text size (A-/A+ in the header): the left column uses it, the
+     VLM output is 2px larger; their parts are sized in em so they scale with it. */
+  main { --ui-fs: 20px; display: grid; grid-template-columns: minmax(380px, 600px) 1fr; gap: 16px; padding: 16px; }
+  .col.left, .instr { font-size: var(--ui-fs); }
+  /* VLM output beside the instruction box, both aligned to the row's top edge. */
+  .vlm-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 500px); gap: 16px;
+             align-items: start; }
+  .vlm-row > .panel { min-width: 0; }
+  @media (max-width: 1200px) { .vlm-row { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } .meta { margin-left: 0; text-align: left; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+       margin: 0 0 10px; font-weight: 600; }
+  textarea { width: 100%; min-height: 3.5em; resize: vertical; padding: 10px; border-radius: 8px;
+             border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; }
+  button { font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: 10px 16px;
+           cursor: pointer; color: #fff; background: var(--accent); }
+  button:disabled { opacity: .35; cursor: not-allowed; }
+  button.skip { background: var(--warn); }
+  button.abort { background: var(--bad); }
+  .row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .row button { flex: 1; }
+  .hint { color: var(--muted); font-size: .75em; margin-top: 6px; }
+  .err { color: var(--bad); font-size: .8em; margin-top: 6px; min-height: 1em; }
+  .task-prompt { font-weight: 600; margin-bottom: 4px; }
+  .verdict { margin-top: 10px; padding: 8px 10px; border-radius: 8px; background: var(--chip); font-size: .95em; }
+  .verdict.ok { border-left: 4px solid var(--ok); } .verdict.bad { border-left: 4px solid var(--bad); }
+  .round { margin-top: 10px; }
+  .round-title { font-size: .8em; color: var(--muted); margin-bottom: 4px; }
+  ol.plan { list-style: none; padding: 0; margin: 0; }
+  ol.plan li { display: flex; gap: 8px; align-items: baseline; padding: 4px 0; }
+  .st { width: 1.2em; flex: none; text-align: center; font-weight: 700; }
+  .st.done { color: var(--ok); } .st.failed { color: var(--bad); }
+  .st.running { color: var(--run); animation: pulse 1s infinite alternate; }
+  .st.pending { color: var(--muted); }
+  @keyframes pulse { from { opacity: 1; } to { opacity: .3; } }
+  .att { color: var(--muted); font-size: .8em; }
+  .ep { border-top: 1px solid var(--line); padding: 6px 0; font-size: .95em; }
+  .ep:first-child { border-top: 0; }
+  .ep .why { color: var(--muted); font-size: .85em; }
+  .tag { display: inline-block; font-size: .8em; padding: 1px 6px; border-radius: 4px;
+         background: var(--chip); color: var(--muted); margin-right: 4px; }
+  .tag.ok { color: var(--ok); } .tag.bad { color: var(--bad); }
+  .cams { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .cam { position: relative; background: #000; border-radius: 8px; overflow: hidden; aspect-ratio: 4 / 3; }
+  .cam img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .cam span { position: absolute; left: 8px; top: 6px; font-size: 12px; color: #fff;
+              background: rgba(0,0,0,.55); padding: 1px 6px; border-radius: 4px; }
+  .empty { color: var(--muted); font-size: .9em; }
+  #log { height: 360px; overflow: auto; margin: 0; padding: 10px; background: var(--log-bg);
+         border: 1px solid var(--line); border-radius: 8px;
+         font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; word-break: break-word; }
+  #log .w { color: var(--warn); } #log .e { color: var(--bad); } #log .g { color: var(--accent); font-weight: 600; }
+  .log-head { display: flex; align-items: center; justify-content: space-between; }
+  .log-head label { font-size: 12px; color: var(--muted); }
+  .hist { font-size: .95em; padding: 4px 0; border-top: 1px solid var(--line); }
+  .hist:first-child { border-top: 0; }
+  .vlm-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+              margin-bottom: 10px; }
+  .vlm-head h2 { margin: 0; }
+  .chips { display: flex; gap: 4px; flex-wrap: wrap; }
+  .chip { font: inherit; font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 999px;
+          background: var(--chip); color: var(--muted); border: 1px solid transparent; }
+  .chip.on { border-color: var(--accent); color: var(--ink); }
+  .chip b { font-weight: 600; margin-left: 3px; }
+  #vlm { font-size: calc(var(--ui-fs) + 2px); max-height: 70vh; overflow: auto; }
+  .fs { display: flex; gap: 4px; align-items: center; margin-left: auto; }
+  .fs span { font-size: 12px; color: var(--muted); margin-right: 2px; }
+  .fs button { font-size: 13px; padding: 2px 9px; border-radius: 6px; background: var(--chip);
+               color: var(--ink); border: 1px solid var(--line); }
+  .fs button#clear { margin-right: 8px; }
+  .vc { border-left: 3px solid var(--line); padding: 8px 0 8px 12px; margin-bottom: 10px; }
+  .vc[data-cat="plan"], .vc[data-cat="replan"] { border-left-color: var(--accent); }
+  .vc[data-cat="monitor"] { border-left-color: var(--warn); }
+  .vc[data-cat="subtask"] { border-left-color: var(--ok); }
+  .vc[data-cat="final"] { border-left-color: var(--bad); }
+  .vc-head { font-size: .8em; color: var(--muted); display: flex; gap: 6px; flex-wrap: wrap; align-items: baseline; }
+  .vc-head .cat { font-weight: 600; color: var(--ink); }
+  .vc-head .running { color: var(--run); animation: pulse 1s infinite alternate; }
+  .vc-head .tag { margin-right: 0; font-size: .95em; }
+  .vc-on { font-size: .8em; color: var(--muted); margin-top: 3px; }
+  .vc-text { font-size: 1em; line-height: 1.35; margin-top: 3px; }
+  .vc-text.bad { color: var(--bad); }
+  .vc-items { margin: 3px 0 0; padding-left: 1.2em; font-size: .85em; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Robot Orchestrator</h1>
+  <span id="phase" class="pill">connecting</span>
+  <span id="detail" class="empty"></span>
+  <div class="fs"><button id="clear" title="Empty the task, episodes, history, VLM output and log">Clear history</button><span>Text</span><button id="fs-down" title="Smaller text">A−</button><button id="fs-up" title="Larger text">A+</button></div>
+  <div class="meta" id="meta"></div>
+</header>
+<main>
+  <div class="col left">
+    <section class="panel">
+      <h2>Current task</h2>
+      <div id="task"><div class="empty">No task yet.</div></div>
+    </section>
+    <section class="panel">
+      <h2>Episodes</h2>
+      <div id="episodes"><div class="empty">None yet.</div></div>
+    </section>
+    <section class="panel">
+      <h2>History</h2>
+      <div id="history"><div class="empty">No finished tasks.</div></div>
+    </section>
+  </div>
+  <div class="col">
+    <section class="panel">
+      <h2>Cameras</h2>
+      <div class="cams" id="cams"><div class="empty">Waiting for frames…</div></div>
+    </section>
+    <div class="vlm-row">
+      <section class="panel">
+        <div class="vlm-head"><h2>VLM output</h2><div class="chips" id="vlm-chips"></div></div>
+        <div id="vlm"><div class="empty">No VLM calls yet.</div></div>
+      </section>
+      <section class="panel instr">
+        <h2>Instruction</h2>
+        <textarea id="prompt" placeholder="e.g. put all the fruit on the tray"></textarea>
+        <div class="row">
+          <button id="run">Run</button>
+        </div>
+        <div class="row">
+          <button id="skip" class="skip" disabled title="End the running sub-task's episode">Skip sub-task</button>
+          <button id="abort" class="abort" disabled title="Abandon the whole task and park the arm">Abort task</button>
+        </div>
+        <div class="hint">Enter runs · Shift+Enter for a new line · 'q'+Enter in the terminal also aborts</div>
+        <div class="err" id="err"></div>
+      </section>
+    </div>
+    <section class="panel">
+      <div class="log-head"><h2>Log</h2>
+        <label><input type="checkbox" id="follow" checked> follow</label></div>
+      <pre id="log"></pre>
+    </section>
+  </div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let state = null, camKeys = "", logSeq = 0;
+
+async function post(path, body) {
+  $("err").textContent = "";
+  try {
+    const r = await fetch(path, {method: "POST", headers: {"Content-Type": "application/json"},
+                                 body: body ? JSON.stringify(body) : null});
+    if (!r.ok) { const j = await r.json().catch(() => ({})); $("err").textContent = j.detail || r.statusText; return false; }
+    return true;
+  } catch (e) { $("err").textContent = "server unreachable"; return false; }
+}
+
+$("run").onclick = async () => {
+  const p = $("prompt").value.trim();
+  if (!p) return;
+  if (await post("/api/run", {prompt: p})) refresh();
+};
+$("prompt").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("run").click(); }
+});
+$("skip").onclick = () => post("/api/skip");
+$("abort").onclick = () => post("/api/abort");
+$("clear").onclick = async () => {
+  if (!confirm("Clear the task, episodes, history, VLM output and log?")) return;
+  if (await post("/api/clear")) refresh();
+};
+
+// Clear history (from any tab) bumps s.cleared: empty the panels the page keeps
+// itself; the task, episode and history panels re-render from the state.
+let clearedSeen = null;
+function clearPanels() {
+  $("log").innerHTML = "";
+  vlmCards.clear(); for (const k in vlmCounts) delete vlmCounts[k];
+  $("vlm").innerHTML = '<div class="empty">No VLM calls yet.</div>';
+  renderVlmChips();
+}
+
+// Status of each planned sub-task in a round, from the trace's episodes.
+function planStatus(round, trace, s) {
+  const eps = trace.episodes.filter(e => e.round === round.round);
+  const latest = trace.rounds[trace.rounds.length - 1] === round;
+  const executing = latest && s.busy && s.phase === "executing";
+  // After an episode the arm homes and the VLM judges it: until the attempt has a
+  // verdict its sub-task is still running, not failed.
+  const last = eps[eps.length - 1];
+  const judging = latest && s.busy && s.phase === "evaluating" && s.phase_detail !== "final evaluation" &&
+                  last && !last.judgement && !(last.monitor && last.monitor.stopped);
+  // A replan's queue can bring sub-tasks the original plan did not have.
+  const planned = (round.planned || []).slice();
+  for (const rp of round.replans || [])
+    for (const st of rp.queue) if (!planned.includes(st)) planned.push(st);
+  let running = -1;
+  if (judging) running = planned.indexOf(last.sub_task);
+  else if (executing) {
+    running = planned.findIndex(st => st === s.phase_detail && !round.completed.includes(st));
+    if (running < 0) {  // a refined (relabelled) retry: the last attempted, unfinished sub-task
+      for (let i = planned.length - 1; i >= 0; i--)
+        if (!round.completed.includes(planned[i]) && eps.some(e => e.sub_task === planned[i])) { running = i; break; }
+    }
+    if (running < 0) running = planned.findIndex(st => !round.completed.includes(st) && !eps.some(e => e.sub_task === st));
+  }
+  return planned.map((st, i) => {
+    const n = eps.filter(e => e.sub_task === st).length;
+    let cls = "pending", icon = "○";
+    if (round.completed.includes(st)) { cls = "done"; icon = "✓"; }
+    else if (i === running) { cls = "running"; icon = "▶"; }
+    else if (n) { cls = "failed"; icon = "✗"; }
+    return {st, cls, icon, n: n + (executing && i === running ? 1 : 0)};
+  });
+}
+
+function renderTask(s) {
+  const t = s.trace;
+  if (!t) { $("task").innerHTML = '<div class="empty">' + (s.busy ? "Starting…" : "No task yet.") + "</div>"; return; }
+  let h = `<div class="task-prompt">${esc(t.prompt)}</div>`;
+  for (const r of t.rounds) {
+    h += `<div class="round"><div class="round-title">Round ${r.round}` +
+         (r.max_subtasks != null ? ` · at most ${r.max_subtasks} sub-task(s)` : "") +
+         (r.aborted ? " · aborted" : "") + "</div>";
+    if (r.planned == null) h += '<div class="empty">Planning…</div>';
+    else if (!r.planned.length) h += '<div class="empty">Nothing to do.</div>';
+    else {
+      h += '<ol class="plan">';
+      for (const p of planStatus(r, t, s))
+        h += `<li><span class="st ${p.cls}">${p.icon}</span><span>${esc(p.st)}` +
+             (p.n > 1 ? ` <span class="att">×${p.n}</span>` : "") + "</span></li>";
+      h += "</ol>";
+    }
+    if (r.final_success != null)
+      h += `<div class="verdict ${r.final_success ? "ok" : "bad"}"><b>${r.final_success ? "Complete" : "Incomplete"}</b> — ${esc(r.final_reason)}</div>`;
+    h += "</div>";
+  }
+  if (t.outcome) h += `<div class="verdict ${t.outcome === "complete" ? "ok" : "bad"}">Outcome: <b>${esc(t.outcome)}</b></div>`;
+  $("task").innerHTML = h;
+}
+
+function renderEpisodes(s) {
+  const eps = s.trace ? s.trace.episodes : [];
+  if (!eps.length) { $("episodes").innerHTML = '<div class="empty">None yet.</div>'; return; }
+  $("episodes").innerHTML = eps.slice().reverse().map(e => {
+    const j = e.judgement, m = e.monitor, d = e.result && e.result.duration;
+    return `<div class="ep"><div>${esc(e.instruction)}</div><div>` +
+      `<span class="tag">R${e.round}·#${e.task_num}</span>` +
+      (d != null ? `<span class="tag">${d.toFixed(1)}s</span>` : "") +
+      (j ? `<span class="tag ${j.success ? "ok" : "bad"}">${j.success ? "success" : "fail" + (j.failure_type ? " · " + esc(j.failure_type) : "")}</span>` : "") +
+      (m ? `<span class="tag ${m.stopped ? "bad" : ""}">monitor: ${esc(m.outcome)}</span>` : "") +
+      `</div>` + (j && j.reason ? `<div class="why">${esc(j.reason)}</div>` : "") + "</div>";
+  }).join("");
+}
+
+function renderHistory(s) {
+  if (!s.history.length) { $("history").innerHTML = '<div class="empty">No finished tasks.</div>'; return; }
+  $("history").innerHTML = s.history.slice().reverse().map(h =>
+    `<div class="hist"><span class="tag ${h.outcome === "complete" ? "ok" : "bad"}">${esc(h.outcome)}</span>` +
+    `${esc(h.prompt)} <span class="att">${esc(h.finished)}</span>` +
+    (h.final_reason ? `<div class="ep why">${esc(h.final_reason)}</div>` : "") + "</div>").join("");
+}
+
+function renderCams(keys) {
+  const k = keys.join(",");
+  if (k === camKeys) return;
+  camKeys = k;
+  $("cams").innerHTML = keys.length ? keys.map(key =>
+    `<div class="cam"><img src="/api/camera/${encodeURIComponent(key)}" alt="${esc(key)} camera"><span>${esc(key)}</span></div>`).join("")
+    : '<div class="empty">Waiting for frames…</div>';
+}
+
+async function refresh() {
+  try {
+    const s = await (await fetch("/api/state")).json();
+    state = s;
+    if (s.cleared !== clearedSeen) { if (clearedSeen !== null) clearPanels(); clearedSeen = s.cleared; }
+    const phase = s.phase === "evaluating" && s.trace && s.trace.rounds.length &&
+                  s.trace.rounds[s.trace.rounds.length - 1].planned == null ? "planning" : s.phase;
+    $("phase").textContent = phase; $("phase").className = "pill " + phase;
+    $("detail").textContent = s.busy && s.phase_detail ? s.phase_detail : "";
+    const c = s.config;
+    $("meta").innerHTML = `${esc(c.policy)} · ${esc(c.vlm)}<br>${esc(s.run_dir)} · ${c.episode_duration}s/episode · ` +
+      `retries ${c.max_retries} · final retries ${c.max_final_retries} · monitor ${c.monitor ? "on" : "off"}`;
+    $("run").disabled = s.busy;
+    $("skip").disabled = !(s.busy && s.phase === "executing");
+    $("abort").disabled = !s.busy;
+    $("clear").disabled = s.busy;
+    renderTask(s); renderEpisodes(s); renderHistory(s); renderCams(s.cameras);
+  } catch (e) {
+    $("phase").textContent = "offline"; $("phase").className = "pill";
+  }
+}
+
+async function pollLog() {
+  try {
+    const r = await (await fetch("/api/log?after=" + logSeq)).json();
+    if (r.seq < logSeq) logSeq = 0;  // server restarted
+    if (r.lines.length) {
+      const log = $("log");
+      const frag = document.createDocumentFragment();
+      for (const line of r.lines) {
+        const div = document.createElement("div");
+        if (/\bERROR\b|Traceback/.test(line)) div.className = "e";
+        else if (/\bWARNING\b|INCOMPLETE/.test(line)) div.className = "w";
+        else if (/^\[(GUI|INTERJECT)\]/.test(line)) div.className = "g";
+        div.textContent = line;
+        frag.appendChild(div);
+      }
+      log.appendChild(frag);
+      while (log.childNodes.length > 3000) log.removeChild(log.firstChild);
+      if ($("follow").checked) log.scrollTop = log.scrollHeight;
+    }
+    logSeq = r.seq;
+  } catch (e) {}
+}
+
+// VLM output: one card per model call, newest first. The server re-sends a call
+// when it finishes, so cards are upserted by id.
+const VLM_CATS = [["all", "All"], ["plan", "Plan"], ["monitor", "Monitor"], ["subtask", "Sub-task eval"],
+                  ["final", "Final eval"], ["replan", "Replan"], ["other", "Other"]];
+const VLM_LABEL = Object.fromEntries(VLM_CATS);
+let vlmVer = 0, vlmFilter = "all";
+const vlmCards = new Map(), vlmCounts = {};
+
+function renderVlmChips() {
+  const total = Object.values(vlmCounts).reduce((a, b) => a + b, 0);
+  $("vlm-chips").innerHTML = VLM_CATS
+    .filter(([k]) => k === "all" || vlmCounts[k])
+    .map(([k, label]) => `<button class="chip${k === vlmFilter ? " on" : ""}" data-k="${k}">${label}` +
+                         `<b>${k === "all" ? total : vlmCounts[k]}</b></button>`).join("");
+}
+$("vlm-chips").onclick = e => {
+  const b = e.target.closest(".chip");
+  if (!b) return;
+  vlmFilter = b.dataset.k;
+  for (const card of vlmCards.values())
+    card.style.display = vlmFilter === "all" || card.dataset.cat === vlmFilter ? "" : "none";
+  renderVlmChips();
+};
+
+function vlmCardHtml(c) {
+  const verdict = c.verdict === true ? '<span class="tag ok">✓</span>'
+    : c.verdict === false ? '<span class="tag bad">✗</span>' : "";
+  const status = c.error ? '<span class="tag bad">error</span>'
+    : !c.done ? '<span class="running">running…</span>' : `<span>${c.seconds}s</span>`;
+  return `<div class="vc-head">${verdict}<span class="cat">${esc(c.step)}</span>` +
+    (c.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("") +
+    `<span>${esc(c.time)}</span>${status}</div>` +
+    (c.subject ? `<div class="vc-on">on: ${esc(c.subject)}</div>` : "") +
+    (c.error ? `<div class="vc-text bad">${esc(c.error)}</div>` : "") +
+    (c.text ? `<div class="vc-text">${esc(c.text)}</div>` : "") +
+    (c.items && c.items.length ? `<ul class="vc-items">${c.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : "");
+}
+
+// Demo text size: A-/A+ step --ui-fs (left column + VLM output); remembered per
+// browser, since demo screens differ.
+let uiFs = 20;
+try { uiFs = +localStorage.getItem("uiFs") || 20; } catch (e) {}
+function setUiFs(px) {
+  uiFs = Math.min(44, Math.max(12, px));
+  document.querySelector("main").style.setProperty("--ui-fs", uiFs + "px");
+  try { localStorage.setItem("uiFs", uiFs); } catch (e) {}
+}
+$("fs-down").onclick = () => setUiFs(uiFs - 2);
+$("fs-up").onclick = () => setUiFs(uiFs + 2);
+setUiFs(uiFs);
+
+async function pollVlm() {
+  try {
+    const r = await (await fetch("/api/vlm?after=" + vlmVer)).json();
+    if (r.ver < vlmVer) {  // server restarted
+      vlmVer = 0; vlmCards.clear(); for (const k in vlmCounts) delete vlmCounts[k];
+      $("vlm").innerHTML = ""; return;
+    }
+    if (r.entries.length) {
+      const box = $("vlm");
+      for (const c of r.entries) {
+        let card = vlmCards.get(c.id);
+        if (c.dropped) {  // a monitor check the motion gate answered without the VLM
+          if (card) { vlmCards.delete(c.id); card.remove(); vlmCounts[c.category]--; }
+          continue;
+        }
+        if (!card) {
+          if (!vlmCards.size) box.innerHTML = "";
+          card = document.createElement("div");
+          card.className = "vc"; card.dataset.cat = c.category;
+          card.style.display = vlmFilter === "all" || c.category === vlmFilter ? "" : "none";
+          vlmCards.set(c.id, card); box.prepend(card);
+          vlmCounts[c.category] = (vlmCounts[c.category] || 0) + 1;
+        }
+        card.innerHTML = vlmCardHtml(c);
+      }
+      while (vlmCards.size > 300) {  // drop the oldest
+        const [id, card] = vlmCards.entries().next().value;
+        vlmCards.delete(id); card.remove(); vlmCounts[card.dataset.cat]--;
+      }
+      renderVlmChips();
+    }
+    vlmVer = r.ver;
+  } catch (e) {}
+}
+
+refresh(); pollLog(); pollVlm();
+setInterval(refresh, 700);
+setInterval(pollLog, 500);
+setInterval(pollVlm, 700);
+</script>
+</body>
+</html>
